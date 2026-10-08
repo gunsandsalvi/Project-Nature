@@ -1,0 +1,75 @@
+about = "mud_v3 middle water_coverage: signed design runtime candidate"
+route = "code"
+tile_texels = 256
+texels_a_metre = 16
+first_band = 2
+sources = ["art/sources/ground30/mud-wet-r1-original.png", "art/sources/ground30/mud-wet-r2-original.png", "art/sources/ground30/mud-far-r3-original.png", "art/sources/ground30/mud-wet-r1-near-crop.png", "art/sources/ground30/mud-wet-r2-middle-crop.png", "art/sources/ground30/mud-far-r3-crop.png"]
+original_sha256 = ["d97b0b884a3e8cf4555f02f9af7b7e9db4fc8ff3bfa35f059b0e57ef392fc20b", "278a9d34a3eec46d9be5b10c2d88754045ce405df43fcab822c114195c37a322", "1d6ecea9d4773eacf1e841c8b3ba6dbd68ca6b3e4241ee661c9d5d260edad808", "75912e45f18042b595c88fc1984ad8705ea412a258533a5ed7121fe8a0d8629c", "8b9c9195c3915ccb71be1743758b13593592c3d2d9ae28f0a61198c04dfac56b", "fdab51abaf4db171d59368ec599b22b89fd58626dab551ef443b489bff874d2b"]
+c2pa = ["present", "present", "present", "absent", "absent", "absent"]
+requests = ["art/requests/ground30/production.txt", "art/requests/ground30/mud-wet-r1.txt", "art/requests/ground30/mud-wet-r2.txt", "art/requests/ground30/mud-far-r3.txt"]
+made = "retained image drawings, coupled source-pixel quilt and numeric traced materials"
+regrid_loss = "raw-to-grid measurements and region annotations kept beside recovered sources"
+truth = "signed design source; world overlays and water separate"
+approved = "pending independent exported-art, engine and owner runtime review"
+
+[[band]]
+level = 0
+file = "art/textures/ground30/mud_v3/middle/water_coverage/b2.png"
+sha256 = "d68c1648881e2fcee97d57d47a8c7fca18c1b9b7a92bfc32e4d71a6d0b3ec1bd"
+way = "coupled source-pixel and material-region quilt"
+
+[[band]]
+level = 1
+file = "art/textures/ground30/mud_v3/middle/water_coverage/b3.png"
+sha256 = "b1bc378559e86640d9abf64233b6a6b7d7112318d11ed4dc0c4806c23e8eebb1"
+made_from = "d68c1648881e2fcee97d57d47a8c7fca18c1b9b7a92bfc32e4d71a6d0b3ec1bd"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 2
+file = "art/textures/ground30/mud_v3/middle/water_coverage/b4.png"
+sha256 = "45081d58f0a6ca50423666d35f100ed0bdc7a825895d5e35bbc88b027213a45e"
+made_from = "b1bc378559e86640d9abf64233b6a6b7d7112318d11ed4dc0c4806c23e8eebb1"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 3
+file = "art/textures/ground30/mud_v3/middle/water_coverage/b5.png"
+sha256 = "8fc79f5e2d71a3cf5cfd6c8f2ceea6f9eb529f647e7de97bd6a8b3f3f4e34274"
+made_from = "45081d58f0a6ca50423666d35f100ed0bdc7a825895d5e35bbc88b027213a45e"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 4
+file = "art/textures/ground30/mud_v3/middle/water_coverage/b6.png"
+sha256 = "789cc3d7c8416b40a4f20155ece071c362f85d610e71b32b328bfc12b4cf2ead"
+made_from = "8fc79f5e2d71a3cf5cfd6c8f2ceea6f9eb529f647e7de97bd6a8b3f3f4e34274"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 5
+file = "art/textures/ground30/mud_v3/middle/water_coverage/b7.png"
+sha256 = "3d82b245757b9607f44c84572388448341713a23c670bdc96ab19057ecef2f4c"
+made_from = "789cc3d7c8416b40a4f20155ece071c362f85d610e71b32b328bfc12b4cf2ead"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 6
+file = "art/textures/ground30/mud_v3/middle/water_coverage/b8.png"
+sha256 = "f75c8af4ad31eee3f6689c81126c676487babb8722b361a7eb4eaff5a2c3c1cd"
+made_from = "3d82b245757b9607f44c84572388448341713a23c670bdc96ab19057ecef2f4c"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 7
+file = "art/textures/ground30/mud_v3/middle/water_coverage/b9.png"
+sha256 = "18c80405889f83f5ee213c829e5efad276b566451cb2d1e4eb8ac15697a1b158"
+made_from = "f75c8af4ad31eee3f6689c81126c676487babb8722b361a7eb4eaff5a2c3c1cd"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 8
+file = "art/textures/ground30/mud_v3/middle/water_coverage/b10.png"
+sha256 = "abc58d5127d7cdf313beb9ec8ee839860a9c6bfbc48c8b8eb6a3f7d8bb63de6f"
+made_from = "18c80405889f83f5ee213c829e5efad276b566451cb2d1e4eb8ac15697a1b158"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"

@@ -1,0 +1,75 @@
+about = "hearth_ground_v2 middle colour: signed design runtime candidate"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 16
+first_band = 2
+sources = ["art/sources/ground30/hearth-fresh-r1-original.png", "art/sources/ground30/hearth-fresh-r1-near-crop.png", "art/sources/ground30/hearth-fresh-r1-middle-crop.png", "art/sources/ground30/hearth-fresh-r1-far-crop.png"]
+original_sha256 = ["185c3b945dea69f7af0bd13b63b3aee160e927c8ef41092990088798fa84ca1b", "0d105c209a78ff978bee1e16715e6b860837cbc500c504d5d91af34681860b80", "85c8ee88f001811e8deecd86c5674e47abec6e8da15ef7144fe50524ff4225fd", "dce75ff986980e86a10eaf2ece975a61e6831e23cfabf2cab0ac1e6661682fa5"]
+c2pa = ["present", "absent", "absent", "absent"]
+requests = ["art/requests/ground30/production.txt", "art/requests/ground30/hearth-fresh-r1.txt"]
+made = "retained image drawings, coupled source-pixel quilt and numeric traced materials"
+regrid_loss = "raw-to-grid measurements and region annotations kept beside recovered sources"
+truth = "signed design source; world overlays and water separate"
+approved = "pending independent exported-art, engine and owner runtime review"
+
+[[band]]
+level = 0
+file = "art/textures/ground30/hearth_ground_v2/middle/colour/b2.png"
+sha256 = "54187a29d71421ce8693e3b28b060c3a2b46502a0d8347505c5662f4fc41393a"
+way = "coupled source-pixel and material-region quilt"
+
+[[band]]
+level = 1
+file = "art/textures/ground30/hearth_ground_v2/middle/colour/b3.png"
+sha256 = "76e263aa8798f57c31877bc7cdefe983bb2630de62a5b5bafa5de54761a687e4"
+made_from = "54187a29d71421ce8693e3b28b060c3a2b46502a0d8347505c5662f4fc41393a"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 2
+file = "art/textures/ground30/hearth_ground_v2/middle/colour/b4.png"
+sha256 = "fbe72fef299fac070e38d27d865e6d52e82e7cff57d4c2817d33280bdb61716d"
+made_from = "76e263aa8798f57c31877bc7cdefe983bb2630de62a5b5bafa5de54761a687e4"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 3
+file = "art/textures/ground30/hearth_ground_v2/middle/colour/b5.png"
+sha256 = "d7eb946fe38381d76725b461ecedf605f9b6003d37309b80cc53e066ba1e002e"
+made_from = "fbe72fef299fac070e38d27d865e6d52e82e7cff57d4c2817d33280bdb61716d"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 4
+file = "art/textures/ground30/hearth_ground_v2/middle/colour/b6.png"
+sha256 = "b4a3904b5542c3a00f85d126b03b930eae29a8d627063f50820616d6737090fb"
+made_from = "d7eb946fe38381d76725b461ecedf605f9b6003d37309b80cc53e066ba1e002e"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 5
+file = "art/textures/ground30/hearth_ground_v2/middle/colour/b7.png"
+sha256 = "e53dfa1182c4a475838ce9c51f7a840beb07fa7673c0c874346f49f910bb4a73"
+made_from = "b4a3904b5542c3a00f85d126b03b930eae29a8d627063f50820616d6737090fb"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 6
+file = "art/textures/ground30/hearth_ground_v2/middle/colour/b8.png"
+sha256 = "fba68953d7f09b8d76cdeaede8d69309dd8b3b41d0461cc674ce4cae96ce4c02"
+made_from = "e53dfa1182c4a475838ce9c51f7a840beb07fa7673c0c874346f49f910bb4a73"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 7
+file = "art/textures/ground30/hearth_ground_v2/middle/colour/b9.png"
+sha256 = "051fa8dd8c08372010c71dd4b3768f6b70ad173afd753a0af93125f07f67f959"
+made_from = "fba68953d7f09b8d76cdeaede8d69309dd8b3b41d0461cc674ce4cae96ce4c02"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 8
+file = "art/textures/ground30/hearth_ground_v2/middle/colour/b10.png"
+sha256 = "19587ae68def92f6fd2388c4b1f6e6cea47af1685141d641053a9b6ab1420c3e"
+made_from = "051fa8dd8c08372010c71dd4b3768f6b70ad173afd753a0af93125f07f67f959"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"

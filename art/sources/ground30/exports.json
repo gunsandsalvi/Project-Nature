@@ -1,0 +1,865 @@
+{
+  "normal_basis": "world east, south, up; signed unit XYZ encoded as round((n+1)*127.5)",
+  "material_encoding": "R exact ID, G=B=0, A colour coverage",
+  "approval": "candidate; no owner/runtime pass",
+  "entries": [
+    {
+      "id": "hearth_ground",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/ground30/hearth_ground/near/colour/record.toml",
+            "material": "art/textures/ground30/hearth_ground/near/material/record.toml",
+            "normal": "art/textures/ground30/hearth_ground/near/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 4,
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "review": "candidate; engine terrain normal binding required"
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/ground30/hearth_ground/middle/colour/record.toml",
+            "material": "art/textures/ground30/hearth_ground/middle/material/record.toml",
+            "normal": "art/textures/ground30/hearth_ground/middle/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 16,
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "review": "candidate; engine terrain normal binding required"
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/ground30/hearth_ground/far/colour/record.toml",
+            "material": "art/textures/ground30/hearth_ground/far/material/record.toml",
+            "normal": "art/textures/ground30/hearth_ground/far/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 64,
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "review": "candidate; engine terrain normal binding required"
+        }
+      ],
+      "normal_binding": "actual terrain normal field",
+      "state": "fresh",
+      "catalogue": "hearth_ground",
+      "runtime_approved": false,
+      "class": "ground"
+    },
+    {
+      "id": "hearth_ground_v2",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/ground30/hearth_ground_v2/near/colour/record.toml",
+            "material": "art/textures/ground30/hearth_ground_v2/near/material/record.toml",
+            "normal": "art/textures/ground30/hearth_ground_v2/near/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 4,
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "review": "candidate; engine terrain normal binding required"
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/ground30/hearth_ground_v2/middle/colour/record.toml",
+            "material": "art/textures/ground30/hearth_ground_v2/middle/material/record.toml",
+            "normal": "art/textures/ground30/hearth_ground_v2/middle/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 16,
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "review": "candidate; engine terrain normal binding required"
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/ground30/hearth_ground_v2/far/colour/record.toml",
+            "material": "art/textures/ground30/hearth_ground_v2/far/material/record.toml",
+            "normal": "art/textures/ground30/hearth_ground_v2/far/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 64,
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "review": "candidate; engine terrain normal binding required"
+        }
+      ],
+      "normal_binding": "actual terrain normal field",
+      "state": "fresh",
+      "catalogue": "hearth_ground",
+      "runtime_approved": false,
+      "class": "ground"
+    },
+    {
+      "id": "hearth_ground_v3",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/ground30/hearth_ground_v3/near/colour/record.toml",
+            "material": "art/textures/ground30/hearth_ground_v3/near/material/record.toml",
+            "normal": "art/textures/ground30/hearth_ground_v3/near/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 4,
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "review": "candidate; engine terrain normal binding required"
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/ground30/hearth_ground_v3/middle/colour/record.toml",
+            "material": "art/textures/ground30/hearth_ground_v3/middle/material/record.toml",
+            "normal": "art/textures/ground30/hearth_ground_v3/middle/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 16,
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "review": "candidate; engine terrain normal binding required"
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/ground30/hearth_ground_v3/far/colour/record.toml",
+            "material": "art/textures/ground30/hearth_ground_v3/far/material/record.toml",
+            "normal": "art/textures/ground30/hearth_ground_v3/far/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 64,
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "review": "candidate; engine terrain normal binding required"
+        }
+      ],
+      "normal_binding": "actual terrain normal field",
+      "state": "fresh",
+      "catalogue": "hearth_ground",
+      "runtime_approved": false,
+      "class": "ground"
+    },
+    {
+      "id": "hearth_ground_old",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/ground30/hearth_ground_old/near/colour/record.toml",
+            "material": "art/textures/ground30/hearth_ground_old/near/material/record.toml",
+            "normal": "art/textures/ground30/hearth_ground_old/near/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 4,
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "review": "candidate; engine terrain normal binding required"
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/ground30/hearth_ground_old/middle/colour/record.toml",
+            "material": "art/textures/ground30/hearth_ground_old/middle/material/record.toml",
+            "normal": "art/textures/ground30/hearth_ground_old/middle/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 16,
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "review": "candidate; engine terrain normal binding required"
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/ground30/hearth_ground_old/far/colour/record.toml",
+            "material": "art/textures/ground30/hearth_ground_old/far/material/record.toml",
+            "normal": "art/textures/ground30/hearth_ground_old/far/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 64,
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "review": "candidate; engine terrain normal binding required"
+        }
+      ],
+      "normal_binding": "actual terrain normal field",
+      "state": "old",
+      "catalogue": "hearth_ground",
+      "runtime_approved": false,
+      "class": "ground"
+    },
+    {
+      "id": "hearth_ground_old_v2",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/ground30/hearth_ground_old_v2/near/colour/record.toml",
+            "material": "art/textures/ground30/hearth_ground_old_v2/near/material/record.toml",
+            "normal": "art/textures/ground30/hearth_ground_old_v2/near/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 4,
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "review": "candidate; engine terrain normal binding required"
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/ground30/hearth_ground_old_v2/middle/colour/record.toml",
+            "material": "art/textures/ground30/hearth_ground_old_v2/middle/material/record.toml",
+            "normal": "art/textures/ground30/hearth_ground_old_v2/middle/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 16,
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "review": "candidate; engine terrain normal binding required"
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/ground30/hearth_ground_old_v2/far/colour/record.toml",
+            "material": "art/textures/ground30/hearth_ground_old_v2/far/material/record.toml",
+            "normal": "art/textures/ground30/hearth_ground_old_v2/far/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 64,
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "review": "candidate; engine terrain normal binding required"
+        }
+      ],
+      "normal_binding": "actual terrain normal field",
+      "state": "old",
+      "catalogue": "hearth_ground",
+      "runtime_approved": false,
+      "class": "ground"
+    },
+    {
+      "id": "hearth_ground_old_v3",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/ground30/hearth_ground_old_v3/near/colour/record.toml",
+            "material": "art/textures/ground30/hearth_ground_old_v3/near/material/record.toml",
+            "normal": "art/textures/ground30/hearth_ground_old_v3/near/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 4,
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "review": "candidate; engine terrain normal binding required"
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/ground30/hearth_ground_old_v3/middle/colour/record.toml",
+            "material": "art/textures/ground30/hearth_ground_old_v3/middle/material/record.toml",
+            "normal": "art/textures/ground30/hearth_ground_old_v3/middle/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 16,
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "review": "candidate; engine terrain normal binding required"
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/ground30/hearth_ground_old_v3/far/colour/record.toml",
+            "material": "art/textures/ground30/hearth_ground_old_v3/far/material/record.toml",
+            "normal": "art/textures/ground30/hearth_ground_old_v3/far/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 64,
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "review": "candidate; engine terrain normal binding required"
+        }
+      ],
+      "normal_binding": "actual terrain normal field",
+      "state": "old",
+      "catalogue": "hearth_ground",
+      "runtime_approved": false,
+      "class": "ground"
+    },
+    {
+      "id": "mud",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/ground30/mud/near/colour/record.toml",
+            "material": "art/textures/ground30/mud/near/material/record.toml",
+            "normal": "art/textures/ground30/mud/near/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 4,
+          "gpu_rgba8_bytes_with_chains": 1398096,
+          "review": "candidate; engine terrain normal binding required",
+          "water_coverage": "art/textures/ground30/mud/near/water_coverage/record.toml"
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/ground30/mud/middle/colour/record.toml",
+            "material": "art/textures/ground30/mud/middle/material/record.toml",
+            "normal": "art/textures/ground30/mud/middle/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 16,
+          "gpu_rgba8_bytes_with_chains": 1398096,
+          "review": "candidate; engine terrain normal binding required",
+          "water_coverage": "art/textures/ground30/mud/middle/water_coverage/record.toml"
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/ground30/mud/far/colour/record.toml",
+            "material": "art/textures/ground30/mud/far/material/record.toml",
+            "normal": "art/textures/ground30/mud/far/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 64,
+          "gpu_rgba8_bytes_with_chains": 1398096,
+          "review": "candidate; engine terrain normal binding required",
+          "water_coverage": "art/textures/ground30/mud/far/water_coverage/record.toml"
+        }
+      ],
+      "normal_binding": "actual terrain normal field",
+      "state": "wet",
+      "catalogue": "mud",
+      "runtime_approved": false,
+      "class": "ground"
+    },
+    {
+      "id": "mud_v2",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/ground30/mud_v2/near/colour/record.toml",
+            "material": "art/textures/ground30/mud_v2/near/material/record.toml",
+            "normal": "art/textures/ground30/mud_v2/near/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 4,
+          "gpu_rgba8_bytes_with_chains": 1398096,
+          "review": "candidate; engine terrain normal binding required",
+          "water_coverage": "art/textures/ground30/mud_v2/near/water_coverage/record.toml"
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/ground30/mud_v2/middle/colour/record.toml",
+            "material": "art/textures/ground30/mud_v2/middle/material/record.toml",
+            "normal": "art/textures/ground30/mud_v2/middle/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 16,
+          "gpu_rgba8_bytes_with_chains": 1398096,
+          "review": "candidate; engine terrain normal binding required",
+          "water_coverage": "art/textures/ground30/mud_v2/middle/water_coverage/record.toml"
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/ground30/mud_v2/far/colour/record.toml",
+            "material": "art/textures/ground30/mud_v2/far/material/record.toml",
+            "normal": "art/textures/ground30/mud_v2/far/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 64,
+          "gpu_rgba8_bytes_with_chains": 1398096,
+          "review": "candidate; engine terrain normal binding required",
+          "water_coverage": "art/textures/ground30/mud_v2/far/water_coverage/record.toml"
+        }
+      ],
+      "normal_binding": "actual terrain normal field",
+      "state": "wet",
+      "catalogue": "mud",
+      "runtime_approved": false,
+      "class": "ground"
+    },
+    {
+      "id": "mud_v3",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/ground30/mud_v3/near/colour/record.toml",
+            "material": "art/textures/ground30/mud_v3/near/material/record.toml",
+            "normal": "art/textures/ground30/mud_v3/near/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 4,
+          "gpu_rgba8_bytes_with_chains": 1398096,
+          "review": "candidate; engine terrain normal binding required",
+          "water_coverage": "art/textures/ground30/mud_v3/near/water_coverage/record.toml"
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/ground30/mud_v3/middle/colour/record.toml",
+            "material": "art/textures/ground30/mud_v3/middle/material/record.toml",
+            "normal": "art/textures/ground30/mud_v3/middle/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 16,
+          "gpu_rgba8_bytes_with_chains": 1398096,
+          "review": "candidate; engine terrain normal binding required",
+          "water_coverage": "art/textures/ground30/mud_v3/middle/water_coverage/record.toml"
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/ground30/mud_v3/far/colour/record.toml",
+            "material": "art/textures/ground30/mud_v3/far/material/record.toml",
+            "normal": "art/textures/ground30/mud_v3/far/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 64,
+          "gpu_rgba8_bytes_with_chains": 1398096,
+          "review": "candidate; engine terrain normal binding required",
+          "water_coverage": "art/textures/ground30/mud_v3/far/water_coverage/record.toml"
+        }
+      ],
+      "normal_binding": "actual terrain normal field",
+      "state": "wet",
+      "catalogue": "mud",
+      "runtime_approved": false,
+      "class": "ground"
+    },
+    {
+      "id": "mud_drying",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/ground30/mud_drying/near/colour/record.toml",
+            "material": "art/textures/ground30/mud_drying/near/material/record.toml",
+            "normal": "art/textures/ground30/mud_drying/near/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 4,
+          "gpu_rgba8_bytes_with_chains": 1398096,
+          "review": "candidate; engine terrain normal binding required",
+          "water_coverage": "art/textures/ground30/mud_drying/near/water_coverage/record.toml"
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/ground30/mud_drying/middle/colour/record.toml",
+            "material": "art/textures/ground30/mud_drying/middle/material/record.toml",
+            "normal": "art/textures/ground30/mud_drying/middle/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 16,
+          "gpu_rgba8_bytes_with_chains": 1398096,
+          "review": "candidate; engine terrain normal binding required",
+          "water_coverage": "art/textures/ground30/mud_drying/middle/water_coverage/record.toml"
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/ground30/mud_drying/far/colour/record.toml",
+            "material": "art/textures/ground30/mud_drying/far/material/record.toml",
+            "normal": "art/textures/ground30/mud_drying/far/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 64,
+          "gpu_rgba8_bytes_with_chains": 1398096,
+          "review": "candidate; engine terrain normal binding required",
+          "water_coverage": "art/textures/ground30/mud_drying/far/water_coverage/record.toml"
+        }
+      ],
+      "normal_binding": "actual terrain normal field",
+      "state": "drying",
+      "catalogue": "mud",
+      "runtime_approved": false,
+      "class": "ground"
+    },
+    {
+      "id": "mud_drying_v2",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/ground30/mud_drying_v2/near/colour/record.toml",
+            "material": "art/textures/ground30/mud_drying_v2/near/material/record.toml",
+            "normal": "art/textures/ground30/mud_drying_v2/near/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 4,
+          "gpu_rgba8_bytes_with_chains": 1398096,
+          "review": "candidate; engine terrain normal binding required",
+          "water_coverage": "art/textures/ground30/mud_drying_v2/near/water_coverage/record.toml"
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/ground30/mud_drying_v2/middle/colour/record.toml",
+            "material": "art/textures/ground30/mud_drying_v2/middle/material/record.toml",
+            "normal": "art/textures/ground30/mud_drying_v2/middle/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 16,
+          "gpu_rgba8_bytes_with_chains": 1398096,
+          "review": "candidate; engine terrain normal binding required",
+          "water_coverage": "art/textures/ground30/mud_drying_v2/middle/water_coverage/record.toml"
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/ground30/mud_drying_v2/far/colour/record.toml",
+            "material": "art/textures/ground30/mud_drying_v2/far/material/record.toml",
+            "normal": "art/textures/ground30/mud_drying_v2/far/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 64,
+          "gpu_rgba8_bytes_with_chains": 1398096,
+          "review": "candidate; engine terrain normal binding required",
+          "water_coverage": "art/textures/ground30/mud_drying_v2/far/water_coverage/record.toml"
+        }
+      ],
+      "normal_binding": "actual terrain normal field",
+      "state": "drying",
+      "catalogue": "mud",
+      "runtime_approved": false,
+      "class": "ground"
+    },
+    {
+      "id": "mud_drying_v3",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/ground30/mud_drying_v3/near/colour/record.toml",
+            "material": "art/textures/ground30/mud_drying_v3/near/material/record.toml",
+            "normal": "art/textures/ground30/mud_drying_v3/near/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 4,
+          "gpu_rgba8_bytes_with_chains": 1398096,
+          "review": "candidate; engine terrain normal binding required",
+          "water_coverage": "art/textures/ground30/mud_drying_v3/near/water_coverage/record.toml"
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/ground30/mud_drying_v3/middle/colour/record.toml",
+            "material": "art/textures/ground30/mud_drying_v3/middle/material/record.toml",
+            "normal": "art/textures/ground30/mud_drying_v3/middle/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 16,
+          "gpu_rgba8_bytes_with_chains": 1398096,
+          "review": "candidate; engine terrain normal binding required",
+          "water_coverage": "art/textures/ground30/mud_drying_v3/middle/water_coverage/record.toml"
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/ground30/mud_drying_v3/far/colour/record.toml",
+            "material": "art/textures/ground30/mud_drying_v3/far/material/record.toml",
+            "normal": "art/textures/ground30/mud_drying_v3/far/normal/record.toml"
+          },
+          "pivot": [
+            0,
+            0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "parts": {},
+          "ground_span_m": 64,
+          "gpu_rgba8_bytes_with_chains": 1398096,
+          "review": "candidate; engine terrain normal binding required",
+          "water_coverage": "art/textures/ground30/mud_drying_v3/far/water_coverage/record.toml"
+        }
+      ],
+      "normal_binding": "actual terrain normal field",
+      "state": "drying",
+      "catalogue": "mud",
+      "runtime_approved": false,
+      "class": "ground"
+    }
+  ]
+}
