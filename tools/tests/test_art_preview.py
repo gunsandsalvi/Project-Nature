@@ -80,6 +80,21 @@ class Views(unittest.TestCase):
         self.assertAlmostEqual((config["wall"]["z1"] - config["wall"]["z0"]) / wall.shape[0], metres, places=6)
         self.assertTrue(config["out"].endswith("a-wall-band0-behind.png"))
 
+    # checks: PRE-20 PRE-22
+    def test_marks_laid_over_a_wall_cover_it_only_where_they_have_a_mark(self):
+        marks = [[np.zeros((size, size, 4), np.uint8) for size in (32, 16, 8, 4, 2, 1)]]
+        marks[0][0][8:24, 4:8] = (50, 60, 70, 255)  # a streak, 4 texels wide and 16 high, in the 32-texel level 0
+        marks[0][1][4:12, 2:4] = (50, 60, 70, 255)
+        self.sets["m"] = {"near": marks}
+        preview.wall_view("a", "b", 0, "behind", self.dir, marks="m")
+        wall = self.pictures["a-wall-band0.png"]
+        plain = np.full_like(wall, 10)
+        marked = (wall != plain).any(axis=2)
+        self.assertGreater(marked.sum(), 0, "the streaks show")
+        self.assertLess(marked.mean(), 0.2, "and the rock shows everywhere else")
+        np.testing.assert_array_equal(np.unique(wall[marked].reshape(-1, 3), axis=0), [[50, 60, 70]])
+        self.assertTrue(self.configs[0]["out"].endswith("a-wall-band0-behind-over-m.png"))
+
 
 if __name__ == "__main__":
     unittest.main()

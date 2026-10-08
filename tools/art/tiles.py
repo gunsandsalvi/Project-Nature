@@ -684,6 +684,22 @@ def key_colour(text):
     return np.array([int(h[i : i + 2], 16) for i in (0, 2, 4)], np.uint8)
 
 
+def snap_to_key(picture, key, least=50.0):
+    """A picture of marks drawn on a key colour with every pixel that is that colour's fringe made the key itself: a
+    drawing's edges are never quite sharp, and where a mark meets the key the pixels between are the key mixed with the
+    mark's colour or darkened. How much of the key a pixel holds is its colour's length along the key's own chroma (the
+    key less its mean grey, a direction that no grey and no brightness has any of): the key itself holds 208 of it
+    for magenta, half a blend with a beige mark about 100, a key darkened by half about 100, a quarter blend 46. A
+    pixel with `least` or more is the key's. The marks' own colours (greys, beiges, greens) hold none."""
+    k = np.asarray(key, np.float64)
+    chroma = k - k.mean()
+    chroma /= np.linalg.norm(chroma)
+    held = picture.astype(np.float64) @ chroma
+    out = picture.copy()
+    out[held >= least] = np.asarray(key, np.uint8)
+    return out
+
+
 def key_mask(picture, key):
     """Where a picture of marks holds a mark: every pixel that is not the key colour."""
     return (picture != np.asarray(key, np.uint8)).any(axis=2)

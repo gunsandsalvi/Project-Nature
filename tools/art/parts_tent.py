@@ -5,7 +5,7 @@ run inside Blender. Implements PRE-46 and PRE-22.
 The tent's own metres: x east, y north, z up, its middle on the ground, the door to the south (Blender's axes; the
 exporter carries them into Godot's). The cover is 3.8 m across at the ground and 2.6 m high where it is gathered (its
 cone, which comes to a point at 2.76 m, lies outside every pole); ten poles cross at 2.7 m
-and their tips reach 3.06 m; the door is a low slit 1.2 m high and 0.5 m wide at the ground; the ring of stones is 4.2 m
+and their tips reach 2.94 m; the door is a low slit 1.2 m high and 0.5 m wide at the ground; the ring of stones is 4.2 m
 across.
 
 The parts, as the sheet's "parts" row shows them:
@@ -398,8 +398,12 @@ def door_flap():
     b = Builder("tent_door_flap")
     a1 = DOOR - math.radians(5.0)  # its free edge, beside the opening; its outer edge fans out toward the hem
     s0, s1 = SLANT * (1.0 - SLIT / HIGH) - 0.13, SLANT - 0.02
-    columns, rows = 4, 8
-    turn_at = 0.75  # where the hide is turned back on itself
+    columns, rows = 4, 12
+
+    def turn_at(x):
+        """Where, a fraction down, the hide is turned back on itself at a fraction across: not along a straight line but
+        slanting a little (the free side folds higher) and swelling, as a hide's fold goes."""
+        return 0.73 + 0.05 * (1.0 - x) + 0.015 * math.sin(2.7 * x + 0.6)
 
     def where(x, t):
         """The azimuth, slant distance and lift of the hanging hide at a fraction across (from its outer edge to its
@@ -407,20 +411,25 @@ def door_flap():
         a = DOOR - math.radians(16.0 + 18.0 * t) + (a1 - (DOOR - math.radians(16.0 + 18.0 * t))) * x
         s = s0 + (s1 - 0.12 * (1.0 - x) - s0) * t  # the outer corner is cut short and the free corner hangs lowest
         fold = 0.07 * max(0.0, math.sin(math.pi * (0.55 * x + 0.85 * t - 0.15))) * t  # one broad diagonal fold
-        lift = 0.015 + 0.08 * t**1.6 + 0.12 * x**1.4 * t**1.2 + 0.20 * x**3 * t**3 + fold  # a lifted lower corner
+        lift = (
+            0.015 + 0.08 * t**1.6 + 0.12 * x**1.4 * t**1.2 + 0.13 * x**3 * t**3 + fold
+        )  # a lower corner that hangs, a little lifted
         return a, s, lift
 
     grid = {}
     frame = DOOR
     lows = [1e9, 1e9]
+    fold_row = rows // 2  # every column has a row of its own along the fold, so no face spans it
     for j in range(rows + 1):
-        t = j / rows
         for i in range(columns + 1):
             x = i / columns
+            fold = turn_at(x)
+            # down the hide as it hangs straight: to the fold in the rows above the fold's row, then on to its end
+            t = fold * j / fold_row if j <= fold_row else fold + (1.0 - fold) * (j - fold_row) / (rows - fold_row)
             a, s_flat, lift = where(x, t)
             s = s_flat
-            if t > turn_at:  # the turned-back part lies over the hide above it, a little off it, as wide as it was
-                _, s, lift = where(x, 2.0 * turn_at - t)
+            if t > fold:  # the turned-back part lies over the hide above it, a little off it, as wide as it was
+                _, s, lift = where(x, 2.0 * fold - t)
                 lift += 0.03
             p = cone_point(a, s) + lift * outward(a)
             a_flat = a
@@ -442,8 +451,8 @@ def door_flap():
     return obj
 
 
-# the poles: 3.65 m, thicker at the foot and stout at the tip, the tips 3.06 m up when leaned in the tent
-POLE_LENGTH = 3.65
+# the poles: 3.5 m, thicker at the foot, stout at the tip, the tips 2.94 m up when leaned in the tent (a compact crown)
+POLE_LENGTH = 3.50
 POLE_BIND = 3.22
 
 

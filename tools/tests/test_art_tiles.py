@@ -356,6 +356,49 @@ class Marks(unittest.TestCase):
         self.assertLess(tiles.key_mask(fewer, self.KEY).sum(), tiles.key_mask(all_kept, self.KEY).sum())
         np.testing.assert_array_equal(fewer, tiles.reduce_marks(pic, self.KEY, 40, 1))  # nothing is random
 
+    # checks: PRE-20 PRE-46
+    def test_the_fringe_a_drawings_edge_leaves_on_the_key_is_the_key_and_the_marks_colours_are_not(self):
+        pic = self.streaks()
+        marks = [(232, 222, 202), (36, 39, 32), (104, 109, 96), (135, 144, 120), (180, 128, 78), (120, 120, 120)]
+        for k, colour in enumerate(marks):
+            pic[20 + k, 3:9] = colour
+        fringes = [(140, 12, 136), (232, 95, 202), (200, 60, 190), (255, 40, 255)]  # darkened, half blended, near key
+        for k, colour in enumerate(fringes):
+            pic[40 + k, 3:9] = colour
+        out = tiles.snap_to_key(pic, self.KEY)
+        for k, colour in enumerate(marks):
+            np.testing.assert_array_equal(out[20 + k, 3:9], pic[20 + k, 3:9], f"mark colour {colour} is kept")
+        for k in range(len(fringes)):
+            np.testing.assert_array_equal(
+                out[40 + k, 3:9], np.tile(self.KEY, (6, 1)), f"fringe {fringes[k]} is the key"
+            )
+        np.testing.assert_array_equal(tiles.snap_to_key(out, self.KEY), out)  # and nothing more changes
+
+    # checks: PRE-22 PRE-46
+    def test_a_direct_tile_of_marks_has_each_picture_as_its_version_and_its_border_clear_joins_any_two(self):
+        import make_tiles
+
+        pictures = []
+        for k in range(3):
+            pic = np.tile(self.KEY, (64, 64, 1))
+            pic[10 + k : 50, 20 + 8 * k : 24 + 8 * k] = (104, 109, 96)  # a streak of its own in each
+            pic[13, 7 + k] = (232, 222, 202)  # a speck on an odd place, so no picture is taken for blocks of two
+            pictures.append(pic)
+        with tempfile.TemporaryDirectory() as folder:
+            paths = []
+            for k, pic in enumerate(pictures):
+                paths.append(os.path.join(folder, f"{k}.png"))
+                tiles.write_png(paths[-1], pic)
+            spec = {"versions": 3, "ring": 4, "overlap": 8, "patch": 24, "serves": 1, "direct": True, "texels": 64}
+            spec.update(sheet=paths[0], extra=paths[1:])
+            chains, ways, shift, _, _ = make_tiles.make_tile(spec, None, 3, key=self.KEY)
+            self.assertIsNone(shift, "nothing is shifted: the pictures are the versions")
+            for chain, pic in zip(chains, pictures, strict=True):
+                np.testing.assert_array_equal(chain[0], pic)
+            self.assertTrue(tiles.shares_ring([c[0] for c in chains], 4))
+            with self.assertRaises(ValueError):  # a picture short of a version
+                make_tiles.make_tile({**spec, "extra": paths[1:2]}, None, 3, key=self.KEY)
+
     # checks: PRE-22
     def test_versions_of_marks_share_their_ring_on_the_key_colour(self):
         pic = self.streaks(96)
