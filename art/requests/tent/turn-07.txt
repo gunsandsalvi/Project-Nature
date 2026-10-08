@@ -1,0 +1,17 @@
+Thank you for the earlier looks at the tent. The engine's frames showed two faults at the small sizes: the simple form's stones turned into beads, and the small form was a generic cone. I changed both. Please do not draw anything in this turn: do not use your image tool, only look at the pictures and answer in words.
+
+WHAT CHANGED
+- The simple and small forms' stones are flat-shaded, so their few faces read as the facets of a stone and not as a smooth bead; the whole ring of 24 stones is a little less regular (each stone strays more from its place), in all three forms alike.
+- The small form (the one-piece cone for the close camp and the camp) now has two seams, the thin dark lines that flank the door slit, and thicker pole tips crossing over the cone's gathered neck, so a tent seen at 30 to 60 pixels still says it is sewn and has poles.
+
+THE PICTURES WITH THIS MESSAGE (the game's camera 37 degrees down, late afternoon, enlarged)
+1. sheet-16.4-hide-tent.png: your signed-off sheet, the standard.
+2. tent-simple-band2.png: the simple form at the zoom where it is about 120 pixels across.
+3. tent-small-band3.png: the small form at the next zoom, about 60 pixels across.
+
+WHAT I NEED, IN A FEW LINES
+- Picture 2: do the stones now read as stones holding the hem down, not beads? What would you change?
+- Picture 3: does the small tent still read as your hide tent (a cone of sewn hides on poles, a door, stones) and not as a generic cone? Are the seams and the pole tips right or too much?
+- At most three changes, the most important first. If it is good enough, say so plainly.
+
+Reply in a few lines. Do not draw; do not save any file.

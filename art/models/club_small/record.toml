@@ -1,0 +1,22 @@
+# A recipe (A6.1, PRE-46): one thing put together from the kit's parts. This one is the club of sheet 17.15, the art lane's
+# own part: a lathe of rings with a small pommel, a shaft of 3 cm across and a root knob 9 cm across with trimmed root stubs,
+# its joints where the hand holds it and at the middle of the knob. The camp family's file is art/models/camp.blend,
+# made by tools/art/parts_camp.py. This is the small form (A6.3), the same club in a few rings and no stubs, for the
+# camp zoom (bands 3 and 4): the same layout, the same joints, the same place.
+about = "a wooden club cut from a sapling and its root, lying on the ground on its knob (small form)"
+family = "camp"
+truth = "art lane, 7 October 2026: looked at the part from every side at twice size against A5.6's list; wood only, no metal, nothing later, no painted marks, no carved decoration"
+approved = "not offered yet: the pilot's third piece, waiting for the builder's check and your look at the previews"
+
+[[material]]
+role = "wood"
+textures = ["art:wood"]
+
+# the club lies on its knob, turned a little from east: its axis a knob's radius up, so the knob's underside rests on the
+# ground
+[[place]]
+name = "club"
+parts = ["club_small"]
+rule = "root"
+turn = 30
+height = "50 mm"

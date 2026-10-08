@@ -59,7 +59,7 @@ class CampFamily(unittest.TestCase):
         names = [f"hide_lower_{i}" for i in range(1, 8)] + [f"hide_upper_{i}" for i in range(1, 5)]
         names += ["tent_pole", "tent_binding", "tent_door_flap", "ring_stone_small", "ring_stone_medium"]
         names += ["ring_stone_large", "door_top", "crossing", "foot", "bind", "tip", "centre", "hinge"]
-        names += ["tent_pole_simple", "hide_cover_cone"]
+        names += ["tent_pole_simple", "tent_pole_tip", "hide_cover_cone"]
         names += [f"ring_stone_{size}_{form}" for size in ("small", "medium", "large") for form in ("simple", "marker")]
         for name in names:
             self.assertTrue(name.encode() in self.data, f"{name!r} is not in the exported kit")
@@ -122,7 +122,14 @@ class RocksFamily(unittest.TestCase):
     def test_the_boulders_the_stones_the_flakes_and_the_lip_export_in_three_forms_with_their_joints(self):
         names = ["boulder_small", "boulder_block", "boulder_large", "boulder_split_a", "boulder_split_b"]
         names += ["boulder_perch_base", "boulder_perch_cap", "scree_stone_small", "scree_stone_medium"]
-        names += ["scree_stone_large", "shale_flake_small", "shale_flake_medium", "cliff_lip"]
+        names += [
+            "scree_stone_large",
+            "shale_flake_small",
+            "shale_flake_medium",
+            "cliff_lip",
+            "cliff_lip_b",
+            "cliff_lip_c",
+        ]
         for name in names:
             for form in ("", "_simple", "_marker"):
                 self.assertTrue((name + form).encode() in self.data, f"{name + form!r} is not in the exported kit")

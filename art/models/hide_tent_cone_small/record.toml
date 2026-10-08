@@ -25,10 +25,11 @@ name = "cover"
 parts = ["hide_cover_cone"]
 rule = "root"
 
-# ten poles as in the full tent, of which only the tips above the cover's neck are kept
+# ten poles as in the full tent, of which only the tips above the cover's neck are kept, thicker than the pole is, so the
+# crossing of the tips reads as the tent's cue of poles at the smallest zooms
 [[place]]
 name = "poles"
-parts = ["tent_pole_simple"]
+parts = ["tent_pole_tip"]
 rule = "span"
 count = 10
 joint = "foot"
@@ -49,13 +50,13 @@ rule = "plug"
 joint = "centre"
 onto = "cover.crossing"
 
-# 24 stones on a ring of 2.0 m, each a marker of 15 triangles, the same sizes by the same seed as in the other forms
+# 24 stones on a ring of 1.93 m, each a marker of 15 triangles, the same sizes by the same seed as in the other forms
 [[place]]
 name = "stones"
 parts = ["ring_stone_small_marker", "ring_stone_medium_marker", "ring_stone_large_marker"]
 rule = "ring"
 count = 24
-radius = "2.0 m"
-jitter_radius = "5%"
-jitter_turn = 3
+radius = "1.93 m"
+jitter_radius = "6%"
+jitter_turn = 6
 face = 0

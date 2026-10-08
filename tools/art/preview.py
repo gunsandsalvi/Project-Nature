@@ -311,7 +311,12 @@ def cliff_view(foot, ground_name, band, sun, out_folder, samples=24, change=None
     lips = int(math.ceil((box[1] - box[0]) / 4.0)) + 1
     first = -4.0 * (lips // 2)
     config["parts"] = [{"file": blend, "at": [0.0, 0.0, 0.0]}] + [
-        {"file": blend, "only": ["cliff_lip" + parts_suffix], "at": [first + 4.0 * k, 0.0, CLIFF_CONTACT], "keep": True}
+        {
+            "file": blend,
+            "only": ["cliff_lip" + ("", "_b", "_c")[(k * 5 + 1) % 3] + parts_suffix],
+            "at": [first + 4.0 * k, 0.0, CLIFF_CONTACT],
+            "keep": True,
+        }
         for k in range(lips)
     ]
     config["assemble"] = {"places": [place_in_metres(place) for place in record["place"]], "turn": 0.0}
