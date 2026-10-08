@@ -472,6 +472,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
     *Now possible:* the game's own scenes drawn by the engine, in portrait and landscape, which you judge as the bar for everything built on them.
   - `MIL-10` **The world** *(Decided)*: whole worlds generated from a seed in the order of real causes (`WLD-08`, `WLD-09`), the best three offered (`WLD-10`); the map layers, and detail made on demand (`WLD-12`, `WLD-13`); the sky, climate and weather, fresh water, seas and soils (`WLD-07`, `WLD-16`, `WLD-17`, `WLD-26`, `WLD-27`); quakes and eruptions (`WLD-15`); one zoom from a cliff face to the globe (`PRE-03`, `WLD-02`), and the cut-away view (`PRE-25`).
     *Now possible:* making a world, choosing it, and flying over it through its weather and seasons.
+    *Acceptance:* M3 proves the physical world; M4 completes living settling, resource renewal and real buried traces; M5 completes starting bands and naked-band winter survival. Every original check stays mapped and open until its milestone proves it; water-only settling or synthetic traces do not pass the later checks.
   - `MIL-11` **Things and living nature** *(Decided)*: materials and things, with their shapes, characteristics, wear, simple physics, timers and traces (`MAT-01`, `MAT-10`, `MAT-11`, `MAT-19`, `MAT-08`); fire (`MAT-18`); plants and animals everywhere, as catalogue entries placed by rules, with their seasons and their ecology (`WLD-31`, `WLD-32`, `WLD-18`); wildfire (`WLD-28`); a card for anything you tap (`PRE-35`).
     *Now possible:* a living world with nobody in it: herds migrating, wolves hunting, plants through the seasons, and a lightning fire running through dry grass.
   - `MIL-12` **People: bodies and lives** *(Decided)*: the start's bands (`SCP-01`, `BIO-03`), with their bodies, needs and senses (`BIO-09`, `BIO-18`); everyday activities and base actions (`BIO-21`, `MAT-06`); choosing by needs, with the reasons on each person's card (`MND-07`, `MND-09`, `PRE-35`), and the mental map (`MND-28`); health, wounds, illness and plain care (`BIO-13`, `BIO-05`, `BIO-23`); pairing, births, growing up, inheritance, ageing and death (`BIO-04`, `BIO-15`, `BIO-06`, `BIO-16`); names from the language (`CUL-17`, `CUL-18`); the animals near people, with bodies and simple minds (`BIO-19`, `MND-16`).
@@ -828,6 +829,7 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
       What people dig, cut or strip from a plant (roots, reeds, bark, fibre, and the dead wood a stand drops) is its yield, like fruit; only felling a tree or digging out a plant to move it takes it whole.
       So the land yields per game day, meat, roots and wood included, about what it does per real day, and feeds about as many people per km² as on Earth (`WLD-04`).
     - **Events** come about as often per game year as on Earth per year (`TIM-18`); where daily weather gives too few, such as lightning fires and storm floods, the chance per storm is raised to match.
+      Weather keeps millimetres per real-length game day; biome climate indices use Earth-equivalent annual precipitation and growing-degree totals, while seasonal totals cover 15 game days. Compressed dry-spell recession acts on reserves, never on wind or river travel.
   - **Check:** every scaled catalogue value is marked, with its Earth value; in a scene, a band of 25 on good temperate land needs about 100–300 km² to forage all year.
 
 - `WLD-04` **How many people it can feed** *(To test)*: Estimated at tens of thousands of foragers, about one per 10 km² of good land, and ten to a hundred times more with farming.
@@ -837,7 +839,7 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
 
 - `WLD-12` **Map layers** *(Decided)*: The world is held in four layers, each at its own pace, with detail made only where needed, and looking changes nothing (`WLD-13`).
   1. **World cells,** about 1 km across, about 2 million: height, rock, soil, biome and plant cover, water, deposits, snow, fire, paths, and the herds passing through.
-  2. **Areas,** about 256 m across, 16 to a cell, detailed to about 1 m: the ground's shape and material, stones, single trees and bushes, ground cover, caves, overhangs, cliffs and water.
+  2. **Areas,** exactly 250 m across, 16 to a cell, detailed to about 1 m: the ground's shape and material, stones, single trees and bushes, ground cover, caves, overhangs, cliffs and water.
   3. **Things and creatures,** in areas, or on the cells' ground where no area is made: every person, every animal near people, every item (`MAT-10`).
   4. **Weather cells,** about 10 km across, about 20,000 (`WLD-16`).
   - **How it works:**
@@ -886,7 +888,7 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
   - **How it works:** each cell records its deposits and how rich each is; rivers carry stones downstream, rounded with distance, so flint turns up in gravels far from its chalk.
     Deposits show where the land is cut, such as banks, cliffs and cave walls, and look like what they are, while their uses are learned (`MAT-03`); deeper ones need digging (`MAT-06`).
     In areas, loose stones lie as ground, per patch like ground cover (`WLD-31`); one someone takes becomes a thing, its quality drawn from the seed (`MAT-20`).
-  - **Done when:** in 100 test worlds, flint lies only in chalk, some limestone and gravel below them, obsidian only near young volcanoes, and copper ore only in volcanic ranges near granite.
+  - **Done when:** in 100 test worlds, flint lies only in chalk and gravel traced below it, chert only in eligible limestone and gravel traced below it, obsidian only near young volcanoes, and copper ore only in volcanic ranges near granite. Flint and chert both count as stone that flakes, keeping their precise names.
 
 - `WLD-10` **Generate several, offer the best three** *(Decided)*: The game makes several candidate worlds, scores them and never edits them; "New world" shows the best three as small globes, each with a one-line summary, and you pick one, let the game pick, or enter a seed.
   - **How it works:**
@@ -900,13 +902,14 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
   - **How it works:** a region is judged before settling by what settling doesn't change (climate, biome, soil, caves, water and stone, with food estimated from biome and soil), and is kept through settling (`WLD-08`).
     It qualifies when:
     - **winters** matter, the coldest season averaging about 2–10 °C with frost on a few nights, yet naked, fireless people live through them huddled in caves (`BIO-11`);
-    - each band has a dry **cave** or overhang big enough for it, and **water** that lasts all year within about 2 km;
-    - **food** the bands can get with the starting kit (`BIO-02`) is enough within about 10 km of the shelters, in every season with a margin, from several kinds;
+    - the 3–4 bands each have a dry **cave** or overhang for their 15–30 people, initially estimated at 2 m² of usable dry floor per person, and **water** that lasts all year within about 2 km;
+    - **food** the bands can get with the starting kit (`BIO-02`) is enough within about 10 km of the shelters, in every season with at least a 20% estimated margin, from several kinds, without counting food twice where ranges overlap; actual yields and survival must confirm these estimates (`MIL-10`);
     - **stone that flakes** lies within the same reach, for the sharp-stone test (`RES-02`).
   - **Ranking:** bigger food margins, more kinds of food, and more shelters and water score higher.
   - **Done when:** in 100 test worlds, every start region still qualifies after settling.
 
 - `WLD-11` **Generation time** *(To test)*: From "New world" to three globes takes at most about 3 minutes at the phone's held speed, and settling the chosen world, with its bands made (`BIO-03`), at most about 1 minute more.
+  The targets are 180 and 60 seconds; outer limits are 198 and 66 seconds. Count fallback search, qualification, previews and entry saving. Measure each implemented phase (`MIL-10`) and repeat with ecology and bands when available; time spent reading choices cannot hide settling.
   - **Done when:** both times are met on the phone at every stage from `MIL-10` (`PLT-04`).
 
 ### 6.4 Sky, climate and weather
@@ -915,7 +918,7 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
   - **Done when:** over 100 seeds, tilt and share of land always fall within their ranges and spread across them.
 
 - `WLD-07` **The sky** *(Decided)*: Sun, moon and stars move as they would for the world's tilt and the 60-day year (`TIM-18`): daylight by latitude and date, a moon that waxes and wanes once a season, bright enough at full to walk and hunt by, and an eclipse a few times in a lifetime at any place; people can learn these cycles (`CUL-29`).
-  - **Done when:** in a test world, each season has one full moon, daylight follows Earth's for each latitude and date, and each place sees a few eclipses in 70 years.
+  - **Done when:** in a test world, each season has one full moon, daylight follows Earth's for each latitude and date, and every place sees 3–8 visible solar or lunar eclipses in 70 game years, clouds or not. Count appreciable partial or total alignments above the geometric horizon and report obscuration separately; total solar eclipses are not promised everywhere.
 
 - `WLD-16` **Climate and weather** *(Decided)*: Each place has a climate that never changes (`SCP-21`), and each weather cell its weather every hour: temperature, humidity, wind, cloud, rain and snow.
   - **Climate,** worked out at generation by rules modelled on Earth's, from latitude, height (about 6 °C colder each 1,000 m up), wind belts, sea, mountains with their rain shadows, and currents (`WLD-26`); its record holds, for each place and season, the usual warmth and its extremes, rain, snow, wind and storm days, and its longest dry spell (`GOD-02`).
@@ -927,6 +930,7 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
     - **On the ground:** snow lies on each cell until it melts into the rivers (`WLD-17`); each place's weather is adjusted for its height, slope and shelter, with frost pooling in hollows.
     - **Good and bad years:** chance brings runs of wet, dry, warm and cold years as often as `WLD-30` sets, giving droughts and harsh winters (`WLD-22`).
   - **Done when:** in 20 test worlds, each band of latitude has about Earth's climates in Earth's shares, and each place's weather over 20 years averages within 10% of its climate's rain and 1 °C of its warmth, which is within about 2 °C of Earth's at the same latitude, height and distance from the sea.
+    Compare climate shares in 10° latitude bands, at most 10 percentage points apart in sufficiently sampled bands, matching altitude and maritime/current exposure with declared weighting and scaled distances; use an Earth-tilt case and 15°/30° cases. A dry day has less than 1 mm rain; the saved longest-dry-spell envelope is the 95th percentile of annual maxima, with its exceedance share and storm-day shares checked by `RES-13`. Freeze reference data and event thresholds before tuning.
 
 ### 6.5 Water and soil
 
@@ -968,6 +972,7 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
   - **Done when:** an area made from a cell holds its species in about their shares; in scenes, a stripped hazel fruits next autumn, a burned oak wood is young wood within about 10 years, and kept plants grow within 10% of their cell's rates; and in 20 test worlds each biome present has plant eaters, hunters, birds and fish.
 
 - `WLD-32` **Animals** *(Decided)*: About 30 wild Earth species or close kin, no insects: mammals, birds, fish, shellfish and a few reptiles, plus their 5 domestic kinds, counted apart (`WLD-33`).
+  The wild species include one woolly mammoth in cold open grassland; its food demand and density follow the same rules as the other animals. No ice-age or extinction system is added.
   Each has its diet, group size, speed, danger, life span, seasons (breeding, moulting, migrating, fish runs, winter sleep) and yields (`MAT-10`), with eggs from nesting birds in season and dung from herd animals.
   - **How it works:**
     - **Far from people,** big animals live in herds, packs, flocks or alone, each kept as a count of adults and young with its condition and wariness of people.
@@ -2389,6 +2394,7 @@ Kindling is built for one phone (`SCP-02`), kept smooth, cool and responsive (`V
     - **Smooth:** target 60 frames a second, with a 30-frame mode that keeps the same world pixel size.
       With the world running, at least 97% of frames on time while pinching and panning, at every zoom, and none more than 50 ms late (`PRN-11`).
     - **Memory:** within about 8 GiB (`PLT-01`), with kept areas at most about 1 GiB in a full pace-test world at Year 250 (`WLD-12`).
+      M3 has a 2 GiB peak-process working limit, keeping the separate graphics limits; the final-game and kept-area limits remain unchanged.
     - **Storage:** within the target of `PLT-10`.
     - **Sound:** the 32-sound mix within its limit (`SND-01`).
     - **Battery and heat:** an hour's play uses about 25–30% of the battery, and the phone never gets uncomfortably hot.
@@ -2747,7 +2753,7 @@ AI agents' suggestions are marked *Proposed* and listed here until you confirm, 
 
 - **Activity:** anything a person or animal does, from start to end, with results at the end (`TIM-17`).
 - **Alpha:** one step of the build you can try on your phone, a few hours of AI work (`SCP-03`).
-- **Area:** a patch about 256 m across, detailed to about a metre, made only where needed and as the seed gives it while unchanged (`WLD-12`, `WLD-13`).
+- **Area:** a patch 250 m across, detailed to about a metre, made only where needed and as the seed gives it while unchanged (`WLD-12`, `WLD-13`).
 - **Band:** a small group of a few families, linked by kin and marriage, who live and move together (`CUL-30`).
 - **Base action:** one of the 21 actions people do to things, such as strike, cut or heat (`MAT-06`).
 - **Belief:** something a person holds true, such as a cause or a spirit, rightly or not (`MND-27`).
