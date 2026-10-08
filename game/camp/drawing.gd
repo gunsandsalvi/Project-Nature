@@ -31,19 +31,12 @@ func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, state.size), Color("253930"))
 	var x := float(supplies.half_width_cm) / 100.0
 	var y := float(supplies.half_height_cm) / 100.0
-	var patch := PackedVector2Array(
-		[
-			camera.project(-x, -y, 0),
-			camera.project(x, -y, 0),
-			camera.project(x, y, 0),
-			camera.project(-x, y, 0)
-		]
-	)
+	var patch := patch_points()
 	draw_colored_polygon(patch, Color("738166"))
 	# Texture accents are presentation only; the supplied patch is uniformly traversable.
 	for north in range(-int(y) + 1, int(y), 2):
 		for east in range(-int(x) + 1, int(x), 2):
-			var p := camera.project(east, north, 0)
+			var p := _local(east, north)
 			draw_rect(Rect2(p, Vector2(2, 1)), Color("7f8b70"))
 	var line := patch.duplicate()
 	line.append(patch[0])
@@ -56,7 +49,17 @@ func _draw() -> void:
 
 
 func _absolute(at: Vector2i) -> Vector2:
-	return camera.project(float(at.x - origin.x) / 100, float(at.y - origin.y) / 100, 0)
+	return camera.project_world(at.x, at.y, 0)
+
+
+func _local(east: float, north: float) -> Vector2:
+	return _absolute(origin + Vector2i(roundi(east * 100), roundi(north * 100)))
+
+
+func patch_points() -> PackedVector2Array:
+	var x := float(supplies.half_width_cm) / 100
+	var y := float(supplies.half_height_cm) / 100
+	return PackedVector2Array([_local(-x, -y), _local(x, -y), _local(x, y), _local(-x, y)])
 
 
 func _site(key: String) -> Vector2:

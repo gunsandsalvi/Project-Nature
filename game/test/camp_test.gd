@@ -98,3 +98,81 @@ func test_reopen_export_import_preserve_people_supplies_and_digest() -> void:
 	expected.save_now()
 	expected = null
 	copy.free()
+
+
+func _block_snapshots(page: Control) -> void:
+	var folder: String = TEST_ROOT.path_join(page.world_id)
+	var snapshots := folder.path_join("snapshots")
+	assert_int(DirAccess.rename_absolute(snapshots, folder.path_join("kept-snapshots"))).is_equal(
+		OK
+	)
+	var obstruction := FileAccess.open(snapshots, FileAccess.WRITE)
+	assert_object(obstruction).is_not_null()
+	obstruction.store_string("Injected write failure: this file blocks the snapshot directory")
+	obstruction.close()
+
+
+func test_failed_manual_save_reports_a_persistent_error() -> void:
+	var page := _page()
+	_block_snapshots(page)
+	page.save_camp()
+	assert_bool(page.world.counters().save_failed).is_true()
+	assert_str(page._summary.text).contains("could not save")
+	page._message_until = 0
+	page._process(0)
+	assert_str(page._summary.text).contains("could not save")
+	assert_str(page._summary.text).not_contains("Camp saved")
+	page.free()
+
+
+func test_failed_background_save_explains_why_the_world_paused() -> void:
+	var page := _page()
+	page.world.play()
+	_block_snapshots(page)
+	page.world.save()
+	for i in 100:
+		await await_idle_frame()
+		page._process(0)
+		if page.world.counters().save_failed:
+			break
+	assert_bool(page.world.counters().save_failed).is_true()
+	assert_bool(page.world.is_paused()).is_true()
+	assert_str(page._summary.text).contains("could not save")
+	page.free()
+
+
+func test_people_and_supply_projection_stay_absolute_after_camera_rebase() -> void:
+	var page := _page()
+	var digest: String = page.world.digest()
+	page.camera.zoom(1.0 / 4096, Vector2(500, 800), true)
+	page.camera.focus(20000, 20000)
+	page._process(0)
+	assert_int(int(page.state.rebase.east_cm)).is_not_equal(0)
+	var at := Vector2i(page.people[0].east_cm, page.people[0].north_cm)
+	var expected: Vector2 = page.camera.project_world(at.x, at.y, 0)
+	assert_vector(page.drawing._absolute(at)).is_equal(expected)
+	var water: PackedInt64Array = page.world.camp_alpha().water_at
+	assert_vector(page.drawing._site("water_at")).is_equal(
+		page.camera.project_world(water[0], water[1], 0)
+	)
+	assert_str(page.world.digest()).is_equal(digest)
+	page.free()
+
+
+func test_patch_corners_use_the_saved_centre_after_rebase() -> void:
+	var page := _page()
+	page.camera.focus(20000, 20000)
+	page._process(0)
+	var supplies: Dictionary = page.world.camp_alpha()
+	var origin: PackedInt64Array = page.world.camp_at(0)
+	var expected := PackedVector2Array()
+	for sign: Vector2i in [Vector2i(-1, -1), Vector2i(1, -1), Vector2i(1, 1), Vector2i(-1, 1)]:
+		expected.append(
+			page.camera.project_world(
+				origin[0] + sign.x * supplies.half_width_cm,
+				origin[1] + sign.y * supplies.half_height_cm,
+				0
+			)
+		)
+	assert_array(Array(page.drawing.patch_points())).is_equal(Array(expected))
+	page.free()

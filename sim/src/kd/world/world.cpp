@@ -792,6 +792,10 @@ std::vector<save::Chunk> World::save() const {
 bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
     KD_CHECK(beings_.size() == 0 && things_.size() == 0 && frontier_ == 0 && events_ == 0,
              "world::World: a snapshot is loaded into a world with nothing in it");
+    if (std::count_if(chunks.begin(), chunks.end(), [](const auto& c) { return c.tag == save::tag("CAMP"); }) > 1) {
+        why = "duplicate Camp alpha records";
+        return false;
+    }
     // each part brought up to the version this one writes; a part it does not know is skipped, unless it must be known
     for (const save::Chunk& c : chunks) {
         if (c.critical && c.tag != save::tag("CAMP") &&
@@ -914,6 +918,11 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                     why = "Camp alpha record has no entity";
                     return false;
                 }
+                const auto at = beings_.raw().get<Place>(*h).at;
+                if (at.x < 0 || at.x >= torus_.width() || at.y < 0 || at.y >= torus_.height()) {
+                    why = "Camp alpha position outside world coordinate range";
+                    return false;
+                }
                 if (kind == 1 && id.family() == ecs::Family::place) {
                     Camp value;
                     if (!ecs::read_component(value, records, entries) || value.half_width_cm < 1 ||
@@ -975,7 +984,9 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                 valid_people = false;
                 return;
             }
-            const auto offset = torus_.offset(beings_.raw().get<Place>(*camp).at, beings_.raw().get<Place>(h).at);
+            const auto centre = beings_.raw().get<Place>(*camp).at;
+            const auto person_at = beings_.raw().get<Place>(h).at;
+            const auto offset = torus_.offset(centre, person_at);
             const auto& bounds = beings_.raw().get<Camp>(*camp);
             if (offset.dx < -bounds.half_width_cm || offset.dx > bounds.half_width_cm ||
                 offset.dy < -bounds.half_height_cm || offset.dy > bounds.half_height_cm)

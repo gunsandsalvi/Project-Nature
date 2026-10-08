@@ -171,7 +171,12 @@ func _refresh_records() -> void:
 				float(person.north_cm - _origin.y) / 100
 			]
 		)
-	if not _check_code.is_empty():
+	if world.counters().get("save_failed", false):
+		_summary.text = "Camp could not save. Play stopped. Free space, then reopen."
+		_summary.add_theme_color_override("font_color", Palette.WARN)
+		_pause.disabled = true
+		_speed.disabled = true
+	elif not _check_code.is_empty():
 		_summary.text = "Self-check " + _check_code + ". Menu → Developer tools → Device check."
 	elif Time.get_ticks_msec() < _message_until:
 		_summary.text = _message
@@ -218,8 +223,12 @@ func show_supplies() -> void:
 
 func save_camp() -> void:
 	world.save_now()
-	_message = "Camp saved. People and supplies are kept."
-	_message_until = Time.get_ticks_msec() + 4000
+	if world.counters().get("save_failed", false):
+		world.pause()
+		_message_until = 0
+	else:
+		_message = "Camp saved. People and supplies are kept."
+		_message_until = Time.get_ticks_msec() + 4000
 	_refresh_records()
 
 
