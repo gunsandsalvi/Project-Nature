@@ -26,6 +26,22 @@ class Selftest(unittest.TestCase):
         self.assertEqual(len({p[2] for p in filecheck.PLANTED}), len(filecheck.PLANTED), "one message a fault")
 
 
+class Plan(unittest.TestCase):
+    # checks: PRC-10 PRC-12
+    def test_double_digit_alphas_are_checked_not_silently_skipped(self):
+        plan = filecheck.read(os.path.join(filecheck.FIXTURES, "clean", "IMPLEMENTATION.md"))
+        for alpha in ("1.9a", "1.10a", "1.11b", "1.12b"):
+            with self.subTest(alpha=alpha):
+                candidate = plan.replace("1.1a", alpha)
+                self.assertEqual(filecheck.check_plan(candidate), [])
+                self.assertEqual([step[0] for step in filecheck.alpha_sections(candidate)], [alpha])
+                self.assertEqual(filecheck.TASK_ID.findall("T" + alpha + ".1"), ["T" + alpha + ".1"])
+                bad = candidate.replace("**Tests:** the fixture's tests.", "")
+                self.assertTrue(any("not the six in order" in p for p in filecheck.check_plan(bad)))
+                bad = candidate.replace("T" + alpha + ".1", "T1.2a.1")
+                self.assertTrue(any("is not one of" in p for p in filecheck.check_plan(bad)))
+
+
 class Where(unittest.TestCase):
     # checks: PRC-12
     def test_finds_the_code_that_names_an_item(self):
