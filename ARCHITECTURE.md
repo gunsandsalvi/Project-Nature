@@ -46,7 +46,7 @@ Android uses API 24, statically linked C++ runtime, guarded newer APIs and 16 Ki
 
 Export unsigned, then compress, align and sign through the existing tools; only `tools/signing-key.py` reads the signing secret.
 Text catalogues/reports need explicit export inclusion; tests/addons stay excluded; no permissions are requested.
-Lossless native-library deflation requires `extractNativeLibs=true`. The shared meadow sheet is packaged once; deleting required catalogue records is not a size fix.
+Lossless native-library deflation requires `extractNativeLibs=true`. Runtime PNG levels may use exact palettes or omit opaque alpha only after verifying every decoded RGBA byte; profiled sources retain their encoding. The shared meadow sheet is packaged once; deleting required catalogue records is not a size fix.
 
 ### A2.3 Delivery of each alpha (`PRC-11`, `PLT-06`)
 

@@ -128,7 +128,7 @@ func _build() -> void:
 		else:
 			button.pressed.connect(open_page.bind(name))
 	_scrim = ColorRect.new()
-	_scrim.color = Color("17241e")
+	_scrim.color = Color("17241e66")
 	_scrim.hide()
 	_ui.add_child(_scrim)
 	_scrim.gui_input.connect(
@@ -234,7 +234,9 @@ func _layout() -> void:
 	_scrim.position = safe.position + Vector2(0, header_height)
 	_scrim.size = Vector2(safe.size.x, safe.size.y - header_height)
 	var menu_width := (
-		safe.size.x if safe.size.y > safe.size.x else minf(safe.size.x, 320.0 * scale_ui)
+		safe.size.x
+		if safe.size.y > safe.size.x
+		else minf(safe.size.x, (360.0 if _page_name == "Camp" else 320.0) * scale_ui)
 	)
 	_menu.position = safe.position + Vector2(safe.size.x - menu_width, header_height)
 	_menu.size = Vector2(menu_width, safe.size.y - header_height)
