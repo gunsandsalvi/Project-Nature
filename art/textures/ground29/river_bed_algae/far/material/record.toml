@@ -1,0 +1,75 @@
+about = "river_bed_algae far material: signed design runtime candidate"
+route = "code"
+tile_texels = 256
+texels_a_metre = 4
+first_band = 4
+sources = ["art/sources/ground29/river-algae-r1-original.png", "art/sources/ground29/river_bed_algae-near-crop.png", "art/sources/ground29/river_bed_algae-middle-crop.png", "art/sources/ground29/river_bed_algae-far-crop.png"]
+original_sha256 = ["650ff7df5d6960aa8306fe77aea02b564688702199e8398e3eb0f967be1fc53b", "b5cbea15ec2d5144e92c9880e17ca46989c5850456d4856cb2ad70d949e98113", "1c17966aad527e7a8659f6fb8dc388bb82981400123c92581f456f33a9a230b5", "b79b57eea69b830aadea7151d5ce5ab306720df150940f55213e5939106efd09"]
+c2pa = ["present", "absent", "absent", "absent"]
+requests = ["art/requests/ground29/production.txt", "art/requests/ground29/river-algae-r1.txt"]
+made = "retained image drawings, coupled source-pixel quilt and numeric traced materials"
+regrid_loss = "raw-to-grid measurements and region annotations kept beside recovered sources"
+truth = "signed design source; world overlays and water separate"
+approved = "pending independent exported-art, engine and owner runtime review"
+
+[[band]]
+level = 0
+file = "art/textures/ground29/river_bed_algae/far/material/b4.png"
+sha256 = "cd1982a76c0fcc64d1f27b57bd3c4de91b24a7433403bab8eade4d4b4679e72a"
+way = "coupled source-pixel and material-region quilt"
+
+[[band]]
+level = 1
+file = "art/textures/ground29/river_bed_algae/far/material/b5.png"
+sha256 = "ed7310a5398d0274addb9ec1981b4f9a4d5b3831655dc19b24582e0231feb8d2"
+made_from = "cd1982a76c0fcc64d1f27b57bd3c4de91b24a7433403bab8eade4d4b4679e72a"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 2
+file = "art/textures/ground29/river_bed_algae/far/material/b6.png"
+sha256 = "eb102f3a9b0e2b9d09b4c166e8ad648d074844504927020850f5ef8712f3e3f9"
+made_from = "ed7310a5398d0274addb9ec1981b4f9a4d5b3831655dc19b24582e0231feb8d2"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 3
+file = "art/textures/ground29/river_bed_algae/far/material/b7.png"
+sha256 = "cde447cfae77d536ad5f75302a0d38ae13dd5c668205ffb0f3479738740742aa"
+made_from = "eb102f3a9b0e2b9d09b4c166e8ad648d074844504927020850f5ef8712f3e3f9"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 4
+file = "art/textures/ground29/river_bed_algae/far/material/b8.png"
+sha256 = "5e5ce84e3a91565f16dbf52b9ad1bb42f826a14e070a247cfe80b67e49f85192"
+made_from = "cde447cfae77d536ad5f75302a0d38ae13dd5c668205ffb0f3479738740742aa"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 5
+file = "art/textures/ground29/river_bed_algae/far/material/b9.png"
+sha256 = "b5f0b1f5ea733ee9c87a0e76e189fbf29e0b032eee20215d5010ddb3ddeb489d"
+made_from = "5e5ce84e3a91565f16dbf52b9ad1bb42f826a14e070a247cfe80b67e49f85192"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 6
+file = "art/textures/ground29/river_bed_algae/far/material/b10.png"
+sha256 = "289509a825e1af554e71bdc0e91ab5d0a99ed680609f3a786695878350c44f63"
+made_from = "b5f0b1f5ea733ee9c87a0e76e189fbf29e0b032eee20215d5010ddb3ddeb489d"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 7
+file = "art/textures/ground29/river_bed_algae/far/material/b11.png"
+sha256 = "8c96700985e0c8c50dd62e30b124ab745af9aed61df9a0b6fed0bc6ca1f254de"
+made_from = "289509a825e1af554e71bdc0e91ab5d0a99ed680609f3a786695878350c44f63"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 8
+file = "art/textures/ground29/river_bed_algae/far/material/b12.png"
+sha256 = "db908a8a0694e04c5803b94b66538cd1ad176d970b28e65b442e5ad01c735ba8"
+made_from = "8c96700985e0c8c50dd62e30b124ab745af9aed61df9a0b6fed0bc6ca1f254de"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"

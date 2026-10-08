@@ -1,0 +1,9 @@
+Use case: stylized-concept
+Asset type: one SILTED river-bed runtime source board, three independently drawn size families.
+Reference: signed-off1.5river-bed sheet's SILTED state near its bottom, not its usual open stony bed. Match that subdued brown-grey sediment surface.
+Draw exactly three equal square opaque texture panels edge-to-edge left-to-right in one wide bitmap, no gutters, text, border, labels, scale marks or surrounding sheet.
+Directly overhead flat neutral pixel art. Left panel4m across: MOST OF THE BED IS BURIED UNDER SILT, at least80percent a calm muted brown-grey sediment surface. Show only scattered partly buried low cobble islands, soft-edged angular pixel outlines, perhaps10to15small cobble shapes across the whole square, some faint broader circular bumps implied by 2colour steps. Do NOT show densely packed open stones, do NOT show algae, do NOT paint light from one side. Silt fills and hides the cracks and pebble gaps. Tiny gritty pixel clusters of 2–3logical cells, restrained quiet texture, no one-pixel glitter.
+Centre16m: independent finer silt surface, very few small partly covered pebble groups2–4logicalcells, calmer subtly variegated sediment over larger stretches.
+Right64m: independent very quiet broad brown-grey silt/sand material drift, a few muted blue-grey stone patches barely visible through sediment, no individually enlarged stones.
+Each panel is conceived on a256logical-cell grid of crisp pixel clusters. Neutral palette #706956 #8C826C #A1977D #B4A68A with sparsegrey#848B88. No green, yellow glare, gradients, directional shading, cast shadows, water, foam, plants, props, transparency or large rocks.
+This is the silted state only, not the usual cobble bed. All panels remain recognizably the same river sediment surface at different physical scales.

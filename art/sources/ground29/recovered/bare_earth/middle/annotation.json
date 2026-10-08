@@ -1,0 +1,13 @@
+{
+  "source": {
+    "id": "bare_earth",
+    "family": "middle",
+    "original": "bare_earth-middle-original.webp",
+    "original_sha256": "4d8300e6efebb5007c4c7c4a4f882eb1a193a8127a829ad3b7c58c7016fd4f49",
+    "reference": "art/sources/bare_earth/middle-sheet.webp",
+    "source_cells": 256
+  },
+  "grid_loss": 0.16940113804883383,
+  "method": "bounded visible stone regions with traced dark rim; broad sediment and sand earth2; visible algae3",
+  "review": "candidate trace, pending independent review"
+}

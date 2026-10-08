@@ -23,7 +23,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - **The world (M3)** has an approved architecture and 24-delivery plan (owner OK, 8 October 2026), to build after M2 acceptance. Its implementation, phone evidence and final acceptance remain open.
 - **The art lane** keeps signed-off sheets as the design standard.
   Production now starts with six engine fixtures: person, animal, tree, boulder, ground and shelter.
-  Pending runtime approvals and missing seasonal shapes are resolved before bulk art.
+  By the owner’s 8 October 2026 priority, signed catalogue pieces now enter shared runtime batches while fixture integration continues. Each batch still needs independent art review and owner runtime approval.
 - **The way of working,** by your word of 7 October 2026: the main session coordinates agents and writes no code or designs; it briefs them, checks their work, merges it and brings it to you, and any agent may consult GPT through Codex, for art or for deep research.
 - **Still open from pre-production:** the ground for the card and the book, and whether reading text should be larger (P12); your ears on the camp's sound (P14); the heat of a busy scene over ten minutes (P2); the writer, proved when M9 builds the book (P13); discovery's pace with the whole catalogue, at M7's scenes (`RSK-01`).
 
@@ -33,6 +33,14 @@ A separate instance makes art while the builder builds the engine (A5.4, A6).
 The signed-off catalogue sheets stay the design standard.
 The production brief below carries the 2D decision of 8 October 2026; the old Blender-parts brief is replaced.
 A reference sheet's approval is not approval of a runtime texture, its normal map or its engine result.
+
+The signed ground batch for 1.3, 1.4 and 1.5 uses `tools/art/ground_pack.py build`.
+It retains independent near/middle/far source drawings and the river’s algae, silted and exposed states,
+recovers each family on 256 cells and carries categorical material annotations through the same quilt choices as colour.
+The three variants per state have compatible shared borders and complete aligned colour/material/normal chains.
+`python tools/art/ground_pack.py check` reads back source/page hashes, coverage, categories, dimensions and exact reductions without rebuilding.
+`art/sources/ground29/exports.json` identifies candidate records and physical spans; water and world wetness/frost/snow remain separate.
+Ground normal pages are an upward baseline; the engine binds actual terrain normals. No runtime approval is implied by a successful build or numeric check.
 
 > You are the art lane for Kindling, a Stone Age world simulation for phones.
 > Make fully 2D pixel art for a north-facing camera exactly 37° above the horizon, with the feeling of the owner's art book.
@@ -485,7 +493,7 @@ Send each result code with its phone and renderer; the report shows any unavaila
 **Tasks:**
 
 1. `T2.12a.1` **Expand reviewed art (`PRE-20`, `PRE-23`, `PRE-24`, `PRE-27`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`).**
-   Only after fixture, height, shadow, streaming and phone review, take signed-off catalogue batches into the pipeline.
+   The owner’s 8 October 2026 priority starts signed catalogue runtime batches immediately alongside the engine gates; engine and phone evidence still determine approval.
    Fill M2's camp materials, plants, shelters, figures, initial actions and seasonal shapes, including two-material sheets and dawn/noon/dusk/night views in summer and winter.
    Rain, storm and mist remain declared look fixtures; the full later activity list stays with its simulation milestone.
 2. `T2.12a.2` **Finish the port (`PLT-09`, `PRE-26`, `PRE-30`).**

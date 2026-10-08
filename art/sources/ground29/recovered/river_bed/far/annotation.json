@@ -1,0 +1,13 @@
+{
+  "source": {
+    "id": "river_bed",
+    "family": "far",
+    "original": "river_bed-far-original.webp",
+    "original_sha256": "a11980487db2089b37fe95937bf1b110170d99512ca69d335e0ee46d8a11deca",
+    "reference": "art/sources/river_bed/far-sheet.webp",
+    "source_cells": 256
+  },
+  "grid_loss": 0.0,
+  "method": "bounded visible stone regions with traced dark rim; broad sediment and sand earth2; visible algae3",
+  "review": "candidate trace, pending independent review"
+}

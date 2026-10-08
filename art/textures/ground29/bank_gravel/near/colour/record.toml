@@ -1,0 +1,75 @@
+about = "bank_gravel near colour: signed design runtime candidate"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 64
+first_band = 0
+sources = ["art/sources/ground29/bank_gravel-near-original.webp", "art/sources/ground29/bank_gravel-middle-original.webp", "art/sources/ground29/bank_gravel-far-original.webp"]
+original_sha256 = ["9bfb289aa47869e6b1de08b157189d95c34b6a431e22c78a97a3fbb9cd5a7b38", "c5149885c0506063920db46c583b5684df5d62214bd8f07d0ea51e1905a251eb", "dace85291b7091f615e7b7ac8ac06fd7ebebf6d5a86038f742b730626deabd2f"]
+c2pa = ["absent", "absent", "absent"]
+requests = ["art/requests/ground29/production.txt"]
+made = "retained image drawings, coupled source-pixel quilt and numeric traced materials"
+regrid_loss = "raw-to-grid measurements and region annotations kept beside recovered sources"
+truth = "signed design source; world overlays and water separate"
+approved = "pending independent exported-art, engine and owner runtime review"
+
+[[band]]
+level = 0
+file = "art/textures/ground29/bank_gravel/near/colour/b0.png"
+sha256 = "42d2c7cefe054801b84cc547c9e68ef8b4f9c2756a2ace25c5e904ddeed06f66"
+way = "coupled source-pixel and material-region quilt"
+
+[[band]]
+level = 1
+file = "art/textures/ground29/bank_gravel/near/colour/b1.png"
+sha256 = "f214c39910d8c4399bfbca43f1f4f116f7fcfd5e8045d3905a0d97fd732e601a"
+made_from = "42d2c7cefe054801b84cc547c9e68ef8b4f9c2756a2ace25c5e904ddeed06f66"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 2
+file = "art/textures/ground29/bank_gravel/near/colour/b2.png"
+sha256 = "2bd03e575a8863029dc80c0c721f1319f869daa55fd518581c4dbd337c2ded07"
+made_from = "f214c39910d8c4399bfbca43f1f4f116f7fcfd5e8045d3905a0d97fd732e601a"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 3
+file = "art/textures/ground29/bank_gravel/near/colour/b3.png"
+sha256 = "06f32731bb2084c2714b0927fbfef4bccc6fb08d10ff37319e85271c5c0255c8"
+made_from = "2bd03e575a8863029dc80c0c721f1319f869daa55fd518581c4dbd337c2ded07"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 4
+file = "art/textures/ground29/bank_gravel/near/colour/b4.png"
+sha256 = "7c8a3d19b801c02e2bc20887d34b90433d82957ae391b65ee0eb477756076bde"
+made_from = "06f32731bb2084c2714b0927fbfef4bccc6fb08d10ff37319e85271c5c0255c8"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 5
+file = "art/textures/ground29/bank_gravel/near/colour/b5.png"
+sha256 = "b37df3172d1b1c166e7ab9a027528b05bc850308a72bc9c05bbe693bccb5ca6d"
+made_from = "7c8a3d19b801c02e2bc20887d34b90433d82957ae391b65ee0eb477756076bde"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 6
+file = "art/textures/ground29/bank_gravel/near/colour/b6.png"
+sha256 = "1a7fba34fb30c713ca2eace99767296023d09a039e95a6ffa96a69f2a768695d"
+made_from = "b37df3172d1b1c166e7ab9a027528b05bc850308a72bc9c05bbe693bccb5ca6d"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 7
+file = "art/textures/ground29/bank_gravel/near/colour/b7.png"
+sha256 = "efba368be947b978642d21839fdae741637ce64450f4e67fbb0b6614b40985a1"
+made_from = "1a7fba34fb30c713ca2eace99767296023d09a039e95a6ffa96a69f2a768695d"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 8
+file = "art/textures/ground29/bank_gravel/near/colour/b8.png"
+sha256 = "203827fb2da6ff7ad04360c97c8945d7a74cba79ec5b9f04c21b1d22900fab9c"
+made_from = "efba368be947b978642d21839fdae741637ce64450f4e67fbb0b6614b40985a1"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"

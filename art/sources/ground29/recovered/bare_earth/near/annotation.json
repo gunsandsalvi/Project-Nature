@@ -1,0 +1,13 @@
+{
+  "source": {
+    "id": "bare_earth",
+    "family": "near",
+    "original": "bare_earth-near-original.webp",
+    "original_sha256": "d7a7cbe8eaff07a18cdfd64ccfe4af1b422a8578a45d9f933153f72a9128b228",
+    "reference": "art/sources/bare_earth/near-sheet.webp",
+    "source_cells": 256
+  },
+  "grid_loss": 0.12247697320726784,
+  "method": "bounded visible stone regions with traced dark rim; broad sediment and sand earth2; visible algae3",
+  "review": "candidate trace, pending independent review"
+}
