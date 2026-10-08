@@ -1,0 +1,13 @@
+{
+  "source": {
+    "id": "river_bed",
+    "family": "middle",
+    "original": "river_bed-middle-original.webp",
+    "original_sha256": "5486d30944ad576a52c9c9eb0fd92ad04bce074725c7e8204294fc13f0dab8cd",
+    "reference": "art/sources/river_bed/middle-sheet.webp",
+    "source_cells": 256
+  },
+  "grid_loss": 0.0,
+  "method": "bounded visible stone regions with traced dark rim; broad sediment and sand earth2; visible algae3",
+  "review": "candidate trace, pending independent review"
+}

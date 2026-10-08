@@ -1,0 +1,75 @@
+about = "river_bed_exposed_v3 middle colour: signed design runtime candidate"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 16
+first_band = 2
+sources = ["art/sources/ground29/river-exposed-r1-original.png", "art/sources/ground29/river_bed_exposed-near-crop.png", "art/sources/ground29/river_bed_exposed-middle-crop.png", "art/sources/ground29/river_bed_exposed-far-crop.png"]
+original_sha256 = ["e794abb5a15665d92ea784b6664f4fcfcc0b833d52d3e06440f8a4f2e31bd319", "f17e39ba84b308b5c01a8e82a991ab7a48e8812e5f738475d149f2fafe562836", "de12b65abaea5217ae6b6efa421593189921d8f5b1cb1ba5a590772f461d1d40", "1ae55885f6a907ac5da95cc44a1183a4c1cf86fefd5a3bc9ed9758cee66d021c"]
+c2pa = ["present", "absent", "absent", "absent"]
+requests = ["art/requests/ground29/production.txt", "art/requests/ground29/river-exposed-r1.txt"]
+made = "retained image drawings, coupled source-pixel quilt and numeric traced materials"
+regrid_loss = "raw-to-grid measurements and region annotations kept beside recovered sources"
+truth = "signed design source; world overlays and water separate"
+approved = "pending independent exported-art, engine and owner runtime review"
+
+[[band]]
+level = 0
+file = "art/textures/ground29/river_bed_exposed_v3/middle/colour/b2.png"
+sha256 = "7ae9413ec7391f303a8c34b9238ae4456ea43df9929f8006b5224a6b7fcea2ab"
+way = "coupled source-pixel and material-region quilt"
+
+[[band]]
+level = 1
+file = "art/textures/ground29/river_bed_exposed_v3/middle/colour/b3.png"
+sha256 = "b2a1641d98c91a18eb293ad6bb3785c539ac78a4b2bbc58bd854a68d0f53210f"
+made_from = "7ae9413ec7391f303a8c34b9238ae4456ea43df9929f8006b5224a6b7fcea2ab"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 2
+file = "art/textures/ground29/river_bed_exposed_v3/middle/colour/b4.png"
+sha256 = "bddf8e356a74c35a5f57244fcdb3d800aae7acefa9c3bef0b870151bf3a726cf"
+made_from = "b2a1641d98c91a18eb293ad6bb3785c539ac78a4b2bbc58bd854a68d0f53210f"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 3
+file = "art/textures/ground29/river_bed_exposed_v3/middle/colour/b5.png"
+sha256 = "b26964acce8b2262b9e854e4e652ef600e23fbc06fd80b859228699eeaa08ea2"
+made_from = "bddf8e356a74c35a5f57244fcdb3d800aae7acefa9c3bef0b870151bf3a726cf"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 4
+file = "art/textures/ground29/river_bed_exposed_v3/middle/colour/b6.png"
+sha256 = "efab9a2dde17c8519a12c6b0c875700e168c61631e0ec0cf7740c915b209b95c"
+made_from = "b26964acce8b2262b9e854e4e652ef600e23fbc06fd80b859228699eeaa08ea2"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 5
+file = "art/textures/ground29/river_bed_exposed_v3/middle/colour/b7.png"
+sha256 = "b53cab1f2560847e9e50282cb1276b4ea7648c82066d5aad4e9d8f628b85d1d1"
+made_from = "efab9a2dde17c8519a12c6b0c875700e168c61631e0ec0cf7740c915b209b95c"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 6
+file = "art/textures/ground29/river_bed_exposed_v3/middle/colour/b8.png"
+sha256 = "57e2652d0b2984222a505c29f4d8be4468e7bdbad989a9b9a763a9d36f038cb5"
+made_from = "b53cab1f2560847e9e50282cb1276b4ea7648c82066d5aad4e9d8f628b85d1d1"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 7
+file = "art/textures/ground29/river_bed_exposed_v3/middle/colour/b9.png"
+sha256 = "4bef7e6da27311b4da2912535d834f9c6aaba7e2ad4d1c580a387c48cb276be2"
+made_from = "57e2652d0b2984222a505c29f4d8be4468e7bdbad989a9b9a763a9d36f038cb5"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 8
+file = "art/textures/ground29/river_bed_exposed_v3/middle/colour/b10.png"
+sha256 = "0ae8243bd4656b0a4a5f708f607780d1b7236361ee2afb24a7ca42a825400f70"
+made_from = "4bef7e6da27311b4da2912535d834f9c6aaba7e2ad4d1c580a387c48cb276be2"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"

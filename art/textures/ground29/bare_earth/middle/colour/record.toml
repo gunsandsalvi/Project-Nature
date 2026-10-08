@@ -1,0 +1,75 @@
+about = "bare_earth middle colour: signed design runtime candidate"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 16
+first_band = 2
+sources = ["art/sources/ground29/bare_earth-near-original.webp", "art/sources/ground29/bare_earth-middle-original.webp", "art/sources/ground29/bare_earth-far-original.webp"]
+original_sha256 = ["d7a7cbe8eaff07a18cdfd64ccfe4af1b422a8578a45d9f933153f72a9128b228", "4d8300e6efebb5007c4c7c4a4f882eb1a193a8127a829ad3b7c58c7016fd4f49", "8aa0c4bba7ec5e23480813c07a04eeffb1eefa235aa615617d5e85e4e735ca62"]
+c2pa = ["absent", "absent", "absent"]
+requests = ["art/requests/ground29/production.txt"]
+made = "retained image drawings, coupled source-pixel quilt and numeric traced materials"
+regrid_loss = "raw-to-grid measurements and region annotations kept beside recovered sources"
+truth = "signed design source; world overlays and water separate"
+approved = "pending independent exported-art, engine and owner runtime review"
+
+[[band]]
+level = 0
+file = "art/textures/ground29/bare_earth/middle/colour/b2.png"
+sha256 = "cc9885d798e2a93580b66cf49098f938153e1c195d22dddcf58412f9908f261c"
+way = "coupled source-pixel and material-region quilt"
+
+[[band]]
+level = 1
+file = "art/textures/ground29/bare_earth/middle/colour/b3.png"
+sha256 = "863df47126e285cb65dac017d6d5a7e701ba645c714c5c2ff8640664336cdd4e"
+made_from = "cc9885d798e2a93580b66cf49098f938153e1c195d22dddcf58412f9908f261c"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 2
+file = "art/textures/ground29/bare_earth/middle/colour/b4.png"
+sha256 = "1d720a7e525432c429d728dd3fff471d00e4985c98da1bc1d310cb24a24cefd9"
+made_from = "863df47126e285cb65dac017d6d5a7e701ba645c714c5c2ff8640664336cdd4e"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 3
+file = "art/textures/ground29/bare_earth/middle/colour/b5.png"
+sha256 = "2a135c7a3d7230ce177250146751ba8fb6d46743ccad364bd8551b0689f56552"
+made_from = "1d720a7e525432c429d728dd3fff471d00e4985c98da1bc1d310cb24a24cefd9"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 4
+file = "art/textures/ground29/bare_earth/middle/colour/b6.png"
+sha256 = "555a5c50eb2d2184ce07d6dc096547b0efca89d34fa41a62cf78efd9da1ea830"
+made_from = "2a135c7a3d7230ce177250146751ba8fb6d46743ccad364bd8551b0689f56552"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 5
+file = "art/textures/ground29/bare_earth/middle/colour/b7.png"
+sha256 = "d005e5f4824247c9cc98e850ab30a015bdd56946c3174cb04f77b23d70c223c8"
+made_from = "555a5c50eb2d2184ce07d6dc096547b0efca89d34fa41a62cf78efd9da1ea830"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 6
+file = "art/textures/ground29/bare_earth/middle/colour/b8.png"
+sha256 = "41854309b3cef8f121cdefbdafae0b8e935715d834c3401f725d307ef20df6bb"
+made_from = "d005e5f4824247c9cc98e850ab30a015bdd56946c3174cb04f77b23d70c223c8"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 7
+file = "art/textures/ground29/bare_earth/middle/colour/b9.png"
+sha256 = "6ea6b3c7629a78d0dc1c47c10799b64c9bc3ce6d9feb4eb903e67dee8fd19286"
+made_from = "41854309b3cef8f121cdefbdafae0b8e935715d834c3401f725d307ef20df6bb"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 8
+file = "art/textures/ground29/bare_earth/middle/colour/b10.png"
+sha256 = "4620078f76a1777eee5f58e9b6cd96c70c25068e5adcdb3d2caec73b9dafa01a"
+made_from = "6ea6b3c7629a78d0dc1c47c10799b64c9bc3ce6d9feb4eb903e67dee8fd19286"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"

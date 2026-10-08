@@ -1,0 +1,75 @@
+about = "river_bed far colour: signed design runtime candidate"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 4
+first_band = 4
+sources = ["art/sources/ground29/river_bed-near-original.webp", "art/sources/ground29/river_bed-middle-original.webp", "art/sources/ground29/river_bed-far-original.webp"]
+original_sha256 = ["cbb8b18b4e3835758c4b4473e23d6179bdfa7bd083e9872b89d6a62d0b6ae32c", "5486d30944ad576a52c9c9eb0fd92ad04bce074725c7e8204294fc13f0dab8cd", "a11980487db2089b37fe95937bf1b110170d99512ca69d335e0ee46d8a11deca"]
+c2pa = ["absent", "absent", "absent"]
+requests = ["art/requests/ground29/production.txt"]
+made = "retained image drawings, coupled source-pixel quilt and numeric traced materials"
+regrid_loss = "raw-to-grid measurements and region annotations kept beside recovered sources"
+truth = "signed design source; world overlays and water separate"
+approved = "pending independent exported-art, engine and owner runtime review"
+
+[[band]]
+level = 0
+file = "art/textures/ground29/river_bed/far/colour/b4.png"
+sha256 = "967cd58582aec4e676fa1a25f1c2f6ad88e5d9aae7cd302907c77949687955fc"
+way = "coupled source-pixel and material-region quilt"
+
+[[band]]
+level = 1
+file = "art/textures/ground29/river_bed/far/colour/b5.png"
+sha256 = "d957d735252fc4f9cf49f0372f9b064f17064c586d97b78277b1340ac280aedf"
+made_from = "967cd58582aec4e676fa1a25f1c2f6ad88e5d9aae7cd302907c77949687955fc"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 2
+file = "art/textures/ground29/river_bed/far/colour/b6.png"
+sha256 = "96b2430089276cf3b63c5bec2603a7a8c5bc83257dbcb5da3dae8495d809f63f"
+made_from = "d957d735252fc4f9cf49f0372f9b064f17064c586d97b78277b1340ac280aedf"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 3
+file = "art/textures/ground29/river_bed/far/colour/b7.png"
+sha256 = "d911b7c9fd2b8080fef2d4cf455493bef59ac6154365ef7de2fff37c9d0d878a"
+made_from = "96b2430089276cf3b63c5bec2603a7a8c5bc83257dbcb5da3dae8495d809f63f"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 4
+file = "art/textures/ground29/river_bed/far/colour/b8.png"
+sha256 = "2b67be0291be0bc4438d2963e5099c414ceb7146ac7c3a9098e9f6ad7bcc6541"
+made_from = "d911b7c9fd2b8080fef2d4cf455493bef59ac6154365ef7de2fff37c9d0d878a"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 5
+file = "art/textures/ground29/river_bed/far/colour/b9.png"
+sha256 = "600629935c33a3d2b35ac0b11e0db7462845c681059385dcb5dc8a518aa8541e"
+made_from = "2b67be0291be0bc4438d2963e5099c414ceb7146ac7c3a9098e9f6ad7bcc6541"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 6
+file = "art/textures/ground29/river_bed/far/colour/b10.png"
+sha256 = "57e2652d0b2984222a505c29f4d8be4468e7bdbad989a9b9a763a9d36f038cb5"
+made_from = "600629935c33a3d2b35ac0b11e0db7462845c681059385dcb5dc8a518aa8541e"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 7
+file = "art/textures/ground29/river_bed/far/colour/b11.png"
+sha256 = "4bef7e6da27311b4da2912535d834f9c6aaba7e2ad4d1c580a387c48cb276be2"
+made_from = "57e2652d0b2984222a505c29f4d8be4468e7bdbad989a9b9a763a9d36f038cb5"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 8
+file = "art/textures/ground29/river_bed/far/colour/b12.png"
+sha256 = "0ae8243bd4656b0a4a5f708f607780d1b7236361ee2afb24a7ca42a825400f70"
+made_from = "4bef7e6da27311b4da2912535d834f9c6aaba7e2ad4d1c580a387c48cb276be2"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"

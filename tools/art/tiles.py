@@ -136,7 +136,7 @@ def _ring_scorer(tile, ring, tone_radius, accent_share, join_weight=1.5):
     low tones, share of rare colours and jump from pixel to pixel, and how rough the join is that the cut puts either
     side of the wrap (smaller is better)."""
     n = tile.shape[0]
-    f = tile.astype(np.float64)
+    f = tile[..., :3].astype(np.float64)
     tone = _blur_wrap(f.mean(axis=2), tone_radius)
     away = np.sqrt(((f - f.reshape(-1, 3).mean(axis=0)) ** 2).sum(axis=2))
     rare = (away > np.quantile(away, 1.0 - accent_share)).astype(np.float64)
@@ -267,7 +267,9 @@ def quilt(
     n = first.shape[0]
     if not 0 < ring <= overlap < patch:
         raise ValueError("the ring must lie within the overlap, and the overlap within a patch")
-    canvas = np.zeros((n, n, 3))
+    # Optional numeric labels after RGB follow the same source cuts. Only RGB
+    # influences matching and seam choice, so existing colour quilts are unchanged.
+    canvas = np.zeros((n, n, srcs[0].shape[2]))
     known = ring_mask(n, overlap)
     canvas[known] = first[known]
     fixed = ring_mask(n, ring)
@@ -330,7 +332,7 @@ def quilt(
             si, cy, cx = ok[chance.below(len(ok))]
             taken.setdefault((y0, x0), []).append((int(si), int(cy), int(cx)))
             new = srcs[si][np.ix_((cy + np.arange(patch)) % h, (cx + np.arange(patch)) % w)]
-            diff = ((new - win) ** 2).sum(axis=2)
+            diff = ((new[..., :3] - win[..., :3]) ** 2).sum(axis=2)
             use = np.ones((patch, patch), bool)
             cols, rows = win_known.all(axis=0), win_known.all(axis=1)
             fcols, frows = win_fixed.all(axis=0), win_fixed.all(axis=1)

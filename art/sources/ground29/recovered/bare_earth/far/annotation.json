@@ -1,0 +1,13 @@
+{
+  "source": {
+    "id": "bare_earth",
+    "family": "far",
+    "original": "bare_earth-far-original.webp",
+    "original_sha256": "8aa0c4bba7ec5e23480813c07a04eeffb1eefa235aa615617d5e85e4e735ca62",
+    "reference": "art/sources/bare_earth/far-sheet.webp",
+    "source_cells": 256
+  },
+  "grid_loss": 0.06740535549399815,
+  "method": "bounded visible stone regions with traced dark rim; broad sediment and sand earth2; visible algae3",
+  "review": "candidate trace, pending independent review"
+}
