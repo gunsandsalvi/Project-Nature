@@ -2,9 +2,9 @@
 
 Read `PROJECT.md` before doing anything else. It is the source of truth for what Kindling is and must do. `ARCHITECTURE.md` says how it is built, and `IMPLEMENTATION.md` says in what order. Code and tests link back to `PROJECT.md` by ID (`PRC-04`, `PRC-12`).
 
-**Now (7 October 2026):** pre-production is closed and its code deleted; production writes all its code fresh: never copy or port prototype code from git history. M1, the foundations, is built and accepted. M2, the graphics engine, is under way: α2.2b is delivered; the catalogue has 93 of its 373 pieces signed off; and the art lane starts with a pilot, four signed-off pieces (the meadow, the river, the club and the hide tent) taken from their sheets to the phone, while the catalogue goes on.
+**Now (8 October 2026):** pre-production is closed and its code deleted; production writes all its code fresh: never copy or port prototype code from git history. M1, the foundations, is built and accepted. M2, the graphics engine, is now fully 2D: on 8 October 2026 the owner replaced the 3D pilot with 2D pixel art and a fixed 37° camera, keeping the rich light (`PRE-01`, `PRE-02`); M2 starts again at α2.7a, the projection and six art fixtures. The catalogue has 127 of its 373 pieces signed off; its sheets are the art standard.
 
-**How the work is done (7 October 2026):** the main session is the coordinator. It briefs the agents, checks what they make, merges and pushes, and passes messages between them and the owner; it writes no code and no designs. The agents build, make the art and research, each on its own branch, and any of them may consult GPT through Codex (`tools/art/`), for art or for deep research.
+**How the work is done (8 October 2026):** the main session is the coordinator. It briefs GPT through Codex for every task (building, art, reviews and research), one conversation per task, each builder on its own branch; it checks what comes back, merges and pushes, and passes messages between GPT and the owner; it writes no code and no designs. Claude subagents are not used.
 
 **Only three documents:** what is not in `PROJECT.md`, `ARCHITECTURE.md` or `IMPLEMENTATION.md` is not kept; there are no research notes or lessons files to go back to. Run only what a change touches while building, and the full check once, before a delivery.
 
