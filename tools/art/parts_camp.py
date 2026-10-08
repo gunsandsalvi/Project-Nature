@@ -31,6 +31,7 @@ from mathutils import Euler, Vector
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "blender"))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import export  # noqa: E402
+import parts_screen  # noqa: E402
 import parts_tent  # noqa: E402
 import parts_things  # noqa: E402
 from standins import Builder, joint, lathe  # noqa: E402
@@ -153,7 +154,7 @@ def make_family():
         obj.location = (x, 0.0, 0.0)
         x += 1.0
     x = 6.0
-    for obj in [*parts_tent.make_parts(), *parts_things.make_parts()]:
+    for obj in [*parts_tent.make_parts(), *parts_things.make_parts(), *parts_screen.make_parts()]:
         obj.location = (x, 0.0, 0.0)
         x += 6.0
         parts.append(obj)

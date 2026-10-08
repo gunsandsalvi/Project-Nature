@@ -1,0 +1,72 @@
+about = "the greyish buff deer or reindeer hide of the screen, soft stepped dapples in two tones with short hair running down the picture, a seam strip of running stitches in its first 4 columns; near tile, 2.0 m across, version 1"
+route = "picture"
+tile_texels = 128
+texels_a_metre = 64
+first_band = 0
+sources = ["art/sources/hide/hide-E.webp", "art/sources/hide/hide-F.webp", "art/sources/hide/hide-strip-2.webp", "art/sources/hide_buff/colour.webp"]
+original_sha256 = ["8be73298af2b84cf5eb1035ac50237c39d046b27268b25454c24b703f334becf", "fb77df208c28e10c7c07680fec75c262e4cb17f332d565215442cd7f03d8cf84", "fd29feabf181354225be403bfb6217eb11d2b384444d9891e6d2420f251b0ff0", "72496ea2a2115f41958f82fbdee4c4935a2880a91075249c171aa6424426687e"]
+c2pa = ["present", "present", "present", "absent"]
+requests = ["art/requests/tent/turn-01.txt", "art/requests/tent/turn-02.txt", "art/requests/tent/turn-03.txt", "art/requests/tent/turn-05.txt"]
+made = "drawn by the artist in conversation with the art lane at the size the game shows a hide (a texture pixel 1.6 cm), and put on the texture-pixel grid by code; version 1 of 1, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 2 designed for the bands it serves"
+regrid_loss = "14.3%: the drawing sits on no exact grid, its cells found and each made one pixel (the share of its pixels that differ from their cell's colour)"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; hide with hair and dapples, a running stitch, no smoke flaps, no painted designs, no metal"
+approved = "not offered yet: made for the hide screen, waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/hide_buff/b0.png"
+sha256 = "96ca691dde38247eae1db7d46234de02ab3cabd88fdd223f9f8c4627eda48828"
+way = "the drawing put on its own grid (cells of about 8 picture pixels, loss 14.3%), moved to the reference's colour; every version quilted from the drawings in patches of 48 round a ring cut from where the first drawing's edges are most ordinary, so none is the drawing itself and any two join without a seam; its first 4 columns are the seam strip, the artist's own drawing (its pattern of 8 rows, the colour most repeats have), repeated down the tile"
+regrid_loss = "14.3%"
+calibration = "lightness +2.5; hue +11.7; colourfulness 61%; contrast 100%"
+
+[[band]]
+level = 1
+file = "art/textures/hide_buff/b1.png"
+sha256 = "ba4e1503c8efec33f53389c29079e4c1bd7a60474ca1441e5f1b3c31a939b282"
+made_from = "96ca691dde38247eae1db7d46234de02ab3cabd88fdd223f9f8c4627eda48828"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.04; lightness -0.0; hue -0.0; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 2
+file = "art/textures/hide_buff/b2.png"
+sha256 = "b3c17095faf2bcf7cfe34b846f57d6c6afa9016a2db6680d175fa4b9d07a9df0"
+made_from = "ba4e1503c8efec33f53389c29079e4c1bd7a60474ca1441e5f1b3c31a939b282"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.01; lightness -0.0; hue +0.0; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 3
+file = "art/textures/hide_buff/b3.png"
+sha256 = "c4d0f2cc7bb8a42da0975828c5dd8bf92e3aea719af7a2d908a6c464a7af53b7"
+made_from = "b3c17095faf2bcf7cfe34b846f57d6c6afa9016a2db6680d175fa4b9d07a9df0"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/hide_buff/b4.png"
+sha256 = "2139f45cf0b10bb01f664c45eec81b85e94d1c07f529fdf1f0feeb14bac90773"
+made_from = "c4d0f2cc7bb8a42da0975828c5dd8bf92e3aea719af7a2d908a6c464a7af53b7"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/hide_buff/b5.png"
+sha256 = "dbb5f5f1c0512b96e3170ac6b26fb0398618921faaa96381dc39deee69e8a338"
+made_from = "2139f45cf0b10bb01f664c45eec81b85e94d1c07f529fdf1f0feeb14bac90773"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/hide_buff/b6.png"
+sha256 = "ee1f7d42e1481ae4e08b12ea1801691c97ce1250ddc6ee43b13f4a1554bb7acb"
+made_from = "dbb5f5f1c0512b96e3170ac6b26fb0398618921faaa96381dc39deee69e8a338"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/hide_buff/b7.png"
+sha256 = "a6cf37788504bd00899ac8c96cdd464dba7dc9d241741f1da94b7fe9436ffc00"
+made_from = "ee1f7d42e1481ae4e08b12ea1801691c97ce1250ddc6ee43b13f4a1554bb7acb"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

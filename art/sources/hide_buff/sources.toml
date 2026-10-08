@@ -1,0 +1,7 @@
+# The sources beside this file (A5.4): each picture's original's SHA-256, whether it carried its C2PA
+# record, and what it is. Written by tools/art/ingest.py.
+
+["colour.webp"]
+sha256 = "72496ea2a2115f41958f82fbdee4c4935a2880a91075249c171aa6424426687e"
+c2pa = "absent"
+note = "a flat swatch, 32 x 32 pixels, of the sheet's own palette colour for the greyish buff hide B (#B19A76, catalogue 16.12, signed off 7 October 2026), made by code, kept only for its colour: the hide texture is moved to it (colour_from)"

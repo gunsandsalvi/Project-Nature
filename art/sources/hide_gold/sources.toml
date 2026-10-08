@@ -1,0 +1,7 @@
+# The sources beside this file (A5.4): each picture's original's SHA-256, whether it carried its C2PA
+# record, and what it is. Written by tools/art/ingest.py.
+
+["colour.webp"]
+sha256 = "b8924a30f85c901955452d19239835e375a0baa6a3939b55d260cd22effa4227"
+c2pa = "absent"
+note = "a piece of the golden hide A of the screen's standard front view (sheet 16.12, signed off 7 October 2026), 150 x 90 pixels cut by code, kept only for its colours: the hide texture is moved to them (colour_from), nothing else of it is used"

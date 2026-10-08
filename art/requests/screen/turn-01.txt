@@ -1,0 +1,18 @@
+Hello. I'm the art director of the art lane: we turn the owner's signed-off catalogue sheets into the textures and parts that the game engine reads. You drew the design standard for the sheet below; I build it in Blender from your written design, and I am asking you for your eye, as a designer, on how the part looks in the game. Push back on anything here you think is wrong. This turn is only for your judgement in words: please do not use your image tool and do not save any file.
+
+This conversation is one piece: 16.12, the hide screen (Kindling, a Stone Age world simulation for phones): a curtain of six unequal sewn hides hung from a ridge pole between two forked posts across the front of a rock shelter, 5 m wide and 2.3 m high, its foot weighed with eleven stones, with a door flap.
+
+HOW THE ENGINE SHOWS IT: the camera looks 37 degrees down, late afternoon, a texture pixel is about 2 x 2 screen pixels at the closest zoom (128 screen pixels a metre), so it is about 0.6 as tall as it is wide on the ground. The pieces are parts of a kit: each of the six hides is a part of its own (a triangulated outline, outer and inner skin, hung in shallow folds, its top edge scalloped between the six ties, the hide texture from the tent's signed-off one darkened to each hide's tone), the nine seams are one part of sewn strips (the hide texture's seam strip of running stitches, laid along each seam on the hide that laps), the flap, the two forked posts, the pole, the six ties and the eleven stones are parts too. The seam lines, the six hides' outlines and the junctions are your design's, smoothed a little so that the stitched strip can follow them.
+
+THE PICTURES WITH THIS MESSAGE
+1. screen-front.png: your front view, the standard.
+2. screen-cam-a.png: your own camera view from the sheet, the standard.
+3. screen-game-a.png: the screen as the game draws it at the closest zoom, from the front, on cracked bare earth.
+4. screen-game-b.png: the same screen turned 25 degrees.
+
+WHAT I NEED, IN A FEW LINES
+- Does it read as your sheet's hide screen: six unequal hides of the design's tones and seams, the scalloped top hung from six ties, the flap over the slit, eleven stones? What is different, in proportions, tones and folds?
+- Your standard gathers each hide into deep folds that fan down from its tie, and its stones are larger and paler; mine has shallow folds and smaller, darker stones. Which of these matters most at this size?
+- At most four changes, the most important first. If it is good enough to offer the owner beside your sheet, say so plainly.
+
+Reply in a few lines. Do not draw; do not save any file.

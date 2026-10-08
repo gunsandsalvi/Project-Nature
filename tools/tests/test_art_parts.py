@@ -135,6 +135,45 @@ class CampFamily(unittest.TestCase):
         said = run.stdout + run.stderr
         self.assertEqual([line for line in said.splitlines() if re.search(r"art:(hearth_ring|firewood)\w*", line)], [])
 
+    # checks: PRE-46 PRE-22
+    @unittest.skipUnless(os.path.exists(KD_KIT), "kd_kit is not built (set KD_KIT to its path)")
+    def test_the_screen_is_five_metres_wide_and_two_and_a_bit_high_its_six_hides_flap_posts_and_pole_all_there(self):
+        found = kit_info(os.path.join(self.tmp.name, "camp.kdkit"))
+        for name in "abcdef":  # sheet 16.12's six unequal hides, in the full and the simple form
+            self.assertGreater(found[f"screen_hide_{name}"][0], found[f"screen_hide_{name}_simple"][0], name)
+        self.assertIn("screen_curtain_marker", found)
+        x0, y0, _, x1, y1, _ = found["screen_pole"][1]
+        self.assertAlmostEqual(x1 - x0, 5.0, delta=0.02)  # the ridge pole, 5 m
+        self.assertAlmostEqual(y0 + (y1 - y0) / 2.0, 2.20, delta=0.01)  # lying at z = 2.20
+        for name in ("screen_post_left", "screen_post_right"):
+            _, y0, _, _, y1, _ = found[name][1]
+            self.assertAlmostEqual(y1, 2.30, delta=0.03, msg=name)  # 2.3 m showing
+            self.assertAlmostEqual(y0, -0.10, delta=0.01, msg=name)  # and 0.1 m in the ground
+        x0, y0, _, x1, y1, _ = found["screen_flap"][1]
+        self.assertAlmostEqual(y1 - y0, 1.5, delta=0.05)  # the flap, 1.5 m tall
+        self.assertAlmostEqual(x1 - x0, 0.84, delta=0.06)  # and 0.8 m wide
+        lows, highs = [], []
+        for name in "abcdef":
+            x0, y0, _, x1, y1, _ = found[f"screen_hide_{name}"][1]
+            lows.append(x0)
+            highs.append(x1)
+            self.assertLessEqual(y1, 2.16, name)  # hung from the ties at 2.15
+        self.assertAlmostEqual(max(highs) - min(lows), 4.6, delta=0.15)  # the curtain, x 0.25 to 4.75 and its lobes
+        x0, y0, _, x1, y1, _ = found["screen_stones"][1]
+        self.assertAlmostEqual(x1 - x0, 4.45, delta=0.2)  # eleven stones along the foot
+        self.assertAlmostEqual(y1, 0.28, delta=0.03)  # the highest 0.25 m made a seventh larger
+
+    # checks: PRE-46
+    @unittest.skipUnless(os.path.exists(KD_KIT), "kd_kit is not built (set KD_KIT to its path)")
+    def test_the_screens_recipes_fit_the_family(self):
+        with tempfile.TemporaryDirectory() as kit:
+            shutil.copy(os.path.join(self.tmp.name, "camp.kdkit"), kit)
+            run = subprocess.run(
+                [KD_KIT, "check", os.path.join(ROOT, "data"), kit], capture_output=True, text=True, cwd=ROOT
+            )
+        said = run.stdout + run.stderr
+        self.assertEqual([line for line in said.splitlines() if re.search(r"art:shelter_screen\w*", line)], [])
+
 
 @unittest.skipUnless(BLENDER, "Blender is not installed (tools/setup.sh)")
 class RocksFamily(unittest.TestCase):
