@@ -4,6 +4,10 @@
 ground = "art:meadow"
 bed = "art:river_bed"
 marks = "art:river_marks"
+# the ground's other three: open dry ground where growth is thin, the trodden ground round the camp, and the bank's gravel
+earth = "art:bare_earth"
+worn = "art:wear"
+gravel = "art:bank_gravel"
 # the square's half side, and half the width of the strip of heightfield the river runs in
 reach = "1024 m"
 strip = "48 m"
@@ -43,13 +47,10 @@ club_turn = 70
 camp_seed = 3
 # The patch picture (A4.6): the ground's masses of taller and shorter growth, golden where short and dry and deeper green
 # where tall, 48 m across at the biggest, swinging the colour 45% at the extremes; where growth is under 20% the ground
-# shows bare earth between its blades; round the tent it is worn for 2.4 m and fades over 3.2 more. The earth is a
-# stand-in colour, a darker brown than the meadow sheet's earth swatch because the light lifts it, until the art lane's
-# bare earth is the ground's own.
+# shows open dry ground between its blades; round the tent it is trodden for 2.4 m and fades over 3.2 more.
 patch_seed = 11
 growth_scale = "48 m"
 growth_swing = "45%"
 bare_below = "20%"
 clearing = "2.4 m"
 clearing_fade = "3.2 m"
-earth_colour = "#937854"

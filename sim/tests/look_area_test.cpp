@@ -59,6 +59,9 @@ constexpr const char* kArea =
     "ground = \"art:meadow\"\n"
     "bed = \"art:river_bed\"\n"
     "marks = \"art:river_marks\"\n"
+    "earth = \"art:bare_earth\"\n"
+    "worn = \"art:wear\"\n"
+    "gravel = \"art:bank_gravel\"\n"
     "reach = \"1024 m\"\n"
     "strip = \"48 m\"\n"
     "bank = \"0.4 m\"\n"
@@ -86,7 +89,6 @@ constexpr const char* kArea =
     "bare_below = \"20%\"\n"
     "clearing = \"5 m\"\n"
     "clearing_fade = \"5 m\"\n"
-    "earth_colour = \"#b39161\"\n"
     "form_simple = 150\n"
     "form_small = 70\n"
     "form_margin = \"5%\"\n";
@@ -120,7 +122,7 @@ constexpr const char* kWater =
 std::vector<data::SourceFile> with_files(const std::string& area, const std::string& water) {
     std::vector<data::SourceFile> files = kd::test::good();
     files.push_back({"art/source.toml", kArt});
-    for (const char* name : {"meadow", "river_bed", "river_marks"}) {
+    for (const char* name : {"meadow", "river_bed", "river_marks", "bare_earth", "wear", "bank_gravel"}) {
         files.push_back({std::string("art/textures/") + name + "/record.toml", kTexture});
     }
     for (const char* name : {"hide_tent_cone", "hide_tent_cone_simple", "hide_tent_cone_small", "club"}) {
@@ -211,7 +213,10 @@ TEST_CASE("the stand-in area is one tuning entry: three surfaces named by their 
     CHECK(a.bare_below == 200'000);
     CHECK(a.clearing == 5'000);
     CHECK(a.clearing_fade == 5'000);
-    CHECK(a.earth_colour == "#b39161");
+    // the three more surfaces the ground wears: open dry ground, trodden ground and the bank's gravel
+    CHECK(a.earth == "art:bare_earth");
+    CHECK(a.worn == "art:wear");
+    CHECK(a.gravel == "art:bank_gravel");
     CHECK(data::run_checks(cat).empty());
 }
 
@@ -253,7 +258,7 @@ TEST_CASE("the area and the water count only in the look's digest, and a change 
     const data::EntryDigests water_before = cat.kind<look::WaterTuning>().digests(0);
     CHECK(area_before.fields[0] == 0);
     CHECK(area_before.fields[1] == 0);
-    CHECK(area_before.fields[2] == 34);
+    CHECK(area_before.fields[2] == 36);
     CHECK(water_before.fields[0] == 0);
     CHECK(water_before.fields[1] == 0);
     CHECK(water_before.fields[2] == 23);
@@ -290,8 +295,13 @@ TEST_CASE("the strip must hold the river and the square be wider than the strip;
                                           "strip = \"64 m\""),
                                  kWater),
                 "reach"));
-    // the earth's colour is #rrggbb
-    CHECK(names(checked_problems(replaced(kArea, "\"#b39161\"", "\"#B39161\""), kWater), "earth_colour"));
+    // the earth, the worn ground and the gravel are textures the catalogue has
+    CHECK(names(checked_problems(replaced(kArea, "art:bare_earth", "art:no_earth"), kWater),
+                "names no texture \"art:no_earth\""));
+    CHECK(names(checked_problems(replaced(kArea, "art:wear", "art:no_wear"), kWater),
+                "names no texture \"art:no_wear\""));
+    CHECK(names(checked_problems(replaced(kArea, "art:bank_gravel", "art:no_gravel"), kWater),
+                "names no texture \"art:no_gravel\""));
     // a camp too far from the river for the strip to hold it
     CHECK(names(checked_problems(replaced(kArea, "camp_back = \"8 m\"", "camp_back = \"40 m\""), kWater), "camp_back"));
     // a thing no recipe has, where there are recipes

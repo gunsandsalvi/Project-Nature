@@ -69,7 +69,7 @@ static func _publish(tuning: Dictionary, toward: Vector3) -> void:
 	patches.fill(Color(0.5, 0.0, 0.0, 1.0))
 	_global("kd_patches", ImageTexture.create_from_image(patches))
 	_global("kd_patches_place", Vector4(-32.0, -32.0, 64.0, 0.0))
-	_global("kd_patch_look", Vector4(0.0, 0.0, 0.0, 0.0))
+	_global("kd_patch_swing", 0.0)
 	var grid := Image.create(64, 64, false, Image.FORMAT_RGBA8)
 	grid.fill(Color8(0, 0, 0, 0))
 	_global("kd_fire_grid", ImageTexture.create_from_image(grid))

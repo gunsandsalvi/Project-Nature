@@ -94,13 +94,15 @@ Patches make(double camp_east, double camp_north, const Params& params) {
             const double thin = thin_growth * patchy;
             // the edge strays, so a clearing and a bare patch are never round
             const double stray = (noise(params, 0, east, north, kEdgeScale) - 0.5) * kEdgeStray;
-            const double wear = std::max(cleared, kBarePatchWear * thin) + stray * std::max(cleared, thin);
+            // the trodden ground round the camp, and the open dry ground where growth is thin, are two grounds
+            const double wear = cleared + stray * cleared;
+            const double bare = kBarePatchWear * thin + stray * thin;
             std::uint8_t* at = &out.data[(static_cast<std::size_t>(row) * static_cast<std::size_t>(params.size) +
                                           static_cast<std::size_t>(column)) *
                                          4];
             at[0] = byte_of(growth);
             at[1] = byte_of(wear);
-            at[2] = 0;
+            at[2] = byte_of(bare);
             at[3] = 255;
         }
     }

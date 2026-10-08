@@ -1,7 +1,8 @@
 // The area's patch picture (A4.6, A5.3, PRE-20, WLD-31): a small picture of the ground's patches, each 4 m across, that
 // the ground's shader reads so the one ground tile does not spread an even carpet over the whole area. For each patch
 // it holds how tall and lush the growth is (a mass of taller and shorter growth, from smooth noise at the scale the
-// tuning gives) and how worn the ground is (the clearing round the camp, and bare earth showing where growth is thin).
+// tuning gives), how worn the ground is (the clearing round the camp) and how much open dry ground shows where growth
+// is thin.
 // The world makes the real picture from its seed and what people did (M3); this is the stand-in area's, made by code
 // from the area's own numbers, the same every time. It touches no Godot, so its tests run alone; view/src/maps_draw.hpp
 // makes the picture. East is x and north is y, in metres.
@@ -24,8 +25,9 @@ struct Params {
 };
 
 /// The picture: size by size patches, four bytes a patch, a row of the array from the picture's south edge north, a
-/// patch's four bytes: growth (0 short and dry to 255 tall and lush), wear (0 none to 255 bare earth), damp (0, kept
-/// for the shore) and 255.
+/// patch's four bytes: growth (0 short and dry to 255 tall and lush), wear (0 none to 255 trodden bare, the ground
+/// round the camp), bare (0 none to 255 open dry ground showing where growth is thin) and 255, kept for the shore's
+/// damp.
 struct Patches {
     int size = 0;
     double west = 0.0;   // the west edge's place, in metres east

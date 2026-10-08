@@ -26,9 +26,9 @@ var patches_west := 0.0
 var patches_south := 0.0
 var patches_width := 0.0
 ## What the ground's shader was last given for the picture: its square in the rig's metres, and
-## the earth's colour (linear) with the swing of the ground's colour with growth.
+## the swing of the ground's colour with growth.
 var patches_place := Vector4.ZERO
-var patches_look := Vector4.ZERO
+var patches_swing := 0.0
 
 
 ## Makes the maps round the things of a kit (their ids) and publishes them; "" or the problem.
@@ -71,11 +71,9 @@ func build_patches(world: KdWorld, camp_east: float, camp_north: float) -> Strin
 	patches_south = float(made["south"])
 	patches_width = float(made["width"])
 	patches = ImageTexture.create_from_image(made["picture"])
-	var earth := Color(str(tuning["earth_colour"])).srgb_to_linear()
-	var swing := float(tuning["growth_swing"]) / 1.0e6
-	patches_look = Vector4(earth.r, earth.g, earth.b, swing)
+	patches_swing = float(tuning["growth_swing"]) / 1.0e6
 	RenderingServer.global_shader_parameter_set("kd_patches", patches)
-	RenderingServer.global_shader_parameter_set("kd_patch_look", patches_look)
+	RenderingServer.global_shader_parameter_set("kd_patch_swing", patches_swing)
 	return ""
 
 

@@ -23,6 +23,9 @@ struct AreaTuning {
     std::string ground;
     std::string bed;
     std::string marks;
+    std::string earth;
+    std::string worn;
+    std::string gravel;
     std::int64_t reach = 0;
     std::int64_t strip = 0;
     std::int64_t bank = 0;
@@ -50,10 +53,9 @@ struct AreaTuning {
     std::int64_t bare_below = 0;     // parts per million
     std::int64_t clearing = 0;       // millimetres
     std::int64_t clearing_fade = 0;  // millimetres
-    std::string earth_colour;
-    std::int64_t form_simple = 0;  // screen pixels
-    std::int64_t form_small = 0;   // screen pixels
-    std::int64_t form_margin = 0;  // parts per million
+    std::int64_t form_simple = 0;    // screen pixels
+    std::int64_t form_small = 0;     // screen pixels
+    std::int64_t form_margin = 0;    // parts per million
 
     template <typename V, typename Self>
     static void visit(V& v, Self& a) {
@@ -68,6 +70,12 @@ struct AreaTuning {
         v.text(
             {"marks", "the water's marks, flow lines and foam on see-through, named as the ground's is", Affects::look},
             a.marks);
+        v.text(
+            {"earth", "the open dry ground's texture, where growth is thin, named as the ground's is", Affects::look},
+            a.earth);
+        v.text({"worn", "the trodden ground's texture, round the camp's tent, named as the ground's is", Affects::look},
+               a.worn);
+        v.text({"gravel", "the river bank's gravel texture, named as the ground's is", Affects::look}, a.gravel);
         v.quantity({"reach", "half the side of the square the area covers", Affects::look}, a.reach, Measure::length,
                    {64'000, 8'000'000});
         v.quantity({"strip", "half the width of the strip of heightfield the river runs in", Affects::look}, a.strip,
@@ -132,10 +140,6 @@ struct AreaTuning {
             a.clearing, Measure::length, {1'000, 100'000});
         v.quantity({"clearing_fade", "how far past the clearing the wear takes to leave", Affects::look},
                    a.clearing_fade, Measure::length, {500, 100'000});
-        v.text(
-            {"earth_colour", "the bare earth's colour, as #rrggbb, until the art lane's bare earth is the ground's own",
-             Affects::look},
-            a.earth_colour);
         v.whole({"form_simple", "the tent's width on the screen, in pixels, under which its simple form is drawn",
                  Affects::look},
                 a.form_simple, {2, 4'000});

@@ -62,9 +62,9 @@ kd_patches_place={
 "type": "vec4",
 "value": Vector4(0, 0, 64, 0)
 }
-kd_patch_look={
-"type": "vec4",
-"value": Vector4(0, 0, 0, 0)
+kd_patch_swing={
+"type": "float",
+"value": 0.0
 }
 kd_fire_grid={
 "type": "sampler2D",

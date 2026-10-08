@@ -240,12 +240,8 @@ func test_the_patch_picture_is_centred_on_the_tent_and_worn_there() -> void:
 			low = minf(low, picture.get_pixel(column, row).r)
 			high = maxf(high, picture.get_pixel(column, row).r)
 	assert_float(high - low).is_greater(0.5)
-	# the earth's colour is the tuning's, in linear light, and the swing its share
-	var look := maps.patches_look
-	var earth := Color(str(tuning["earth_colour"])).srgb_to_linear()
-	assert_float(look.x).is_equal_approx(earth.r, 1e-4)
-	assert_float(look.z).is_equal_approx(earth.b, 1e-4)
-	assert_float(look.w).is_equal_approx(float(tuning["growth_swing"]) / 1.0e6, 1e-6)
+	# the swing of the ground's colour with growth is the tuning's share
+	assert_float(maps.patches_swing).is_equal_approx(float(tuning["growth_swing"]) / 1.0e6, 1e-6)
 
 
 # checks: PRE-20 WLD-31

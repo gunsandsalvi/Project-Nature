@@ -35,9 +35,8 @@ TEST_CASE("the patch picture is a square of 64 patches of 4 m with the camp in t
     CHECK(p.south == doctest::Approx(1100.0 - 130.0));
     // the camp is the middle of patch 32, a patch's width from the corner of four
     CHECK(1000.0 - p.west == doctest::Approx(32.5 * 4.0));
-    // the fourth byte is full, and the damp byte is kept empty for the shore
+    // the fourth byte is full, kept for the shore's damp
     CHECK(channel(p, 1000.0, 1100.0, 3) == 255);
-    CHECK(channel(p, 1050.0, 1000.0, 2) == 0);
 }
 
 // checks: PRE-20 WLD-31
@@ -142,10 +141,13 @@ TEST_CASE("bare earth shows only where growth is thin, and most of the area is c
                                         static_cast<std::size_t>(column));
             const int growth = p.data[at];
             const int wear = p.data[at + 1];
-            if (wear > 128) {
+            const int open_ground = p.data[at + 2];
+            // outside the clearing nothing is trodden
+            CHECK(wear < 30);
+            if (open_ground > 60) {
                 ++bare;
-                // a patch worn to half is thin: growth under the bare line (a share of 255) with the edge's stray
-                // beside it
+                // open dry ground shows where growth is thin: under the bare line (a share of 255) with the edge's
+                // stray beside it
                 CHECK(static_cast<double>(growth) < (params.bare_below + 0.25) * 255.0);
             }
         }

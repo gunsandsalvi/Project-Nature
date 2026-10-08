@@ -4,7 +4,6 @@
 #include <string_view>
 #include <utility>
 
-#include "kd/look/light_tuning.hpp"
 #include "kd/look/model.hpp"
 #include "kd/look/texture.hpp"
 
@@ -42,14 +41,15 @@ void check_area(const data::Catalogue& cat, std::vector<data::Problem>& problems
             problems.push_back(
                 areas.at(i, "form_small", "must be fewer pixels than form_simple, the larger form switching first"));
         }
-        if (!is_colour_text(a.earth_colour)) {
-            problems.push_back(areas.at(i, "earth_colour", "must be a colour written #rrggbb in lower case"));
-        }
         // with no art loaded the engine runs without textures or recipes, so the surfaces and the camp's things are
         // held to entries only when there are some
         if (cat.kind<Texture>().size() != 0) {
-            const std::array<std::pair<std::string_view, const std::string*>, 3> surfaces{
-                {{"ground", &a.ground}, {"bed", &a.bed}, {"marks", &a.marks}}};
+            const std::array<std::pair<std::string_view, const std::string*>, 6> surfaces{{{"ground", &a.ground},
+                                                                                           {"bed", &a.bed},
+                                                                                           {"marks", &a.marks},
+                                                                                           {"earth", &a.earth},
+                                                                                           {"worn", &a.worn},
+                                                                                           {"gravel", &a.gravel}}};
             for (const auto& [key, name] : surfaces) {
                 if (!cat.find("textures", *name)) {
                     problems.push_back(areas.at(i, key, "names no texture \"" + *name + "\" in the catalogue"));
