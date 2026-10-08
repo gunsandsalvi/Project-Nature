@@ -141,8 +141,7 @@ int64_t KdCrowd::draw_now(double t, int64_t origin_east, int64_t origin_north, d
         return 0;
     }
     CrowdStepper& stepper = *world_->stepper();
-    stepper.snapshots().take();
-    const Snapshot& s = stepper.snapshots().front();
+    const Snapshot& s = world_->display().snapshot();
     const num::Torus& torus = world::World::kTorus;
     const demo::Square square = world_->crowd()->square();
     const num::Point origin = torus.wrap(origin_east, origin_north);

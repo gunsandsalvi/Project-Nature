@@ -28,6 +28,7 @@
 #include "kd/save/files.hpp"
 #include "kd/save/keeper.hpp"
 #include "pace.hpp"
+#include "projection.hpp"
 
 namespace kd::view {
 
@@ -149,6 +150,7 @@ public:
     godot::PackedFloat64Array places(int64_t origin_east, int64_t origin_north) const;
 
     // for the crowd class
+    [[nodiscard]] const DisplaySnapshot& display() const { return display_; }
     [[nodiscard]] CrowdStepper* stepper() const { return stepper_.get(); }
     [[nodiscard]] const data::Catalogue* catalogue() const { return catalogue_.get(); }
     [[nodiscard]] const demo::CrowdWorld* crowd() const { return crowd_.get(); }
@@ -157,6 +159,7 @@ protected:
     static void _bind_methods();
 
 private:
+    DisplaySnapshot display_;
     [[nodiscard]] HeatRules heat_rules() const;
     /// The free space where the world is kept, in megabytes, as each save checks it (PLT-10).
     void check_space();

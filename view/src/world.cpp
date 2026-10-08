@@ -194,6 +194,9 @@ void KdWorld::start_runner(run::Steppable& world, std::function<std::uint64_t()>
                            const char* thread) {
     marked_ = std::make_unique<run::Marked>(world, std::move(digest));
     runner_ = std::make_unique<run::Runner>(*marked_, start, thread);
+    if (stepper_) {
+        display_.acquire(*stepper_);
+    }
 }
 
 void KdWorld::start_crowd(int64_t seed, int64_t camps) {
@@ -490,6 +493,7 @@ void KdWorld::frame() {
     }
     runner_->set_goal(pace_.frame(real, runner_->frontier()));
     if (stepper_) {
+        display_.acquire(*stepper_);
         stepper_->set_screen(pace_.screen());
         real_ += real;
         event_samples_.emplace_back(real_, stepper_->events());
@@ -612,6 +616,9 @@ void KdWorld::run_until(int64_t moment) {
     KD_CHECK(runner_ != nullptr, "view::KdWorld: no world has started");
     runner_->set_goal(moment);
     runner_->wait_for(moment);
+    if (stepper_) {
+        display_.acquire(*stepper_);
+    }
 }
 
 void KdWorld::begin_at(int64_t moment) {

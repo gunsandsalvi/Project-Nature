@@ -115,7 +115,10 @@ void Gestures::fold() {
             // y grows downward, so a growing angle turns clockwise on the screen
             const double turned =
                 short_way((num::atan2pi(b1.y - a1.y, b1.x - a1.x) - num::atan2pi(b0.y - a0.y, b0.x - a0.x)) * 180.0);
-            if (turning_) {
+            if (!can_turn_) {
+                // T2.7a.2, PRE-02: fixed local cameras have no turning route.
+                pending_twist_ = 0.0;
+            } else if (turning_) {
                 motion_.twist += turned;
             } else {
                 // a twist begins only once the fingers have turned kTwistStart together, so a pinch never turns the
