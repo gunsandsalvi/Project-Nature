@@ -3,10 +3,10 @@ route = "code"
 tile_texels = 1024
 texels_a_metre = 64
 first_band = 0
-sources = ["art/sources/fixtures27/neutral/birch-winter-near-original.png", "art/sources/fixtures27/neutral/birch-winter-middle-original.png", "art/sources/fixtures27/neutral/birch-winter-far-original.png"]
-original_sha256 = ["1521c09518daf4c605040e9984fe55dc2169a5c1f50255368041ac8b10880276", "6638816a5be4a9dde3cf8557769b218b10b8e5da3c3de5d4cce084bb0873fe5e", "bc2fab3c6f11048a7cc608b41c1c868a9074485ae4f7f2cbe26e71cdeca4e43d"]
+sources = ["art/sources/fixtures27/neutral/birch-winter-near-original.png", "art/sources/fixtures27/neutral/birch-winter-middle-original.png", "art/sources/fixtures27/revision/birch-winter-far-r2-original.png"]
+original_sha256 = ["1521c09518daf4c605040e9984fe55dc2169a5c1f50255368041ac8b10880276", "6638816a5be4a9dde3cf8557769b218b10b8e5da3c3de5d4cce084bb0873fe5e", "f17f7f38200aa336a3ae4893138a0e881fd27e781b23298e802aa1b94cc4f68d"]
 c2pa = ["present", "present", "present"]
-requests = ["art/requests/fixtures27/production.txt"]
+requests = ["art/requests/fixtures27/production.txt", "art/requests/fixtures27/neutral/birch-winter-middle.txt", "art/requests/fixtures27/neutral/birch-winter-near.txt"]
 made = "image drawing; tools/art/fixtures.py cleanup; neutral bare winter colour; same branch pattern redraw"
 regrid_loss = "block loss, exact-grid detection and source scale recorded in exports.json"
 truth = "8 October 2026: existing sheet design; this export requires the art and engine reviews"
@@ -15,75 +15,75 @@ approved = "pending owner runtime review and engine lighting calibration"
 [[band]]
 level = 0
 file = "art/textures/fixtures27/birch_winter_crown/near/normal/b0.png"
-sha256 = "0a982b629e148a8df1fefb43c78552b2e63850c717280fdee3e2a8df262907af"
+sha256 = "21fdc938a753777495b4cc60ec4d37ceb1ca470ae0d824fe165af76a0affc647"
 way = "image-drawn family; block cleanup and palette snap"
 
 [[band]]
 level = 1
 file = "art/textures/fixtures27/birch_winter_crown/near/normal/b1.png"
-sha256 = "b1130e310d84c8cf6d8ed5216bcef20afc3d957e75f3469be3d6f972d4952375"
-made_from = "0a982b629e148a8df1fefb43c78552b2e63850c717280fdee3e2a8df262907af"
+sha256 = "0e605688eec01d48ddb4b48af862fa605e5c1e27bf3f3920a29a91c28f5ef8c7"
+made_from = "21fdc938a753777495b4cc60ec4d37ceb1ca470ae0d824fe165af76a0affc647"
 way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
 
 [[band]]
 level = 2
 file = "art/textures/fixtures27/birch_winter_crown/near/normal/b2.png"
-sha256 = "271389d28a2c0933000a28db55c6a4f2bf4fae9ca475d55ed486055893337931"
-made_from = "b1130e310d84c8cf6d8ed5216bcef20afc3d957e75f3469be3d6f972d4952375"
+sha256 = "f6e3873f98a5219b512e17b1493b1a6e7aff6c16e811a66e8a4769d337826f28"
+made_from = "0e605688eec01d48ddb4b48af862fa605e5c1e27bf3f3920a29a91c28f5ef8c7"
 way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
 
 [[band]]
 level = 3
 file = "art/textures/fixtures27/birch_winter_crown/near/normal/b3.png"
-sha256 = "532083b4c6012c872cc7ff6efde324758e0831c40150b7b18fdcb2fa3630e366"
-made_from = "271389d28a2c0933000a28db55c6a4f2bf4fae9ca475d55ed486055893337931"
+sha256 = "939e089668117fda3e7c90e48a1c916a1c2d099ff319db4831145951f969bee4"
+made_from = "f6e3873f98a5219b512e17b1493b1a6e7aff6c16e811a66e8a4769d337826f28"
 way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
 
 [[band]]
 level = 4
 file = "art/textures/fixtures27/birch_winter_crown/near/normal/b4.png"
-sha256 = "e2e7d413249610658db852372acd58c3484dbf62c2a9c10c0cd1339b55a0f9bd"
-made_from = "532083b4c6012c872cc7ff6efde324758e0831c40150b7b18fdcb2fa3630e366"
+sha256 = "91646d67073654a4911511a7b0134b2fd6c236af5903e60b68d3fb26ac7932e6"
+made_from = "939e089668117fda3e7c90e48a1c916a1c2d099ff319db4831145951f969bee4"
 way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
 
 [[band]]
 level = 5
 file = "art/textures/fixtures27/birch_winter_crown/near/normal/b5.png"
-sha256 = "535b83d6a4a5878b11e94029d7147711f1c798363d958e056d8501de6115250c"
-made_from = "e2e7d413249610658db852372acd58c3484dbf62c2a9c10c0cd1339b55a0f9bd"
+sha256 = "21ce46ff00b61b6c8cb2688fa272f9b585d7e236e8700d57de6dbb9e622a4aee"
+made_from = "91646d67073654a4911511a7b0134b2fd6c236af5903e60b68d3fb26ac7932e6"
 way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
 
 [[band]]
 level = 6
 file = "art/textures/fixtures27/birch_winter_crown/near/normal/b6.png"
-sha256 = "9c2fee24090fd7f2c2df0a4f7bf2dacb9bc447bf3b85fdd69629a54ba13453a9"
-made_from = "535b83d6a4a5878b11e94029d7147711f1c798363d958e056d8501de6115250c"
+sha256 = "98fb7dd3c57589c2070d90fafdae76bb4472789efd96c0205565d192ec21e5cd"
+made_from = "21ce46ff00b61b6c8cb2688fa272f9b585d7e236e8700d57de6dbb9e622a4aee"
 way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
 
 [[band]]
 level = 7
 file = "art/textures/fixtures27/birch_winter_crown/near/normal/b7.png"
-sha256 = "a542d2a6012a0bfa28e2710c11287d337f10f4d36d121b9f8c2642984214bf6b"
-made_from = "9c2fee24090fd7f2c2df0a4f7bf2dacb9bc447bf3b85fdd69629a54ba13453a9"
+sha256 = "92d0d61931874d24eb7b59c730fda83cff6cbf16ca6e20084a3ab6bc300a298d"
+made_from = "98fb7dd3c57589c2070d90fafdae76bb4472789efd96c0205565d192ec21e5cd"
 way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
 
 [[band]]
 level = 8
 file = "art/textures/fixtures27/birch_winter_crown/near/normal/b8.png"
-sha256 = "5938ec17313f4add0fd3c9be014516eb436a93d94bdd493c1cc5a593cfb7d910"
-made_from = "a542d2a6012a0bfa28e2710c11287d337f10f4d36d121b9f8c2642984214bf6b"
+sha256 = "28ccb9dd0985302041582d70ac6d4a93dab256d25e23d4d31256000319adf13b"
+made_from = "92d0d61931874d24eb7b59c730fda83cff6cbf16ca6e20084a3ab6bc300a298d"
 way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
 
 [[band]]
 level = 9
 file = "art/textures/fixtures27/birch_winter_crown/near/normal/b9.png"
-sha256 = "fbc1a776e7b54985fd31c92a53a3146d3a7da37244e2239a4e547ffd14c2169c"
-made_from = "5938ec17313f4add0fd3c9be014516eb436a93d94bdd493c1cc5a593cfb7d910"
+sha256 = "3c5204e449a5ef8e9693f0261cfcd91960ad3759e8df86b6379e17b4a0d3939c"
+made_from = "28ccb9dd0985302041582d70ac6d4a93dab256d25e23d4d31256000319adf13b"
 way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
 
 [[band]]
 level = 10
 file = "art/textures/fixtures27/birch_winter_crown/near/normal/b10.png"
-sha256 = "d7aa6e66683fb9192ebdc60664ceef1b4e4dea8ad1d79615fa42aae495aa89b9"
-made_from = "fbc1a776e7b54985fd31c92a53a3146d3a7da37244e2239a4e547ffd14c2169c"
+sha256 = "4419ccc1c8f7b264271a0a03f7058c1229e5ec2ffd855b65ff02ab0b50355e47"
+made_from = "3c5204e449a5ef8e9693f0261cfcd91960ad3759e8df86b6379e17b4a0d3939c"
 way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"

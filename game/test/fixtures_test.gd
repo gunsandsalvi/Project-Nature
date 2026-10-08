@@ -35,6 +35,9 @@ func test_atlases_reject_bad_pivots_units_grids_and_paths() -> void:
 		"mask_type",
 		"normal_basis",
 		"material_format",
+		"sheet_path",
+		"sheet_missing",
+		"sheet_external",
 		"pieces"
 	]:
 		var entries: Array = JSON.parse_string(
@@ -61,6 +64,12 @@ func test_atlases_reject_bad_pivots_units_grids_and_paths() -> void:
 				entries[0].material_format = "rgb-colour"
 			"pieces":
 				entries[0].pieces = {"crown": [0, 0, 9999, 9999]}
+			"sheet_path":
+				entries[3].sheet = "res://data/sheets/../meadow.kdsheet"
+			"sheet_missing":
+				entries[3].sheet = "res://data/sheets/missing.kdsheet"
+			"sheet_external":
+				entries[3].sheet = "res://other/meadow.kdsheet"
 			"mask_type":
 				entries[0].material_levels = {"64": ["tree-mask-64.png"]}
 		var path := "user://fixture-invalid.json"
@@ -71,6 +80,15 @@ func test_atlases_reject_bad_pivots_units_grids_and_paths() -> void:
 		assert_str(atlas.problem).is_not_empty()
 		assert_int(atlas.entries.size()).is_equal(0)
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+
+
+# checks: PRE-27 PRE-31: reuse the identical packed catalogue sheet for ground inspection.
+func test_ground_inspection_loads_the_shared_packed_meadow_sheet() -> void:
+	var page := _page()
+	page.drawing.entries[3].sheet = "res://data/sheets/meadow.kdsheet"
+	page._inspect_piece(3)
+	assert_object(page._sheet.texture).is_not_null()
+	page.free()
 
 
 # checks: PRE-03 PRE-22 PRE-33 PLT-02 TIM-17 (T2.7a.2).

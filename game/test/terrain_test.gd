@@ -9,10 +9,128 @@ func _page(scene: String) -> Control:
 	page.frozen = true
 	add_child(page)
 	page.set_process(false)
+	page.drawing.moving_mask_time = 0.0
 	page.layout(Vector2(1080, 2400), Rect2(0, 0, 1080, 2400))
 	page.set_scene(scene)
 	page._process(0.0)
 	return page
+
+
+# checks: PRE-23 PRE-24 (T2.8a.2): a tall trunk keeps the order of its ground footprint.
+func test_trunk_covers_a_rear_person_and_admits_a_front_person() -> void:
+	var page := _page("flat")
+	var trunk: Dictionary = {}
+	for item: Dictionary in page.drawing.draw_list():
+		if item.id == -12:
+			trunk = item
+	var piece: Dictionary = page.drawing._sprite_piece(trunk)
+	var foot: Vector3 = trunk.record.point
+	var foot_depth := (
+		-float(page.state.height_basis) * foot.y + float(page.state.ground_basis) * foot.z
+	)
+	# Use the real projected trunk overlap, then put actors on either side of its footprint.
+	var front: Dictionary = page.drawing._piece(
+		-80, trunk.record.surface, trunk.rect, foot_depth + 0.2, false
+	)
+	var rear: Dictionary = page.drawing._piece(
+		-81, trunk.record.surface, trunk.rect, foot_depth - 0.2, false
+	)
+	var order: Array = page.drawing.terrain.order([front, piece, rear])
+	assert_int(order.find(-12)).is_greater(order.find(-81))
+	assert_int(order.find(-80)).is_greater(order.find(-12))
+	page.free()
+
+
+# checks: PRE-23 PRE-30 (T2.8a.3): the light sits above a flame grounded on its receiver.
+func test_fire_flame_starts_on_flat_and_sloped_ground() -> void:
+	for scene: String in ["flat", "slope"]:
+		var page := _page(scene)
+		var light: Vector3 = page.drawing.light_record.fire
+		var floor_point: Vector3 = page.drawing.terrain.walk(light.x, light.y).point
+		var flame: PackedVector2Array = page.drawing._fire.polygon
+		assert_vector((flame[0] + flame[2]) / 2.0).is_equal(
+			page.camera.project(floor_point.x, floor_point.y, floor_point.z)
+		)
+		assert_float(light.z).is_equal_approx(floor_point.z + 0.6, 0.0001)
+		assert_int(page.drawing.id_table["9001"].surface).is_equal(
+			page.drawing.terrain.walk(light.x, light.y).surface
+		)
+		page.free()
+
+
+# checks: PRE-24 PRE-26 (T2.8a.3): bed refraction uses the current frame's receiver ordering.
+func test_prepared_bed_has_current_receiver_order_on_first_frame_and_scene_change() -> void:
+	var page := _page("water")
+	for next_scene: String in ["cliff", "water", ""]:
+		for id: int in page.drawing._copies:
+			assert_int(page.drawing._copies[id].z_index).is_equal(
+				page.drawing._surface_nodes[id].z_index
+			)
+		if not next_scene.is_empty():
+			page.set_scene(next_scene)
+			page._process(0.0)
+	page.free()
+
+
+# checks: PRE-21 PRE-31 PLT-04: an off-screen actor keeps its shadow on visible ground.
+func test_culled_person_still_casts_into_the_visible_shadow_halo() -> void:
+	var page := _page("flat")
+	page.camera.zoom(2.0, Vector2(540, 1200), true)
+	page.dusk = true
+	page.drawing.direction = 2
+	page._process(0.0)
+	var visible_ids := []
+	for item: Dictionary in page.drawing.draw_list():
+		visible_ids.append(item.id)
+	assert_bool(visible_ids.has(-7)).is_false()
+	assert_float(page.drawing.terrain.visibility(Vector3(-0.5, -6.5, 0), 0).sun).is_less(0.2)
+	page.free()
+
+
+# checks: PRE-21 PRE-31 PLT-04 TIM-17: acceleration does not increase mask upload frequency.
+func test_accelerated_scene_samples_only_on_the_real_time_mask_tick() -> void:
+	var page := _page("flat")
+	var shadow: float = page.drawing.terrain.visibility(Vector3.ZERO, 0).sun
+	assert_float(shadow).is_equal(0.0)
+	page._preview_second = 3.0
+	page.drawing.moving_mask_time = 0.05
+	page._process(0.0)
+	assert_float(page.drawing.terrain.visibility(Vector3.ZERO, 0).sun).is_equal(shadow)
+	page.drawing.moving_mask_time = 0.1
+	page._process(0.0)
+	assert_float(page.drawing.terrain.visibility(Vector3.ZERO, 0).sun).is_greater(shadow)
+	page.free()
+
+
+# checks: PRE-26 PRE-31: water clipping and picks cover all submerged sprite materials.
+func test_submerged_object_feet_are_clipped_from_colour_semantics_and_picking() -> void:
+	var page := _page("water")
+	for pass_kind: String in ["colour", "object", "material"]:
+		page.pass_name = pass_kind
+		page._process(0.0)
+		for item: Dictionary in page.drawing.draw_list():
+			(
+				assert_float(
+					page.drawing._lit_sprites[item.id].get_shader_parameter("water_height")
+				)
+				. is_equal(page.drawing._water_height)
+			)
+			if pass_kind != "colour":
+				(
+					assert_bool(
+						page.drawing._sprites[item.id].get_meta("semantic").get_shader_parameter(
+							"clip_water"
+						)
+					)
+					. is_true()
+				)
+	page.pass_name = "colour"
+	page._process(0.0)
+	for item: Dictionary in page.drawing.draw_list():
+		var submerged: Vector2 = item.foot - Vector2(0, 1)
+		var hit: Dictionary = page.drawing.pick(submerged)
+		assert_int(hit.get("id", 0)).is_not_equal(item.id)
+	page.free()
 
 
 # checks: PRE-23 PRE-24 PRE-33 (T2.8a.2): real height and order across chunks.

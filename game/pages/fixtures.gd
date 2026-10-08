@@ -265,7 +265,7 @@ func _inspect_piece(index: int) -> void:
 	var entry: Dictionary = drawing.entries[index]
 	_description.text = "%s · %s" % [entry.name, entry.status]
 	_sheet.texture = (
-		GameData.sheet_texture("res://fixtures/" + entry.sheet) if entry.sheet != "" else null
+		GameData.sheet_texture(drawing.atlas.sheet_path(entry.sheet)) if entry.sheet != "" else null
 	)
 
 

@@ -147,12 +147,20 @@
       "lighting_policy": "Neutral colour; moving light applies once. Maps need engine review.",
       "authored_families": true,
       "sources": {
-        "near": "art/sources/fixtures27/neutral/birch-summer-near-original.png",
-        "middle": "art/sources/fixtures27/neutral/birch-summer-middle-original.png",
-        "far": "art/sources/fixtures27/neutral/birch-summer-far-original.png"
+        "near": "art/sources/fixtures27/revision/birch-summer-near-r2-original.png",
+        "middle": "art/sources/fixtures27/revision/birch-summer-middle-r2-original.png",
+        "far": "art/sources/fixtures27/revision/birch-summer-far-r2-original.png"
       },
       "gutter": 1,
-      "normal": "Mild alpha-edge bevel in the declared world basis; independent of colour. Engine calibration pending."
+      "normal": "Restrained cylindrical bark and broad drooping spray volumes in world east/south/up; independent of colour. Engine calibration pending.",
+      "birch_repair": true,
+      "shared_wood_sources": {
+        "near": "art/sources/fixtures27/neutral/birch-winter-near-original.png",
+        "middle": "art/sources/fixtures27/neutral/birch-winter-middle-original.png",
+        "far": "art/sources/fixtures27/revision/birch-winter-far-r2-original.png"
+      },
+      "quiet_colour_flecks": true,
+      "directional_study": true
     },
     {
       "id": "birch-winter",
@@ -200,11 +208,19 @@
       "sources": {
         "near": "art/sources/fixtures27/neutral/birch-winter-near-original.png",
         "middle": "art/sources/fixtures27/neutral/birch-winter-middle-original.png",
-        "far": "art/sources/fixtures27/neutral/birch-winter-far-original.png"
+        "far": "art/sources/fixtures27/revision/birch-winter-far-r2-original.png"
       },
       "gutter": 1,
       "crown_width_m": 7,
-      "normal": "Mild alpha-edge bevel in the declared world basis; independent of colour. Engine calibration pending."
+      "normal": "Restrained cylindrical bark and broad drooping spray volumes in world east/south/up; independent of colour. Engine calibration pending.",
+      "birch_repair": true,
+      "shared_wood_sources": {
+        "near": "art/sources/fixtures27/neutral/birch-winter-near-original.png",
+        "middle": "art/sources/fixtures27/neutral/birch-winter-middle-original.png",
+        "far": "art/sources/fixtures27/revision/birch-winter-far-r2-original.png"
+      },
+      "quiet_colour_flecks": true,
+      "directional_study": true
     },
     {
       "id": "boulder",

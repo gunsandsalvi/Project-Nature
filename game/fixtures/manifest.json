@@ -112,7 +112,7 @@
     ],
     "frames": 1,
     "facings": 1,
-    "sheet": "ground.kdsheet",
+    "sheet": "res://data/sheets/meadow.kdsheet",
     "normal": "",
     "material": "",
     "height_unit": "mm",

@@ -73,4 +73,9 @@ ok "no permissions"
 SIZE="$(stat -c %s "$APK")"
 [ "$SIZE" -le $((50 * 1024 * 1024)) ] || fail "$((SIZE / 1024)) KB, over the 50 MB a committed file may have"
 ok "$((SIZE / 1024 / 1024)) MB, within 50 MB"
+
+# checks: PLT-06 PRC-11 PRE-31
+# Fixture deliveries need their raw metadata and design sheets, plus every imported atlas channel.
+# The validator leaves earlier deliveries alone; material records begin with the terrain delivery.
+python3 "$ROOT/tools/apk-fixtures.py" "$APK" "$CODE" || fail "packaged fixture resources"
 echo "APK check: OK"

@@ -68,7 +68,7 @@ func _metadata(entry: Dictionary, index: int) -> bool:
 		return _fail("Fixture names, IDs or height units do not match the local fixture contract.")
 	if not _dimensions(entry):
 		return false
-	return _actions(entry) and _pieces(entry)
+	return _actions(entry) and _pieces(entry) and _sheet(entry)
 
 
 func _types(entry: Dictionary) -> bool:
@@ -122,6 +122,26 @@ func _paths(levels: Dictionary) -> bool:
 	for key: Variant in levels:
 		if not key is String or not levels[key] is String:
 			return _fail("Atlas levels need text density keys and resource paths.")
+	return true
+
+
+## Implements PRE-27 PRE-31: share packed catalogue sheets without duplicating their bytes.
+func sheet_path(resource: String) -> String:
+	if resource.is_empty() or resource.contains(".."):
+		return ""
+	var prefix := "res://data/sheets/" if resource.begins_with("res://data/sheets/") else ""
+	var filename := resource.trim_prefix(prefix)
+	if filename.contains("/") or filename.contains(":") or not filename.ends_with(".kdsheet"):
+		return ""
+	return resource if not prefix.is_empty() else "res://fixtures/" + resource
+
+
+func _sheet(entry: Dictionary) -> bool:
+	if entry.sheet.is_empty():
+		return true
+	var path := sheet_path(entry.sheet)
+	if path.is_empty() or not FileAccess.file_exists(path):
+		return _fail("Fixture sheets need an existing local fixture or packed catalogue sheet.")
 	return true
 
 

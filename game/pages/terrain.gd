@@ -16,6 +16,8 @@ func _init() -> void:
 
 func _build() -> void:
 	super._build()
+	# PRE-31: source sheets are opt-in so the terrain review stays visible.
+	_sheet.hide()
 	# PRE-31: these restricted receivers prove three fixture actors, not a crowd benchmark.
 	for button: Button in _controls.find_children("*", "Button", true, false):
 		if button.text == "World people":
@@ -35,6 +37,7 @@ func _build() -> void:
 	drawing.entrance_requested.connect(toggle_cave)
 	_button(tools, "Cave entrance / exit", toggle_cave)
 	_button(tools, "Reveal", func() -> void: drawing.reveal = not drawing.reveal)
+	_button(tools, "Design sheet", func() -> void: _sheet.visible = not _sheet.visible)
 	_button(
 		tools,
 		"Select person",

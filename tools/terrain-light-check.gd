@@ -16,7 +16,18 @@ func _init() -> void:
 		table.append(Vector4(values[0], values[1], values[2], values[3]))
 	var basis: float = KdCanvas.new().frame(1080, 2400).height_basis
 	var names := [
-		"east", "north", "up", "shade", "emit", "emit_shade", "mask_emit", "fire", "fire_blocked"
+		"east",
+		"north",
+		"up",
+		"shade",
+		"emit",
+		"emit_shade",
+		"mask_emit",
+		"fire",
+		"fire_blocked",
+		"water_plain",
+		"water_contact",
+		"water_clipped"
 	]
 	for index in names.size():
 		var sprite := Sprite2D.new()
@@ -34,7 +45,13 @@ func _init() -> void:
 		material.set_shader_parameter("material_table", table)
 		material.set_shader_parameter("material_kind", 9 if index in [4, 5] else 0)
 		material.set_shader_parameter("sun_bands", Vector3.ZERO if index in [3, 5] else Vector3.ONE)
-		material.set_shader_parameter("fire_on", index >= 7)
+		material.set_shader_parameter("fire_on", index in [7, 8])
+		if index >= 9:
+			material.set_shader_parameter(
+				"water_height", 15.0 / (32.0 * basis) + (0.3 if index == 11 else 0.0)
+			)
+			material.set_shader_parameter("water_bounds", Vector4(-100, -100, 100, 100))
+			material.set_shader_parameter("water_contact", index == 10)
 		material.set_shader_parameter("fire_position", Vector3(0, 0, 2))
 		material.set_shader_parameter("fire_bands", Vector3.ZERO if index == 8 else Vector3.ONE)
 		var normal := Image.create(1, 1, false, Image.FORMAT_RGBAF)
@@ -66,6 +83,8 @@ func _init() -> void:
 	passed = passed and values.emit > 0.5 and absf(values.emit - values.emit_shade) < 0.005
 	passed = passed and absf(values.mask_emit - values.emit) < 0.005
 	passed = passed and values.fire > values.fire_blocked + 0.08
+	passed = passed and values.water_contact > values.water_plain + 0.02
+	passed = passed and absf(values.water_clipped - pixels.get_pixel(0, 0).r) < 0.005
 	var args := OS.get_cmdline_user_args()
 	if not args.is_empty():
 		pixels.save_png(args[0] + "-light-check.png")

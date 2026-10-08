@@ -22,6 +22,7 @@ var ordering: Array = []
 var surface_records: Array = []
 var faded: Array[int] = []
 var cpu_rebuild_ms := 0.0
+var moving_mask_time := -1.0
 var _surface_nodes: Dictionary = {}
 var _lit_sprites: Dictionary = {}
 var _masks: Dictionary = {}
@@ -35,6 +36,7 @@ var _silhouettes: Dictionary = {}
 var _layer_lines: Dictionary = {}
 var _fire: Polygon2D
 var _water_height := -100.0
+var _water_bounds := Vector4.ZERO
 var _scene_revision := ""
 var _proxies: Array = []
 var _plain: Texture2D
@@ -77,7 +79,11 @@ func _draw() -> void:
 	if not state.is_empty():
 		draw_rect(
 			Rect2(Vector2.ZERO, state.size),
-			Color("07101b") if scene_name == "cave" else Color("233237")
+			(
+				Color.BLACK
+				if pass_name != "colour"
+				else Color("07101b") if scene_name == "cave" else Color("233237")
+			)
 		)
 	# Ground is drawn by its measured receiver pieces.
 
@@ -93,7 +99,8 @@ func rebuild() -> void:
 		_revision = revision
 	_draws.clear()
 	var density: int = int(state.density)
-	for actor: Dictionary in terrain.actors(second):
+	var actors: Array = terrain.actors(second)
+	for actor: Dictionary in actors:
 		_actor(actor, density)
 	# Atlas splits are developer metadata; the physical proxies remain independent of visual fading.
 	var tree_at := Vector2(-5, -2) if scene_name == "cliff" else POSITIONS.tree
@@ -107,13 +114,17 @@ func rebuild() -> void:
 		copy.visible = false
 	for copy: Sprite2D in _silhouettes.values():
 		copy.visible = false
-	var clock := int(floor(second * 10.0))
+	# PRE-21 PLT-04: sampling follows scene time; the upload limit follows real time.
+	var mask_second := (
+		moving_mask_time if moving_mask_time >= 0.0 else Time.get_ticks_usec() / 1000000.0
+	)
+	var clock := int(floor(mask_second * 10.0))
 	var update_masks := changed or clock != _mask_clock
 	if update_masks:
 		var bodies := []
-		for item: Dictionary in _draws:
-			if item.entry.name in ["person", "animal"]:
-				bodies.append({"id": item.id, "point": item.record.point})
+		# PRE-21: sprites may be culled while their shadows still reach visible receivers.
+		for actor: Dictionary in actors:
+			bodies.append({"id": actor.id, "point": actor.point})
 		terrain.bodies(bodies)
 		_mask_clock = clock
 	for target: SubViewport in [_bed, _reflections]:
@@ -129,13 +140,14 @@ func rebuild() -> void:
 	var pieces := _receivers(update_masks)
 	if fire_enabled:
 		var fire_point: Vector3 = light_record.fire
-		var fire_pixel: Vector2 = camera.project(fire_point.x, fire_point.y, fire_point.z)
 		var floor_record: Dictionary = terrain.walk(fire_point.x, fire_point.y)
+		var flame: PackedVector2Array = _flame_points()
+		var flame_rect := Rect2(flame[0], Vector2.ZERO).expand(flame[1]).expand(flame[2])
 		pieces.append(
 			_piece(
 				-20,
 				floor_record.surface,
-				Rect2(fire_pixel - Vector2(6, 28), Vector2(12, 28)),
+				flame_rect,
 				(
 					-float(state.height_basis) * fire_point.y
 					+ float(state.ground_basis) * fire_point.z
@@ -144,16 +156,7 @@ func rebuild() -> void:
 			)
 		)
 	for item: Dictionary in _draws:
-		var p: Vector3 = item.record.get("point", Vector3(0, 0, 0))
-		var depth := -float(state.height_basis) * p.y + float(state.ground_basis) * p.z
-		if item.id in [-11, -12]:
-			for proxy: Dictionary in _proxies:
-				if proxy.id == (2 if item.id == -11 else 1):
-					var centre: Vector3 = (proxy.low + proxy.high) / 2.0
-					depth = (
-						-float(state.height_basis) * centre.y + float(state.ground_basis) * centre.z
-					)
-		pieces.append(_piece(item.id, item.record.get("surface", 0), item.rect, depth, false))
+		pieces.append(_sprite_piece(item))
 	ordering = terrain.order(pieces)
 	problem = (
 		""
@@ -167,6 +170,8 @@ func rebuild() -> void:
 		var id: int = ordering[index]
 		if _surface_nodes.has(id):
 			_surface_nodes[id].z_index = index + 1
+			if _copies.has(id):
+				_copies[id].z_index = index + 1
 		elif _sprites.has(id):
 			_sprites[id].z_index = index + 1
 	_reveal_and_light()
@@ -176,6 +181,18 @@ func rebuild() -> void:
 	queue_redraw()
 
 
+func _sprite_piece(item: Dictionary) -> Dictionary:
+	var p: Vector3 = item.record.get("point", Vector3.ZERO)
+	var depth := -float(state.height_basis) * p.y + float(state.ground_basis) * p.z
+	# PRE-24: the trunk orders by its footprint; only the raised crown uses proxy height.
+	if item.id == -11:
+		for proxy: Dictionary in _proxies:
+			if proxy.id == 2:
+				var centre: Vector3 = (proxy.low + proxy.high) / 2.0
+				depth = -float(state.height_basis) * centre.y + float(state.ground_basis) * centre.z
+	return _piece(item.id, item.record.get("surface", 0), item.rect, depth, false)
+
+
 func _reset_scene() -> void:
 	if scene_name != _scene_revision:
 		_scene_revision = scene_name
@@ -183,9 +200,16 @@ func _reset_scene() -> void:
 		surface_records = terrain.surfaces()
 		_proxies = terrain.proxies()
 		_water_height = -100.0
+		_water_bounds = Vector4.ZERO
 		for record: Dictionary in surface_records:
 			if record.kind == 4:
 				_water_height = record.corners[0].z
+				_water_bounds = Vector4(
+					record.corners[0].x,
+					record.corners[0].y,
+					record.corners[2].x,
+					record.corners[2].y
+				)
 		for group: Dictionary in [_surface_nodes, _copies, _layer_lines]:
 			for node: Node in group.values():
 				node.queue_free()
@@ -449,10 +473,8 @@ func _reveal_and_light() -> void:
 		lit.set_shader_parameter("pivot", item.foot - item.rect.position)
 		lit.set_shader_parameter("density", state.density)
 		lit.set_shader_parameter("height_basis", state.height_basis)
-		lit.set_shader_parameter(
-			"water_height",
-			_water_height if scene_name == "water" and item.entry.name == "person" else -100.0
-		)
+		lit.set_shader_parameter("water_height", _water_height if scene_name == "water" else -100.0)
+		lit.set_shader_parameter("water_bounds", _water_bounds)
 		for kind: String in ["normal", "material"]:
 			var texture: Texture2D = atlas.texture(item.entry, int(state.density), "walk", kind)
 			lit.set_shader_parameter("has_" + kind, texture != null)
@@ -490,11 +512,11 @@ func _reveal_and_light() -> void:
 			node.material = lit
 		if pass_name != "colour":
 			var semantic: ShaderMaterial = node.get_meta("semantic")
-			for key: String in ["foot", "pivot", "density", "height_basis", "water_height"]:
+			for key: String in [
+				"foot", "pivot", "density", "height_basis", "water_height", "water_bounds"
+			]:
 				semantic.set_shader_parameter(key, lit.get_shader_parameter(key))
-			semantic.set_shader_parameter(
-				"clip_water", scene_name == "water" and item.entry.name == "person"
-			)
+			semantic.set_shader_parameter("clip_water", scene_name == "water")
 			var mask: Texture2D = atlas.texture(item.entry, int(state.density), "walk", "material")
 			semantic.set_shader_parameter(
 				"use_material_index", pass_name == "material" and mask != null
@@ -593,12 +615,20 @@ func _debug_layers() -> void:
 		label.text = "%d:%d" % [record.id, ordering.find(record.id)]
 
 
+func _flame_points() -> PackedVector2Array:
+	# PRE-23 PRE-30: the emitter remains above ground, while the visible flame touches its receiver.
+	var p: Vector3 = light_record.fire
+	var ground: Vector3 = terrain.walk(p.x, p.y).point
+	var foot: Vector2 = camera.project(ground.x, ground.y, ground.z)
+	var top: Vector2 = camera.project(ground.x, ground.y, ground.z + 0.9)
+	return PackedVector2Array([foot + Vector2(-5, 0), top, foot + Vector2(5, 0)])
+
+
 func _fire_preview(depth: int) -> void:
 	_fire.visible = fire_enabled
 	var p: Vector3 = light_record.fire
 	var foot: Vector2 = camera.project(p.x, p.y, p.z)
-	var top: Vector2 = camera.project(p.x, p.y, p.z + 0.9)
-	_fire.polygon = PackedVector2Array([foot + Vector2(-5, 0), top, foot + Vector2(5, 0)])
+	_fire.polygon = _flame_points()
 	_fire.z_index = depth
 	var material: ShaderMaterial = _fire.get_meta("light_material")
 	_lighting(material)
@@ -617,7 +647,9 @@ func _fire_preview(depth: int) -> void:
 			"identity_colour", identity(9001 if pass_name == "object" else 9)
 		)
 		_fire.material = semantic
-	id_table["9001"] = {"id": "-20", "source": "developer flame", "surface": 20}
+	id_table["9001"] = {
+		"id": "-20", "source": "developer flame", "surface": terrain.walk(p.x, p.y).surface
+	}
 
 
 func pick(pixel: Vector2) -> Dictionary:
@@ -641,9 +673,16 @@ func pick(pixel: Vector2) -> Dictionary:
 			if actor.id != id or not actor.rect.has_point(pixel) or faded.has(id):
 				continue
 			var p: Vector3 = actor.record.get("point", Vector3.ZERO)
+			var east: float = p.x + (pixel.x - actor.foot.x) / float(state.density)
+			var within_water := (
+				east >= _water_bounds.x
+				and east <= _water_bounds.z
+				and p.y >= _water_bounds.y
+				and p.y <= _water_bounds.w
+			)
 			if (
 				scene_name == "water"
-				and actor.entry.name == "person"
+				and within_water
 				and pixel.y > camera.project(p.x, p.y, _water_height).y
 			):
 				continue
