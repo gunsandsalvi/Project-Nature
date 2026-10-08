@@ -8,6 +8,7 @@ import os
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 import numpy as np
 from PIL import Image
@@ -65,6 +66,38 @@ def upright_lengths(picture):
 
 
 class Sheet(unittest.TestCase):
+    # checks: PRE-46
+    def test_short_scale_caption_fits_without_extending_the_physical_stick(self):
+        mark = sheet.lying(24, "10 cm")
+        _, box = sheet.label_box("10 cm")
+        self.assertGreaterEqual(mark.width, box[2] - box[0] + 8)
+        self.assertEqual(stick_lengths(mark.crop((0, mark.height - 12, mark.width, mark.height))), 24)
+
+    # checks: PRE-22 PRE-46
+    def test_camera_marks_show_world_lengths_with_projected_heights(self):
+        with tempfile.TemporaryDirectory() as d:
+            drawn((20, 30), [(RED, (5, 2, 15, 28))], speck=False).save(os.path.join(d, "deer.png"))
+            spec = {
+                "views": {"items": [{"file": "deer.png", "tall": 1.9}]},
+                "camera_objects": {
+                    "items": [{"file": "deer.png", "tall": 1.9 * 0.7986355100472928}],
+                    "stick": 2.1,
+                    "phone_sizes": False,
+                    "upright_sticks": [
+                        {"metres": 1.2, "projected_metres": 1.2 * 0.7986355100472928, "label": "Shoulder"}
+                    ],
+                },
+            }
+            rows = []
+            page = mock.Mock()
+            page.figures.side_effect = lambda items: rows.extend(items)
+            with mock.patch.object(sheet, "object_scale", return_value=128):
+                sheet.compose_object(spec, page, d)
+            marks = {label: image for image, label in rows if label}
+            self.assertIn("Shoulder", marks)
+            self.assertEqual(upright_lengths(marks["Shoulder"]), 123)
+            self.assertTrue(any(stick_lengths(image) == 269 for image, _ in rows))
+
     # checks: PRE-46
     def test_a_stick_is_true_to_the_picture_it_is_drawn_on(self):
         for width, across, metres, length in ((508, 4, 1, 127), (508, 16, 10, 318), (336, 4, 1, 84)):

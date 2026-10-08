@@ -23,6 +23,102 @@ def probe():
 
 
 class FixtureMaps(unittest.TestCase):
+    # checks: PRE-22 PRE-46
+    def test_exact_proposal_fit_preserves_occupied_rows_after_tiny_reduction(self):
+        source = Image.new("RGB", (20, 20), tuple(fixtures.sheet.KEY))
+        pixels = np.asarray(source).copy()
+        pixels[0, 0] = [140, 100, 70]
+        pixels[3:20, 5:15] = [140, 100, 70]
+        fitted = fixtures.fit_design_cell(
+            Image.fromarray(pixels), {"logical_height": 5, "logical_width": 5, "exact_pixel_size": True}
+        )
+        occupied = fixtures.sheet.cut_out(fitted, least=1)
+        self.assertEqual(occupied.size, (5, 5))
+
+    # checks: PRE-22 PRE-46
+    def test_declared_piece_cleanup_keeps_attached_thin_tines_and_two_antlers(self):
+        rgba = np.zeros((20, 24, 4), np.uint8)
+        rgba[5:15, 4:8] = [180, 140, 90, 255]
+        rgba[2:8, 6] = [180, 140, 90, 255]
+        rgba[5:15, 15:19] = [180, 140, 90, 255]
+        rgba[17:19, 21:23] = [120, 100, 70, 255]
+        clean = fixtures.keep_drawn_components(rgba, 2)
+        self.assertTrue(np.all(clean[2:8, 6, 3] == 255))
+        self.assertTrue(np.all(clean[5:15, 15:19, 3] == 255))
+        self.assertFalse(clean[17:19, 21:23, 3].any())
+
+    # checks: PRE-46
+    def test_selected_fixture_originals_have_checked_provenance_and_requests(self):
+        registered = {p["file"]: p for p in fixtures.read_json("art/sources/fixtures27/provenance.json")}
+        for recipe in fixtures.read_json(fixtures.RECIPE)["fixtures"]:
+            sources = set(recipe.get("sources", {}).values()) | set(recipe.get("shared_wood_sources", {}).values())
+            for source in sources:
+                self.assertIn(source, registered)
+                self.assertEqual(fixtures.tiles.sha256(fixtures.ROOT / source), registered[source]["sha256"])
+                self.assertTrue((fixtures.ROOT / registered[source]["request"]).is_file())
+
+    # checks: PRE-20 PRE-22
+    def test_shelter_reduction_preserves_half_covered_doorway(self):
+        rgba = np.full((8, 8, 4), (120, 100, 70, 255), np.uint8)
+        rgba[2:8, 3:5] = 0
+        recipe = {"id": "tent", "palette": [["#786446", 7]]}
+        reduced = fixtures.resize_drawn(rgba, (4, 4), recipe)
+        self.assertTrue(np.all(reduced[1:, 1:3, 3] == 0))
+
+    # checks: PRE-46
+    def test_proposal_length_fit_keeps_declared_two_axis_size(self):
+        source = Image.new("RGB", (20, 20), (255, 0, 255))
+        source.paste((120, 100, 70), (5, 2, 15, 18))
+        result = fixtures.fit_design_cell(source, {"logical_height": 97, "logical_width": 134})
+        cropped = fixtures.sheet.cut_out(result, least=1)
+        self.assertEqual(cropped.size, (134, 97))
+
+    # checks: PRE-22 PRE-46
+    def test_deer_profile_fit_honours_withers_and_tips_independently(self):
+        source = Image.new("RGB", (10, 20), (120, 100, 70))
+        source.paste((180, 140, 90), (0, 0, 10, 10))
+        result = fixtures.fit_design_cell(
+            source,
+            {
+                "logical_height": 97,
+                "logical_width": 134,
+                "vertical_landmarks": [[0.5, 1 - 1.2 / 1.9]],
+            },
+        )
+        cropped = np.asarray(fixtures.sheet.cut_out(result, least=1))
+        self.assertEqual(tuple(cropped[35, 67, :3]), (180, 140, 90))
+        self.assertEqual(tuple(cropped[36, 67, :3]), (120, 100, 70))
+
+    # checks: PRE-22 PRE-46
+    def test_overhead_deer_body_and_rack_width_fit_independently(self):
+        source = Image.new("RGB", (20, 10), (180, 140, 90))
+        source.paste((120, 100, 70), (5, 0, 15, 10))
+        result = fixtures.fit_design_cell(
+            source,
+            {
+                "logical_height": 134,
+                "logical_width": 58,
+                "horizontal_landmarks": [[0.25, 11 / 58], [0.75, 46 / 58]],
+            },
+        )
+        cropped = np.asarray(fixtures.sheet.cut_out(result, least=1))
+        self.assertEqual(np.count_nonzero(np.all(cropped[50, :, :3] == [120, 100, 70], axis=1)), 35)
+
+    # checks: PRE-20 PRE-46
+    def test_tent_sewing_does_not_cut_plain_upper_hide(self):
+        recipe = next(r for r in fixtures.read_json(fixtures.RECIPE)["fixtures"] if r["id"] == "tent")
+        bundle, _ = fixtures.source_bundle(recipe, recipe["sources"]["near"], "near", save_cleaned=False)
+        for x, y in [(249, 330), (240, 350), (215, 369), (273, 344)]:
+            self.assertEqual(bundle["material"][y, x, 0], 7)
+
+    # checks: PRE-20 PRE-22
+    def test_fitted_tent_flap_normals_stay_on_the_drawn_flap(self):
+        recipe = next(r for r in fixtures.read_json(fixtures.RECIPE)["fixtures"] if r["id"] == "tent")
+        bundle, _ = fixtures.source_bundle(recipe, recipe["sources"]["near"], "near", save_cleaned=False)
+        normal = bundle["normal"][:, :, :3].astype(float) / 127.5 - 1
+        for x, y in [(257, 425), (256, 428), (255, 430)]:
+            self.assertGreater(normal[y, x, 2], 0.45)
+
     # checks: PRE-20 PRE-22
     def test_birch_last_mip_remains_covered(self):
         b = probe()

@@ -11,12 +11,6 @@ const PAGES := {
 	"Catalogues": preload("res://pages/catalogues.gd"),
 	"Reports": preload("res://pages/reports.gd"),
 	"Bench": preload("res://pages/bench.gd"),
-	"Look": preload("res://pages/look.gd"),
-	"Compare": preload("res://pages/compare.gd"),
-	"Calibrate": preload("res://pages/calibrate.gd"),
-	"Lab": preload("res://pages/lab.gd"),
-	"Kit": preload("res://pages/kit.gd"),
-	"Pilot": preload("res://pages/pilot.gd"),
 	"Fixtures": preload("res://pages/fixtures.gd"),
 	"Terrain": preload("res://pages/terrain.gd"),
 }
@@ -54,7 +48,7 @@ func page_name() -> String:
 ## Opens one of the pages by its name; the one open already stays as it is.
 func open_page(page: String) -> void:
 	for button: Button in _tabs.get_children():
-		button.set_pressed_no_signal(button.text == page)
+		button.set_pressed_no_signal(button.get_meta("page") == page)
 	if page == _page_name:
 		return
 	for child in _content.get_children():
@@ -88,10 +82,11 @@ func _build() -> void:
 	column.add_child(_tabs)
 	for page: String in PAGES:
 		var button := Button.new()
-		button.text = page
+		button.text = page + " foundation" if page in ["Crowd", "Bench"] else page
 		button.custom_minimum_size = Vector2(96, 48)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		# the open page's tab shows pressed, not greyed out as if it could not be used
+		button.set_meta("page", page)
 		button.toggle_mode = true
 		button.pressed.connect(open_page.bind(page))
 		_tabs.add_child(button)

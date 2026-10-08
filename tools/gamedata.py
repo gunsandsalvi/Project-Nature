@@ -17,16 +17,12 @@ thread and on four, refusing to go on if they differ; and writes build.toml:
 - [textures]: each texture file the phone reads with its SHA-256 (A5.4), written into game/data/textures/: the
   stand-ins tools/standins.py makes (T2.1a.3), and each of the art lane's textures, its record's levels packed
   largest first into textures/art/<entry>.kdtex, so art:meadow/middle is textures/art/meadow/middle.kdtex;
-- [sheets]: the signed-off sheet of each of the pilot's pieces, which the Pilot page shows beside what the engine
-  draws (T2.3a.5), each with its SHA-256, written into game/data/sheets/ as <piece>.kdsheet (the sheet's WebP under a
-  name Godot's import leaves alone), by the art lane's own catalogue (art/catalogue/*.toml names each piece's sheet);
-- [models]: each family of the model kit's parts the phone reads with its SHA-256 (A6.1), written into
-  game/data/models/ by tools/kit.py: each art/models/<family>.blend exported by Blender, and the stand-in family;
-  the build refuses to go on if the kit's own check (kd_kit check) finds a fault: a triangle whose texture pixels
-  stretch past 1.5:1, or a recipe that does not fit its parts (A6.4);
-- [build]: the app's version code, from the export preset, which the benchmark's code carries;
-- [calibration]: each calibration scene the Calibrate page runs (A18.1, α2.2a), with its SHA-256: the files of
-  data/scenes/look, checked by the kindling tool and copied into game/data/scenes/look/.
+- [sheets]: signed-off reference sheets retained for 2D fixture inspection (T2.3a.5), each with its SHA-256,
+  written into game/data/sheets/ as <piece>.kdsheet (the WebP under a name Godot's import leaves alone),
+  by the art lane's catalogue (art/catalogue/*.toml names each piece's sheet);
+- [build]: the app's version code, from the export preset, which the benchmark's code carries.
+Obsolete 3D model and calibration exports are excluded and stale files removed. Historical catalogue records
+remain available for fingerprinting and original art provenance; no Blender exporter runs during app preparation.
 Then it runs every scene in data/scenes, saved under the app's version, and puts its report in game/data/reports/,
 with the world of its first odd run, or else its first, as a .kindling file the Reports page opens (RES-06, PLT-05):
 <scene>.json and <scene>-<run>.kindling. A report whose runs ended as before is left as it was, with its world, so
@@ -43,7 +39,6 @@ import sys
 import tomllib
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import kit  # noqa: E402
 import standins  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -52,15 +47,10 @@ ART = os.path.join(ROOT, "art")
 OUT = os.path.join(ROOT, "game", "data")
 BUILD = os.path.join(OUT, "build.toml")
 TEXTURES = os.path.join(OUT, "textures")
-MODELS = os.path.join(OUT, "models")
 SHEETS = os.path.join(OUT, "sheets")
 # the pilot's pieces (IMPLEMENTATION.md, α2.3a), by their ids in the art lane's catalogue, each shown beside its sheet
 PILOT_PIECES = ("meadow", "river", "river_bed", "club", "hide_tent_cone")
-# the kit's own tool, built beside the extension (view/tools/kit.cpp)
-KD_KIT = os.environ.get("KD_KIT", os.path.join(ROOT, "build", "view", "kd_kit"))
 SCENES = os.path.join(DATA, "scenes")
-# the calibration scenes, which the phone runs rather than the cloud
-CALIBRATION = os.path.join(SCENES, "look")
 REPORTS = os.path.join(OUT, "reports")
 # where the scenes' worlds are kept as they run
 RUNS = os.path.join(ROOT, "build", "scenes")
@@ -140,25 +130,13 @@ def art_textures(records):
     return out
 
 
-def calibration_files():
-    """The calibration scenes, by their paths from data/, in order."""
-    if not os.path.isdir(CALIBRATION):
-        return []
-    rel = os.path.relpath(CALIBRATION, DATA).replace(os.sep, "/")
-    return sorted(f"{rel}/{name}" for name in os.listdir(CALIBRATION) if name.endswith(".toml"))
-
-
 def copy_sources(files):
     """game/data/ holds exactly data/'s files and the art lane's source, build.toml, the reports, the textures and
-    the models."""
+    reference sheets. Obsolete model/calibration exports are removed."""
     for dirpath, _, names in os.walk(OUT, topdown=False):
         for name in names:
             rel = os.path.relpath(os.path.join(dirpath, name), OUT).replace(os.sep, "/")
-            if (
-                rel != "build.toml"
-                and not rel.startswith(("reports/", "textures/", "models/", "sheets/"))
-                and rel not in files
-            ):
+            if rel != "build.toml" and not rel.startswith(("reports/", "textures/", "sheets/")) and rel not in files:
                 os.remove(os.path.join(dirpath, name))
         if dirpath != OUT and not os.listdir(dirpath):
             os.rmdir(dirpath)
@@ -253,23 +231,7 @@ def sheets():
     return sorted(made)
 
 
-def models():
-    """The kit's family files in game/data/models/, made by tools/kit.py from the art lane's Blender files and the
-    stand-in family: their names there, in order; and a problem if the kit's own check finds one in them, else
-    None."""
-    kit.build(MODELS)
-    names = sorted(name for name in os.listdir(MODELS) if name.endswith(".kdkit"))
-    if not os.path.isfile(KD_KIT):
-        return names, f"the kit's tool {os.path.relpath(KD_KIT, ROOT)} is not built: build the extension first"
-    run = subprocess.run([KD_KIT, "check", DATA, MODELS], capture_output=True, text=True)
-    if run.returncode != 0:
-        return names, (run.stdout + run.stderr).strip()
-    return names, None
-
-
-def build_toml(
-    proof, version, files, sources, bench, code, texture_files=(), calibration=(), model_files=(), sheet_files=()
-):
+def build_toml(proof, version, files, sources, bench, code, texture_files=(), sheet_files=()):
     # No comments: Godot's ConfigFile, which reads this on the phone, stops at a TOML comment. Lists hold "a b" texts
     # rather than tables, which ConfigFile also reads.
     lines = [
@@ -297,12 +259,6 @@ def build_toml(
         "",
         "[sheets]",
         "files = " + toml_list(f"{name} {sha256(os.path.join(SHEETS, name))}" for name in sheet_files),
-        "",
-        "[models]",
-        "files = " + toml_list(f"{name} {sha256(os.path.join(MODELS, name))}" for name in model_files),
-        "",
-        "[calibration]",
-        "files = " + toml_list(f"{rel} {sha256(os.path.join(DATA, rel))}" for rel in calibration),
     ]
     return "\n".join(lines) + "\n"
 
@@ -364,35 +320,22 @@ def main(argv):
     if check.returncode != 0:
         print(check.stdout + check.stderr + "Game data: the catalogue has problems")
         return 1
-    check = subprocess.run([tool, "look", "calibrate", "check", DATA], capture_output=True, text=True)
-    if check.returncode != 0:
-        print(check.stdout + check.stderr + "Game data: the calibration scenes have problems")
-        return 1
     one, four = digests(tool, 1), digests(tool, 4)
     if one != four:
         print(f"Game data: the proof suites differ between one thread and four: {one} against {four}")
         return 1
     version, sources = sources_of(tool)
     files = data_files() + art_files()
-    calibration = calibration_files()
     os.makedirs(OUT, exist_ok=True)
-    copy_sources(files + calibration)
+    copy_sources(files)
     made = textures(art_files())
     try:
         shown_sheets = sheets()
-        kept, problem = models()
     except RuntimeError as e:
         print(f"Game data: {e}")
         return 1
-    if problem:
-        print(f"{problem}\nGame data: the kit's parts have problems")
-        return 1
     with open(BUILD, "w") as f:
-        f.write(
-            build_toml(
-                one, version, files, sources, bench_digests(tool), version_code(), made, calibration, kept, shown_sheets
-            )
-        )
+        f.write(build_toml(one, version, files, sources, bench_digests(tool), version_code(), made, shown_sheets))
     try:
         shown = reports(tool)
     except RuntimeError as e:
@@ -400,8 +343,7 @@ def main(argv):
         return 1
     print(
         f"Game data: {os.path.relpath(OUT, ROOT)}/ with {len(files)} catalogue files, {len(sources)} sources, "
-        f"{len(one)} proof suites, {len(shown)} scene reports, {len(made)} textures, {len(shown_sheets)} sheets, "
-        f"{len(kept)} kit families and {len(calibration)} calibration scenes"
+        f"{len(one)} proof suites, {len(shown)} scene reports, {len(made)} textures, {len(shown_sheets)} sheets"
     )
     return 0
 
