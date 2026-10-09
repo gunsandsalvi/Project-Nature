@@ -84,7 +84,8 @@ void Context::moved(ecs::Id id) {
     if (a == nullptr) {
         return;
     }
-    const Way way{current_, ways_++, id, *a};
+    const auto* life = w_.beings_.raw().try_get<Life>(w_.beings_.handle(id));
+    const Way way{current_, ways_++, id, *a, life ? std::optional<Life>(*life) : std::nullopt};
     if (island_ != nullptr) {
         island_->ways.push_back(way);
     } else {
@@ -235,6 +236,8 @@ bool Commands::load(ByteReader& r) {
 World::World(std::uint64_t seed, const data::Catalogue& catalogue) : seed_(seed), catalogue_(catalogue) {
     beings_.raw().storage<Camp>();
     beings_.raw().storage<Person>();
+    beings_.raw().storage<Life>();
+    beings_.raw().storage<Habitat>();
     set_layer(ecs::owners::commands, commands_);
 }
 
@@ -784,7 +787,23 @@ std::vector<save::Chunk> World::save() const {
             else
                 ecs::write_component(*person, camp);
         });
-        out.push_back({save::tag("CAMP"), 1, true, camp.take()});
+        out.push_back({save::tag("CAMP"), 2, true, camp.take()});
+    }
+    if (count != 0) {
+        ByteWriter life;
+        life.u64(count);
+        beings_.each([&](ecs::Id id, Beings::Handle h) {
+            if (const auto* env = beings_.raw().try_get<Habitat>(h)) {
+                life.u64(id.value);
+                life.u8(1);
+                ecs::write_component(*env, life);
+            } else if (const auto* body = beings_.raw().try_get<Life>(h)) {
+                life.u64(id.value);
+                life.u8(2);
+                ecs::write_component(*body, life);
+            }
+        });
+        out.push_back({save::tag("LIFE"), 1, true, life.take()});
     }
     return out;
 }
@@ -792,13 +811,21 @@ std::vector<save::Chunk> World::save() const {
 bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
     KD_CHECK(beings_.size() == 0 && things_.size() == 0 && frontier_ == 0 && events_ == 0,
              "world::World: a snapshot is loaded into a world with nothing in it");
-    if (std::count_if(chunks.begin(), chunks.end(), [](const auto& c) { return c.tag == save::tag("CAMP"); }) > 1) {
+    if (std::count_if(chunks.begin(), chunks.end(), [](const auto& c) { return c.tag == save::tag("CAMP"); }) > 1 ||
+        std::count_if(chunks.begin(), chunks.end(), [](const auto& c) { return c.tag == save::tag("LIFE"); }) > 1) {
         why = "duplicate Camp alpha records";
+        return false;
+    }
+    const auto* camp_chunk = save::find_chunk(chunks, save::tag("CAMP"));
+    const auto* life_chunk = save::find_chunk(chunks, save::tag("LIFE"));
+    if ((camp_chunk && camp_chunk->version == 2 && !life_chunk) ||
+        (life_chunk && (!camp_chunk || camp_chunk->version != 2))) {
+        why = "living camp extension is missing or mismatched";
         return false;
     }
     // each part brought up to the version this one writes; a part it does not know is skipped, unless it must be known
     for (const save::Chunk& c : chunks) {
-        if (c.critical && c.tag != save::tag("CAMP") &&
+        if (c.critical && c.tag != save::tag("CAMP") && c.tag != save::tag("LIFE") &&
             std::none_of(kParts.begin(), kParts.end(), [&](const auto& p) { return p.first == c.tag; })) {
             why = "it holds a part this version cannot read";
             return false;
@@ -901,7 +928,7 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
             ByteReader records(camp->data);
             std::uint64_t count = 0;
             ecs::Id last{};
-            if (camp->version != 1 || !records.u64(count) || count > beings_.size()) {
+            if ((camp->version != 1 && camp->version != 2) || !records.u64(count) || count > beings_.size()) {
                 why = "invalid Camp alpha records";
                 return false;
             }
@@ -953,9 +980,10 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                     }
                     const auto& idle = beings_.raw().get<Activity>(*h);
                     const auto& schedule = beings_.raw().get<Schedule>(*h);
-                    if (idle.what != 0 || idle.from != idle.to || idle.from != beings_.raw().get<Place>(*h).at ||
-                        std::any_of(schedule.expected.begin(), schedule.expected.end(),
-                                    [](auto sequence) { return sequence != 0; })) {
+                    if (!save::find_chunk(chunks, save::tag("LIFE")) &&
+                        (idle.what != 0 || idle.from != idle.to || idle.from != beings_.raw().get<Place>(*h).at ||
+                         std::any_of(schedule.expected.begin(), schedule.expected.end(),
+                                     [](auto sequence) { return sequence != 0; }))) {
                         why = "Camp alpha person is not an idle record";
                         return false;
                     }
@@ -970,13 +998,119 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                 return false;
             }
         }
+        if (const save::Chunk* life = save::find_chunk(chunks, save::tag("LIFE"))) {
+            ByteReader r(life->data);
+            std::uint64_t count = 0;
+            ecs::Id last{};
+            if (life->version != 1 || !r.u64(count) || count > beings_.size()) {
+                why = "invalid living camp records";
+                return false;
+            }
+            for (std::uint64_t i = 0; i < count; ++i) {
+                ecs::Id id{};
+                std::uint8_t kind = 0;
+                if (!r.u64(id.value) || !(last < id) || !r.u8(kind)) {
+                    why = "invalid living identity order";
+                    return false;
+                }
+                last = id;
+                const auto h = beings_.find(id);
+                if (!h) {
+                    why = "living record has no entity";
+                    return false;
+                }
+                if (kind == 1 && beings_.raw().all_of<Camp>(*h)) {
+                    Habitat env;
+                    if (!ecs::read_component(env, r, entries)) {
+                        why = "damaged habitat";
+                        return false;
+                    }
+                    const auto& patch = beings_.raw().get<Camp>(*h);
+                    const std::array<std::int64_t, 12> amounts{env.upstream_ml,  env.root_water_ml, env.crop_budget_mg,
+                                                               env.water_cap_ml, env.food_cap_mg,   env.renewed_at,
+                                                               env.water_added,  env.food_grown,    env.food_taken,
+                                                               env.water_taken,  env.water_spilled, frontier_};
+                    if (patch.half_width_cm > 5000 || patch.half_height_cm > 5000 || env.rock_west > env.rock_east ||
+                        env.rock_south > env.rock_north || env.rock_west < -patch.half_width_cm ||
+                        env.rock_east > patch.half_width_cm || env.rock_south < -patch.half_height_cm ||
+                        env.rock_north > patch.half_height_cm || env.renewed_at > frontier_ ||
+                        patch.food_mg > env.food_cap_mg || patch.water_ml > env.water_cap_ml ||
+                        std::any_of(amounts.begin(), amounts.end(),
+                                    [](auto v) { return v < 0 || v > 1000000000000LL; })) {
+                        why = "invalid habitat inputs or bounds";
+                        return false;
+                    }
+                    beings_.raw().emplace<Habitat>(*h, env);
+                } else if (kind == 2 && beings_.raw().all_of<Person>(*h)) {
+                    Life body;
+                    if (!ecs::read_component(body, r, entries)) {
+                        why = "damaged person life";
+                        return false;
+                    }
+                    const auto& act = beings_.raw().get<Activity>(*h);
+                    const auto& schedule = beings_.raw().get<Schedule>(*h);
+                    const auto is_point = [&](num::Point p) {
+                        return p.x >= 0 && p.x < torus_.width() && p.y >= 0 && p.y < torus_.height();
+                    };
+                    if (body.food < 0 || body.food > 4000000 || body.water < 0 || body.water > 3000 || body.awake < 0 ||
+                        body.awake > 129600 || body.settled < 0 || body.settled > frontier_ ||
+                        body.food_remainder < 0 || body.food_remainder >= time::kDay || body.water_remainder < 0 ||
+                        body.water_remainder >= time::kDay || body.food_water_remainder < 0 ||
+                        body.food_water_remainder >= 1000000 || body.goal > 3 || body.gathering_skill > 10 ||
+                        body.carried_food < 0 || body.carried_food > 4000000 || body.allocated_water < 0 ||
+                        body.allocated_water > 3000 || body.portion < 0 || body.portion > 4000000 || body.applied < 0 ||
+                        body.applied > body.portion || body.decision_at < 0 || body.decision_at > frontier_ ||
+                        body.notice_at < -3600 || body.notice_at > frontier_ || body.memory_at < -1 ||
+                        body.memory_at > frontier_ || body.memory_kind < 0 || body.memory_kind > 7 ||
+                        body.memory_amount < 0 || body.memory_amount > 4000000 || act.what > 7 || act.what == 3 ||
+                        act.start != body.settled || act.start > frontier_ || act.end < frontier_ ||
+                        act.end <= act.start || act.end - act.start > time::kDay || !is_point(act.from) ||
+                        !is_point(act.to) || !is_point(body.explore_at) || !is_point(body.use_at) ||
+                        schedule.expected[kActivitySlot] == 0 || schedule.expected[2] != 0 ||
+                        schedule.expected[3] != 0 ||
+                        (act.what == 5 && body.portion - body.applied > body.carried_food) ||
+                        (act.what == 6 && body.allocated_water != body.portion - body.applied) ||
+                        (act.what != 6 && body.allocated_water != 0) || act.from != beings_.raw().get<Place>(*h).at) {
+                        why = "invalid needs or pending living action";
+                        return false;
+                    }
+                    for (std::size_t n = 0; n < 3; ++n) {
+                        if (body.source[n] > 3 || body.unavailable[n] > 5 || body.seen[n] < -1 ||
+                            body.seen[n] > frontier_ || body.known_amount[n] < 0 ||
+                            body.known_amount[n] > 1000000000000LL || body.blocked_until[n] < 0 ||
+                            body.blocked_until[n] > frontier_ + 3600 || body.decision_needs[n] < 0 ||
+                            body.decision_needs[n] > 100 || body.benefit[n] < 0 || body.benefit[n] > 100 ||
+                            body.cost_seconds[n] < 0 || body.cost_seconds[n] > time::kDay * 2 ||
+                            (body.source[n] != 0 && !is_point(body.known_at[n]))) {
+                            why = "invalid remembered supplies";
+                            return false;
+                        }
+                    }
+                    if (std::any_of(body.scores.begin(), body.scores.end(),
+                                    [](auto v) { return v < -1000000 || v > 100000; })) {
+                        why = "invalid recorded decision";
+                        return false;
+                    }
+                    beings_.raw().emplace<Life>(*h, body);
+                } else {
+                    why = "invalid living record kind";
+                    return false;
+                }
+            }
+            if (!r.finished()) {
+                why = "trailing living records";
+                return false;
+            }
+        }
         bool valid_people = true;
         beings_.each([&](ecs::Id id, Beings::Handle h) {
             if (id.family() != ecs::Family::person) return;
             const auto* person = beings_.raw().try_get<Person>(h);
             const auto* home = beings_.raw().try_get<demo::Home>(h);
             const auto camp = home != nullptr ? beings_.find(home->camp) : std::nullopt;
-            if (person == nullptr || !camp || !beings_.raw().all_of<Camp, Place>(*camp)) {
+            if (person == nullptr || !camp || !beings_.raw().all_of<Camp, Place>(*camp) ||
+                (save::find_chunk(chunks, save::tag("LIFE")) &&
+                 (!beings_.raw().all_of<Life>(h) || !beings_.raw().all_of<Habitat>(*camp)))) {
                 valid_people = false;
                 return;
             }
@@ -996,23 +1130,104 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
             why = "Camp alpha person missing or outside its patch";
             return false;
         }
+        if (save::find_chunk(chunks, save::tag("LIFE"))) {
+            bool valid_paths = true;
+            beings_.each([&](ecs::Id id, Beings::Handle h) {
+                if (id.family() != ecs::Family::person) return;
+                const auto& life = beings_.raw().get<Life>(h);
+                const auto& home = beings_.raw().get<demo::Home>(h);
+                const auto ch = beings_.handle(home.camp);
+                const auto centre = beings_.raw().get<Place>(ch).at;
+                const auto& patch = beings_.raw().get<Camp>(ch);
+                const auto& rock = beings_.raw().get<Habitat>(ch);
+                const auto inside = [&](num::Point point) {
+                    const auto offset = torus_.offset(centre, point);
+                    return std::abs(offset.dx) <= patch.half_width_cm && std::abs(offset.dy) <= patch.half_height_cm;
+                };
+                const auto& act = beings_.raw().get<Activity>(h);
+                if (!inside(act.from) || !inside(act.to) || !inside(life.explore_at) || !inside(life.use_at) ||
+                    (act.what != 1 && act.what != 7 && act.from != act.to))
+                    valid_paths = false;
+                const auto offset = torus_.offset(centre, act.from);
+                if (!camp_line_clear(torus_.offset(centre, act.from), torus_.offset(centre, act.to), rock))
+                    valid_paths = false;
+                if (offset.dx >= rock.rock_west && offset.dx <= rock.rock_east && offset.dy >= rock.rock_south &&
+                    offset.dy <= rock.rock_north)
+                    valid_paths = false;
+                for (std::size_t n = 0; n < 3; ++n)
+                    if (life.source[n] != 0 && !inside(life.known_at[n])) valid_paths = false;
+            });
+            if (!valid_paths) {
+                why = "living path or memory outside reachable camp";
+                return false;
+            }
+        }
         ByteReader r(chunk_of(save::tag("QUEU")).data);
         std::optional<event::Queue> q = event::Queue::read(r);
         if (!q || !r.finished()) {
             why = "its events are damaged";
             return false;
         }
+        for (const auto& event : q->live_in_order([](const auto&) { return true; })) {
+            if (event.slot >= Schedule::kSlots || event.key.second < frontier_) {
+                why = "invalid event slot or past event";
+                return false;
+            }
+        }
         queue_ = std::move(*q);
+        if (save::find_chunk(chunks, save::tag("LIFE"))) {
+            const auto events = queue_.live_in_order([](const auto&) { return true; });
+            bool valid = true;
+            for (const auto& event : events) {
+                const ecs::Id id{event.key.owner};
+                if (id.family() != ecs::Family::person && id.family() != ecs::Family::place) continue;
+                const auto h = beings_.find(id);
+                if (!h || event.slot >= Schedule::kSlots || !beings_.raw().any_of<Life, Habitat>(*h)) valid = false;
+            }
+            beings_.each([&](ecs::Id id, Beings::Handle h) {
+                if (!beings_.raw().any_of<Camp, Person>(h)) return;
+                if ((id.family() == ecs::Family::place && !beings_.raw().all_of<Habitat>(h))) {
+                    valid = false;
+                    return;
+                }
+                const auto& schedule = beings_.raw().get<Schedule>(h);
+                for (std::uint32_t slot = 0; slot < Schedule::kSlots; ++slot) {
+                    std::size_t matches = 0;
+                    for (const auto& event : events) {
+                        if (event.key.owner != id.value || event.slot != slot) continue;
+                        if (event.key.sequence != schedule.expected[slot] || event.key.second < frontier_) {
+                            valid = false;
+                            continue;
+                        }
+                        ++matches;
+                        if (slot == kActivitySlot) {
+                            const auto due = id.family() == ecs::Family::person
+                                                 ? beings_.raw().get<Activity>(h).end
+                                                 : beings_.raw().get<Habitat>(h).renewed_at + 3600;
+                            if (event.key.second != due) valid = false;
+                        }
+                    }
+                    if (matches != (schedule.expected[slot] != 0 ? 1U : 0U)) valid = false;
+                }
+            });
+            if (!valid) {
+                why = "living action has no matching live event";
+                return false;
+            }
+        }
     }
     {
         ByteReader r(chunk_of(save::tag("SYST")).data);
         const std::vector<System*> systems = systems_of(by_family_, by_owner_);
         std::uint64_t n = 0;
-        if (!r.u64(n) || n != systems.size()) {
+        const bool old_camp =
+            save::find_chunk(chunks, save::tag("CAMP")) && !save::find_chunk(chunks, save::tag("LIFE"));
+        if (!r.u64(n) || (n != systems.size() && !(old_camp && n + 1 == systems.size()))) {
             why = "it was saved with other systems than this version's";
             return false;
         }
         for (System* sys : systems) {
+            if (old_camp && n + 1 == systems.size() && sys->name() == "living") continue;
             std::string name;
             std::vector<std::byte> own;
             if (!r.text(name) || name != sys->name() || !r.blob(own)) {
@@ -1076,6 +1291,8 @@ Digests World::digests() const {
                 d.u64(id.value);
                 ecs::digest_component(*c, d);
             }
+            if (const auto* life = beings_.raw().try_get<Life>(h)) ecs::digest_component(*life, d);
+            if (const auto* env = beings_.raw().try_get<Habitat>(h)) ecs::digest_component(*env, d);
             if (const auto* p = beings_.raw().try_get<Person>(h)) {
                 d.u64(id.value);
                 ecs::digest_component(*p, d);

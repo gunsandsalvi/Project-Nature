@@ -13,6 +13,7 @@ namespace kd::demo {
 
 /// Implements MAT-17 for the demonstration's markers: every marker can greet or be greeted, since it names some
 /// marker in its walks_with or another names it, so none walks the crowd alone.
+void check_living(const data::Catalogue& cat, std::vector<data::Problem>& problems);
 void check_company(const data::Catalogue& cat, std::vector<data::Problem>& problems);
 
 }  // namespace kd::demo

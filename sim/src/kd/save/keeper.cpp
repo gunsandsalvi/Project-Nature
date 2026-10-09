@@ -37,6 +37,10 @@ bool ends_with(const std::string& s, const std::string& end) {
 
 // The whole number a name begins with, up to its ending, such as a snapshot's frontier or a history file's year.
 std::optional<std::int64_t> number_before(const std::string& name, const std::string& end) {
+    // The alternate migration baseline sorts immediately before the normal snapshot at the same frontier.
+    if (end == ".kds" && ends_with(name, "-camp-start.kds")) {
+        return number_before(name, "-camp-start.kds");
+    }
     if (!ends_with(name, end) || name.size() == end.size()) {
         return std::nullopt;
     }
@@ -486,6 +490,25 @@ void Keeper::snapshot(const world::World& w) {
         last_snapshot_.store(frontier, std::memory_order_relaxed);
         last_bytes_.store(bytes.size(), std::memory_order_relaxed);
     });
+}
+
+bool Keeper::seal_camp_start(const world::World& w) {
+    std::vector<Chunk> chunks = w.save();
+    Versions v = versions_;
+    v.making = making_digest(w.catalogue());
+    v.rules = rules_digest(w.catalogue());
+    v.played = played_.load(std::memory_order_relaxed);
+    chunks.push_back(versions_chunk(v));
+    const std::string normal = snapshot_file(w.frontier());
+    const std::string alternate = normal.substr(0, normal.size() - 4) + "-camp-start.kds";
+    io_.now([this, &chunks, &alternate](Files& f) {
+        if (!failed() && !f.write_whole(alternate, write_snapshot(chunks))) fail();
+    });
+    if (failed()) return false;
+    // Only replace the legacy snapshot after the alternate is synced; ordinary retention keeps both new copies.
+    snapshot(w);
+    flush();
+    return !failed();
 }
 
 void Keeper::flush() {

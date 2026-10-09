@@ -1,0 +1,8 @@
+# Scoped mild adult camp: raw berries, a finite spring and living stand. Not complete ecology/health.
+food_day = "4 kg"
+water_day = "3 l"
+speed = "1.25 m/s"
+loaded_speed = "1 m/s"
+spring_hour = "5 l"
+fruit_hour = "5 kg"
+fruit_water = "1 l"

@@ -122,6 +122,10 @@ public:
     /// A snapshot of a world between events: its state copied now, then compressed and written on the I/O thread,
     /// after the history is synced; the newest two are kept.
     void snapshot(const world::World& w);
+    /// Before a legacy camp can play: keeps two durable copies of its newly initialized living state at the same
+    /// frontier. A same-second save may replace one; corruption can still recover the exact migration baseline.
+    /// False means storage failed and play must stop. Later snapshots retain the usual newest two.
+    bool seal_camp_start(const world::World& w);
     /// Waits until everything given so far is written.
     void flush();
 

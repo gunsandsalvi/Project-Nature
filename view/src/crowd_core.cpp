@@ -26,12 +26,15 @@ void place(const num::Torus& torus, const world::Activity& way, double t, num::P
     north = static_cast<double>(from_origin.dy) + static_cast<double>(step.dy) * fraction;
 }
 
-const world::Activity& Snapshot::way_at(std::size_t i, double t) const {
+std::size_t Snapshot::way_index(std::size_t i, double t) const {
     std::uint32_t k = first[i];
     while (k + 1 < first[i + 1] && static_cast<double>(ways[k + 1].start) <= t) {
         ++k;
     }
-    return ways[k];
+    return k;
+}
+const world::Activity& Snapshot::way_at(std::size_t i, double t) const {
+    return ways[way_index(i, t)];
 }
 
 CrowdStepper::CrowdStepper(demo::CrowdWorld& crowd) : crowd_(crowd), camp_ids_(crowd.camp_ids()) {
@@ -52,6 +55,8 @@ CrowdStepper::CrowdStepper(demo::CrowdWorld& crowd) : crowd_(crowd), camp_ids_(c
         walkers_.push_back({id.value, person != nullptr ? 0 : raw.get<demo::MarkerKind>(h).kind, c,
                             person != nullptr ? std::optional<world::Person>(*person) : std::nullopt});
         trails_.push_back({raw.get<world::Activity>(h)});
+        const auto* life = raw.try_get<world::Life>(h);
+        life_trails_.push_back({life ? std::optional<world::Life>(*life) : std::nullopt});
     });
     crowd_.world().keep_history(&history_);
     crowd_.world().keep_ways(&ways_);
@@ -64,13 +69,19 @@ void CrowdStepper::fill(Snapshot& s) const {
     s.frontier = crowd_.world().frontier();
     s.walkers = walkers_;
     s.supplies.clear();
+    s.habitats.clear();
+    s.lives.clear();
     for (const ecs::Id id : camp_ids_) {
         const auto* camp = crowd_.world().beings().raw().try_get<world::Camp>(crowd_.world().beings().handle(id));
         if (camp != nullptr) s.supplies.push_back(*camp);
+        const auto* habitat = crowd_.world().beings().raw().try_get<world::Habitat>(crowd_.world().beings().handle(id));
+        if (habitat != nullptr) s.habitats.push_back(*habitat);
     }
     s.ways.clear();
     s.first.clear();
-    for (const std::vector<world::Activity>& trail : trails_) {
+    for (std::size_t i = 0; i < trails_.size(); ++i) {
+        const auto& trail = trails_[i];
+        s.lives.insert(s.lives.end(), life_trails_[i].begin(), life_trails_[i].end());
         s.first.push_back(static_cast<std::uint32_t>(s.ways.size()));
         s.ways.insert(s.ways.end(), trail.begin(), trail.end());
     }
@@ -119,15 +130,19 @@ time::Seconds CrowdStepper::advance(time::Seconds frontier, time::Seconds goal) 
     for (const world::Way& way : ways_) {
         const auto i = static_cast<std::size_t>(std::lower_bound(ids_.begin(), ids_.end(), way.id) - ids_.begin());
         trails_[i].push_back(way.activity);
+        life_trails_[i].push_back(way.life);
     }
     ways_.clear();
     const double screen = screen_.load(std::memory_order_relaxed);
-    for (std::vector<world::Activity>& trail : trails_) {
+    for (std::size_t i = 0; i < trails_.size(); ++i) {
+        auto& trail = trails_[i];
         std::size_t gone = 0;
         while (gone + 1 < trail.size() && static_cast<double>(trail[gone + 1].start) <= screen) {
             ++gone;
         }
         trail.erase(trail.begin(), trail.begin() + static_cast<std::ptrdiff_t>(gone));
+        auto& life_trail = life_trails_[i];
+        life_trail.erase(life_trail.begin(), life_trail.begin() + static_cast<std::ptrdiff_t>(gone));
     }
     fill(snapshots_.back());
     snapshots_.publish();

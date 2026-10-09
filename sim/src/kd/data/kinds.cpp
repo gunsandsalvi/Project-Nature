@@ -7,6 +7,7 @@
 #include "kd/data/orders.hpp"
 #include "kd/demo/checks.hpp"
 #include "kd/demo/crowd.hpp"
+#include "kd/demo/living_rules.hpp"
 #include "kd/demo/marker.hpp"
 #include "kd/look/area_tuning.hpp"
 #include "kd/look/card.hpp"
@@ -24,6 +25,8 @@
 namespace kd::data {
 
 Catalogue::Catalogue() {
+    add_kind<demo::LivingRules>("tuning/living", "scoped adult camp rates and bounded renewal", Layout::single);
+    add_kind<demo::NeedUse>("need_use", "known direct body need affordances");
     add_kind<look::Moment>("card", "a moment's bands on the target card, from the pictures you chose (PRE-01)");
     add_kind<demo::Marker>("marker", "a kind of the demonstration's markers, which walk, meet and greet (MAT-16)");
     add_kind<look::Model>("models", "a thing put together from the kit's parts: its recipe (PRE-46)", Layout::records);
@@ -58,11 +61,12 @@ Catalogue::Catalogue() {
 namespace {
 
 // In the order of their names.
-constexpr std::array<Check, 9> kChecks{{
+constexpr std::array<Check, 10> kChecks{{
     {"area", "PRE-26", "the strip holds the river and its banks, and the meadow lies north and south of it",
      look::check_area},
     {"company", "MAT-17", "every demonstration marker can greet or be greeted", demo::check_company},
     {"light", "PRE-30", "every colour of the look's light is written #rrggbb", look::check_light},
+    {"living", "MAT-17", "scoped camp affordances fit their body quantities and durations", demo::check_living},
     {"models", "PRE-46",
      "every model's placements are named once, and a ring, span or plug names what it needs and a role wears something",
      look::check_models},

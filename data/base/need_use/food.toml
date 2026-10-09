@@ -1,0 +1,9 @@
+need = 0
+food = "1 kg"
+water = "0 ml"
+restored = "0 s"
+water_per_kg = "800 ml"
+benefit = 25
+use = { life = "20 min", game = "20 min" }
+gather = { life = "30 min", game = "30 min" }
+area = "2 m"

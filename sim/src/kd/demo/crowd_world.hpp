@@ -14,6 +14,7 @@
 
 #include "kd/data/catalogue.hpp"
 #include "kd/demo/crowd.hpp"
+#include "kd/demo/living.hpp"
 #include "kd/demo/marker.hpp"
 #include "kd/world/world.hpp"
 
@@ -172,6 +173,7 @@ public:
 
     [[nodiscard]] world::World& world() { return world_; }
     [[nodiscard]] const world::World& world() const { return world_; }
+    [[nodiscard]] const Living* living() const { return living_.get(); }
     [[nodiscard]] const Daylight& daylight() const { return daylight_; }
     [[nodiscard]] Square square() const { return square_of(world_.torus(), crowd_); }
     /// The camps' ids, in id order: a camp's number, as your calls name it, is its place here.
@@ -185,6 +187,7 @@ private:
     world::World world_;
     Daylight daylight_;
     Markers markers_;
+    std::unique_ptr<Living> living_;
 };
 
 }  // namespace kd::demo

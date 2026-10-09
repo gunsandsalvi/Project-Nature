@@ -27,6 +27,7 @@
 #include "kd/run/workers.hpp"
 #include "kd/save/snapshot.hpp"
 #include "kd/world/camp.hpp"
+#include "kd/world/life.hpp"
 #include "kd/world/parts.hpp"
 
 namespace kd::world {
@@ -167,6 +168,7 @@ struct Way {
     std::uint32_t n = 0;  // its number within its event
     ecs::Id id;
     Activity activity;
+    std::optional<Life> life = std::nullopt;
 };
 
 /// One island of a window (A3.3): its events, run in key order on one worker, those it makes at or after the

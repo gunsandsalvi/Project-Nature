@@ -22,6 +22,8 @@ var _picture: TextureRect
 var _native: Control
 var _area: Control
 var _dock: PanelContainer
+var _details := false
+var _more: Button
 var _card: Label
 var _summary: Label
 var _pause: Button
@@ -123,10 +125,15 @@ func _build() -> void:
 	_summary = Label.new()
 	_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(_summary)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	column.add_child(scroll)
 	_card = Label.new()
+	_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_card.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_card.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.add_child(_card)
+	scroll.add_child(_card)
 	var row := HBoxContainer.new()
 	column.add_child(row)
 	_pause = Button.new()
@@ -140,6 +147,14 @@ func _build() -> void:
 	_speed.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_speed.item_selected.connect(choose_speed)
 	row.add_child(_speed)
+	_more = Button.new()
+	_more.text = "Details"
+	_more.pressed.connect(
+		func() -> void:
+			_details = not _details
+			_refresh_records()
+	)
+	row.add_child(_more)
 	world.set_speed(1)
 
 
@@ -149,15 +164,14 @@ func _refresh_records() -> void:
 	drawing.supplies = world.camp_alpha()
 	drawing.selected = selected_id
 	_summary.text = (
-		"Camp alpha · %d idle adults\n%s · %s"
-		% [people.size(), world.date_text(), world.time_text()]
+		"Camp · %d people\n%s · %s" % [people.size(), world.date_text(), world.time_text()]
 	)
 	var person := selected_person()
 	if _show_supplies:
 		var supplies := world.camp_alpha()
 		_card.text = (
 			(
-				"Initial supplies · %.0f L water\n%.0f kg food plants · %.0f kg stone\n"
+				"Available · %.1f L water\n%.1f kg berries · %.0f kg stone\n"
 				+ "%.0f kg fallen wood · natural shelter"
 			)
 			% [
@@ -167,22 +181,32 @@ func _refresh_records() -> void:
 				supplies.wood_mg / 1000000.0
 			]
 		)
+		if _details and supplies.has("root_water_ml"):
+			_card.text += (
+				(
+					"\nSpring input left: %.1f L.\nStand root water: %.1f L."
+					+ "\nSeason's fruit growth left: %.1f kg.\nGrown: %.1f kg; gathered: %.1f kg."
+					+ "\nSupplies settled at second %d.\nHourly growth uses root water; no daily refill."
+				)
+				% [
+					float(supplies.upstream_ml) / 1000,
+					float(supplies.root_water_ml) / 1000,
+					float(supplies.crop_budget_mg) / 1000000,
+					float(supplies.food_grown_mg) / 1000000,
+					float(supplies.food_taken_mg) / 1000000,
+					supplies.settled_frontier
+				]
+			)
 	elif person.is_empty():
 		_card.text = (
 			"Tap a person to meet them.\nDrag to look · pinch to zoom\n"
-			+ "Idle adults; daily needs come next."
+			+ "They choose from needs and remembered supplies."
 		)
 	else:
-		_card.text = (
-			"%s · %d years at start\n%s · %.2f m east, %.2f m north"
-			% [
-				person.name,
-				person.age_at_start,
-				person.activity,
-				float(person.east_cm - _origin.x) / 100,
-				float(person.north_cm - _origin.y) / 100
-			]
-		)
+		_card.text = person_words(person, _details)
+	_more.text = "Back" if _details else "Details"
+	_more.disabled = person.is_empty() and not _show_supplies
+
 	if world.counters().get("save_failed", false):
 		_summary.text = "Camp could not save. Play stopped. Free space, then reopen."
 		_summary.add_theme_color_override("font_color", Palette.WARN)
@@ -193,6 +217,87 @@ func _refresh_records() -> void:
 	elif Time.get_ticks_msec() < _message_until:
 		_summary.text = _message
 	_pause.text = "Play" if world.is_paused() else "Pause"
+
+
+func person_words(person: Dictionary, details: bool) -> String:
+	var goals := ["food", "water", "rest", "nearby supplies"]
+	var choice := int(person.choice)
+	var action := str(person.activity)
+	if int(person.action_code) == 1:
+		action += " to " + goals[choice]
+	var words := (
+		"%s · %s\nNeeds met: food %d · water %d · rest %d\n"
+		% [person.name, action, person.food_need, person.water_need, person.rest_need]
+	)
+	if choice < 3:
+		words += (
+			"Why: %s was %d/100. Expected +%d.\nAbout %d min for travel and work."
+			% [
+				goals[choice],
+				person.decision_needs[choice],
+				person.benefits[choice],
+				maxi(1, ceili(float(person.cost_seconds[choice]) / 60))
+			]
+		)
+	else:
+		words += "Why: no known need use scored higher.\nLooking for supplies, then watching."
+	words += "\nThis action: %d%% done." % (int(person.progress_ppm) / 10000)
+	if not details:
+		return words
+	words += (
+		"\n\nAge at start: %d. Gathering skill: %d.\nChoice made at game second %d."
+		% [person.age_at_start, person.gathering_skill, person.decision_at]
+	)
+	var rejected := [0, 1, 2, 3]
+	rejected.erase(choice)
+	rejected.sort_custom(
+		func(a: int, b: int) -> bool: return int(person.scores[a]) > int(person.scores[b])
+	)
+	var exclusions := [
+		"",
+		"not yet noticed",
+		"last seen empty",
+		"path blocked",
+		"gathering unknown",
+		"failed path; waiting to retry"
+	]
+	for option: int in rejected.slice(0, 2):
+		var reason := "watching offers less than this use"
+		if option < 3:
+			reason = exclusions[int(person.unavailable[option])]
+			if reason.is_empty():
+				reason = (
+					"need was %d; +%d expected; %d min"
+					% [
+						person.decision_needs[option],
+						person.benefits[option],
+						maxi(1, ceili(float(person.cost_seconds[option]) / 60))
+					]
+				)
+		words += "\nInstead of %s: %s." % [goals[option], reason]
+	words += "\n\nRemembered supplies (may have changed):"
+	var sources := ["unknown", "seen", "starting knowledge", "own task"]
+	for i in 3:
+		if int(person.sources[i]) == 0:
+			words += "\n%s: not yet noticed." % goals[i]
+		else:
+			var amount := "shelter"
+			if i == 0:
+				amount = "%.2f kg" % (float(person.known_amounts[i]) / 1000000)
+			elif i == 1:
+				amount = "%.2f L" % (float(person.known_amounts[i]) / 1000)
+			words += (
+				"\n%s: %s, %s at second %d."
+				% [goals[i], amount, sources[int(person.sources[i])], person.seen_at[i]]
+			)
+	words += "\nCarrying %.2f kg berries." % (float(person.carried_food_mg) / 1000000)
+	if int(person.memory_at) >= 0:
+		var acts := {2: "Rested", 5: "Ate berries", 6: "Drank water"}
+		words += (
+			"\nLast remembered: %s at second %d."
+			% [acts.get(int(person.memory_kind), "Acted"), person.memory_at]
+		)
+	return words
 
 
 func selected_person() -> Dictionary:
@@ -302,7 +407,7 @@ func layout(window: Vector2, safe: Rect2) -> void:
 	var gap := 12 * density
 	var landscape := window.x > window.y
 	var width := minf(360 * density, safe.size.x * 0.38) if landscape else safe.size.x
-	var height := safe.size.y if landscape else 260 * density
+	var height := safe.size.y if landscape else 280 * density
 	_dock.position = safe.position + Vector2(safe.size.x - width, safe.size.y - height)
 	_dock.size = Vector2(width, height)
 	_dock_bounds = Rect2(_dock.position, Vector2(width, height))
@@ -317,7 +422,7 @@ func layout(window: Vector2, safe: Rect2) -> void:
 		style.set("content_margin_" + edge, gap)
 	Sizing.page(_dock, density)
 	_summary.add_theme_font_size_override("font_size", Sizing.font_size(18, density))
-	_card.add_theme_font_size_override("font_size", Sizing.font_size(20, density))
+	_card.add_theme_font_size_override("font_size", Sizing.font_size(16, density))
 
 
 func _world_input(event: InputEvent) -> void:

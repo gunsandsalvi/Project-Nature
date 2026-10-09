@@ -1,4 +1,5 @@
 #include "kd/proof/proof.hpp"
+#include "kd/proof/camp_cases.hpp"
 
 #include <array>
 #include <cmath>
@@ -364,6 +365,7 @@ std::string islands(run::Workers& workers) {
 }
 
 constexpr std::array kSuites = {
+    Suite{"camp_life", "saved needs, actions, memories and finite renewal on one/four workers", &camp_life},
     Suite{"smoke", "arithmetic, square roots and a sum in fixed pieces", &smoke},
     Suite{"maths", "every maths function on its stream of inputs and its hard cases", &maths},
     Suite{"chance", "a million keyed draws of every kind", &chance_draws},

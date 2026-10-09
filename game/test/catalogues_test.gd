@@ -16,10 +16,12 @@ func test_the_page_lists_every_source_kind_and_entry() -> void:
 	var text := "\n".join(page.shown)
 	for wanted: String in [
 		"art, version 1",
-		"base, version 2",
+		"base, version 3",
 		"demo, version 1",
 		"marker (2 entries)",
 		"tuning/crowd (1 entry)",
+		"need_use (3 entries)",
+		"tuning/living (1 entry)",
 		"tuning/heat (1 entry)",
 		"tuning/saves (1 entry)",
 		"tuning/time (1 entry)",

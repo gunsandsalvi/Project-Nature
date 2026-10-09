@@ -67,6 +67,7 @@ add_library(kd_sim STATIC
     src/kd/demo/clockwork.cpp
     src/kd/demo/crowd_scene.cpp
     src/kd/demo/crowd_world.cpp
+    src/kd/demo/living.cpp
     src/kd/demo/kept.cpp
     src/kd/num/angle.cpp
     src/kd/num/convert.cpp
@@ -75,6 +76,7 @@ add_library(kd_sim STATIC
     src/kd/num/letters.cpp
     src/kd/num/maths.cpp
     src/kd/proof/fixture.cpp
+    src/kd/proof/camp_cases.cpp
     src/kd/proof/maths_cases.cpp
     src/kd/proof/proof.cpp
     src/kd/run/marked.cpp
@@ -135,7 +137,8 @@ if(KD_SIM_TESTS)
         tests/save_test.cpp
         tests/scene_test.cpp
         tests/world_test.cpp
-        tests/camp_test.cpp)
+        tests/camp_test.cpp
+        tests/living_test.cpp)
     target_include_directories(kd_sim_tests SYSTEM PRIVATE "${KD_DOCTEST}" "${KD_XXHASH}")
     # the repository, where the tests find the data folder and the corpus of old worlds (PLT-09)
     target_compile_definitions(kd_sim_tests PRIVATE DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
