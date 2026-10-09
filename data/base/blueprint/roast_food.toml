@@ -1,0 +1,36 @@
+need = 0
+benefit = 10
+action = 12
+sector = 5
+difficulty = 1
+yield = 1000000
+bare_yield = 1000000
+heat = 2
+edge_from = -1
+toughness = -1
+discovery = 1000000
+shatter = 0
+hint = 0
+seconds = "3600 s"
+bare_seconds = "3600 s"
+unit_mass = "1000000 mg"
+result_mass = "0 mg"
+result_length = "100 mm"
+starting = false
+result = "roots"
+leftover = "crumb"
+failure = "roots"
+[[inputs]]
+class = "any"
+form = "any"
+min_length = "1 mm"
+max_length = "100000 mm"
+min_mass = "1 mg"
+max_mass = "1000000000 mg"
+retained = false
+optional = false
+wear = 0
+[[inputs.ranges]]
+characteristic = 8
+minimum = 1
+maximum = 5

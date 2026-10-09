@@ -5,7 +5,8 @@
 #include "kd/demo/living.hpp"
 namespace kd::world {
 std::uint32_t craft_features(const World& w) {
-    return w.beings().raw().view<CraftHistory>().empty()
+    return w.beings().raw().view<CraftHistory>().empty() && w.beings().raw().view<Knowledge>().empty() &&
+                   w.beings().raw().view<Work>().empty()
                ? 0U
                : kCraft | kLearning | (w.beings().raw().view<Ambient>().empty() ? 0U : kFire);
 }
@@ -296,7 +297,7 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
     bool complete = true;
     w.beings().each([&](ecs::Id, Beings::Handle h) {
         if (raw.all_of<Person>(h) && !raw.all_of<Knowledge, Work, Life, demo::Home, Activity>(h)) complete = false;
-        if (raw.all_of<Camp>(h) && !raw.all_of<CraftHistory>(h)) complete = false;
+        if (raw.all_of<Camp>(h) && !raw.any_of<CraftHistory, Knowledge, Work>(h)) complete = false;
     });
     if (!complete) return fail("missing personal craft state or camp history");
     {

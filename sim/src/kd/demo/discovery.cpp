@@ -216,7 +216,9 @@ std::uint64_t Discovery::result(world::Context& c, world::Beings::Handle h, std:
         const bool edible = c.world().catalogue().kind<data::ItemKind>()[physical.kind].edible && !unknown;
         learn(c, h, result, kSight | (edible ? 1U << 8U : 0), 4, edible, e.id, person);
     }
-    const auto sign = static_cast<std::uint8_t>(!success && noticed ? blueprint.hint : 0);
+    // Smoke is a failure sign, never a physical ember or a heat source.
+    const bool smoke = blueprint.hint != 13 || draws.below(1, 2) == 0;
+    const auto sign = static_cast<std::uint8_t>(!success && noticed && smoke ? blueprint.hint : 0);
     memory(c, h, static_cast<std::uint8_t>(blueprint.action), std::move(perceived), sign, result, e.id,
            static_cast<std::uint8_t>(noticed && unknown ? 90 : 30));
     if (success && unknown && noticed && result.value != 0) {

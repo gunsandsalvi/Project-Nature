@@ -566,12 +566,10 @@ bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h
             experiment.reason.score = 500;
             experiment.duration = time_cost(c.world(), h, 60);
             experiment.reason.seconds = experiment.duration;
-            std::vector<std::uint8_t> actions;
-            for (std::uint8_t action = 0; action < 21; ++action)
-                if (know->performed == 0 || (know->performed & (1U << action))) actions.push_back(action);
-            experiment.reason.action = actions[draws.below(1, actions.size())];
-            for (const auto& input : seen.all) {
-                const auto id = input.id;
+            experiment.reason.action = static_cast<std::uint8_t>(draws.below(1, 21));
+            const auto first_input = draws.below(3, seen.all.size());
+            for (std::size_t n = 0; n < seen.all.size(); ++n) {
+                const auto id = seen.all[(first_input + n) % seen.all.size()].id;
                 if (!supply.free(id)) continue;
                 const auto& item = value(c.world(), id);
                 experiment.inputs.push_back({id, item.mass, static_cast<std::uint8_t>(experiment.inputs.size()), 1, 0,
@@ -602,6 +600,9 @@ bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h
                     hunch.last_use = c.now();
                 }
             }
+            if (experiment.reason.action == 6 || experiment.reason.action == 11)
+                experiment.duration = time_cost(c.world(), h, 300);
+            experiment.reason.seconds = experiment.duration;
             experiment.unit = 20000;
             experiment.goal = 20000;
             if (!experiment.inputs.empty()) options.push_back(std::move(experiment));
@@ -767,6 +768,10 @@ void Crafting::settle(Living& living, world::Context& c, world::Beings::Handle h
             if ((work.lesson != 0 && r == work.recipe) || recipes[r].action != work.action || recipes[r].heat > 0 ||
                 std::any_of(know.skills.begin(), know.skills.end(),
                             [&](const auto& s) { return s.recipe == r && s.known; }))
+                continue;
+            if (static_cast<std::int64_t>(work.completed_tries) * work.try_seconds + work.retained_progress + c.now() -
+                    work.active_start <
+                recipes[r].seconds)
                 continue;
             auto roles = matching(w, recipes[r], ids);
             if (roles.empty()) continue;

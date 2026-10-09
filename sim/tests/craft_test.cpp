@@ -1297,3 +1297,86 @@ TEST_CASE("busy surprise is halved once even when the maker is also tired") {
     }
     REQUIRE(observed > 0);
 }
+
+TEST_CASE("dry_friction_both_routes and wet_never_ignites use material constraints") {
+    for (const auto name : {"base:ember_drill", "base:ember_plough"}) {
+        const auto& b = catalogue().kind<kd::data::Blueprint>()[entry(catalogue(), "blueprint", name)];
+        CHECK(b.seconds == 300);
+        CHECK_FALSE(b.starting);
+        for (std::size_t role = 0; role < b.inputs.size(); ++role) {
+            kd::data::FitInput input{"wood", role ? "sheet" : "rod", {}, 100, 1000};
+            input.values[0] = 2;
+            input.values[6] = 3;
+            CHECK(kd::data::fits(b.inputs[role], input));
+            input.values[9] = 1;
+            CHECK(kd::data::fits(b.inputs[role], input));
+            for (const auto wet : {2, 3, 4, 5}) {
+                input.values[9] = wet;
+                CHECK_FALSE(kd::data::fits(b.inputs[role], input));
+            }
+            input.values[9] = 0;
+            input.length = 99;
+            CHECK_FALSE(kd::data::fits(b.inputs[role], input));
+            input.length = 100;
+            input.values[6] = 1;
+            CHECK_FALSE(kd::data::fits(b.inputs[role], input));
+        }
+    }
+}
+TEST_CASE("200 low and high friction trials conserve material and keep smoke without heat") {
+    // Before results: dark level zero drill is capped at 5%, plough is 10%, high at 95%.
+    // Central 99% binomial bounds use the declared recipe difficulty, not observed outcomes.
+    for (const auto recipe : {"base:ember_drill", "base:ember_plough"}) {
+        for (const auto level : {0, 10}) {
+            std::size_t successes = 0, smoke = 0, failures = 0;
+            for (std::uint64_t seed = 0; seed < 200; ++seed) {
+                WorkFixture trial(seed, recipe, level, {"base:dry_stick", "base:dry_board"});
+                trial.start();
+                trial.w.run_to(trial.seconds + 1);
+                for (const auto& e : trial.history().events) {
+                    if (e.recipe != trial.recipe) continue;
+                    if (e.kind != 5)
+                        ++successes;
+                    else
+                        ++failures;
+                }
+                const auto& know = trial.w.beings().raw().get<kd::world::Knowledge>(trial.h);
+                for (const auto& memory : know.memories)
+                    if (memory.sign == 13) ++smoke;
+                std::int64_t mass = 0;
+                trial.w.things().each([&](kd::ecs::Id, auto h) {
+                    mass += trial.w.things().raw().get<kd::world::Item>(h).mass;
+                    CHECK_FALSE(trial.w.things().raw().all_of<kd::world::Fire>(h));
+                });
+                CHECK(mass == 450000000);
+                std::string why;
+                CHECK(accepted(trial.w, why));
+            }
+            MESSAGE(std::string(recipe), " level ", level, ": ", successes, "/200, smoke ", smoke, "/", failures);
+            const bool drill = std::string_view(recipe) == "base:ember_drill";
+            CHECK(successes >= (level == 0 ? (drill ? 2 : 9) : 181));
+            CHECK(successes <= (level == 0 ? (drill ? 19 : 32) : 197));
+            CHECK(smoke > 0);
+            CHECK(smoke < failures);
+        }
+    }
+}
+TEST_CASE("ordinary drill and grind fits discover friction without an idea dream") {
+    for (const auto recipe : {"base:ember_drill", "base:ember_plough"}) {
+        std::size_t discovered = 0, hints = 0;
+        for (std::uint64_t seed = 0; seed < 200; ++seed) {
+            WorkFixture trial(seed, recipe, 10, {"base:dry_stick", "base:dry_board"}, false);
+            trial.w.beings().raw().get<kd::world::Knowledge>(trial.h).curiosity = 80;
+            trial.start();
+            trial.w.run_to(trial.seconds + 1);
+            const auto& know = trial.w.beings().raw().get<kd::world::Knowledge>(trial.h);
+            for (const auto& skill : know.skills)
+                if (skill.recipe == trial.recipe && skill.known) ++discovered;
+            for (const auto& memory : know.memories)
+                if (memory.sign == 13) ++hints;
+            CHECK(trial.w.beings().raw().get<kd::world::Dream>(trial.h).at == -1);
+        }
+        CHECK(discovered > 0);
+        CHECK(hints > 0);
+    }
+}
