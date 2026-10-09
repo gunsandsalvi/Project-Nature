@@ -25,7 +25,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def run(args):
-    return subprocess.run(args, capture_output=True, text=True, check=False)
+    try:
+        return subprocess.run(args, capture_output=True, text=True, check=False)
+    except FileNotFoundError as error:
+        # Optional audit tools may be absent during a routine host check. Record absence in the key;
+        # installing one changes it. A missing tool still fails any check that actually invokes it.
+        return subprocess.CompletedProcess(args, 127, f"missing executable: {args[0]}\n", str(error))
 
 
 def contents(path):
@@ -63,6 +68,9 @@ def configs(path, root=ROOT):
 def depends(build, output):
     """The files an object was compiled from, as the compiler told ninja: its source and every header it read; None
     when ninja has no record of them."""
+    # Newer CMake writes absolute output paths; Ninja records targets relative to its build directory.
+    if os.path.isabs(output):
+        output = os.path.relpath(output, build)
     lines = run(["ninja", "-C", build, "-t", "deps", output]).stdout.splitlines()
     if not lines or "(VALID)" not in lines[0]:
         return None
@@ -143,7 +151,7 @@ def tests(build):
         for folder, _, names in os.walk(os.path.join(ROOT, top)):
             files.update(os.path.join(folder, name) for name in names)
     versions = "".join(
-        run([tool, "--version"]).stdout for tool in ("c++", "aarch64-linux-gnu-g++", "qemu-aarch64-static")
+        run([tool, "--version"]).stdout for tool in ("clang++", "c++", "aarch64-linux-gnu-g++", "qemu-aarch64-static")
     )
     parts = [("versions", versions.encode()), ("ninja", contents(os.path.join(build, "build.ninja")))]
     parts += [("tests", tests_text)]

@@ -5,6 +5,8 @@ import importlib.util
 import os
 import tempfile
 import unittest
+from unittest.mock import patch
+from types import SimpleNamespace
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 spec = importlib.util.spec_from_file_location("cppcache", os.path.join(HERE, "..", "cppcache.py"))
@@ -57,6 +59,25 @@ class LintKey(unittest.TestCase):
         with open(nearer, "w") as f:
             f.write("InheritParentConfig: true\n")
         self.assertEqual(cppcache.configs(self.cpp, self.root), [nearer, self.rules])
+
+
+class NinjaDependencies(unittest.TestCase):
+    def test_missing_optional_tool_has_a_stable_absence_marker_and_failure_code(self):
+        with patch.object(cppcache.subprocess, "run", side_effect=FileNotFoundError("missing")):
+            result = cppcache.run(["optional-audit-tool", "--version"])
+        self.assertEqual(result.returncode, 127)
+        self.assertEqual(result.stdout, "missing executable: optional-audit-tool\n")
+
+    def test_absolute_cmake_output_reads_ninja_relative_target_and_keeps_invalid_records_uncached(self):
+        build = os.path.abspath("build/sim")
+        output = os.path.join(build, "CMakeFiles/test.dir/a.cpp.o")
+        response = "CMakeFiles/test.dir/a.cpp.o: #deps 2, deps mtime 0 (VALID)\n    /src/a.cpp\n    /src/a.hpp\n"
+        with patch.object(cppcache, "run", return_value=SimpleNamespace(stdout=response)) as run:
+            self.assertEqual(cppcache.depends(build, output), ["/src/a.cpp", "/src/a.hpp"])
+            run.assert_called_once_with(["ninja", "-C", build, "-t", "deps", "CMakeFiles/test.dir/a.cpp.o"])
+        for text in ("", response.replace("(VALID)", "(STALE)")):
+            with patch.object(cppcache, "run", return_value=SimpleNamespace(stdout=text)):
+                self.assertIsNone(cppcache.depends(build, output))
 
 
 if __name__ == "__main__":
