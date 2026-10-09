@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Routine merge/delivery checks (PRC-10, A17); --audit adds the expensive foundation audit.
 # Usage: tools/check.sh [--deliver] [--audit]
-# Routine: formats/lints, host builds/tests, M1 proofs on one/four threads, catalogue,
+# Routine: formats/lints/native source rules, host builds/tests, M1 proofs on one/four threads, catalogue,
 # Godot import/scripts/tests, tools, documents/IDs, and the existing signed APK for delivery.
 # Audit: other compilers/emulation/sanitizers, shuffled ties, kill/scenes/repeat, native
-# code scans/lint, the long Godot benchmark and (with --deliver) a second throwaway-key export.
+# code scans, the long Godot benchmark and (with --deliver) a second throwaway-key export.
 # Ends with "Checks: PASS <commit>"; generated files stay in ignored folders.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -193,7 +193,8 @@ cpp_tests() {
   [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
   python3 tools/samebits.py scan "${SIM_BUILDS[@]/#/build/}" build/view | sed 's/^/   /'
   [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
-  # the lint, on every core, only the files whose code, headers, compile command or rules changed; then the banned
+  fi
+  # the routine lint, on every core, only the files whose code, headers, compile command or rules changed; then the banned
   # list over the simulation's and the extension's own code (A3.4)
   for d in sim view; do
     [ -f "$d/CMakeLists.txt" ] || continue
@@ -209,7 +210,6 @@ cpp_tests() {
       echo "   $d ${RULES#Rules: }"
     fi
   done
-  fi
 }
 
 godot_step() {

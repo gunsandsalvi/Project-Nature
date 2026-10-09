@@ -328,6 +328,36 @@ def reports(tool):
     return sorted(k for k in kept if k.endswith(".json"))
 
 
+def discovery_example(tool):
+    """Capture the declared ordinary seed again with this build's exact format/rules."""
+    with open(os.path.join(ROOT, "tools", "examples", "first-flake.json")) as file:
+        declared = json.load(file)
+    destination = os.path.join(OUT, "examples")
+    os.makedirs(destination, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="kindling-first-flake-") as temporary:
+        world = os.path.join(temporary, "world")
+        captured = subprocess.run(
+            [tool, "discovery", str(declared["seed"]), world, DATA, app_version()], capture_output=True, text=True
+        )
+        if captured.returncode:
+            raise RuntimeError(
+                "the ordinary First flake example did not reproduce\n" + captured.stdout + captured.stderr
+            )
+        with open(os.path.join(world, "capture.json")) as file:
+            metadata = json.load(file)
+        if metadata["switches"] or not metadata["captured"]:
+            raise RuntimeError("First flake must be captured without test switches")
+        archive = os.path.join(temporary, "first-flake.kindling")
+        subprocess.run([tool, "export", world, archive], check=True)
+        for name, source in (
+            ("first-flake.kindling", archive),
+            ("first-flake.json", os.path.join(world, "capture.json")),
+        ):
+            target = os.path.join(destination, name)
+            if not os.path.isfile(target) or contents(source) != contents(target):
+                shutil.copyfile(source, target)
+
+
 def main(argv):
     if len(argv) != 1:
         print(__doc__)
@@ -376,6 +406,7 @@ def main(argv):
         f.write(build_toml(one, version, files, sources, bench_digests(tool), version_code(), made, shown_sheets))
     try:
         shown = reports(tool)
+        discovery_example(tool)
     except RuntimeError as e:
         print(f"Game data: {e}")
         return 1

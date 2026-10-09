@@ -114,6 +114,7 @@
 #include "kd/bench/scenarios.hpp"
 #include "kd/data/catalogue.hpp"
 #include "kd/data/checks.hpp"
+#include "kd/data/craft.hpp"
 #include "kd/data/folder.hpp"
 #include "kd/demo/crowd_scene.hpp"
 #include "kd/demo/crowd_world.hpp"
@@ -141,6 +142,7 @@ int usage() {
         stderr,
         "usage: kindling proof [--threads N] [suite...]\n"
         "       kindling suites\n"
+        "       kindling discovery <seed> <new-folder> [data] [build]  capture an ordinary first flake\n"
         "       kindling catalogue check|schema|fingerprint [data]\n"
         "       kindling catalogue show <name> [data]\n"
         "       kindling run [--days N] [--camps N] [--seed N] [--fuzz N] [--islands WINDOW --threads N] [data]\n"
@@ -894,6 +896,70 @@ int bench_command(const std::vector<std::string_view>& args) {
     return met == lines ? 0 : 1;
 }
 
+// A captured example uses normal minds/rules without scripted discoveries or trait changes.
+int discovery_capture(const std::vector<std::string_view>& args) {
+    if (args.size() < 2 || args.size() > 4) return usage();
+    const auto seed = std::strtoull(std::string(args[0]).c_str(), nullptr, 10);
+    const std::string folder(args[1]);
+    std::error_code error;
+    if (std::filesystem::exists(folder, error) || error) {
+        std::fprintf(stderr, "Capture needs a new folder: %s\n", folder.c_str());
+        return 1;
+    }
+    kd::data::Catalogue c;
+    const auto problems = c.load(kd::data::read_catalogue(args.size() >= 3 ? std::string(args[2]) : "data"));
+    if (!problems.empty()) return 1;
+    kd::demo::CrowdWorld camp(seed, c, 1, true, true);
+    auto& w = camp.world();
+    const auto home = camp.camp_ids().front();
+    const auto& history = w.beings().raw().get<kd::world::CraftHistory>(w.beings().handle(home));
+    const auto& recipes = c.kind<kd::data::Blueprint>();
+    std::optional<kd::world::Result> first;
+    while (w.frontier() < 3 * kd::time::kDay && !first) {
+        w.run_to(w.frontier() + 300);
+        for (const auto& e : history.events) {
+            if (e.kind != 1 || !e.noticed || recipes[e.recipe].edge_from < 0) continue;
+            first = e;
+            break;
+        }
+    }
+    if (!first) {
+        std::printf("No noticed flake for seed %llu within three days\n", seed);
+        return 2;
+    }
+    const auto& e = *first;
+    std::filesystem::create_directories(folder, error);
+    if (error) return 1;
+    kd::save::DiskFiles files(folder);
+    kd::save::Keeper keeper(files, args.size() == 4 ? std::string(args[3]) : "kindling");
+    (void)keeper.begin({}, c);
+    kd::demo::About about;
+    about.name = "First flake — captured ordinary run";
+    about.seed = seed;
+    about.camps = 1;
+    about.camp_alpha = true;
+    about.discovery = true;
+    keeper.about(kd::demo::about_text(about));
+    keeper.snapshot(w);
+    keeper.pause_mark(w.frontier());
+    keeper.flush();
+    if (keeper.failed()) {
+        std::fprintf(stderr, "Capture could not save its camp\n");
+        return 1;
+    }
+    std::ofstream note(folder + "/capture.json");
+    note << "{\n  \"seed\": " << seed << ",\n  \"at\": " << e.at << ",\n  \"frontier\": " << w.frontier()
+         << ",\n  \"actor\": \"" << e.actor.value << "\",\n  \"result\": \"" << e.result.value
+         << "\",\n  \"route\": " << unsigned(e.route) << ",\n  \"digest\": \"" << kd::num::to_hex(w.digests().whole)
+         << "\",\n  \"switches\": [],\n  \"captured\": true\n}\n";
+    note.close();
+    if (!note) return 1;
+    std::printf("Captured ordinary seed %llu: first flake %lld, snapshot %lld, digest %s\n", seed,
+                static_cast<long long>(e.at), static_cast<long long>(w.frontier()),
+                kd::num::to_hex(w.digests().whole).c_str());
+    return 0;
+}
+
 int export_world(const std::vector<std::string_view>& args) {
     if (args.size() != 2) {
         return usage();
@@ -1275,6 +1341,7 @@ int main(int argc, char** argv) {
     if (command == "bench") {
         return bench_command(args);
     }
+    if (command == "discovery") return discovery_capture(args);
     if (command == "export") {
         return export_world(args);
     }

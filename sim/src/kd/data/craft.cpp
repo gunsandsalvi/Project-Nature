@@ -1,5 +1,6 @@
 #include "kd/data/craft.hpp"
 #include "kd/data/catalogue.hpp"
+#include "kd/demo/discovery_scene.hpp"
 namespace kd::data {
 bool fits(const InputRole& r, const FitInput& i) {
     if (!r.classes.empty() && std::find(r.classes.begin(), r.classes.end(), i.material_class) == r.classes.end())
@@ -14,6 +15,25 @@ bool fits(const InputRole& r, const FitInput& i) {
     return true;
 }
 void check_craft(const Catalogue& cat, std::vector<Problem>& problems) {
+    const auto& scenes = cat.kind<demo::DiscoveryScene>();
+    for (std::size_t n = 0; n < scenes.size(); ++n) {
+        const auto& syllables = scenes[static_cast<std::uint32_t>(n)].syllables;
+        if (syllables.empty() || syllables.size() > 64 ||
+            std::any_of(syllables.begin(), syllables.end(), [](const auto& x) {
+                return x.empty() || x.size() > 8 ||
+                       std::any_of(x.begin(), x.end(), [](char c) { return c < 'a' || c > 'z'; });
+            }))
+            problems.push_back(scenes.at(n, "syllables", "words need bounded lowercase syllables"));
+        std::array<std::int64_t, 3> shares{};
+        for (const auto& s : scenes[static_cast<std::uint32_t>(n)].stock) {
+            const auto aggregate = static_cast<std::size_t>(s.aggregate);
+            if ((aggregate == 0 && (s.mass == 0 || s.share != 0)) || (aggregate != 0 && (s.mass != 0 || s.share == 0)))
+                problems.push_back(scenes.at(n, "stock", "scene stock must be an addition or an aggregate share"));
+            shares[aggregate] += s.share;
+        }
+        if (shares[1] != 1000000 || shares[2] != 1000000)
+            problems.push_back(scenes.at(n, "stock", "stone and wood shares must each conserve the full stock"));
+    }
     const auto& items = cat.kind<ItemKind>();
     const auto& recipes = cat.kind<Blueprint>();
     for (std::size_t n = 0; n < items.size(); ++n) {

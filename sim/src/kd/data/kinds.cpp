@@ -8,6 +8,7 @@
 #include "kd/data/orders.hpp"
 #include "kd/demo/checks.hpp"
 #include "kd/demo/crowd.hpp"
+#include "kd/demo/discovery_scene.hpp"
 #include "kd/demo/living_rules.hpp"
 #include "kd/demo/marker.hpp"
 #include "kd/look/area_tuning.hpp"
@@ -26,6 +27,7 @@
 namespace kd::data {
 
 Catalogue::Catalogue() {
+    add_kind<demo::DiscoveryScene>("tuning/discovery", "finite labelled Discovery camp inputs", Layout::single);
     add_kind<ItemKind>("item", "conserved craft materials and forms");
     add_kind<Blueprint>("blueprint", "generic characteristic-constrained work");
     add_kind<demo::LivingRules>("tuning/living", "scoped adult camp rates and bounded renewal", Layout::single);

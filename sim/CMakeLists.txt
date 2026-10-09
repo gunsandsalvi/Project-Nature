@@ -68,6 +68,9 @@ add_library(kd_sim STATIC
     src/kd/demo/clockwork.cpp
     src/kd/demo/crowd_scene.cpp
     src/kd/demo/crowd_world.cpp
+    src/kd/demo/craft_work.cpp
+    src/kd/demo/crafting.cpp
+    src/kd/demo/discovery.cpp
     src/kd/demo/living.cpp
     src/kd/demo/kept.cpp
     src/kd/num/angle.cpp

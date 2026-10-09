@@ -8,7 +8,11 @@ struct Familiar {
     static constexpr std::uint32_t version = 1;
     std::uint32_t kind = 0, material = 0, mask = 0;
     std::array<std::uint8_t, 18> values{}, certainty{};
-    std::uint8_t edible = 0;
+    std::uint8_t edible = 0, state = 0, edible_source = 0;
+    std::array<std::uint8_t, 18> sources{};
+    std::array<std::int64_t, 18> learned_at{};
+    std::array<ecs::Id, 18> source_people{};
+    std::array<std::uint64_t, 18> source_events{};
     std::int64_t at = 0;
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
@@ -18,6 +22,14 @@ struct Familiar {
         for (auto& x : c.values) v.u8({"value", "perceived characteristic"}, x);
         for (auto& x : c.certainty) v.u8({"certainty", "evidence certainty"}, x);
         v.u8({"edible", "believed ready to eat"}, c.edible);
+        v.u8({"state", "experienced physical state"}, c.state);
+        v.u8({"edible_source", "starting or handling evidence for edible use"}, c.edible_source);
+        for (std::size_t i = 0; i < 18; ++i) {
+            v.u8({"source", "sight, starting knowledge, handling, outcome, watching or telling"}, c.sources[i]);
+            v.i64({"learned_at", "actual evidence second"}, c.learned_at[i]);
+            v.id({"source_person", "actual source person, or zero"}, c.source_people[i]);
+            v.u64({"source_event", "actual evidence result, or zero"}, c.source_events[i]);
+        }
         v.i64({"at", "last evidence second"}, c.at);
     }
 };
@@ -161,7 +173,7 @@ struct Result {
     num::Point place{};
     ecs::Id actor{}, source{}, result{};
     std::uint32_t recipe = 0;
-    std::uint8_t route = 0, noticed = 0;
+    std::uint8_t route = 0, noticed = 0, kind = 0;
     std::vector<Link> inputs;
     std::string word;
     template <typename V, typename Self>
@@ -175,6 +187,7 @@ struct Result {
         v.entry({"recipe", "actual fit, for history only"}, c.recipe, "blueprint");
         v.u8({"route", "actual route"}, c.route);
         v.u8({"noticed", "actually noticed"}, c.noticed);
+        v.u8({"kind", "making, discovery, learning, loss, return or failure"}, c.kind);
         v.records({"inputs", "actual input identities"}, c.inputs, 8);
         v.text({"word", "stored coined word"}, c.word, 64);
     }

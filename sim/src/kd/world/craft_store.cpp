@@ -86,10 +86,14 @@ bool practice(const Practice& p, time::Seconds now) {
            p.seconds <= 60 * time::kDay * 1000 && p.last_use >= -1 && p.last_use <= now;
 }
 bool familiar(const Familiar& f, time::Seconds now) {
-    if (f.mask >= (1U << 18U) || f.edible > 1 || f.at < 0 || f.at > now) return false;
+    if (f.mask >= (1U << 18U) || f.edible > 1 || f.state > 4 || f.edible_source > 6 || f.at < 0 || f.at > now)
+        return false;
     for (std::size_t i = 0; i < 18; ++i)
-        if (f.values[i] > 5 || f.certainty[i] > 100 ||
-            ((f.mask & (1U << i)) == 0 && (f.values[i] != 0 || f.certainty[i] != 0)))
+        if (f.values[i] > 5 || f.certainty[i] > 100 || f.sources[i] > 6 || f.learned_at[i] < 0 ||
+            f.learned_at[i] > now ||
+            ((f.mask & (1U << i)) == 0 &&
+             (f.values[i] != 0 || f.certainty[i] != 0 || f.sources[i] != 0 || f.learned_at[i] != 0 ||
+              f.source_people[i].value != 0 || f.source_events[i] != 0)))
             return false;
     return true;
 }
@@ -179,9 +183,9 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
                 return fail("invalid knowledge quantities");
             for (const auto& p : value.sectors)
                 if (!practice(p, w.frontier())) return fail("invalid sector practice");
-            std::set<std::pair<std::uint32_t, std::uint32_t>> seen;
+            std::set<std::tuple<std::uint32_t, std::uint32_t, std::uint8_t>> seen;
             for (const auto& f : value.familiar)
-                if (!familiar(f, w.frontier()) || !seen.insert({f.kind, f.material}).second)
+                if (!familiar(f, w.frontier()) || !seen.insert({f.kind, f.material, f.state}).second)
                     return fail("invalid familiar evidence");
             std::set<std::uint32_t> skills;
             for (const auto& s : value.skills)
@@ -240,8 +244,8 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
             std::uint64_t previous = 0;
             for (const auto& e : value.events) {
                 if (e.id <= previous || e.id >= value.next || e.at < 0 || e.at > w.frontier() || !point(w, e.place) ||
-                    !person(w, e.actor) || !person(w, e.source, true) || !item(w, e.result) || e.route > 5 ||
-                    e.noticed > 1 || e.inputs.empty() || (e.noticed && e.word.empty()))
+                    !person(w, e.actor) || !person(w, e.source, true) || !item(w, e.result, true) || e.route > 5 ||
+                    e.kind > 5 || e.noticed > 1 || e.inputs.empty() || (e.noticed && e.word.empty()))
                     return fail("invalid craft result history");
                 previous = e.id;
                 for (const auto& input : e.inputs)
@@ -284,9 +288,8 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
         if (work.number >= know.next_work ||
             (work.state != 0 && (work.number == 0 || work.inputs.empty() || work.try_seconds == 0)))
             valid = false;
-        if ((act.what >= 8) != (work.state == 2) || (work.state == 3) != (life.meal_item.value != 0) ||
+        if ((act.what >= 8) != (work.state == 2) || work.state == 3 ||
             (work.state == 2 && (work.end != act.end || work.active_start != act.start || work.end < w.frontier())) ||
-            (work.state == 3 && (act.what != 5 || !item(w, life.meal_item))) ||
             (schedule.expected[2] != 0 &&
              (work.state != 2 || !work.intended || work.next_try < w.frontier() || work.next_try >= work.end)))
             valid = false;
@@ -297,7 +300,7 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
         std::set<std::uint8_t> roles;
         for (const auto& r : work.inputs) {
             if (!item(w, r.item) || !inputs.insert(r.item).second || !roles.insert(r.role).second || r.role >= 8 ||
-                r.retained > 1 || r.picked > 1 || r.mass <= 0 || r.mass > 1000000000) {
+                r.retained > 1 || r.picked > 1 || r.return_shared > 1 || r.mass <= 0 || r.mass > 1000000000) {
                 valid = false;
                 continue;
             }
@@ -309,9 +312,17 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
             } else
                 reserved[r.item] += r.mass;
         }
-        if (life.meal_item.value != 0 &&
-            (!inputs.contains(life.meal_item) || life.carried_food > reserved[life.meal_item]))
-            valid = false;
+        if (life.meal_item.value != 0) {
+            if (!item(w, life.meal_item) || life.carried_food <= 0 || inputs.contains(life.meal_item) ||
+                (act.what != 5 && act.what != 1 && act.what != 7) || work.state == 1 || work.state == 2) {
+                valid = false;
+            } else {
+                const auto& meal = things.get<Item>(w.things().handle(life.meal_item));
+                if (meal.home != raw.get<demo::Home>(h).camp || (meal.owner.value != 0 && meal.owner != id))
+                    valid = false;
+                reserved[life.meal_item] += life.carried_food;
+            }
+        }
         const auto camp = raw.get<demo::Home>(h).camp;
         const auto& history = raw.get<CraftHistory>(w.beings().handle(camp));
         const auto event_exists = [&](std::uint64_t n) {
@@ -320,8 +331,17 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
         };
         for (const auto& s : know.skills)
             if (!event_exists(s.source_event)) valid = false;
-        for (const auto& m : know.memories)
+        const auto evidence_valid = [&](const Familiar& f) {
+            for (std::size_t i = 0; i < 18; ++i)
+                if (!person(w, f.source_people[i], true) || !event_exists(f.source_events[i])) valid = false;
+        };
+        for (const auto& f : know.familiar) evidence_valid(f);
+        for (const auto& m : know.memories) {
             if (!event_exists(m.event)) valid = false;
+            for (const auto& f : m.inputs) evidence_valid(f);
+        }
+        for (const auto& hunch : know.hunches)
+            for (const auto& f : hunch.inputs) evidence_valid(f);
     });
     for (const auto& [id, mass] : reserved)
         if (mass > things.get<Item>(w.things().handle(id)).mass || tools.contains(id)) valid = false;

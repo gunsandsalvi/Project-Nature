@@ -49,7 +49,7 @@ struct Reservation {
     static constexpr std::uint32_t version = 1;
     ecs::Id item{};
     std::int64_t mass = 0;
-    std::uint8_t role = 0, retained = 0, picked = 0;
+    std::uint8_t role = 0, retained = 0, picked = 0, return_shared = 0;
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
         v.id({"item", "reserved item"}, c.item);
@@ -57,6 +57,7 @@ struct Reservation {
         v.u8({"role", "input role index"}, c.role);
         v.u8({"retained", "tool kept after use"}, c.retained);
         v.u8({"picked", "input physically collected"}, c.picked);
+        v.u8({"return_shared", "return initially shared tools after work"}, c.return_shared);
     }
 };
 struct Work {

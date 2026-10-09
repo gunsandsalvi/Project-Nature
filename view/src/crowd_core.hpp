@@ -5,6 +5,7 @@
 
 #include <atomic>
 #include <cstdint>
+#include <map>
 #include <mutex>
 #include <vector>
 
@@ -40,6 +41,12 @@ struct Snapshot {
     std::vector<world::Habitat> habitats{};
     std::vector<std::optional<world::Life>> lives{};  // aligned with ways in living camps; empty in marker worlds
     std::vector<std::optional<world::Dream>> dreams{};
+    std::vector<std::optional<world::Work>> works{};
+    std::vector<std::shared_ptr<const world::Knowledge>> knowledge{};
+    std::vector<world::ItemWay> items{};
+    std::vector<std::uint32_t> item_first{};
+    std::vector<world::CraftHistory> craft_history{};
+    [[nodiscard]] const world::ItemWay* item_at(std::size_t i, double t) const;
     // Living thought updates become visible at their event, even within an unchanged activity.
     std::vector<time::Seconds> changed_at{};
 
@@ -116,6 +123,10 @@ private:
     std::vector<std::vector<std::optional<world::Dream>>> dream_trails_;
     std::vector<std::vector<time::Seconds>> change_trails_;
     std::vector<world::Way> ways_;
+    std::vector<std::vector<std::optional<world::Work>>> work_trails_;
+    std::vector<std::vector<std::shared_ptr<const world::Knowledge>>> knowledge_trails_;
+    std::map<ecs::Id, std::vector<world::ItemWay>> item_trails_;
+    std::vector<world::ItemWay> item_ways_;
     TripleBuffer<Snapshot> snapshots_;
     std::vector<world::Record> history_;
     std::mutex greetings_mutex_;

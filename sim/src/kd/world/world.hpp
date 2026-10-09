@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <memory>
 #include <optional>
 #include <span>
 #include <string_view>
@@ -92,6 +93,9 @@ struct Bound {
 class System {
 public:
     virtual ~System() = default;
+    // The bounded craft slice allocates global entity identities at events. Such windows
+    // use the reference order until births can be committed safely across independent islands.
+    [[nodiscard]] virtual bool serial_windows(const World& /*w*/) const { return false; }
     [[nodiscard]] virtual std::string_view name() const = 0;
     virtual void handle(Context& c, const event::Event& e) = 0;
     virtual void digest(num::Digest& /*d*/) const {}
@@ -172,6 +176,16 @@ struct Way {
     Activity activity;
     std::optional<Life> life = std::nullopt;
     std::optional<Dream> dream = std::nullopt;
+    std::optional<Work> work = std::nullopt;
+    std::shared_ptr<const Knowledge> knowledge = {};
+};
+// Immutable physical state at a real item event, independent of the producer's later frontier.
+struct ItemWay {
+    event::Key key;
+    std::uint32_t n = 0;
+    ecs::Id id;
+    Place place;
+    Item item;
 };
 
 /// One island of a window (A3.3): its events, run in key order on one worker, those it makes at or after the
@@ -208,6 +222,7 @@ public:
     /// An owner's place or activity changed, at the event being run: in an island its system's indexes take it after
     /// the window, and where the world keeps ways for the screen, the owner's new activity joins them.
     void moved(ecs::Id id);
+    void item_changed(ecs::Id id);
 
     /// Schedules the owner's slot to wake at a second: the owner's next sequence number, now the one that slot waits
     /// for, so any event it waited for before dies. A handler may schedule only keys after its own, and for another
@@ -345,6 +360,7 @@ public:
     /// Keeps every way a doer sets off on in a list, in key order, for the screen; nothing when null. Ways are no
     /// part of the world's state, so keeping them never changes it.
     void keep_ways(std::vector<Way>* list) { ways_list_ = list; }
+    void keep_item_ways(std::vector<ItemWay>* list) { item_ways_list_ = list; }
     /// The islands of the last window run in islands, and the owners in the largest, for the counters.
     [[nodiscard]] std::uint64_t islands_run() const { return islands_run_; }
     [[nodiscard]] std::uint64_t largest_island() const { return largest_island_; }
@@ -401,6 +417,7 @@ private:
     std::vector<Switch> switches_;
     std::vector<Record>* history_list_ = nullptr;
     std::vector<Way>* ways_list_ = nullptr;
+    std::vector<ItemWay>* item_ways_list_ = nullptr;
     std::uint64_t islands_run_ = 0;
     std::uint64_t largest_island_ = 0;
     IslandCounts counts_;

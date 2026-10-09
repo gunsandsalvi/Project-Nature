@@ -17,6 +17,8 @@ var world_id := ""
 var opened := {}
 var people: Array = []
 var selected_id := 0
+var selected_item_id := 0
+var items: Array = []
 var drawing: Node2D
 var state := {}
 var frozen := false
@@ -45,6 +47,8 @@ var _dream_button: Button
 var _dreams: PanelContainer
 var _heat_every := 2.0
 var _heat_wait := 0.0
+var _item_second := -1
+var _item_observer := -1
 
 
 func _ready() -> void:
@@ -55,7 +59,11 @@ func _ready() -> void:
 	)
 	world_id = worlds.current()
 	if not camps.any(func(w: Dictionary) -> bool: return w.id == world_id):
-		world_id = str(camps[0].id) if not camps.is_empty() else worlds.make_camp("Camp alpha", 17)
+		world_id = (
+			str(camps[0].id)
+			if not camps.is_empty()
+			else worlds.make_discovery("Discovery camp", 17)
+		)
 	worlds.set_current(world_id)
 	GameData.load_into(world)
 	var heat := world.entry("tuning/heat", "base:heat")
@@ -177,6 +185,12 @@ func _build() -> void:
 
 func _refresh_records(counters: Dictionary = {}) -> void:
 	people = world.people()
+	if _item_second != int(world.screen_time()) or _item_observer != selected_id:
+		items = world.items(selected_id)
+		_item_second = int(world.screen_time())
+		_item_observer = selected_id
+	drawing.items = items
+	drawing.selected_item = selected_item_id
 	drawing.people = people
 	drawing.supplies = world.camp_alpha()
 	drawing.selected = selected_id
@@ -198,6 +212,11 @@ func _refresh_records(counters: Dictionary = {}) -> void:
 				supplies.wood_mg / 1000000.0
 			]
 		)
+		if supplies.get("discovery", false):
+			_card.text += (
+				"\n%.1f kg finite food inputs. Raw and prepared portions are counted once."
+				% (float(supplies.finite_food_mg) / 1000000)
+			)
 		if _details and supplies.has("root_water_ml"):
 			_card.text += (
 				(
@@ -214,16 +233,32 @@ func _refresh_records(counters: Dictionary = {}) -> void:
 					Words.when(int(supplies.settled_frontier), int(world.screen_time()))
 				]
 			)
+	elif selected_item_id != 0:
+		var selected := selected_item()
+		_card.text = (
+			Words.item(selected, people, _details, int(world.screen_time()))
+			if not selected.is_empty()
+			else "This portion has been used."
+		)
+		for pile: Array in drawing.item_piles.values():
+			if pile.has(selected_item_id) and pile.size() > 1:
+				_card.text += "\n%d similar portions nearby · tap again to inspect." % pile.size()
+				break
 	elif person.is_empty():
 		_card.text = (
-			"Tap a person · hold for a dream.\nDrag to look · pinch to zoom\n"
+			"Tap a person or a thing.\nHold a person for a dream.\nDrag to look · pinch to zoom\n"
 			+ "They choose from needs and remembered supplies."
 		)
 	else:
 		_card.text = person_words(person, _details)
+		var rect: Rect2 = drawing.drawn.get(selected_id, Rect2())
+		if drawing.drawn.values().count(rect) > 1:
+			_card.text += "\nOthers here · tap again to select them."
 	_more.text = "Back" if _details else "Details"
-	_more.disabled = (person.is_empty() and not _show_supplies) or _dreams.visible
-	_dream_button.disabled = person.is_empty() or _dreams.visible
+	_more.disabled = (
+		(person.is_empty() and selected_item_id == 0 and not _show_supplies) or _dreams.visible
+	)
+	_dream_button.disabled = person.is_empty() or selected_item_id != 0 or _dreams.visible
 	_pause.disabled = _dreams.visible
 	_speed.disabled = _dreams.visible
 
@@ -251,7 +286,10 @@ func _refresh_records(counters: Dictionary = {}) -> void:
 
 
 func person_words(person: Dictionary, details: bool) -> String:
-	return Words.person(person, details, int(world.screen_time()))
+	var words := Words.person(person, details, int(world.screen_time()))
+	if details:
+		words += Words.knowledge(world.knowledge(int(person.id)), people, int(world.screen_time()))
+	return words
 
 
 func selected_person() -> Dictionary:
@@ -264,11 +302,29 @@ func selected_person() -> Dictionary:
 func select_person(id: int) -> void:
 	if people.any(func(person: Dictionary) -> bool: return int(person.id) == id):
 		selected_id = id
+		selected_item_id = 0
 		_show_supplies = false
 		_refresh_records()
 
 
+func selected_item() -> Dictionary:
+	for item: Dictionary in items:
+		if int(item.id) == selected_item_id:
+			return item
+	return {}
+
+
 func tap(at: Vector2) -> void:
+	var exact: int = drawing.pick(camera.from_screen(at), 0, selected_id)
+	if exact != 0:
+		select_person(exact)
+		return
+	var item_id: int = drawing.pick_item(camera.from_screen(at), selected_item_id)
+	if item_id != 0:
+		selected_item_id = item_id
+		_show_supplies = false
+		_refresh_records()
+		return
 	var id: int = drawing.pick(
 		camera.from_screen(at), _hit_radius / float(state.scale) / float(state.live_scale)
 	)
@@ -463,10 +519,7 @@ func _world_input(event: InputEvent) -> void:
 			"alone": _touches.is_empty(),
 			"moved": false,
 			"started": Time.get_ticks_msec(),
-			"person":
-			drawing.pick(
-				camera.from_screen(at), _hit_radius / float(state.scale) / float(state.live_scale)
-			)
+			"person": _person_at(at)
 		}
 		if _touches.size() > 1:
 			for touch: Dictionary in _touches.values():
@@ -501,3 +554,15 @@ func _notification(what: int) -> void:
 
 func _exit_tree() -> void:
 	world.save_now()
+
+
+func _person_at(at: Vector2) -> int:
+	var local := camera.from_screen(at)
+	var exact: int = drawing.pick(local)
+	if exact != 0:
+		if drawing.drawn.get(selected_id) == drawing.drawn.get(exact):
+			return selected_id
+		return exact
+	if drawing.pick_item(local) != 0:
+		return 0
+	return drawing.pick(local, _hit_radius / float(state.scale) / float(state.live_scale))

@@ -28,8 +28,14 @@ func test_drawn_people_select_their_saved_identity_and_position() -> void:
 		assert_bool(ids.has(person.id)).is_false()
 		ids[person.id] = true
 		var rect: Rect2 = page.drawing.drawn[int(person.id)]
-		var at: Vector2 = rect.get_center() * float(page.state.scale) + Vector2(page.state.offset)
-		page.tap(at)
+		var at: Vector2 = (
+			rect.get_center() * float(page.state.scale) * float(page.state.live_scale)
+			+ Vector2(page.state.offset)
+		)
+		for attempt in page.people.size():
+			page.tap(at)
+			if page.selected_id == int(person.id):
+				break
 		assert_int(page.selected_id).is_equal(int(person.id))
 		assert_str(page.selected_person().name).is_equal(str(person.name))
 		assert_int(page.selected_person().east_cm).is_equal(int(person.east_cm))
@@ -365,7 +371,14 @@ func test_holding_a_drawn_person_opens_the_power_ring_once() -> void:
 	var press := InputEventMouseButton.new()
 	press.button_index = MOUSE_BUTTON_LEFT
 	press.pressed = true
-	press.position = page.drawing.drawn[person].get_center() * float(page.state.scale)
+	press.position = (
+		(
+			page.drawing.drawn[person].get_center()
+			* float(page.state.scale)
+			* float(page.state.live_scale)
+		)
+		+ Vector2(page.state.offset)
+	)
 	page._world_input(press)
 	page._touches[0].started -= 600
 	page._process(0)

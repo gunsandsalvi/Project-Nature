@@ -7,6 +7,8 @@ const PAGES := {
 	"Camp": preload("res://pages/camp.gd"),
 	"CampMeasure": preload("res://pages/camp_measure.gd"),
 	"Check": preload("res://pages/check.gd"),
+	"DiscoveryExamples": preload("res://pages/discovery_examples.gd"),
+	"FirstFlake": preload("res://pages/first_flake.gd"),
 	"Examples": preload("res://pages/examples.gd"),
 	"Time": preload("res://pages/time.gd"),
 	"Crowd": preload("res://pages/crowd.gd"),
@@ -21,6 +23,7 @@ const BACKGROUND := Palette.GROUND
 const TEXT := Palette.TEXT
 var camp_root := Worlds.ROOT
 var camp_frozen := false
+var example_root := "user://first-flake-format-%d" % KdWorld.save_format()
 var first_check_code := ""
 var _ground: ColorRect
 var _content: Control
@@ -80,6 +83,8 @@ func open_page(page: String) -> void:
 		_page.root = camp_root
 	if page == "Camp":
 		_page.frozen = camp_frozen
+	if page == "FirstFlake":
+		_page.root = example_root
 	if page == "Worlds":
 		_page.new_camp_alpha = true
 	_page_name = page
@@ -146,9 +151,13 @@ func _build() -> void:
 	var column := VBoxContainer.new()
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_menu_scroll.add_child(column)
-	for route: String in ["Camp", "Worlds"]:
+	for route: String in ["Camp", "Worlds", "DiscoveryExamples"]:
 		var button := Button.new()
-		button.text = "Return to camp" if route == "Camp" else "Saved camps · export / import"
+		button.text = {
+			"Camp": "Return to camp",
+			"Worlds": "Saved camps · export / import",
+			"DiscoveryExamples": "Examples"
+		}[route]
 		button.pressed.connect(open_page.bind(route))
 		column.add_child(button)
 	var save := Button.new()
