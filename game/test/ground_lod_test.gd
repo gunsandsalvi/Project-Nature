@@ -1,7 +1,7 @@
 ## Checks PRE-03 PRE-42 PRE-43: wide ground uses repaired far levels, bounded at one texel.
 extends GdUnitTestSuite
 
-const Atlas := preload("res://fixtures/streamed_atlas.gd")
+const Atlas := preload("res://test/support/fixtures/streamed_atlas.gd")
 
 
 func test_wide_ground_uses_repaired_chain_without_fractional_asset_keys() -> void:

@@ -35,7 +35,7 @@ bool ends_with(const std::string& s, const std::string& end) {
 
 bool archive_part(const std::string& path) {
     return path == "world.toml" || path == "journal.log" || starts_ends(path, "snapshots/", ".kds") ||
-           starts_ends(path, "snapshots/", "-camp-start.kds") || starts_ends(path, "history/", ".log");
+           starts_ends(path, "history/", ".log");
 }
 
 // --- writing

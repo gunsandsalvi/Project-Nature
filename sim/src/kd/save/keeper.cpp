@@ -37,10 +37,6 @@ bool ends_with(const std::string& s, const std::string& end) {
 
 // The whole number a name begins with, up to its ending, such as a snapshot's frontier or a history file's year.
 std::optional<std::int64_t> number_before(const std::string& name, const std::string& end) {
-    // The alternate migration baseline sorts immediately before the normal snapshot at the same frontier.
-    if (end == ".kds" && ends_with(name, "-camp-start.kds")) {
-        return number_before(name, "-camp-start.kds");
-    }
     if (!ends_with(name, end) || name.size() == end.size()) {
         return std::nullopt;
     }
@@ -251,7 +247,6 @@ Found Keeper::open() {
             sequences_[path] = y.records.empty() ? 1 : y.records.back().sequence + 1;
             broken = y.cut;
         }
-        previous_ = !f.list("previous").empty();
     });
     found.history = stored_;
     return found;
@@ -273,29 +268,7 @@ Update Keeper::begin(const Found& found, const data::Catalogue& catalogue) {
         played_.store(versions_.played, std::memory_order_relaxed);
         return Update::none;
     }
-    versions_ = found.versions.value_or(Versions{});
-    versions_.build = build_;
-    versions_.eras.push_back({build_, opened_at_});
-    versions_.played = 0;
-    updated_ = true;
-    previous_ = true;
-    // every year more than 25 years past thinned, as a version that thinned nothing, α1.4a, left them whole; a year
-    // thinned already stays as it is
-    for (std::int64_t y = 1; y <= thinned_; ++y) {
-        thin(y);
-    }
-    // the previous version's last snapshot kept aside, with world.toml, until the world has run an hour under this one
-    io_.now([&](Files& f) {
-        for (const std::string& name : f.list("previous")) {
-            f.remove("previous/" + name);
-        }
-        for (const std::string& path : {"snapshots/" + found.snapshot_name, kAbout}) {
-            if (const std::optional<Bytes> bytes = f.read(path)) {
-                f.write_whole("previous/" + path.substr(path.rfind('/') + 1), *bytes);
-            }
-        }
-    });
-    return Update::small;
+    return Update::older;
 }
 
 void Keeper::about(const std::string& text) {
@@ -346,10 +319,6 @@ void Keeper::expect(time::Seconds frontier) {
         static_cast<std::size_t>(std::partition_point(stored_.begin(), stored_.end(),
                                                       [&](const world::Record& r) { return r.key.second < frontier; }) -
                                  stored_.begin());
-    if (updated_ && next_ < stored_.size()) {
-        // after an update they are made again under the new rules, not compared
-        cut_history(next_);
-    }
 }
 
 void Keeper::history(std::span<const world::Record> records) {
@@ -460,10 +429,8 @@ void Keeper::snapshot(const world::World& w) {
     v.rules = rules_digest(w.catalogue());
     v.played = played_.load(std::memory_order_relaxed);
     chunks.push_back(versions_chunk(v));
-    const bool drop = previous_ && v.played >= kPreviousKept;
-    previous_ = previous_ && !drop;
     const time::Seconds frontier = w.frontier();
-    io_.post([this, chunks = std::move(chunks), frontier, drop](Files& f) {
+    io_.post([this, chunks = std::move(chunks), frontier](Files& f) {
         // never a snapshot after a failed write: the world opens at the one before, and makes again what was lost
         if (failed()) {
             return;
@@ -488,35 +455,10 @@ void Keeper::snapshot(const world::World& w) {
         for (std::size_t i = 0; i + 2 < names.size(); ++i) {
             f.remove("snapshots/" + names[i]);
         }
-        // and once the world has run an hour under this version, the previous one's last snapshot goes
-        if (drop) {
-            for (const std::string& name : f.list("previous")) {
-                f.remove("previous/" + name);
-            }
-        }
         snapshots_.fetch_add(1, std::memory_order_relaxed);
         last_snapshot_.store(frontier, std::memory_order_relaxed);
         last_bytes_.store(bytes.size(), std::memory_order_relaxed);
     });
-}
-
-bool Keeper::seal_camp_start(const world::World& w) {
-    std::vector<Chunk> chunks = w.save();
-    Versions v = versions_;
-    v.making = making_digest(w.catalogue());
-    v.rules = rules_digest(w.catalogue());
-    v.played = played_.load(std::memory_order_relaxed);
-    chunks.push_back(versions_chunk(v));
-    const std::string normal = snapshot_file(w.frontier());
-    const std::string alternate = normal.substr(0, normal.size() - 4) + "-camp-start.kds";
-    io_.now([this, &chunks, &alternate](Files& f) {
-        if (!failed() && !f.write_whole(alternate, write_snapshot(chunks))) fail();
-    });
-    if (failed()) return false;
-    // Only replace the legacy snapshot after the alternate is synced; ordinary retention keeps both new copies.
-    snapshot(w);
-    flush();
-    return !failed();
 }
 
 void Keeper::flush() {

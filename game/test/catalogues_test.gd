@@ -3,32 +3,7 @@
 ## phone's digests equal the ones the build wrote.
 extends GdUnitTestSuite
 
-const CataloguesPage := preload("res://pages/catalogues.gd")
 const CheckPage := preload("res://pages/check.gd")
-
-
-# checks: MAT-13 MAT-14
-func test_the_page_lists_every_source_kind_and_entry() -> void:
-	var page: VBoxContainer = auto_free(CataloguesPage.new())
-	add_child(page)
-	await await_idle_frame()
-	assert_array(page.loaded["problems"] as Array).is_empty()
-	var text := "\n".join(page.shown)
-	for wanted: String in [
-		"art, version 1",
-		"base, version 5",
-		"demo, version 1",
-		"marker (2 entries)",
-		"tuning/crowd (1 entry)",
-		"need_use (3 entries)",
-		"tuning/living (1 entry)",
-		"tuning/heat (1 entry)",
-		"tuning/saves (1 entry)",
-		"tuning/time (1 entry)",
-		"demo:walker, from demo/marker/walker.toml",
-		"speed = 1400 mm/s",
-	]:
-		assert_str(text).contains(wanted)
 
 
 # checks: MAT-13
@@ -55,17 +30,15 @@ func test_the_catalogues_are_the_same_as_the_build() -> void:
 	)
 
 
-# checks: PRE-20
-func test_the_textures_are_the_same_as_the_build_and_load_within_their_lines() -> void:
+# checks: PRE-40
+func test_the_camp_font_loads() -> void:
 	var page: VBoxContainer = auto_free(CheckPage.new())
 	page.build()
 	var lines: Array = page.lines.filter(
-		func(line: Dictionary) -> bool: return line["name"] == "Textures"
+		func(line: Dictionary) -> bool: return line.name == "Camp font"
 	)
 	assert_int(lines.size()).is_equal(1)
-	assert_str(lines[0]["state"]).override_failure_message(str(lines[0])).is_equal("ok")
-	var listed: Array = GameData.build().get_value("textures", "files", [])
-	assert_str(lines[0]["value"]).contains("%d textures" % listed.size())
+	assert_str(lines[0].state).is_equal("ok")
 
 
 # checks: MAT-13

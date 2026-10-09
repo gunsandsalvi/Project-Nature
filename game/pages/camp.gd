@@ -279,7 +279,7 @@ func _refresh_records(counters: Dictionary = {}) -> void:
 		_summary.text += "\n" + warning
 		_summary.add_theme_color_override("font_color", Palette.WARN)
 	elif not _check_code.is_empty():
-		_summary.text = "Self-check " + _check_code + ". Menu → Developer tools → Device check."
+		_summary.text = "Self-check " + _check_code + ". Menu → Device check."
 	elif Time.get_ticks_msec() < _message_until:
 		_summary.text = _message
 	_pause.text = "Play" if world.is_paused() else "Pause"

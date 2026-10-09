@@ -1,4 +1,4 @@
-"""The current app package drops obsolete derived 3D files while preserving source catalogues and 2D resources."""
+"""The camp package retains its catalogue and proof/report records, while dropping unused art payload."""
 
 import os
 import json
@@ -13,10 +13,10 @@ import gamedata  # noqa: E402
 
 class CurrentPackage(unittest.TestCase):
     # checks: PLT-09 PRE-22
-    def test_rebuild_removes_stale_3d_exports_but_keeps_2d_and_proofs(self):
+    def test_rebuild_removes_unused_payload_but_keeps_reports_and_current_example(self):
         with tempfile.TemporaryDirectory() as folder:
-            stale = ("models/camp.kdkit", "scenes/look/c1.toml")
-            kept = ("textures/art/ground.kdtex", "sheets/meadow.kdsheet", "reports/greetings.json", "build.toml")
+            stale = ("models/camp.kdkit", "scenes/look/c1.toml", "textures/art/ground.kdtex", "sheets/meadow.kdsheet")
+            kept = ("reports/greetings.json", "examples/first-flake.kindling", "build.toml")
             for name in stale + kept:
                 path = os.path.join(folder, name)
                 os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -29,11 +29,13 @@ class CurrentPackage(unittest.TestCase):
 
     # checks: PLT-09 MAT-13
     def test_manifest_keeps_proof_sections_without_obsolete_3d_manifests(self):
-        text = gamedata.build_toml({"clock": "same-bits"}, 1, [], [], {"saved": "same-world"}, 30801)
+        text = gamedata.build_toml({"clock": "same-bits"}, 1, [], [], 41301)
         self.assertIn('[proof]\nclock = "same-bits"', text)
-        self.assertIn('[bench]\nsaved = "same-world"', text)
+        self.assertNotIn("[bench]", text)
         self.assertNotIn("[models]", text)
         self.assertNotIn("[calibration]", text)
+        self.assertNotIn("[textures]", text)
+        self.assertNotIn("[sheets]", text)
 
     def test_steady_report_still_exports_the_current_build_archive(self):
         with tempfile.TemporaryDirectory() as folder:

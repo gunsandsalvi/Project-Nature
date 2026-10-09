@@ -25,7 +25,6 @@
 #include "kd/save/log.hpp"
 #include "kd/save/snapshot.hpp"
 #include "kd/save/versions.hpp"
-#include "kd/world/upgrades.hpp"
 
 namespace {
 
@@ -731,47 +730,9 @@ TEST_CASE("a 30-year world's history keeps every event of its last 25 years and 
     }
 }
 
-TEST_CASE("a part of a snapshot saved by an older version is brought up to date a step at a time") {
-    // version 1 held a count in 4 bytes, version 2 in 8, and version 3 added a flag after it
-    const std::array<kd::save::Upgrade, 2> steps{{
-        {kd::save::tag("TEST"), 1,
-         [](Bytes& d) {
-             d.resize(8);
-             return true;
-         }},
-        {kd::save::tag("TEST"), 2,
-         [](Bytes& d) {
-             d.push_back(std::byte{1});
-             return d.size() == 9;
-         }},
-    }};
-    kd::ByteWriter w;
-    w.u32(41);
-    kd::save::Chunk c{kd::save::tag("TEST"), 1, true, w.take()};
-    std::string why;
-    CHECK(kd::save::upgrade(c, 3, steps, why));
-    CHECK(c.version == 3);
-    kd::ByteReader r(c.data);
-    std::uint64_t count = 0;
-    std::uint8_t flag = 0;
-    CHECK((r.u64(count) && r.u8(flag) && r.finished()));
-    CHECK(count == 41);
-    CHECK(flag == 1);
-    // newer than this version, or with no step on from its version: refused with words
-    kd::save::Chunk newer{kd::save::tag("TEST"), 4, true, {}};
-    CHECK_FALSE(kd::save::upgrade(newer, 3, steps, why));
-    CHECK(why.find("newer") != std::string::npos);
-    kd::save::Chunk other{kd::save::tag("ELSE"), 1, true, {}};
-    CHECK_FALSE(kd::save::upgrade(other, 2, steps, why));
-    CHECK(why.find("older") != std::string::npos);
-    CHECK(kd::world::migrations().empty());
-}
-
-// checks: PLT-09 RES-10
-
 namespace {
 
-// A component for the test, whose version 1 held one number and version 2 two.
+// A current component shape for the strict reader test.
 struct Pair {
     [[maybe_unused]] static constexpr std::string_view name = "pair";  // as every component has, though saves skip it
     static constexpr std::uint32_t version = 2;
@@ -781,35 +742,21 @@ struct Pair {
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
         v.u64({"a", "the first"}, c.a);
-        v.u64({"b", "the second, 7 in a pair saved before it was added"}, c.b);
-    }
-
-    static bool upgrade(std::uint32_t version, kd::ByteReader& r, const kd::ecs::EntryMap& /*entries*/, Pair& c) {
-        c.b = 7;
-        return version == 1 && r.u64(c.a);
+        v.u64({"b", "the second"}, c.b);
     }
 };
 
 }  // namespace
 
-TEST_CASE("a component saved in an older shape is read into its new one by its own upgrade") {
+TEST_CASE("a component reads its exact current shape and refuses other versions") {
     const kd::ecs::EntryMap entries = [](std::string_view, std::uint32_t n) { return std::optional<std::uint32_t>(n); };
-    kd::ByteWriter w;
-    w.u32(1);
-    w.u64(5);
-    Pair p;
-    kd::ByteReader r(w.bytes());
-    CHECK(kd::ecs::read_component(p, r, entries));
-    CHECK(p.a == 5);
-    CHECK(p.b == 7);
-    // its own shape reads as it is, and a newer or unknown one is refused
     kd::ByteWriter now;
     kd::ecs::write_component(Pair{3, 4}, now);
     kd::ByteReader rn(now.bytes());
     Pair q;
     CHECK(kd::ecs::read_component(q, rn, entries));
     CHECK((q.a == 3 && q.b == 4));
-    for (const std::uint32_t version : {0U, 3U}) {
+    for (const std::uint32_t version : {0U, 1U, 3U}) {
         kd::ByteWriter odd;
         odd.u32(version);
         odd.u64(5);

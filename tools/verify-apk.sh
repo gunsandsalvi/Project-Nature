@@ -75,7 +75,6 @@ SIZE="$(stat -c %s "$APK")"
 ok "$((SIZE / 1024 / 1024)) MB, within 50 MB"
 
 # checks: PLT-06 PRC-11 PRE-31
-# Fixture deliveries need their raw metadata and design sheets, plus every imported atlas channel.
-# The validator leaves earlier deliveries alone; material records begin with the terrain delivery.
-python3 "$ROOT/tools/apk-fixtures.py" "$APK" "$CODE" || fail "packaged fixture resources"
+# Require the current camp catalogue, font and example, and refuse obsolete payload.
+python3 "$ROOT/tools/apk-camp.py" "$APK" "$CODE" || fail "packaged camp resources"
 echo "APK check: OK"

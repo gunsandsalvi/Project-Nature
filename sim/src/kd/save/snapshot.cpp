@@ -152,21 +152,4 @@ const Chunk* find_chunk(std::span<const Chunk> chunks, std::uint32_t tag) {
     return nullptr;
 }
 
-bool upgrade(Chunk& c, std::uint32_t now, std::span<const Upgrade> steps, std::string& why) {
-    while (c.version < now) {
-        const auto step = std::find_if(steps.begin(), steps.end(),
-                                       [&](const Upgrade& u) { return u.tag == c.tag && u.from == c.version; });
-        if (step == steps.end() || !step->apply(c.data)) {
-            why = "a part of it is of an older version this one cannot bring up to date";
-            return false;
-        }
-        ++c.version;
-    }
-    if (c.version > now) {
-        why = "a part of it is of a newer version than this one";
-        return false;
-    }
-    return true;
-}
-
 }  // namespace kd::save

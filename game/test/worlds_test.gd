@@ -6,7 +6,7 @@
 extends GdUnitTestSuite
 
 const WorldsPage := preload("res://pages/worlds.gd")
-const CrowdPage := preload("res://pages/crowd.gd")
+const CampPage := preload("res://pages/camp.gd")
 const ROOT := "user://test-worlds"
 
 
@@ -18,15 +18,15 @@ func after_test() -> void:
 func _worlds_page() -> VBoxContainer:
 	var page: VBoxContainer = auto_free(WorldsPage.new())
 	page.root = ROOT
-	page.new_camps = 4
 	page.size = Vector2(540, 1100)
 	add_child(page)
 	return page
 
 
 ## The Crowd page on the world chosen on the Worlds page, as Open shows it.
-func _crowd_page() -> VBoxContainer:
-	var page: VBoxContainer = CrowdPage.new()
+func _camp_page() -> Control:
+	var page: Control = CampPage.new()
+	page.frozen = true
 	page.root = ROOT
 	page.size = Vector2(540, 1100)
 	add_child(page)
@@ -34,7 +34,7 @@ func _crowd_page() -> VBoxContainer:
 
 
 ## The Crowd page closed, as switching to another page closes it, which saves its world.
-func _close(page: VBoxContainer) -> void:
+func _close(page: Control) -> void:
 	remove_child(page)
 	page.free()
 
@@ -42,7 +42,7 @@ func _close(page: VBoxContainer) -> void:
 ## Opens a world on the Crowd page, runs it on to a moment and closes it: its digest there.
 func _run_to(shelf: VBoxContainer, id: String, moment: int) -> String:
 	shelf.open_world(id)
-	var crowd := _crowd_page()
+	var crowd := _camp_page()
 	assert_str(crowd.opened.get("problem", "")).is_empty()
 	crowd.world.run_until(moment)
 	crowd.world.save_now()
@@ -67,7 +67,7 @@ func test_three_worlds_switched_in_turn_each_open_where_they_were_left() -> void
 	for round in 2:
 		for i in 3:
 			shelf.open_world(ids[i])
-			var crowd := _crowd_page()
+			var crowd := _camp_page()
 			assert_bool(crowd.opened["made"]).is_false()
 			assert_str(crowd.world.digest()).is_equal(left[ids[i]])
 			crowd.world.run_until(crowd.world.frontier() + 600 * (round + 1))
@@ -82,9 +82,8 @@ func test_a_world_exported_and_imported_runs_on_as_the_one_it_came_from() -> voi
 	var shelf := _worlds_page()
 	var id: String = shelf.make_world()
 	shelf.open_world(id)
-	var crowd := _crowd_page()
+	var crowd := _camp_page()
 	crowd.world.run_until(9 * 3600)
-	crowd.world.call_home(1)
 	crowd.world.run_until(10 * 3600)
 	crowd.world.save_now()
 	_close(crowd)
@@ -93,11 +92,11 @@ func test_a_world_exported_and_imported_runs_on_as_the_one_it_came_from() -> voi
 	assert_bool(shelf.export_to(id, file)).is_true()
 	while shelf.busy():
 		await await_idle_frame()
-	assert_str(shelf.status).starts_with("Exported World 1")
+	assert_str(shelf.status).starts_with("Exported Discovery camp 1")
 	assert_bool(shelf.import_from(file)).is_true()
 	while shelf.busy():
 		await await_idle_frame()
-	assert_str(shelf.status).is_equal("Imported as World 1 (imported)")
+	assert_str(shelf.status).is_equal("Imported as Discovery camp 1 (imported)")
 	assert_int(shelf.listed.size()).is_equal(2)
 	var copy := ""
 	for w: Dictionary in shelf.listed:
@@ -154,7 +153,7 @@ func test_each_world_shows_its_size_by_part_and_a_nearly_full_phone_is_warned_of
 	assert_str(Worlds.space_warning(-1, 1024)).is_empty()
 	# and the Crowd page's counters carry the free space it checks at each save
 	shelf.open_world(id)
-	var crowd := _crowd_page()
+	var crowd := _camp_page()
 	assert_int(crowd.world.counters()["free_mb"]).is_greater(0)
 	assert_int(crowd.world.counters()["warn_below_mb"]).is_equal(1024)
 	_close(crowd)

@@ -113,9 +113,8 @@ def lint(build, header_filter, files):
     return 0
 
 
-# What the tests read from the repository as they run, not as they are built (KD_REPO in sim/tests): the game's
-# catalogue, which the old saves' corpus opens with, and the corpus itself. A change to either alone runs them again.
-READ_AS_THEY_RUN = ("data", "sim/tests/corpus")
+# Tests also read the catalogue at runtime (KD_REPO in sim/tests); changes run them again.
+READ_AS_THEY_RUN = ("data",)
 
 
 def tests(build):

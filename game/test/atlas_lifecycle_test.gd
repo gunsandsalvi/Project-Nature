@@ -1,8 +1,8 @@
 ## Checks PRE-03 PRE-22 PLT-04 WLD-13 (T2.9a.2).
 extends GdUnitTestSuite
 
-const Atlas := preload("res://fixtures/streamed_atlas.gd")
-const Stream := preload("res://fixtures/sprite_stream.gd")
+const Atlas := preload("res://test/support/fixtures/streamed_atlas.gd")
+const Stream := preload("res://test/support/fixtures/sprite_stream.gd")
 var stream: Node
 var atlas: RefCounted
 var identity := {
@@ -56,7 +56,7 @@ func before_test() -> void:
 			"material": "art:unit",
 			"cells": [{"pivot_x_256": 256, "pivot_y_256": 256}]
 		}
-	atlas._descriptors[GameData.texture_path("art:unit")] = {
+	atlas._descriptors[Atlas.texture_path("art:unit")] = {
 		"path": "unit-unused", "max_bytes": 32, "sha256": "unit-unused"
 	}
 

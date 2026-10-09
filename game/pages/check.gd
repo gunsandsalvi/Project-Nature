@@ -6,10 +6,6 @@
 extends VBoxContainer
 
 const BUILD_DATA := "res://data/build.toml"
-## A world opens within 3 seconds (PLT-04), its textures with it; textures hold at most 300 MB
-## (A18.1).
-const TEXTURES_MS_MOST := 3000.0
-const TEXTURES_MB_MOST := 300.0
 const COLOURS := {
 	"ok": Palette.GOOD,
 	"warn": Palette.WARN,
@@ -23,7 +19,6 @@ var lines: Array[Dictionary] = []
 
 var _list: VBoxContainer
 var _summary: Label
-var _probes: Probes
 var _report: ScrollContainer
 var _report_button: Button
 var _run_button: Button
@@ -73,25 +68,7 @@ func _ready() -> void:
 	copy.custom_minimum_size.y = 48
 	copy.pressed.connect(func() -> void: DisplayServer.clipboard_set(details()))
 	_list.add_child(copy)
-	# the probes run once a build, a little drawing each, and the lines show them as they end
-	_probes = Probes.new()
-	add_child(_probes)
-	_probes.finished.connect(_on_probes_done)
 	build()
-	_show()
-	# a picture of the page in the cloud waits for the probes (tools/godot-picture.gd)
-	add_to_group("busy")
-	_run_button.disabled = true
-	_probes.start()
-
-
-func _on_probes_done() -> void:
-	_run_button.disabled = false
-	remove_from_group("busy")
-	lines = lines.filter(
-		func(line: Dictionary) -> bool: return not line["name"].begins_with("Probe: ")
-	)
-	_add_probes()
 	_show()
 
 
@@ -108,12 +85,11 @@ func build() -> void:
 	_add_cores(device)
 	_add_heat(device)
 	_add_graphics_readings(device)
-	_add_probes()
 	_add_threads(device)
 	_add("Storage", _short_mount(device.storage()), "info")
 	_add_same_bits(device)
 	_add_catalogue()
-	_add_textures()
+	_add_font()
 	_add_saves()
 
 
@@ -296,23 +272,6 @@ func _yes(on: bool) -> String:
 	return "yes" if on else "no"
 
 
-## The probes of the graphics features the look relies on, each tried once a build (A4.7): passed,
-## failed or closing the app. GPU particles are expected to fail.
-func _add_probes() -> void:
-	if _probes == null:
-		return
-	for name: String in Probes.ABOUT:
-		var state: String = _probes.results.get(name, "")
-		var expected_failure := name == "gpu_particles"
-		var shown := "waiting" if state.is_empty() else state
-		var mark := "info"
-		if state == "passed":
-			mark = "ok"
-		elif state == "crashed" or state.begins_with("failed"):
-			mark = "info" if expected_failure else "fail"
-		_add("Probe: " + Probes.ABOUT[name], shown, mark)
-
-
 func _add_threads(device: KdDevice) -> void:
 	var t := device.thread_check()
 	var value := (
@@ -386,50 +345,14 @@ func _add_catalogue() -> void:
 	_add("Catalogues", "; ".join(why), "fail")
 
 
-## The textures the phone reads against the build's (A5.4): the same files, byte for byte, each
-## made into an image whose mipmaps are its own levels and uploaded, in how long and in how much
-## memory.
-func _add_textures() -> void:
-	var listed: Array = GameData.build().get_value("textures", "files", [])
-	if listed.is_empty():
-		_add("Textures", "the build lists no textures", "fail")
-		return
-	var look := KdLook.new()
-	var differ := PackedStringArray()
-	var problems := PackedStringArray()
-	var bytes := 0
-	var uploaded: Array[ImageTexture] = []
-	var started := Time.get_ticks_usec()
-	for item: String in listed:
-		var words := item.split(" ")
-		var path := "res://data/textures/" + words[0]
-		if FileAccess.get_sha256(path) != words[1]:
-			differ.append(words[0])
-			continue
-		var read := look.texture_image(path)
-		if str(read["problem"]) != "":
-			problems.append(str(read["problem"]))
-			continue
-		var image: Image = read["image"]
-		bytes += image.get_data_size()
-		uploaded.append(ImageTexture.create_from_image(image))
-	var ms := (Time.get_ticks_usec() - started) / 1000.0
-	var mb := bytes / 1.0e6
-	var value := (
-		"%d textures, %.1f MB with their levels, made and uploaded in %.0f ms"
-		% [uploaded.size(), mb, ms]
+## Check the bitmap font used by the camp's cards and controls.
+func _add_font() -> void:
+	var font := load("res://ui/fonts/kindling-ui-16.fnt") as FontFile
+	_add(
+		"Camp font",
+		"Bitmap font loaded" if font != null else "Bitmap font missing",
+		"ok" if font != null else "fail"
 	)
-	if not differ.is_empty():
-		value += "; files unlike the build's: " + ", ".join(differ)
-	if not problems.is_empty():
-		value += "; problems: " + "; ".join(problems)
-	var good := (
-		differ.is_empty()
-		and problems.is_empty()
-		and ms <= TEXTURES_MS_MOST
-		and mb <= TEXTURES_MB_MOST
-	)
-	_add("Textures", value, "ok" if good else "fail")
 
 
 func _short_mount(line: String) -> String:
@@ -513,5 +436,4 @@ func _run_again() -> void:
 	_run_button.disabled = true
 	build()
 	_show()
-	add_to_group("busy")
-	_probes.start()
+	_run_button.disabled = false

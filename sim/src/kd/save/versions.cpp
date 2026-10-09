@@ -30,10 +30,7 @@ Chunk versions_chunk(const Versions& v) {
     w.text(v.build);
     w.u64(v.making);
     w.u64(v.rules);
-    w.u64(v.migrations.size());
-    for (const std::string& m : v.migrations) {
-        w.text(m);
-    }
+    w.u64(0);  // Reserved in this build's VERS1 layout; no conversions.
     w.u64(v.eras.size());
     for (const Versions::Era& e : v.eras) {
         w.text(e.build);
@@ -50,10 +47,7 @@ std::optional<Versions> read_versions(const Chunk& c) {
     Versions v;
     ByteReader r(c.data);
     std::uint64_t n = 0;
-    bool ok = r.text(v.build) && r.u64(v.making) && r.u64(v.rules) && r.u64(n);
-    for (std::uint64_t i = 0; ok && i < n; ++i) {
-        ok = r.text(v.migrations.emplace_back());
-    }
+    bool ok = r.text(v.build) && r.u64(v.making) && r.u64(v.rules) && r.u64(n) && n == 0;
     ok = ok && r.u64(n);
     for (std::uint64_t i = 0; ok && i < n; ++i) {
         Versions::Era& e = v.eras.emplace_back();

@@ -1,6 +1,6 @@
 ## The worlds on the phone (TIM-08, PLT-08, PLT-10): each with its name, the moment it was saved
 ## at, when, and its size by part, a test's world marked as one with its switches; make a new one,
-## open one on the Crowd page, rename it, export it to a file or import one as a copy through
+## open one on the camp page, rename it, export it to a file or import one as a copy through
 ## Android's file picker, and delete one with a second tap. The free space shows, with a warning
 ## before the phone is full. Implements TIM-08, PLT-08, PLT-10, PLT-05 and RES-10.
 extends VBoxContainer
@@ -15,9 +15,6 @@ const PIECE := 1024 * 1024
 
 ## The folder the worlds are kept in; a test sets its own before the page opens.
 var root := Worlds.ROOT
-## How many camps a new world has: 0 for the tuning's; a test makes small ones.
-var new_camps := 0
-var new_camp_alpha := false
 ## The worlds as the page lists them (KdWorlds.list), and the status line's words.
 var listed: Array = []
 var status := ""
@@ -44,11 +41,7 @@ func _ready() -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
 	add_child(row)
-	row.add_child(
-		_button(
-			"New Discovery camp" if new_camp_alpha else "New world", func() -> void: make_world()
-		)
-	)
+	row.add_child(_button("New Discovery camp", func() -> void: make_world()))
 	row.add_child(_button("Import a world", pick_import))
 	_status = _label(16, TEXT)
 	var scroll := ScrollContainer.new()
@@ -84,17 +77,13 @@ func refresh() -> void:
 func make_world() -> String:
 	if _waiting():
 		return ""
-	var id := (
-		worlds.make_discovery("Discovery camp %d" % (listed.size() + 1), randi())
-		if new_camp_alpha
-		else worlds.make("World %d" % (listed.size() + 1), randi(), new_camps)
-	)
+	var id := worlds.make_discovery("Discovery camp %d" % (listed.size() + 1), randi())
 	status = "Made %s: open it to begin" % id if id != "" else "The new world could not be made"
 	refresh()
 	return id
 
 
-## Chooses a world for the Crowd page, and goes there when the page is in the app.
+## Chooses a world for the camp page, and goes there when the page is in the app.
 func open_world(id: String) -> void:
 	if _waiting():
 		return
@@ -106,9 +95,17 @@ func open_world(id: String) -> void:
 		var camp := listed.any(
 			func(w: Dictionary) -> bool: return w.id == id and w.get("kind") == "camp_alpha"
 		)
-		shell.open_page.call_deferred("Camp" if camp else "Crowd")
+		if camp:
+			shell.open_page.call_deferred("Camp")
+		else:
+			_open_test.call_deferred(shell, id)
 	else:
 		refresh()
+
+
+func _open_test(shell: Control, id: String) -> void:
+	shell.open_page("Reports")
+	shell._page.open_saved_world(id)
 
 
 ## Gives a world a new name.
@@ -290,7 +287,6 @@ func _row(w: Dictionary, current: bool) -> Control:
 		["snapshots", "snapshots"],
 		["journal", "journal"],
 		["history", "history"],
-		["previous", "the save before the update"],
 	]:
 		if int(w[part[0]]) > 0:
 			parts.append("%s %s" % [part[1], Worlds.size_words(w[part[0]])])

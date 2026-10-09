@@ -1,7 +1,7 @@
 ## Checks PRE-03 PLT-04 WLD-13 (T2.9a.2): main-thread bundle publication and disposal.
 extends GdUnitTestSuite
 
-const Stream := preload("res://fixtures/sprite_stream.gd")
+const Stream := preload("res://test/support/fixtures/sprite_stream.gd")
 var stream: Node
 var identity := {
 	"world_id": "test",

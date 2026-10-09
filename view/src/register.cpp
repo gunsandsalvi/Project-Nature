@@ -9,12 +9,13 @@
 #include <chrono>
 
 #include "canvas.hpp"
-#include "crowd.hpp"
 #include "device.hpp"
 #include "frames.hpp"
+#ifdef KD_RENDER_TEST_SUPPORT
 #include "look.hpp"
 #include "stream_binding.hpp"
 #include "terrain_draw.hpp"
+#endif
 #include "world.hpp"
 #include "worlds.hpp"
 
@@ -27,10 +28,11 @@ void initialize(godot::ModuleInitializationLevel level) {
     godot::ClassDB::register_class<kd::view::KdDevice>();
     godot::ClassDB::register_class<kd::view::KdWorld>();
     godot::ClassDB::register_class<kd::view::KdCanvas>();
+#ifdef KD_RENDER_TEST_SUPPORT
     godot::ClassDB::register_class<kd::view::KdStream>();
     godot::ClassDB::register_class<kd::view::KdTerrain>();
-    godot::ClassDB::register_class<kd::view::KdCrowd>();
     godot::ClassDB::register_class<kd::view::KdLook>();
+#endif
     godot::ClassDB::register_class<kd::view::KdWorlds>();
 }
 

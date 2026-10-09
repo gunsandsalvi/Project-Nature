@@ -1,7 +1,7 @@
 ## checks: PRE-20 PRE-21 PRE-23 PRE-24 PRE-26 PRE-28 PRE-30 PRE-33 WLD-13 PLT-04 (T2.8a).
 extends GdUnitTestSuite
 
-const Terrain := preload("res://pages/terrain.gd")
+const Terrain := preload("res://test/support/render_scene.gd")
 
 
 func _page(scene: String) -> Control:

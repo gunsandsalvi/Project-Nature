@@ -20,8 +20,6 @@
 
 #include "kd/core/check.hpp"
 #include "kd/demo/kept.hpp"
-#include "kd/look/navigation.hpp"
-#include "kd/look/sprite.hpp"
 #include "kd/look/stream_tuning.hpp"
 #include "kd/num/convert.hpp"
 #include "kd/num/digest.hpp"
@@ -48,9 +46,6 @@ void KdWorld::_bind_methods() {
     using godot::D_METHOD;
     ClassDB::bind_method(D_METHOD("load_catalogue", "paths"), &KdWorld::load_catalogue);
     ClassDB::bind_method(D_METHOD("entry", "folder", "name"), &KdWorld::entry);
-    ClassDB::bind_method(D_METHOD("sprite_families"), &KdWorld::sprite_families);
-    ClassDB::bind_method(D_METHOD("stream_limits"), &KdWorld::stream_limits);
-    ClassDB::bind_method(D_METHOD("start_clockwork"), &KdWorld::start_clockwork);
     ClassDB::bind_method(D_METHOD("start_crowd", "seed", "camps"), &KdWorld::start_crowd);
     ClassDB::bind_method(D_METHOD("open_crowd", "folder", "seed", "camps", "build"), &KdWorld::open_crowd);
     ClassDB::bind_method(D_METHOD("open_camp", "folder", "seed", "build"), &KdWorld::open_camp);
@@ -61,15 +56,9 @@ void KdWorld::_bind_methods() {
     ClassDB::bind_method(D_METHOD("camp_alpha"), &KdWorld::camp_alpha);
     ClassDB::bind_method(D_METHOD("save"), &KdWorld::save);
     ClassDB::bind_method(D_METHOD("save_now"), &KdWorld::save_now);
-    ClassDB::bind_method(D_METHOD("call_home", "camp"), &KdWorld::call_home);
-    ClassDB::bind_method(D_METHOD("nearest_camp", "east", "north", "within"), &KdWorld::nearest_camp);
     ClassDB::bind_method(D_METHOD("camp_at", "camp"), &KdWorld::camp_at);
     ClassDB::bind_method(D_METHOD("catching_up"), &KdWorld::catching_up);
     ClassDB::bind_method(D_METHOD("digest"), &KdWorld::digest);
-    ClassDB::bind_method(D_METHOD("mark", "second"), &KdWorld::mark);
-    ClassDB::bind_method(D_METHOD("marks"), &KdWorld::marks);
-    ClassDB::bind_method(D_METHOD("call_home_at", "camp", "second"), &KdWorld::call_home_at);
-    ClassDB::bind_method(D_METHOD("reach", "moment"), &KdWorld::reach);
     ClassDB::bind_method(D_METHOD("prepare_dream"), &KdWorld::prepare_dream);
     ClassDB::bind_method(D_METHOD("dream_subjects", "person"), &KdWorld::dream_subjects);
     ClassDB::bind_method(D_METHOD("send_place_dream", "person", "subject"), &KdWorld::send_place_dream);
@@ -78,13 +67,6 @@ void KdWorld::_bind_methods() {
     ClassDB::bind_static_method("KdWorld", D_METHOD("crowd_seed"), &KdWorld::crowd_seed);
     ClassDB::bind_static_method("KdWorld", D_METHOD("morning"), &KdWorld::morning);
     ClassDB::bind_static_method("KdWorld", D_METHOD("save_format"), &KdWorld::save_format);
-    ClassDB::bind_method(D_METHOD("navigation_tuning"), &KdWorld::navigation_tuning);
-    ClassDB::bind_method(D_METHOD("enable_time_requests", "enabled"), &KdWorld::enable_time_requests);
-    ClassDB::bind_method(D_METHOD("set_zoom_density", "density"), &KdWorld::set_zoom_density);
-    ClassDB::bind_method(D_METHOD("set_manual_rate", "rate"), &KdWorld::set_manual_rate);
-    ClassDB::bind_method(D_METHOD("clear_manual_rate"), &KdWorld::clear_manual_rate);
-    ClassDB::bind_method(D_METHOD("set_speed_lock", "locked"), &KdWorld::set_speed_lock);
-    ClassDB::bind_method(D_METHOD("time_requests"), &KdWorld::time_requests);
     ClassDB::bind_method(D_METHOD("set_speed", "game_per_real"), &KdWorld::set_speed);
     ClassDB::bind_method(D_METHOD("speed"), &KdWorld::speed);
     ClassDB::bind_method(D_METHOD("pause"), &KdWorld::pause);
@@ -114,114 +96,7 @@ godot::String text_of(const std::string& s) {
     return godot::String::utf8(s.c_str());
 }
 
-// Read the schema itself: the binding never maintains a second list of family or cell fields.
-struct SpriteFields {
-    godot::Dictionary values;
-    void whole(const data::Field& f, std::int64_t value, data::Range) { values[text_of(std::string(f.key))] = value; }
-    void quantity(const data::Field& f, std::int64_t value, data::Measure, data::Range range) {
-        whole(f, value, range);
-    }
-    void text(const data::Field& f, const std::string& value) { values[text_of(std::string(f.key))] = text_of(value); }
-    void link(const data::Field& f, const data::Ref& value, std::string_view) { text(f, value.name); }
-    template <typename T>
-    void records(const data::Field& f, const std::vector<T>& value) {
-        godot::Array rows;
-        for (const auto& record : value) {
-            SpriteFields fields;
-            T::visit(fields, record);
-            rows.push_back(fields.values);
-        }
-        values[text_of(std::string(f.key))] = rows;
-    }
-};
-
 }  // namespace
-
-godot::Array KdWorld::sprite_families() const {
-    godot::Array rows;
-    if (!catalogue_) {
-        return rows;
-    }
-    const auto& families = catalogue_->kind<look::SpriteFamily>();
-    for (std::uint32_t i = 0; i < families.size(); ++i) {
-        SpriteFields fields;
-        look::SpriteFamily::visit(fields, families[i]);
-        fields.values["id"] = text_of(families.name(i));
-        rows.push_back(fields.values);
-    }
-    return rows;
-}
-
-godot::Dictionary KdWorld::stream_limits() const {
-    if (!catalogue_) return {};
-    const auto& tuning = catalogue_->kind<look::StreamTuning>();
-    const auto index = catalogue_->find("tuning/stream", "base:stream");
-    if (!index) return {};
-    const auto& s = tuning[*index];
-    SpriteFields fields;
-    look::StreamTuning::visit(fields, s);
-    godot::Dictionary categories;
-    categories["maps"] = s.maps_bytes;
-    categories["sprites"] = s.sprites_bytes;
-    categories["ground"] = s.ground_bytes;
-    categories["masks"] = s.masks_bytes;
-    fields.values["resident_by_category"] = categories;
-    return fields.values;
-}
-
-godot::Dictionary KdWorld::navigation_tuning() const {
-    if (!catalogue_) return {};
-    const auto index = catalogue_->find("tuning/navigation", "base:navigation");
-    if (!index) return {};
-    SpriteFields fields;
-    look::NavigationTuning::visit(fields, catalogue_->kind<look::NavigationTuning>()[*index]);
-    return fields.values;
-}
-// T2.9a.3: opt-in request resolution leaves the accepted legacy Pace API intact (TIM-01/TIM-15).
-void KdWorld::enable_time_requests(bool enabled) {
-    time_requests_enabled_ = false;
-    if (!enabled || !catalogue_) return;
-    const auto navigation = catalogue_->find("tuning/navigation", "base:navigation");
-    const auto time = catalogue_->find("tuning/time", "base:time");
-    if (!navigation || !time) return;
-    const auto& n = catalogue_->kind<look::NavigationTuning>()[*navigation];
-    const auto& t = catalogue_->kind<time::ZoomSpeeds>()[*time];
-    time_requests_enabled_ = time_requests_.configure(
-        {{std::ldexp(1.0, static_cast<int>(n.person_power)), static_cast<double>(t.person) / 60.0},
-         {std::ldexp(1.0, static_cast<int>(n.close_camp_power)), static_cast<double>(t.close_camp) / 60.0},
-         {std::ldexp(1.0, static_cast<int>(n.camp_power)), static_cast<double>(t.camp) / 60.0},
-         {std::ldexp(1.0, static_cast<int>(n.valley_power)), static_cast<double>(t.valley) / 60.0},
-         {std::ldexp(1.0, static_cast<int>(n.region_power)), static_cast<double>(t.region) / 60.0}},
-        std::ldexp(1.0, static_cast<int>(n.minimum_power)));
-}
-void KdWorld::set_zoom_density(double density) {
-    time_requests_.zoom(density);
-}
-void KdWorld::set_manual_rate(double rate) {
-    // A game goal must still fit its signed whole-second frontier even before capacity is measured.
-    if (std::isfinite(rate) && rate >= 1.0 &&
-        rate <= (static_cast<double>(std::numeric_limits<std::int64_t>::max()) - pace_.screen()) / 4.0)
-        time_requests_.manual(rate);
-}
-void KdWorld::clear_manual_rate() {
-    time_requests_.clear_manual();
-}
-void KdWorld::set_speed_lock(bool locked) {
-    time_requests_.lock(locked);
-}
-godot::Dictionary KdWorld::time_requests() const {
-    godot::Dictionary result;
-    const auto request = time_requests_.resolve();
-    result["enabled"] = time_requests_enabled_;
-    result["requested_rate"] = request.rate;
-    result["source"] = request.source;
-    result["zoom_rate"] = time_requests_.zoom_rate();
-    result["density"] = time_requests_.density();
-    result["locked"] = time_requests_.locked();
-    result["paused"] = pace_.paused();
-    result["capacity"] = pace_.limit() < 1e299 ? pace_.limit() : 0.0;
-    return result;
-}
 
 godot::Dictionary KdWorld::load_catalogue(const godot::PackedStringArray& paths) {
     KD_CHECK(!runner_, "view::KdWorld: the catalogue is loaded before the world starts");
@@ -318,12 +193,6 @@ godot::Dictionary KdWorld::entry(const godot::String& folder, const godot::Strin
     return out;
 }
 
-void KdWorld::start_clockwork() {
-    KD_CHECK(!runner_, "view::KdWorld: the world has already started");
-    clockwork_ = std::make_unique<demo::Clockwork>(demo::kCalendarWork);
-    start_runner(*clockwork_, [this] { return clockwork_->state(); }, 0, "kd-world");
-}
-
 void KdWorld::start_runner(run::Steppable& world, std::function<std::uint64_t()> digest, time::Seconds start,
                            const char* thread) {
     marked_ = std::make_unique<run::Marked>(world, std::move(digest));
@@ -369,20 +238,14 @@ godot::Dictionary KdWorld::open_saved(const godot::String& folder, int64_t seed,
     folder_ = path;
     files_ = std::make_unique<save::DiskFiles>(path);
     keeper_ = std::make_unique<save::Keeper>(*files_, build.utf8().get_data());
-    demo::Kept kept = demo::keep_crowd(*keeper_, *catalogue_, static_cast<std::uint64_t>(seed), camps,
-                                       world::migrations(), camp_alpha);
+    demo::Kept kept = demo::keep_crowd(*keeper_, *catalogue_, static_cast<std::uint64_t>(seed), camps, camp_alpha);
     godot::PackedStringArray damaged;
     for (const std::string& d : kept.damaged) {
         damaged.append(text_of(d));
     }
     out["damaged"] = damaged;
-    const std::array<const char*, 3> updates{"none", "small", "big"};
+    const std::array<const char*, 3> updates{"none", "older", "big"};
     out["update"] = updates.at(static_cast<std::size_t>(kept.update));
-    godot::PackedStringArray migrated;
-    for (const std::string& m : kept.migrated) {
-        migrated.append(text_of(m));
-    }
-    out["migrated"] = migrated;
     if (!kept.crowd || !kept.problem.empty()) {
         out["problem"] = text_of(kept.problem);
         return out;
@@ -585,72 +448,6 @@ godot::Array KdWorld::dream_records() {
     });
     return out;
 }
-void KdWorld::call_home(int64_t camp) {
-    if (!runner_ || !stepper_ || camp < 0 || static_cast<std::size_t>(camp) >= stepper_->camp_ids().size()) {
-        return;
-    }
-    const ecs::Id id = stepper_->camp_ids()[static_cast<std::size_t>(camp)];
-    runner_->call([this, id] { called_home(id); });
-}
-
-void KdWorld::called_home(ecs::Id camp) {
-    world::World& w = crowd_->world();
-    const world::Command c =
-        w.command(w.frontier(), static_cast<std::uint32_t>(demo::Commanded::call_home), camp.value, 0);
-    if (keeper_) {
-        keeper_->command(c);
-    }
-}
-
-void KdWorld::call_home_at(int64_t camp, int64_t second) {
-    if (!marked_ || !stepper_ || camp < 0 || static_cast<std::size_t>(camp) >= stepper_->camp_ids().size()) {
-        return;
-    }
-    const ecs::Id id = stepper_->camp_ids()[static_cast<std::size_t>(camp)];
-    marked_->at(second, [this, id] { called_home(id); });
-}
-
-void KdWorld::mark(int64_t second) {
-    if (marked_) {
-        marked_->mark(second);
-    }
-}
-
-godot::Dictionary KdWorld::marks() const {
-    godot::Dictionary out;
-    if (marked_) {
-        for (const auto& [second, digest] : marked_->digests()) {
-            out[static_cast<int64_t>(second)] = num::to_hex(digest).c_str();
-        }
-    }
-    return out;
-}
-
-void KdWorld::reach(int64_t moment) {
-    if (runner_) {
-        runner_->set_goal(moment);
-    }
-}
-
-int64_t KdWorld::nearest_camp(int64_t east, int64_t north, int64_t within) const {
-    if (!stepper_) {
-        return -1;
-    }
-    const num::Torus& torus = world::World::kTorus;
-    const num::Point at = torus.wrap(east, north);
-    int64_t best = -1;
-    std::int64_t nearest = within * within;
-    const std::vector<num::Point>& camps = stepper_->camps();
-    for (std::size_t i = 0; i < camps.size(); ++i) {
-        const std::int64_t d = torus.squared_distance(at, camps[i]);
-        if (d <= nearest) {
-            nearest = d;
-            best = static_cast<int64_t>(i);
-        }
-    }
-    return best;
-}
-
 godot::String KdWorld::digest() const {
     if (!crowd_ || (runner_ && runner_->frontier() != crowd_->world().frontier())) {
         return {};
@@ -712,12 +509,10 @@ double KdWorld::speed() const {
 
 void KdWorld::pause() {
     pace_.pause();
-    time_requests_.pause(true);
 }
 
 void KdWorld::play() {
     pace_.play();
-    time_requests_.pause(false);
 }
 
 bool KdWorld::is_paused() const {
@@ -754,7 +549,7 @@ void KdWorld::frame() {
     }
     since_save_ += real;
     if (keeper_ && !pace_.paused()) {
-        // the real time the world runs under this version, which keeps the previous version's save an hour (PLT-09)
+        // Real time played in this build.
         played_ += real;
         if (played_ >= 1.0) {
             const auto whole = static_cast<std::int64_t>(played_);
@@ -771,12 +566,6 @@ void KdWorld::frame() {
         if (can > 0.0) {
             pace_.set_limit(std::max(1.0, can * heat_.share() * kUse));
         }
-    }
-    if (time_requests_enabled_) {
-        if (pace_.limit() < 1e299) time_requests_.capacity(pace_.limit());
-        time_requests_.pause(pace_.paused());
-        const auto request = time_requests_.resolve();
-        if (request.rate >= 1.0) pace_.set_speed(request.rate);
     }
     runner_->set_goal(pace_.frame(real, runner_->frontier()));
     if (stepper_) {

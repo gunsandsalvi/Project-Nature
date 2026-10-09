@@ -25,14 +25,14 @@ kindling_rules(kd_view_core)
 add_library(kindling SHARED
     src/register.cpp
     src/canvas.cpp
-    src/stream_binding.cpp
-    src/terrain_draw.cpp
-    src/crowd.cpp
     src/device.cpp
-    src/look.cpp
-    src/texture_images.cpp
     src/world.cpp
     src/worlds.cpp)
+# Retained renderer regressions run on the host. The camp does not draw these assets on Android.
+if(NOT ANDROID)
+    target_sources(kindling PRIVATE src/stream_binding.cpp src/terrain_draw.cpp src/look.cpp src/texture_images.cpp)
+    target_compile_definitions(kindling PRIVATE KD_RENDER_TEST_SUPPORT=1)
+endif()
 kindling_rules(kindling)
 target_link_libraries(kindling PRIVATE kd_view_core kd_sim godot-cpp)
 target_link_options(kindling PRIVATE -Wl,--gc-sections -Wl,--exclude-libs,ALL)

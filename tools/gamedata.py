@@ -1,34 +1,9 @@
 #!/usr/bin/env python3
-"""Fills game/data/ for each build: the catalogue's sources and build.toml, what the phone's self-check compares
-itself with (A2.3, A3.6), and the scenes' last reports with a world each (A17).
+"""Prepare the camp catalogue, deterministic proof records, required cloud reports and current First flake.
 
-    python3 tools/gamedata.py <kindling tool>
-
-It checks the catalogue with the cloud's own build of the simulation (the kindling tool) and refuses to go on if it
-finds a problem; copies every .toml file under data/ but its scenes into game/data/, in the same folders, and the art
-lane's source beside data/ (art/source.toml, each texture's record under art/textures/ and each model's recipe under
-art/models/, A5.4, A6.1) into game/data/art/, and removes any it no longer holds; runs every proof suite on one
-thread and on four, refusing to go on if they differ; and writes build.toml:
-- [proof]: each suite's digest;
-- [catalogue]: the world-making version, each file the phone reads with its SHA-256, and each source's version and
-  rules, world and look digests, as the simulation fingerprints them;
-- [bench]: each benchmark scenario's digest at its mark, its world run headless here, which the phone's must match
-  (A18.1, RES-05);
-- [textures]: each texture file the phone reads with its SHA-256 (A5.4), written into game/data/textures/: the
-  stand-ins tools/standins.py makes (T2.1a.3), and each of the art lane's textures, its record's levels packed
-  largest first with lossless PNG encoding into textures/art/<entry>.kdtex;
-  art:meadow/middle becomes textures/art/meadow/middle.kdtex;
-- [sheets]: signed-off reference sheets retained for 2D fixture inspection (T2.3a.5), each with its SHA-256,
-  written into game/data/sheets/ as <piece>.kdsheet (the WebP under a name Godot's import leaves alone),
-  by the art lane's catalogue (art/catalogue/*.toml names each piece's sheet);
-- [build]: the app's version code, from the export preset, which the benchmark's code carries.
-Obsolete 3D model and calibration exports are excluded and stale files removed. Historical catalogue records
-remain available for fingerprinting and original art provenance; no Blender exporter runs during app preparation.
-Then it runs every scene in data/scenes, saved under the app's version, and puts its report in game/data/reports/,
-with the world of its first odd run, or else its first, as a .kindling file the Reports page opens (RES-06, PLT-05):
-<scene>.json and <scene>-<run>.kindling. A report whose runs ended as before is left as it was, with its world, so
-the Godot step sees nothing changed.
-game/data/ is made by the build and never committed (A2.1).
+Usage: python3 tools/gamedata.py <kindling tool>
+Approved source art stays in the repository. Unused textures, sheets and obsolete exports leave game/data/.
+The manifest fingerprints the exact packed catalogue; examples are captured again with this build's format.
 """
 
 import hashlib
@@ -38,11 +13,8 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import tomllib
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import standins  # noqa: E402
-import pngpack  # noqa: E402
 import sprite_families  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -50,10 +22,6 @@ DATA = os.path.join(ROOT, "data")
 ART = os.path.join(ROOT, "art")
 OUT = os.path.join(ROOT, "game", "data")
 BUILD = os.path.join(OUT, "build.toml")
-TEXTURES = os.path.join(OUT, "textures")
-SHEETS = os.path.join(OUT, "sheets")
-# the pilot's pieces (IMPLEMENTATION.md, α2.3a), by their ids in the art lane's catalogue, each shown beside its sheet
-PILOT_PIECES = ("meadow", "river", "river_bed", "club", "hide_tent_cone")
 SCENES = os.path.join(DATA, "scenes")
 REPORTS = os.path.join(OUT, "reports")
 # where the scenes' worlds are kept as they run
@@ -116,31 +84,12 @@ def origin(rel):
     return os.path.join(ROOT if rel.startswith("art/") else DATA, rel)
 
 
-def art_textures(records):
-    """Each texture record's levels packed into one .kdtex, largest first: {its path in game/data/textures/: its
-    bytes}, art:meadow/middle as art/meadow/middle.kdtex."""
-    out = {}
-    for rel in records:
-        if not rel.startswith("art/textures/") or not rel.endswith("/record.toml"):
-            continue
-        with open(os.path.join(ROOT, rel), "rb") as f:
-            levels = sorted(tomllib.load(f)["band"], key=lambda band: band["level"])
-        pictures = []
-        for band in levels:
-            with open(os.path.join(ROOT, band["file"]), "rb") as f:
-                pictures.append(pngpack.lossless(f.read()))
-        entry = rel[len("art/textures/") : -len("/record.toml")]
-        out[f"art/{entry}.kdtex"] = standins.kdtex(pictures)
-    return out
-
-
 def copy_sources(files):
-    """game/data/ holds exactly data/'s files and the art lane's source, build.toml, the reports, the textures and
-    reference sheets. Obsolete model/calibration exports are removed."""
+    """Keep the current catalogue, build manifest, reports and captured example; remove unused payload."""
     for dirpath, _, names in os.walk(OUT, topdown=False):
         for name in names:
             rel = os.path.relpath(os.path.join(dirpath, name), OUT).replace(os.sep, "/")
-            if rel != "build.toml" and not rel.startswith(("reports/", "textures/", "sheets/")) and rel not in files:
+            if rel != "build.toml" and not rel.startswith(("reports/", "examples/")) and rel not in files:
                 os.remove(os.path.join(dirpath, name))
         if dirpath != OUT and not os.listdir(dirpath):
             os.rmdir(dirpath)
@@ -159,12 +108,6 @@ def toml_list(items):
     return "[" + ", ".join(f'"{i}"' for i in items) + "]"
 
 
-def bench_digests(tool):
-    """Each benchmark scenario's digest at its mark, run headless by the tool: {scenario: digest}."""
-    run = subprocess.run([tool, "bench", DATA], capture_output=True, text=True, check=True)
-    return {name: digest for name, _, digest in (line.split() for line in run.stdout.splitlines())}
-
-
 def version_code():
     """The app's version code, as tools/build.sh writes it into the export preset."""
     with open(os.path.join(ROOT, "game", "export_presets.cfg")) as f:
@@ -174,68 +117,7 @@ def version_code():
     return 0
 
 
-def textures(records=()):
-    """The texture files in game/data/textures/, the stand-ins and the art lane's, each written only when its bytes
-    change, and any other removed: their paths there."""
-    os.makedirs(TEXTURES, exist_ok=True)
-    made = standins.files() | art_textures(records)
-    for name, data in made.items():
-        path = os.path.join(TEXTURES, name)
-        if not os.path.isfile(path) or open(path, "rb").read() != data:
-            os.makedirs(os.path.dirname(path), exist_ok=True)
-            with open(path, "wb") as f:
-                f.write(data)
-    for dirpath, _, names in os.walk(TEXTURES, topdown=False):
-        for name in names:
-            if os.path.relpath(os.path.join(dirpath, name), TEXTURES).replace(os.sep, "/") not in made:
-                os.remove(os.path.join(dirpath, name))
-        if dirpath != TEXTURES and not os.listdir(dirpath):
-            os.rmdir(dirpath)
-    return sorted(made)
-
-
-def pilot_sheets():
-    """The picture of each pilot piece's sheet, from the art lane's catalogue, whose [[piece]] tables name it:
-    {the piece's id: its path from the repository's top}; a RuntimeError names any piece the catalogue lacks or whose
-    sheet is missing."""
-    sheets = {}
-    folder = os.path.join(ART, "catalogue")
-    for name in sorted(os.listdir(folder)) if os.path.isdir(folder) else []:
-        if name.endswith(".toml"):
-            with open(os.path.join(folder, name), "rb") as f:
-                for piece in tomllib.load(f).get("piece", []):
-                    if piece.get("id") in PILOT_PIECES and "sheet" in piece:
-                        sheets[piece["id"]] = os.path.join(folder, piece["sheet"])
-    for piece in PILOT_PIECES:
-        if piece not in sheets:
-            raise RuntimeError(f"the art lane's catalogue has no sheet for the pilot's piece {piece}")
-        if not os.path.isfile(sheets[piece]):
-            raise RuntimeError(
-                f"the sheet {os.path.relpath(sheets[piece], ROOT)} of the pilot's piece {piece} is missing"
-            )
-    return {piece: os.path.relpath(sheets[piece], ROOT) for piece in PILOT_PIECES}
-
-
-def sheets():
-    """The pilot's sheets in game/data/sheets/, <piece>.kdsheet, each written only when its bytes change, and any other
-    removed: their names there, in order."""
-    os.makedirs(SHEETS, exist_ok=True)
-    made = {}
-    for piece, rel in pilot_sheets().items():
-        with open(os.path.join(ROOT, rel), "rb") as f:
-            made[f"{piece}.kdsheet"] = f.read()
-    for name, data in made.items():
-        path = os.path.join(SHEETS, name)
-        if not os.path.isfile(path) or open(path, "rb").read() != data:
-            with open(path, "wb") as f:
-                f.write(data)
-    for name in os.listdir(SHEETS):
-        if name not in made:
-            os.remove(os.path.join(SHEETS, name))
-    return sorted(made)
-
-
-def build_toml(proof, version, files, sources, bench, code, texture_files=(), sheet_files=()):
+def build_toml(proof, version, files, sources, code):
     # No comments: Godot's ConfigFile, which reads this on the phone, stops at a TOML comment. Lists hold "a b" texts
     # rather than tables, which ConfigFile also reads.
     lines = [
@@ -253,17 +135,6 @@ def build_toml(proof, version, files, sources, bench, code, texture_files=(), sh
         "files = " + toml_list(f"{rel} {sha256(os.path.join(OUT, rel))}" for rel in files),
         "sources = " + toml_list(sources),
         "",
-        "[bench]",
-    ]
-    lines += [f'{name} = "{digest}"' for name, digest in bench.items()]
-    lines += [
-        "",
-        "[textures]",
-        "files = " + toml_list(f"{name} {sha256(os.path.join(TEXTURES, name))}" for name in texture_files),
-        "sizes = " + toml_list(f"{name} {os.path.getsize(os.path.join(TEXTURES, name))}" for name in texture_files),
-        "",
-        "[sheets]",
-        "files = " + toml_list(f"{name} {sha256(os.path.join(SHEETS, name))}" for name in sheet_files),
     ]
     return "\n".join(lines) + "\n"
 
@@ -396,14 +267,8 @@ def main(argv):
     except (RuntimeError, ValueError, OSError, KeyError) as error:
         print(f"Game data: sprite catalogue: {error}")
         return 1
-    made = textures(art_files())
-    try:
-        shown_sheets = sheets()
-    except RuntimeError as e:
-        print(f"Game data: {e}")
-        return 1
     with open(BUILD, "w") as f:
-        f.write(build_toml(one, version, files, sources, bench_digests(tool), version_code(), made, shown_sheets))
+        f.write(build_toml(one, version, files, sources, version_code()))
     try:
         shown = reports(tool)
         discovery_example(tool)
@@ -412,7 +277,7 @@ def main(argv):
         return 1
     print(
         f"Game data: {os.path.relpath(OUT, ROOT)}/ with {len(files)} catalogue files, {len(sources)} sources, "
-        f"{len(one)} proof suites, {len(shown)} scene reports, {len(made)} textures, {len(shown_sheets)} sheets"
+        f"{len(one)} proof suites, {len(shown)} scene reports, current First flake; no unused art payload"
     )
     return 0
 

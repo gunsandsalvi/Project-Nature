@@ -18,8 +18,8 @@
 //                                                 the crowd's world kept in a folder (A3.7): opened from its newest
 //                                                 snapshot and journal, or made new; run to a game second with a
 //                                                 snapshot every so many game seconds, calling camps home at their
-//                                                 seconds unless the journal has; for the kill test (PLT-07) and the
-//                                                 corpus (PLT-09), the build naming the version that saves it
+//                                                 seconds unless the journal has; for current-build crash/replay
+//                                                 tests (PLT-07), the build naming the version that saves it
 //     kindling scene <scene.toml> [--out FOLDER] [--jobs N] [--data FOLDER] [--build NAME] [--fresh]
 //                                                 a scene's runs (A17, RES-21), each world in a process of its own and
 //                                                 kept in its own folder under the output folder (build/scenes/<name>

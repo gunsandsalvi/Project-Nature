@@ -42,7 +42,8 @@ func test_front_door_has_few_controls_and_touch_selects_a_saved_person() -> void
 	await await_idle_frame()
 	assert_str(shell.page_name()).is_equal("Camp")
 	assert_int(shell._navigation.get_child_count()).is_equal(1)
-	assert_bool(shell._developer.visible).is_false()
+	assert_bool(shell.PAGES.has("Crowd")).is_false()
+	assert_bool(shell.PAGES.has("Bench")).is_false()
 	var person := {}
 	var at := Vector2.ZERO
 	# Find an unobstructed thumb hit beyond a real glyph in this naturally spread camp.
@@ -123,7 +124,6 @@ func test_shell_switches_saved_camps_and_exports_imports_actual_people() -> void
 	var digest: String = camp.world.digest()
 	shell.open_page("Worlds")
 	var shelf: Control = shell._page
-	assert_bool(shelf.new_camp_alpha).is_true()
 	var other: String = shelf.make_world()
 	shelf.open_world(other)
 	await await_idle_frame()
@@ -155,14 +155,6 @@ func test_shell_switches_saved_camps_and_exports_imports_actual_people() -> void
 	shell.open_page("Worlds")
 	shell._page.open_world(id)
 	await await_idle_frame()
-	camp = _hold(shell)
-	assert_str(camp.world_id).is_equal(id)
-	assert_str(camp.world.digest()).is_equal(digest)
-	# Developer marker fixture is separate and does not replace the player's selected camp.
-	shell.open_page("Crowd")
-	assert_str(shell._page.folder).is_equal(ROOT.path_join("marker-fixture"))
-	assert_str(Worlds.at(ROOT).current()).is_equal(id)
-	shell.open_page("Camp")
 	camp = _hold(shell)
 	assert_str(camp.world_id).is_equal(id)
 	assert_str(camp.world.digest()).is_equal(digest)

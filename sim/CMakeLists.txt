@@ -98,7 +98,6 @@ add_library(kd_sim STATIC
     src/kd/time/calendar.cpp
     src/kd/time/duration.cpp
     src/kd/world/parts.cpp
-    src/kd/world/upgrades.cpp
     src/kd/world/world.cpp
     src/kd/world/craft_store.cpp)
 target_include_directories(kd_sim PUBLIC src)
@@ -146,7 +145,7 @@ if(KD_SIM_TESTS)
         tests/camp_test.cpp
         tests/living_test.cpp)
     target_include_directories(kd_sim_tests SYSTEM PRIVATE "${KD_DOCTEST}" "${KD_XXHASH}")
-    # the repository, where the tests find the data folder and the corpus of old worlds (PLT-09)
+    # The repository, where tests read current catalogue fixtures.
     target_compile_definitions(kd_sim_tests PRIVATE DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
                                                     KD_REPO="${CMAKE_CURRENT_SOURCE_DIR}/..")
     target_link_libraries(kd_sim_tests PRIVATE kd_sim)
