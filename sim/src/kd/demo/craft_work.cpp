@@ -181,7 +181,7 @@ std::optional<Candidate> known(world::Context& c, world::Beings::Handle h, std::
     const auto& raw = w.beings().raw();
     const auto& know = raw.get<world::Knowledge>(h);
     const auto& b = w.catalogue().kind<data::Blueprint>()[recipe];
-    if (b.heat > 0) return std::nullopt;
+    if (b.heat > 0 && !FireRules::cooking_spot(w, h, c.now())) return std::nullopt;
     Candidate out;
     out.reason = {0, 1, static_cast<std::uint8_t>(b.action), static_cast<std::uint8_t>(b.need), recipe, 0, 0, 0, {}};
     for (std::size_t role = 0; role < b.inputs.size(); ++role) {
@@ -194,6 +194,9 @@ std::optional<Candidate> known(world::Context& c, world::Beings::Handle h, std::
                 continue;
             if (requirement.retained && !input.free) continue;
             const auto& item = *input.item;
+            if (b.heat > 0 && (item.state != 0 || (item.kind != w.catalogue().find("item", "base:roots") &&
+                                                   item.kind != w.catalogue().find("item", "base:meat"))))
+                continue;
             const auto* f = input.familiar;
             if (!f) continue;
             const auto& kind = w.catalogue().kind<data::ItemKind>()[item.kind];
@@ -442,7 +445,7 @@ std::int64_t Crafting::time_cost(const world::World& w, world::Beings::Handle h,
     return std::clamp<std::int64_t>(seconds, 1, 3600);
 }
 std::int64_t Crafting::success(const world::World& w, world::Beings::Handle h, std::uint32_t recipe,
-                               std::span<const ecs::Id> roles) {
+                               std::span<const ecs::Id> roles, time::Seconds at) {
     const auto& raw = w.beings().raw();
     const auto& know = raw.get<world::Knowledge>(h);
     const auto& b = w.catalogue().kind<data::Blueprint>()[recipe];
@@ -452,8 +455,16 @@ std::int64_t Crafting::success(const world::World& w, world::Beings::Handle h, s
     const auto mean = (skill + know.sectors[static_cast<std::size_t>(b.sector)].level) / 2;
     auto ppm = 500000 + (mean - b.difficulty * 1000) * 100;
     const auto& life = raw.get<world::Life>(h);
-    if (Living::needs(life)[2] < 20) ppm -= 100000;
-    const auto night = life.settled % time::kDay;
+    auto fatigue = life.awake;
+    if (at >= 0) {
+        const auto& activity = raw.get<world::Activity>(h);
+        const auto elapsed = std::max<time::Seconds>(0, std::clamp(at, activity.start, activity.end) - life.settled);
+        const auto resting = activity.what == static_cast<std::uint8_t>(LivingAct::rest) ||
+                             activity.what == static_cast<std::uint8_t>(LivingAct::warm);
+        fatigue = std::clamp<std::int64_t>(fatigue + (resting ? -2 : 1) * elapsed, 0, 129600);
+    }
+    if (100 - fatigue * 100 / 129600 < 20) ppm -= 100000;
+    const auto night = (at < 0 ? life.settled : at) % time::kDay;
     if (night < 6 * time::kHour || night >= 20 * time::kHour) ppm -= 100000;
     std::int64_t quality_sum = 0, count = 0;
     for (const auto id : roles) {
@@ -641,6 +652,8 @@ bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h
     work.goal_mass = chosen.goal;
     work.target = raw.get<world::Place>(h).at;
     work.inputs = std::move(chosen.inputs);
+    if (work.action == 12)
+        if (const auto spot = FireRules::cooking_spot(c.world(), h, c.now())) work.target = *spot;
     return continue_work(living, c, h);
 }
 bool Crafting::continue_work(Living& living, world::Context& c, world::Beings::Handle h) {
@@ -699,6 +712,8 @@ bool Crafting::continue_work(Living& living, world::Context& c, world::Beings::H
                      path.front());
         return true;
     }
+    if (work.action == 12)
+        for (const auto& input : work.inputs) FireRules::food_intent(c, input.item, person, work.intended != 0);
     work.state = 2;
     work.active_start = c.now();
     const auto remaining = std::max<std::int64_t>(1, work.try_seconds - work.retained_progress);
@@ -734,6 +749,11 @@ void Crafting::settle(Living& living, world::Context& c, world::Beings::Handle h
             work.retained_progress = std::min(work.try_seconds, work.retained_progress + c.now() - work.active_start);
             work.state = 4;
         }
+        return;
+    }
+    if (work.intended && w.catalogue().kind<data::Blueprint>()[work.recipe].heat > 0) {
+        for (const auto& input : work.inputs) FireRules::food_changed(c, input.item);
+        release(c, h);
         return;
     }
     if (work.intended && work.applied_marker == work.completed_tries && c.now() >= work.next_try &&
@@ -830,7 +850,11 @@ bool Crafting::meal(Living& living, world::Context& c, world::Beings::Handle h, 
             continue;
         const auto& item = value(w, id);
         const auto* f = Discovery::familiar(raw.get<world::Knowledge>(h), item);
-        if (!f || !f->edible || (f->mask & (1U << 8U)) == 0 || f->values[8] == 0) continue;
+        auto raw_food = item;
+        raw_food.state = 0;
+        const auto* raw_familiar = Discovery::familiar(raw.get<world::Knowledge>(h), raw_food);
+        const bool cooked_familiar = item.state == 1 && raw_familiar && raw_familiar->edible;
+        if ((!f || !f->edible || (f->mask & (1U << 8U)) == 0 || f->values[8] == 0) && !cooked_familiar) continue;
         // Finite food is collected at its actual position before it can be eaten.
         const auto here = raw.get<world::Place>(h).at;
         if (place(w, id) != here) {
@@ -864,6 +888,7 @@ void Crafting::settle_meal(world::Context& c, world::Beings::Handle h, std::int6
     if (life.meal_item.value == 0) return;
     auto& item = mutable_item(c.world(), life.meal_item);
     KD_CHECK(eaten <= item.mass, "A reserved finite meal cannot be eaten twice");
+    if (eaten > 0) Discovery::learn(c, h, life.meal_item, (1U << 8U) | (1U << 9U), 3, true);
     item.mass -= eaten;
     spent(item);
     c.item_changed(life.meal_item);

@@ -382,6 +382,7 @@ void FireRules::handle(world::Context& c, ecs::Id camp, std::uint32_t slot) {
         c.item_changed(id);
     }
     thermal_after(c, camp);
+    food_refresh(c, camp);
     deadlines(c, camp);
 }
 bool FireRules::choose(Living& living, world::Context& c, world::Beings::Handle h) {

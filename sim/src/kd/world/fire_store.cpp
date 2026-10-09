@@ -94,16 +94,41 @@ bool load_fire(World& w, std::span<const save::Chunk> chunks, const ecs::EntryMa
             } else if (kind == 2) {
                 HeatTimer t;
                 if (!ecs::read_component(t, r, entries) || t.item != id || t.target_state != 1 || t.low != 2 ||
-                    t.high != 3 || t.completed > 1 || t.tried > 1 || t.intended > 1 || t.elapsed < 0 ||
-                    t.elapsed > 2 * time::kHour || t.hot_elapsed < 0 || t.hot_elapsed > time::kHour ||
+                    t.high != 3 || t.exposure_heat > 5 || t.completed > 1 || t.tried > 1 || t.intended > 1 ||
+                    t.elapsed < 0 || t.elapsed > 2 * time::kHour || t.hot_elapsed < 0 || t.hot_elapsed > time::kHour ||
                     t.hot_elapsed > t.elapsed || t.settled_at < 0 || t.settled_at > now || !deadline(t.next) ||
-                    (t.completed && (t.next != 0 || item.state != 2)))
+                    (t.completed && (t.next != 0 || (item.state != 2 && !(item.state == 4 && !item.mass)))))
                     return fail("invalid retained heat exposure");
                 if (t.maker.value) {
                     const auto maker = w.beings().find(t.maker);
                     if (!maker || !beings.all_of<Person>(*maker)) return fail("missing cooking placer");
                 } else if (t.intended)
                     return fail("intentional cooking has no placer");
+                if (t.chance_source.value && !w.things().find(t.chance_source))
+                    return fail("missing cooking chance source");
+                if (!t.tried && t.elapsed >= time::kHour && t.exposure_heat >= 2 && t.exposure_heat <= 3)
+                    return fail("missed first cooking transition");
+                if (item.state == 1 && !t.tried) return fail("cooked food has no first-hour attempt");
+                if (!t.completed && t.elapsed == 2 * time::kHour) return fail("missed total burn transition");
+                if (!t.completed && t.hot_elapsed == time::kHour) return fail("missed hot burn transition");
+                if (!t.completed && item.mass && t.exposure_heat >= 2 && !t.next)
+                    return fail("heated food lost its deadline");
+                if (!t.completed && item.mass && t.exposure_heat >= 2) {
+                    auto latest = t.settled_at + 2 * time::kHour - t.elapsed;
+                    if (!t.tried && t.exposure_heat <= 3)
+                        latest = std::min(latest, t.settled_at + time::kHour - t.elapsed);
+                    if (t.exposure_heat >= 4) latest = std::min(latest, t.settled_at + time::kHour - t.hot_elapsed);
+                    if (t.next > latest) return fail("food deadline misses a physical transition");
+                }
+                if (!item.mass && t.next) return fail("spent food has an active exposure deadline");
+                std::vector<ecs::Id> noticed;
+                for (const auto link : t.notices) {
+                    const auto person = w.beings().find(link.id);
+                    if (!person || !beings.all_of<Person>(*person) ||
+                        std::find(noticed.begin(), noticed.end(), link.id) != noticed.end())
+                        return fail("invalid cooking noticer");
+                    noticed.push_back(link.id);
+                }
                 things.emplace<HeatTimer>(*h, t);
             } else
                 return fail("unknown fire record kind");

@@ -25,4 +25,11 @@ inherit = false
 edible = true
 broken = "crumb"
 icon = "sheet"
-state_changes = []
+[[state_changes]]
+characteristic = 8
+state = 1
+value = 4
+[[state_changes]]
+characteristic = 8
+state = 2
+value = 0

@@ -108,6 +108,15 @@ void Context::moved(ecs::Id id) {
 }
 
 void Context::item_changed(ecs::Id id) {
+    if (!notifying_item_) {
+        const auto present = w_.things_.find(id);
+        const auto* physical = present ? w_.things_.raw().try_get<Item>(*present) : nullptr;
+        if (physical && physical->home.value) {
+            notifying_item_ = true;
+            w_.system_of(physical->home).item_changed(*this, id);
+            notifying_item_ = false;
+        }
+    }
     w_.item_site_dirty_.push_back(id);
     if (!w_.item_ways_list_) return;
     KD_CHECK(in_event_ && !island_, "Craft item snapshots are emitted in reference event order");

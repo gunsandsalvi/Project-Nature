@@ -18,7 +18,7 @@ public:
     static void settle_meal(world::Context& c, world::Beings::Handle h, std::int64_t eaten, bool finished);
     // Pure fixed-point rules shared by resolution and calibration tests.
     [[nodiscard]] static std::int64_t success(const world::World& w, world::Beings::Handle h, std::uint32_t recipe,
-                                              std::span<const ecs::Id> roles);
+                                              std::span<const ecs::Id> roles, time::Seconds at = -1);
     [[nodiscard]] static std::int64_t duration(const data::Blueprint& recipe, std::int64_t edge, bool tool);
     [[nodiscard]] static std::int64_t time_cost(const world::World& w, world::Beings::Handle h, std::int64_t seconds);
     static void wear(world::Context& c, ecs::Id tool, std::int64_t worked, std::int64_t rate);

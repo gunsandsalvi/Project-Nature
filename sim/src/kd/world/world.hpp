@@ -107,6 +107,7 @@ public:
     [[nodiscard]] virtual std::string_view name() const = 0;
     virtual void handle(Context& c, const event::Event& e) = 0;
     virtual void digest(num::Digest& /*d*/) const {}
+    virtual void item_changed(Context& /*c*/, ecs::Id /*id*/) {}
 
     /// How near two of its owners must come to touch, in centimetres; 0 if they never touch each other.
     [[nodiscard]] virtual std::int64_t reach() const { return 0; }
@@ -245,6 +246,7 @@ public:
 private:
     friend class World;
     Context(World& w, Island* island) : w_(w), island_(island) {}
+    bool notifying_item_ = false;
     void run(const event::Event& e);
 
     World& w_;

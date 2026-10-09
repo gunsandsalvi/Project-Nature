@@ -8,6 +8,7 @@ public:
     [[nodiscard]] std::string_view name() const override { return "living"; }
     void handle(world::Context& c, const event::Event& e) override;
     void opened(world::World& w) override;
+    void item_changed(world::Context& c, ecs::Id id) override;
     [[nodiscard]] bool serial_windows(const world::World& w) const override {
         return !w.beings().raw().view<world::Work>().empty() || !w.things().raw().view<world::Fire>().empty() ||
                !w.things().raw().view<world::HeatTimer>().empty();

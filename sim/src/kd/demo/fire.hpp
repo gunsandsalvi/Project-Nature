@@ -6,6 +6,13 @@ class Living;
 class FireRules {
 public:
     static void start(world::World& w);
+    static void food_changed(world::Context& c, ecs::Id id);
+    static void food_refresh(world::Context& c, ecs::Id camp);
+    static void carried_food(world::Context& c, ecs::Id person);
+    static void notice_food(world::Context& c, world::Beings::Handle person);
+    static void food_intent(world::Context& c, ecs::Id food, ecs::Id maker, bool intended);
+    static std::optional<num::Point> cooking_spot(const world::World& w, world::Beings::Handle person,
+                                                  time::Seconds at);
     static world::Thermal sample_thermal(const world::World& w, world::Beings::Handle person, time::Seconds at);
     static void thermal_before(world::Context& c, ecs::Id camp);
     static void thermal_after(world::Context& c, ecs::Id camp);

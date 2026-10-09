@@ -1,6 +1,7 @@
 // Saved fire, physical exposure and felt comfort (MAT-18, MAT-19, BIO-11).
 #pragma once
 #include "kd/ecs/component.hpp"
+#include "kd/world/craft.hpp"
 #include "kd/world/parts.hpp"
 namespace kd::world {
 struct Fire {
@@ -46,11 +47,16 @@ struct Fire {
 struct HeatTimer {
     static constexpr std::string_view name = "heat_timer";
     static constexpr std::uint32_t version = 1;
-    ecs::Id item{}, maker{};
+    ecs::Id item{}, maker{}, chance_source{};
+    std::uint8_t exposure_heat = 0;
+    std::vector<Link> notices;
     std::uint8_t target_state = 1, low = 2, high = 3, completed = 0, tried = 0, intended = 0;
     std::int64_t elapsed = 0, hot_elapsed = 0, settled_at = 0, next = 0;
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
+        v.id({"chance_source", "original physical portion keeps its first chance across splitting"}, c.chance_source);
+        v.u8({"exposure_heat", "actual heat during the retained interval"}, c.exposure_heat);
+        v.records({"notices", "people whose actual sight already tried noticing"}, c.notices, 128);
         v.id({"item", "physical food identity"}, c.item);
         v.id({"maker", "actual placer, or zero for unmeant exposure"}, c.maker);
         v.u8({"intended", "person actually intended cooking"}, c.intended);

@@ -4,6 +4,7 @@
 #include "kd/chance/chance.hpp"
 #include "kd/demo/crafting.hpp"
 #include "kd/demo/discovery_scene.hpp"
+#include "kd/demo/fire.hpp"
 #include "kd/demo/living.hpp"
 #include "kd/num/sort.hpp"
 namespace kd::demo {
@@ -126,6 +127,7 @@ void Discovery::see(world::Context& c, world::Beings::Handle h) {
     num::sort_strict(ordered.begin(), ordered.end(), [](const auto& a, const auto& b) { return a.first < b.first; });
     // Preserve first insertion order and final actual masked sight evidence in canonical item order.
     for (const auto& seen : ordered) learn(c, h, seen.last, kSight, 1);
+    FireRules::notice_food(c, h);
 }
 std::vector<world::Familiar> Discovery::handling(world::Context& c, world::Beings::Handle h, std::uint8_t action,
                                                  std::span<const ecs::Id> inputs) {

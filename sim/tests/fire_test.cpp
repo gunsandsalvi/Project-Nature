@@ -3,6 +3,7 @@
 #include "kd/data/folder.hpp"
 #include "kd/demo/crafting.hpp"
 #include "kd/demo/crowd_world.hpp"
+#include "kd/demo/learning.hpp"
 #include "kd/demo/living.hpp"
 #include "kd/run/workers.hpp"
 #include "kd/save/snapshot.hpp"
@@ -52,6 +53,7 @@ struct FireFixture {
         auto& t = w.things().raw().emplace<kd::world::HeatTimer>(w.things().handle(food));
         t.item = food;
         t.elapsed = 600;
+        t.exposure_heat = 3;
         t.next = kd::time::kHour - 600;
         w.schedule(home, 2, 1);
         w.schedule(home, 3, t.next);
@@ -95,7 +97,7 @@ TEST_CASE("FIRE1 and THER1 reopen conserved records and pending camp deadlines e
     CHECK(fire.burn_remainder == 13);
     const auto& timer =
         opened->world().things().raw().get<kd::world::HeatTimer>(opened->world().things().handle(f.food));
-    CHECK(timer.elapsed == 600);
+    CHECK(timer.elapsed == 601);
     CHECK(timer.next == 3000);
     opened->world().beings().fuzz(73);
     opened->world().things().fuzz(91);
@@ -586,4 +588,272 @@ TEST_CASE("ordinary warming preserves its walk and reopen and records only actua
     REQUIRE_FALSE(memory->inputs.empty());
     CHECK(memory->inputs[0].values[12] == 3);
     CHECK((know.performed & (1U << 12U)) == 0);  // feeling heat is not performing the heat action
+}
+namespace {
+struct CookingOperations final : kd::world::System {
+    FireOperations fires;
+    kd::ecs::Id portion{}, viewer{};
+    kd::num::Point destination{};
+    explicit CookingOperations(std::uint64_t seed = 91) : fires(seed) {
+        auto& w = fires.fixture.camp.world();
+        portion = fires.fixture.food;
+        w.beings().each([&](kd::ecs::Id id, auto h) {
+            if (!viewer.value && w.beings().raw().all_of<kd::world::Person>(h)) viewer = id;
+        });
+        auto& f = fires.fixture.fire();
+        f.fuel_mg = 20000000;
+        w.things().raw().get<kd::world::Item>(w.things().handle(fires.fixture.hearth)).mass = f.fuel_mg;
+        f.next = f.deadline();
+        w.set_command_taker(*this);
+    }
+    std::string_view name() const override { return "labelled cooking mechanics"; }
+    void handle(kd::world::Context&, const kd::event::Event&) override {}
+    void command(kd::world::Context& c, const kd::world::Command& cmd) override {
+        auto& w = c.world();
+        if (cmd.a) portion = kd::ecs::Id{cmd.a};
+        if (cmd.what == 921) kd::demo::FireRules::food_changed(c, portion);
+        if (cmd.what == 922) {
+            w.things().raw().get<kd::world::Place>(w.things().handle(portion)).at = destination;
+            c.item_changed(portion);
+        }
+        if (cmd.what == 923) kd::demo::FireRules::notice_food(c, w.beings().handle(viewer));
+        if (cmd.what == 924) {
+            kd::demo::FireRules::settle_fire(c, fires.fixture.hearth);
+            fires.fixture.fire().heat = 4;
+            fires.fixture.fire().next = fires.fixture.fire().deadline();
+            c.item_changed(fires.fixture.hearth);
+            kd::demo::FireRules::deadlines(c, fires.fixture.home);
+        }
+        if (cmd.what == 925) kd::demo::FireRules::food_intent(c, portion, viewer, true);
+        if (cmd.what == 927) {
+            const auto ph = w.beings().handle(viewer);
+            const auto here = w.torus().moved(fires.fixture.fire().at, {1000, 0});
+            w.beings().raw().get<kd::world::Place>(ph).at = here;
+            w.beings().raw().get<kd::world::Activity>(ph) = {1, 0, 200, here, fires.fixture.fire().at};
+            item().owner = viewer;
+            c.schedule(viewer, 0, 200);
+            kd::demo::FireRules::carried_food(c, viewer);
+        }
+        if (cmd.what == 926) {
+            kd::demo::FireRules::food_changed(c, portion);
+            const auto old = portion;
+            auto copy = item();
+            copy.mass /= 2;
+            item().mass -= copy.mass;
+            c.item_changed(old);
+            copy.parents = {{old}};
+            copy.made_at = c.now();
+            const auto h = w.make_thing();
+            w.things().raw().emplace<kd::world::Item>(h, copy);
+            w.things().raw().emplace<kd::world::Place>(h, fires.fixture.fire().at);
+            portion = w.things().id_of(h);
+            c.item_changed(portion);
+        }
+    }
+    void request(kd::time::Seconds at, std::uint32_t what) {
+        auto& w = fires.fixture.camp.world();
+        (void)w.command(at, what, 0, 0);
+        w.run_to(at + 1);
+    }
+    kd::world::HeatTimer& timer() {
+        auto& w = fires.fixture.camp.world();
+        return w.things().raw().get<kd::world::HeatTimer>(w.things().handle(portion));
+    }
+    kd::world::Item& item() {
+        auto& w = fires.fixture.camp.world();
+        return w.things().raw().get<kd::world::Item>(w.things().handle(portion));
+    }
+};
+}  // namespace
+TEST_CASE("cook_one_hour_burn_two happens unseen, preserves mass and never retries the first chance") {
+    for (std::uint64_t seed = 1; seed <= 20; ++seed) {
+        CookingOperations ops(seed);
+        auto& w = ops.fires.fixture.camp.world();
+        const auto recipe = *fire_catalogue().find("blueprint", "base:roast_food");
+        ops.request(0, 921);
+        CHECK(ops.timer().next == 3600);
+        const auto history_before =
+            w.beings().raw().get<kd::world::CraftHistory>(w.beings().handle(ops.fires.fixture.home)).events.size();
+        w.run_to(3601);
+        CHECK(ops.timer().tried == 1);
+        CHECK(ops.timer().elapsed == 3600);
+        CHECK(ops.item().mass == 1000000);
+        CHECK(ops.item().state <= 1);
+        CHECK(kd::demo::Crafting::characteristics(fire_catalogue(), ops.item())[8] == (ops.item().state == 1 ? 3 : 2));
+        CHECK(w.beings().raw().get<kd::world::CraftHistory>(w.beings().handle(ops.fires.fixture.home)).events.size() ==
+              history_before);
+        w.beings().each([&](kd::ecs::Id, auto h) {
+            if (const auto* know = w.beings().raw().try_get<kd::world::Knowledge>(h))
+                CHECK_FALSE(kd::demo::Learning::knows(*know, recipe));
+        });
+        const auto first = ops.item().state;
+        ops.destination = w.torus().moved(ops.fires.fixture.fire().at, {1000, 0});
+        ops.request(4000, 922);
+        CHECK(ops.timer().next == 0);
+        CHECK(ops.timer().elapsed == 4000);
+        std::string why;
+        CHECK(reopen_fire(w, why));
+        ops.request(6000, 921);
+        CHECK(ops.timer().elapsed == 4000);
+        CHECK(ops.item().state == first);
+        ops.destination = ops.fires.fixture.fire().at;
+        ops.request(7000, 922);
+        CHECK(ops.timer().next == 10200);
+        w.run_to(10201);
+        CHECK(ops.item().state == 2);
+        CHECK(ops.timer().completed == 1);
+        CHECK(ops.timer().next == 0);
+        CHECK(kd::demo::Crafting::characteristics(fire_catalogue(), ops.item())[8] == 0);
+        CHECK(ops.item().mass == 1000000);
+        CHECK(reopen_fire(w, why));
+    }
+}
+TEST_CASE("one hour at heat four burns food without a cooking reroll") {
+    CookingOperations ops;
+    auto& w = ops.fires.fixture.camp.world();
+    ops.request(0, 924);
+    w.run_to(3601);
+    CHECK(ops.item().state == 2);
+    CHECK(ops.timer().hot_elapsed == 3600);
+    CHECK(ops.timer().tried == 0);
+}
+TEST_CASE("unseen cooked food credits an actual noticer and preserves evidence across reopen") {
+    int cooked = 0;
+    for (std::uint64_t seed = 1; seed <= 20; ++seed) {
+        CookingOperations ops(seed);
+        auto& w = ops.fires.fixture.camp.world();
+        ops.request(0, 921);
+        w.run_to(3601);
+        if (ops.item().state != 1) continue;
+        ++cooked;
+        const auto home = ops.fires.fixture.home;
+        auto& history = w.beings().raw().get<kd::world::CraftHistory>(w.beings().handle(home));
+        const auto before = history.events.size();
+        auto& a = w.beings().raw().get<kd::world::Activity>(w.beings().handle(ops.viewer));
+        a.what = 0;
+        a.from = a.to = w.torus().moved(ops.fires.fixture.fire().at, {600, 0});
+        w.beings().raw().get<kd::world::Place>(w.beings().handle(ops.viewer)).at = a.from;
+        ops.request(3602, 923);
+        CHECK(history.events.size() == before);
+        a.from = a.to = ops.fires.fixture.fire().at;
+        w.beings().raw().get<kd::world::Place>(w.beings().handle(ops.viewer)).at = a.from;
+        ops.request(3603, 923);
+        REQUIRE(history.events.size() == before + 1);
+        CHECK(history.events.back().actor == ops.viewer);
+        CHECK(history.events.back().route == 1);
+        CHECK(ops.timer().notices.size() == 1);
+        ops.request(3604, 923);
+        CHECK(history.events.size() == before + 1);
+        std::string why;
+        auto reopened = reopen_fire(w, why);
+        INFO(why);
+        CHECK(reopened);
+    }
+    CHECK(cooked > 0);
+}
+TEST_CASE("cooking uses the normal low and high maker chance in two hundred roots and meat trials") {
+    for (const auto name : {"base:roots", "base:meat"}) {
+        for (const bool high : {false, true}) {
+            int successes = 0;
+            for (std::uint64_t trial = 1; trial <= 200; ++trial) {
+                CookingOperations ops(trial);
+                auto& w = ops.fires.fixture.camp.world();
+                const auto recipe = *fire_catalogue().find("blueprint", "base:roast_food");
+                auto& know = w.beings().raw().get<kd::world::Knowledge>(w.beings().handle(ops.viewer));
+                kd::world::Skill skill;
+                skill.recipe = recipe;
+                skill.known = 1;
+                skill.practice = {high ? 10000 : 0, high ? 10000 : 0, 0, 0};
+                know.skills.push_back(skill);
+                know.sectors[5] = skill.practice;
+                ops.item().kind = ops.item().material = fire_entry(name);
+                ops.request(0, 925);
+                w.run_to(3601);
+                CHECK(ops.item().mass == 1000000);
+                CHECK(ops.item().state <= 1);
+                successes += ops.item().state == 1;
+            }
+            INFO(std::string(name), " high=", high, " successes=", successes);
+            MESSAGE(std::string(name), " high=", high, " successes=", successes, "/200");
+            CHECK(successes >= (high ? 181 : 44));
+            CHECK(successes <= (high ? 197 : 77));
+        }
+    }
+}
+TEST_CASE("splitting a heated portion preserves elapsed exposure and its original chance") {
+    CookingOperations ops;
+    auto& w = ops.fires.fixture.camp.world();
+    ops.request(0, 921);
+    const auto original = ops.portion;
+    ops.request(1800, 926);
+    CHECK(ops.timer().elapsed == 1800);
+    CHECK(ops.timer().chance_source == original);
+    CHECK(ops.timer().next == 3600);
+    std::string why;
+    REQUIRE(reopen_fire(w, why));
+    w.run_to(3601);
+    const auto& first = w.things().raw().get<kd::world::Item>(w.things().handle(original));
+    CHECK(ops.item().state == first.state);
+    CHECK(ops.item().mass + first.mass == 1000000);
+    CHECK(ops.timer().tried == 1);
+}
+TEST_CASE("cooking readers reject lost deadlines duplicate noticers and repeated cooked chances") {
+    for (int fault = 0; fault < 6; ++fault) {
+        CookingOperations ops;
+        auto& w = ops.fires.fixture.camp.world();
+        ops.request(0, 921);
+        if (fault == 0) ops.timer().exposure_heat = 6;
+        if (fault == 1) {
+            ops.timer().next = 0;
+            w.cancel(ops.fires.fixture.home, 3);
+        }
+        if (fault == 2) ops.timer().notices = {{ops.viewer}, {ops.viewer}};
+        if (fault == 3) {
+            ops.item().state = 1;
+            ops.timer().tried = 0;
+        }
+        if (fault == 4) {
+            ops.timer().elapsed = kd::time::kHour;
+            ops.timer().tried = 0;
+        }
+        if (fault == 5) {
+            ops.timer().next = 7200;
+            w.schedule(ops.fires.fixture.home, 3, 7200);
+        }
+        std::string why;
+        CHECK_FALSE(reopen_fire(w, why));
+        CHECK_FALSE(why.empty());
+    }
+}
+TEST_CASE("cooking and burning reopen exactly through shuffled storage and four workers") {
+    CookingOperations ops;
+    auto& w = ops.fires.fixture.camp.world();
+    ops.request(0, 921);
+    w.run_to(1801);
+    std::string why;
+    auto opened = reopen_fire(w, why);
+    INFO(why);
+    REQUIRE(opened);
+    opened->world().beings().fuzz(823);
+    opened->world().things().fuzz(824);
+    kd::run::Workers pool(4);
+    opened->world().run_islands(7201, pool, 1);
+    w.run_to(7201);
+    CHECK(ops.item().state == 2);
+    CHECK(w.digests().whole == opened->world().digests().whole);
+    CHECK(kd::save::write_snapshot(w.save()) == kd::save::write_snapshot(opened->world().save()));
+}
+TEST_CASE("carried raw food schedules its actual entry into heat before the walk ends") {
+    CookingOperations ops;
+    auto& w = ops.fires.fixture.camp.world();
+    ops.request(0, 927);
+    CHECK(ops.timer().exposure_heat == 0);
+    CHECK(ops.timer().next == 180);
+    w.run_to(180);
+    CHECK(ops.timer().elapsed == 0);
+    w.run_to(181);
+    CHECK(ops.timer().exposure_heat == 3);
+    CHECK(ops.timer().next == 3780);
+    std::string why;
+    CHECK(reopen_fire(w, why));
 }

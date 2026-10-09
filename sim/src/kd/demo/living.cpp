@@ -394,6 +394,9 @@ void Living::notice(world::Context& c, world::Beings::Handle h, ecs::Id camp) {
         l.source[i] = 1;
     }
 }
+void Living::item_changed(world::Context& c, ecs::Id id) {
+    FireRules::food_changed(c, id);
+}
 void Living::begin(world::Context& c, world::Beings::Handle h, LivingAct what, time::Seconds takes, num::Point to) {
     auto& raw = c.world().beings().raw();
     const auto id = c.world().beings().id_of(h);
@@ -406,6 +409,7 @@ void Living::begin(world::Context& c, world::Beings::Handle h, LivingAct what, t
     c.schedule(id, world::kActivitySlot, a.end);
     c.cancel(id, kUrgent);
     FireRules::experience(c, h);
+    FireRules::carried_food(c, id);
     auto urgent = a.end;
     if (what != LivingAct::eat && l.food >= kFood / 5)
         urgent = std::min(urgent, c.now() + ((l.food - kFood / 5) * kDay - l.food_remainder) / rules_.food_day + 1);
