@@ -2608,6 +2608,7 @@ How the project is run.
 
 - `PRC-09` **Branches, checks and review** *(Decided)*: Agents work on separate branches. Work joins after the routine check passes (`PRC-10`), the builder reviews the integrated delivery once, and the coordinator checks it before merging. One independent reviewer checks each milestone before it closes; changes to determinism, threading, save formats or corruption recovery also receive independent review before joining.
   - **Owner OK:** 8 October 2026.
+  - **M3 exception (owner, 9 October 2026):** the builder works through the whole of M3 without stopping for independent reviews before joining; one independent review covers all of M3 at its end.
   - **How it works:** compare observed behaviour and tests with the claimed requirements. Reproduce a known bug before fixing it where practicable; use deliberate bad inputs/faults for serious regressions and uncertain test sensitivity, without requiring every new test to fail first. Keep existing determinism, save and recovery regressions.
     The independent milestone reviewer receives the requirements, diff and evidence without the builder's reasoning and checks that pass rules were not weakened to pass (`RES-09`).
     If builder and reviewer still disagree after one round of fixes, a second fresh reviewer decides; anything that changes what this file means goes to you.

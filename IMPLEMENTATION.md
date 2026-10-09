@@ -13,7 +13,7 @@ Process: `PRC-02`, `PRC-03`, `PRC-04`, `PRC-06`, `PRC-07`, `PRC-09`, `PRC-10`, `
 
 Run touched tests during work and the routine/delivery gate before joining or shipping; retain the audit triggers, save recovery and deterministic proofs.
 **Older saves are not converted** (owner, 9 October 2026). Each build opens only saves in its own format and refuses older ones with a plain message; the player starts a new camp. Write no migration code, old-save fixtures or conversion tests, and when a format change breaks an old-save test, delete that test. The note says when the build cannot open the previous build's camps. Keep save/reopen, journal replay and crash recovery for the build's own saves.
-Self-review each delivery; independent review precedes joining changes to saves, threading, arithmetic or recovery and closes the milestone.
+Self-review each delivery. In M3 the builder works straight through without stopping for independent reviews before joining; one independent review covers all of M3 at its end (owner, 9 October 2026).
 Deliver an APK with What is new / What to try / What is rough, measured build/check/review/package time and honest remaining acceptance.
 Only the owner changes decided meaning. The sixteen scope-cut proposals are not approvals.
 **Serves** identifies a built subset, never full acceptance; preserve old IDs and distributed version codes.
