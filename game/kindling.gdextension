@@ -8,5 +8,6 @@ reloadable = false
 
 [libraries]
 
+linux.arm64 = "res://bin/libkindling.linux.arm64.so"
 linux.x86_64 = "res://bin/libkindling.linux.x86_64.so"
 android.arm64 = "res://bin/libkindling.android.arm64.so"

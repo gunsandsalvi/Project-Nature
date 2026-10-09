@@ -4,7 +4,9 @@ export KD_CACHE="${KD_CACHE:-$HOME/.cache/kindling}"
 export PATH="$KD_CACHE/bin:$PATH"
 
 # Godot 4.7.2, pinned (A2.2); its export templates where Godot looks for them; gdUnit4, its test framework.
-export GODOT="$KD_CACHE/godot/Godot_v4.7.2-stable_linux.x86_64"
+KD_HOST_ARCH=x86_64
+[ "$(uname -m)" != aarch64 ] || KD_HOST_ARCH=arm64
+export GODOT="${GODOT:-$KD_CACHE/godot/Godot_v4.7.2-stable_linux.$KD_HOST_ARCH}"
 export KD_GODOT_VERSION="4.7.2.stable.official.ed1daf0bf"
 export KD_TEMPLATES="$HOME/.local/share/godot/export_templates/4.7.2.stable"
 export KD_GDUNIT="$KD_CACHE/gdunit4-v6.2.1"
