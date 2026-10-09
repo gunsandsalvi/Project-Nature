@@ -500,6 +500,7 @@ void Living::choose(world::Context& c, world::Beings::Handle h, ecs::Id camp) {
         thought.decision_pull = kDreamPull;
         thought.decision_subject = thought.subject;
     }
+    if (FireRules::choose(*this, c, h)) return;
     if (Learning::choose(*this, c, h)) return;
     if (Crafting::choose(*this, c, h)) return;
     dream_consequence(c, h, camp, false);
@@ -753,6 +754,13 @@ void Living::handle(world::Context& c, const event::Event& e) {
     settle(c, h, camp, interrupted);
     c.cancel(id, world::kActivitySlot);
     c.cancel(id, kUrgent);
+    const auto* thermal = raw.try_get<world::Thermal>(h);
+    const bool was_tending = thermal && thermal->tending;
+    if (FireRules::continue_tending(*this, c, h, interrupted)) return;
+    if (was_tending) {
+        choose(c, h, camp);
+        return;
+    }
     if (raw.all_of<world::Work>(h)) {
         const bool working = raw.get<world::Work>(h).state == 2;
         Crafting::settle(*this, c, h, interrupted, e.slot == 2);

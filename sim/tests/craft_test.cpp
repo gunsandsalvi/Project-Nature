@@ -722,10 +722,10 @@ TEST_CASE("fresh Discovery scene materialises aggregate stocks exactly once and 
     w.things().each([&](kd::ecs::Id, kd::world::Things::Handle h) {
         const auto& item = w.things().raw().get<kd::world::Item>(h);
         total += item.mass;
-        CHECK(item.mass > 0);
+        CHECK(item.mass >= 0);
         CHECK(item.owner.value == 0);
-        CHECK(item.made_at == -1);
-        CHECK(item.parents.empty());
+        CHECK(item.made_at == (w.things().raw().all_of<kd::world::Fire>(h) ? 0 : -1));
+        if (!w.things().raw().all_of<kd::world::Fire>(h)) CHECK(item.parents.empty());
         if (item.kind == entry(catalogue(), "item", "base:flint")) stone[0] += item.mass;
         if (item.kind == entry(catalogue(), "item", "base:chert")) stone[1] += item.mass;
         if (item.kind == entry(catalogue(), "item", "base:granite")) stone[2] += item.mass;
@@ -878,7 +878,9 @@ TEST_CASE("Discovery work keeps the same history and state across step sizes poo
     copy->world().run_islands(90000, workers, 600);
     CHECK(copy->world().digests().whole == w.digests().whole);
     CHECK(kd::save::write_snapshot(copy->world().save()) == kd::save::write_snapshot(w.save()));
-    CHECK(accepted(w, why));
+    const auto valid = accepted(w, why);
+    INFO(why);
+    CHECK(valid);
 }
 TEST_CASE("edge_improves_work through the declared generic affordance rather than faster berry gathering") {
     const auto& b = catalogue().kind<kd::data::Blueprint>()[entry(catalogue(), "blueprint", "base:butcher")];
@@ -986,7 +988,8 @@ struct WorkFixture final : kd::world::System {
             const auto kind = entry(catalogue(), "item", synthetic_edge ? "base:flint" : material);
             kd::ecs::Id found{};
             w.things().each([&](kd::ecs::Id id, auto th) {
-                if (found.value != 0 || w.things().raw().get<kd::world::Item>(th).kind != kind ||
+                if (found.value != 0 || w.things().raw().get<kd::world::Item>(th).mass == 0 ||
+                    w.things().raw().get<kd::world::Item>(th).kind != kind ||
                     std::find(inputs.begin(), inputs.end(), id) != inputs.end())
                     return;
                 found = id;
@@ -1346,7 +1349,10 @@ TEST_CASE("200 low and high friction trials conserve material and keep smoke wit
                 std::int64_t mass = 0;
                 trial.w.things().each([&](kd::ecs::Id, auto h) {
                     mass += trial.w.things().raw().get<kd::world::Item>(h).mass;
-                    CHECK_FALSE(trial.w.things().raw().all_of<kd::world::Fire>(h));
+                    if (trial.w.things().raw().all_of<kd::world::Fire>(h)) {
+                        const auto& physical_fire = trial.w.things().raw().get<kd::world::Fire>(h);
+                        CHECK((physical_fire.heat == 3 || physical_fire.heat <= 1));
+                    }
                 });
                 CHECK(mass == 450000000);
                 std::string why;

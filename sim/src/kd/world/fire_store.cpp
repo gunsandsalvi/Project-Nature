@@ -1,5 +1,6 @@
 #include "kd/world/fire_store.hpp"
 #include <set>
+#include "kd/demo/crafting.hpp"
 #include "kd/world/craft_store.hpp"
 namespace kd::world {
 void save_fire(const World& w, std::vector<save::Chunk>& out) {
@@ -83,7 +84,7 @@ bool load_fire(World& w, std::span<const save::Chunk> chunks, const ecs::EntryMa
                     f.ash_mg < 0 || f.fuel_mg > item.mass || f.ash_mg != item.mass - f.fuel_mg ||
                     f.burn_remainder < 0 || f.burn_remainder >= time::kHour || f.settled_at < 0 || f.settled_at > now ||
                     !deadline(f.next) || f.embers_until < 0 || f.banked_until < 0 || f.air_until < 0 ||
-                    (f.heat >= 2 && f.fuel_mg == 0))
+                    (f.heat >= 2 && f.fuel_mg == 0) || f.next != f.deadline())
                     return fail("invalid conserved fire state");
                 if (f.owner.value) {
                     const auto p = w.beings().find(f.owner);
@@ -133,14 +134,36 @@ bool load_fire(World& w, std::span<const save::Chunk> chunks, const ecs::EntryMa
                 if (!beings.all_of<Person>(*h) || !ecs::read_component(t, r, entries) || t.felt_milli_c < 18000 ||
                     t.felt_milli_c > 39000 || t.warmth < 0 || t.warmth > 100 || t.settled_at < 0 ||
                     t.settled_at > now || t.warming_progress < 0 || t.warming_progress > now || t.water_remainder < 0 ||
-                    t.water_remainder >= time::kDay * 100000 || t.water_used_ml < 0)
+                    t.water_remainder >= time::kDay * 100000 || t.water_used_ml < 0 || t.tending > 4 ||
+                    t.tending_phase > 3 || t.tending_shared > 1 || t.tending_mass < 0 || t.tending_started < 0 ||
+                    t.tending_started > now)
                     return fail("invalid felt temperature or thermal remainder");
+                if (!t.tending && (t.tending_fire.value || t.tending_input.value || t.tending_phase || t.tending_mass ||
+                                   t.tending_shared || t.tending_started))
+                    return fail("idle person has pending tending state");
+                if (t.tending) {
+                    const auto target = w.things().find(t.tending_fire);
+                    const auto input = w.things().find(t.tending_input);
+                    const auto& act = beings.get<Activity>(*h);
+                    if (!target || !things.all_of<Fire>(*target) || t.tending_phase == 0 ||
+                        things.get<Fire>(*target).hearth != beings.get<demo::Home>(*h).camp ||
+                        (t.tending == 3 ? bool(t.tending_input.value) : !input || !things.all_of<Item>(*input)) ||
+                        (t.tending_phase == 3 ? act.what != 12 : act.what != 1) || beings.get<Work>(*h).state != 0)
+                        return fail("invalid pending tending references or activity");
+                }
                 beings.emplace<Thermal>(*h, t);
             } else
                 return fail("unknown thermal record kind");
         }
         if (!r.finished()) return fail("trailing thermal records");
     }
+    bool supplies_valid = true;
+    w.beings().each([&](ecs::Id person, Beings::Handle h) {
+        const auto* t = beings.try_get<Thermal>(h);
+        if (t && t->tending_input.value && demo::Crafting::available(w, t->tending_input, person) < t->tending_mass)
+            supplies_valid = false;
+    });
+    if (!supplies_valid) return fail("overlapping finite tending reservations");
     // These deadlines are saved camp events, not frame polling. Reopen must not
     // repair a lost event.
     bool valid = true;

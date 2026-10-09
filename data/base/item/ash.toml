@@ -1,10 +1,10 @@
-class = "wood"
+class = "earth"
 form = "powder"
-hardness = 2
+hardness = 0
 edge = 0
-toughness = 3
+toughness = 0
 flaking = 0
-flexibility = 2
+flexibility = 0
 weight = 1
 burn = 0
 fuel = 0

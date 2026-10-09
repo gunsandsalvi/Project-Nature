@@ -17,12 +17,12 @@ unit_mass = "100000 mg"
 result_mass = "0 mg"
 result_length = "100 mm"
 starting = true
-result = "tinder"
-leftover = "grass"
-failure = "crumb"
+result = "ash"
+leftover = "ash"
+failure = "ash"
 [[inputs]]
-class = "plant"
-form = "strand"
+class = "any"
+form = "powder"
 min_length = "0 mm"
 max_length = "100000 mm"
 min_mass = "1 mg"
@@ -32,5 +32,5 @@ optional = false
 wear = 0
 [[inputs.ranges]]
 characteristic = 6
-minimum = 4
-maximum = 5
+minimum = 0
+maximum = 0

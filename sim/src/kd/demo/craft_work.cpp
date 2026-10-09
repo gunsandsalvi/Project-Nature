@@ -4,6 +4,7 @@
 #include "kd/chance/chance.hpp"
 #include "kd/demo/crafting.hpp"
 #include "kd/demo/discovery.hpp"
+#include "kd/demo/fire.hpp"
 #include "kd/demo/learning.hpp"
 #include "kd/demo/living.hpp"
 #include "kd/num/sort.hpp"
@@ -62,6 +63,10 @@ void release(world::Context& c, world::Beings::Handle h) {
         auto& item = mutable_item(c.world(), r.item);
         if (item.owner == person && r.return_shared) item.owner = {};
         if (r.picked) c.world().things().raw().get<world::Place>(c.world().things().handle(r.item)).at = here;
+        if (auto* fire = c.world().things().raw().try_get<world::Fire>(c.world().things().handle(r.item))) {
+            fire->owner = item.owner;
+            fire->at = place(c.world(), r.item);
+        }
         c.item_changed(r.item);
     }
     Learning::forget_work(c, h);
@@ -93,6 +98,8 @@ public:
             if (id == self) return;
             if (const auto* life = w.beings().raw().try_get<world::Life>(person); life && life->meal_item.value != 0)
                 claims_[life->meal_item].mass += life->carried_food;
+            if (const auto* t = w.beings().raw().try_get<world::Thermal>(person); t && t->tending_input.value)
+                claims_[t->tending_input].mass += t->tending_mass;
             if (const auto* work = w.beings().raw().try_get<Work>(person))
                 for (const auto& r : work->inputs) {
                     auto& claim = claims_[r.item];
@@ -149,7 +156,7 @@ Inputs reachable(world::Context& c, world::Beings::Handle h, const Supplies& sup
                 const auto& item = w.things().raw().get<Item>(entry.handle);
                 const auto* familiar = Discovery::familiar(know, item);
                 const auto available = supply.available(id, item);
-                if (available == 0 || !familiar) continue;
+                if (available == 0 || !familiar || w.things().raw().all_of<world::Fire>(entry.handle)) continue;
                 out.all.push_back({id, &item, familiar, available, supply.free(id), draws.bits(id.value),
                                    static_cast<std::uint8_t>((familiar->mask & (1U << 1U)) ? familiar->values[1] : 0)});
             }
@@ -398,6 +405,7 @@ void resolve(world::Context& c, world::Beings::Handle h, std::uint32_t recipe, s
         for (auto& r : work.inputs)
             if (r.item == roles[role]) r.mass = std::min(r.mass, mutable_item(w, r.item).mass);
     }
+    if (success && made.value && w.catalogue().find("item", "base:ember") == result.kind) FireRules::ember(c, made);
     const auto event = Discovery::result(c, h, recipe, actual, perceived, made, success, unknown, route);
     Learning::worked(c, h, event, success);
     Learning::demonstrated(c, h, event);
@@ -713,6 +721,11 @@ void Crafting::settle(Living& living, world::Context& c, world::Beings::Handle h
         return;
     }
     Learning::observe_maker(c, h);
+    if (std::any_of(work.inputs.begin(), work.inputs.end(),
+                    [&](const auto& r) { return w.things().raw().all_of<world::Fire>(w.things().handle(r.item)); })) {
+        release(c, h);
+        return;
+    }
     if (interrupted) {
         c.cancel(person, 2);
         if (work.action == 2)
@@ -769,12 +782,19 @@ void Crafting::settle(Living& living, world::Context& c, world::Beings::Handle h
                 std::any_of(know.skills.begin(), know.skills.end(),
                             [&](const auto& s) { return s.recipe == r && s.known; }))
                 continue;
-            if (static_cast<std::int64_t>(work.completed_tries) * work.try_seconds + work.retained_progress + c.now() -
-                    work.active_start <
-                recipes[r].seconds)
-                continue;
             auto roles = matching(w, recipes[r], ids);
             if (roles.empty()) continue;
+            bool tool = true;
+            std::int64_t edge = 0;
+            for (std::size_t role = 0; role < roles.size(); ++role) {
+                if (recipes[r].inputs[role].optional && !roles[role].value) tool = false;
+                if (role && roles[role].value)
+                    edge = std::max(edge, characteristics(w.catalogue(), value(w, roles[role]))[1]);
+            }
+            if (static_cast<std::int64_t>(work.completed_tries) * work.try_seconds + work.retained_progress + c.now() -
+                    work.active_start <
+                duration(recipes[r], edge, tool))
+                continue;
             resolve(c, h, r, std::move(roles), true, work.intended ? 1 : work.route, 0);
             if (std::any_of(know.skills.begin(), know.skills.end(),
                             [&](const auto& s) { return s.recipe == r && s.known; }))

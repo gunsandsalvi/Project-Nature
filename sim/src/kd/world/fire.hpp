@@ -12,6 +12,17 @@ struct Fire {
     std::int64_t fuel_mg = 0, ash_mg = 0, burn_remainder = 0, settled_at = 0;
     std::int64_t embers_until = 0, banked_until = 0, air_until = 0, next = 0;
     std::int64_t damp_remainder = 0, evaporated_mg = 0;
+    [[nodiscard]] std::int64_t deadline() const {
+        std::int64_t due = 0;
+        const auto take = [&](std::int64_t at) {
+            if (at > settled_at) due = due ? std::min(due, at) : at;
+        };
+        const auto burn = heat >= 3 ? 5000000 : heat == 2 ? 1000000 : 0;
+        if (burn && fuel_mg) take(settled_at + (fuel_mg * time::kHour - burn_remainder + burn - 1) / burn);
+        if (heat) take(air_until);
+        if (heat == 1) take(std::max(embers_until, banked_until));
+        return due;
+    }
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
         v.id({"hearth", "camp containing the hearth"}, c.hearth);
@@ -59,8 +70,18 @@ struct Thermal {
     static constexpr std::uint32_t version = 1;
     std::int64_t felt_milli_c = 24000, warmth = 100, settled_at = 0, warming_progress = 0;
     std::int64_t water_remainder = 0, water_used_ml = 0;
+    ecs::Id tending_fire{}, tending_input{};
+    std::int64_t tending_mass = 0, tending_started = 0;
+    std::uint8_t tending = 0, tending_phase = 0, tending_shared = 0;
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
+        v.id({"tending_fire", "actual tending target"}, c.tending_fire);
+        v.id({"tending_input", "reserved finite tending input"}, c.tending_input);
+        v.i64({"tending_mass", "reserved tending mass"}, c.tending_mass);
+        v.i64({"tending_started", "tending choice second"}, c.tending_started);
+        v.u8({"tending", "none, feed, blow, bank or carry"}, c.tending);
+        v.u8({"tending_shared", "reserved portion was shared"}, c.tending_shared);
+        v.u8({"tending_phase", "none, walking to input, walking to hearth or working"}, c.tending_phase);
         v.i64({"felt_milli_c", "last experienced temperature"}, c.felt_milli_c);
         v.i64({"warmth", "felt comfort zero to one hundred"}, c.warmth);
         v.i64({"settled_at", "last thermal rate settlement"}, c.settled_at);

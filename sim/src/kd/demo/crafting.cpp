@@ -73,6 +73,7 @@ void Crafting::initialise(world::World& w) {
         }
     });
     FireRules::start(w);
+    FireRules::fresh_hearth(w);
 }
 std::array<std::int64_t, 18> Crafting::characteristics(const data::Catalogue& c, const world::Item& item) {
     const auto& kind = c.kind<data::ItemKind>()[item.kind];
@@ -103,6 +104,8 @@ std::int64_t Crafting::available(const world::World& w, ecs::Id item, ecs::Id se
         if (id == self) return;
         const auto* life = w.beings().raw().try_get<world::Life>(person);
         if (life && life->meal_item == item) left -= life->carried_food;
+        const auto* thermal = w.beings().raw().try_get<world::Thermal>(person);
+        if (thermal && thermal->tending_input == item) left -= thermal->tending_mass;
         const auto* work = w.beings().raw().try_get<world::Work>(person);
         if (!work) return;
         for (const auto& r : work->inputs) {
@@ -121,6 +124,8 @@ bool Crafting::tool_free(const world::World& w, ecs::Id item, ecs::Id self) {
         if (id == self) return;
         const auto* life = w.beings().raw().try_get<world::Life>(person);
         if (life && life->meal_item == item) free = false;
+        const auto* thermal = w.beings().raw().try_get<world::Thermal>(person);
+        if (thermal && thermal->tending_input == item) free = false;
         const auto* work = w.beings().raw().try_get<world::Work>(person);
         if (!work) return;
         for (const auto& r : work->inputs)

@@ -664,7 +664,7 @@ TEST_CASE("learning history records actual source and survives labelled last-hol
     CHECK(history.events.size() == count);
     // Real unknown-use rolls after the labelled removal; no granted knowledge or altered chance.
     f.intended = false;
-    f.duration = 60;
+    f.duration = 1800;  // a real bare-handed butcher fit takes its full declared duration
     bool returned = false;
     for (int attempt = 0; attempt < 100 && !returned; ++attempt) {
         f.use();

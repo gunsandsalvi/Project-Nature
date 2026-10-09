@@ -21,8 +21,9 @@ result = "rotten_wood"
 leftover = "wood_shavings"
 failure = "crumb"
 [[inputs]]
-class = "wood"
-form = "lump"
+class = "any"
+classes = ["wood", "plant"]
+form = "any"
 min_length = "0 mm"
 max_length = "100000 mm"
 min_mass = "1 mg"

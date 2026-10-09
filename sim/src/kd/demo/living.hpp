@@ -34,6 +34,7 @@ public:
     [[nodiscard]] const LivingRules& rules() const { return rules_; }
 
 private:
+    friend class FireRules;
     friend class Crafting;
     friend class Learning;
     [[nodiscard]] num::Point use_spot(const world::World& w, world::Beings::Handle h, ecs::Id camp,
