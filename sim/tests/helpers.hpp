@@ -1,5 +1,6 @@
 // Helpers shared by the simulation's tests.
 #pragma once
+#include "kd/proof/camp_cases.hpp"
 
 #include <csignal>
 #include <cstdint>
@@ -62,4 +63,15 @@ inline void set_flush_to_zero() {
 #endif
 }
 
+}  // namespace kd::test
+
+namespace kd::test {
+inline const kd::data::Catalogue& camp_fixture() {
+    static const kd::data::Catalogue catalogue = [] {
+        kd::data::Catalogue c;
+        KD_CHECK(c.load(kd::proof::camp_files()).empty(), "camp tests: catalogue loads");
+        return c;
+    }();
+    return catalogue;
+}
 }  // namespace kd::test

@@ -813,7 +813,57 @@ godot::Array KdWorld::people() const {
             snapshot.way_at(i, screen_time()).at(world::World::kTorus, static_cast<time::Seconds>(screen_time()));
         row["east_cm"] = at.x;
         row["north_cm"] = at.y;
-        row["activity"] = "Idle";
+        const auto k = snapshot.way_index(i, screen_time());
+        const auto& activity = snapshot.ways[k];
+        constexpr std::array<const char*, 8> activities{
+            "Watching nearby ground", "Walking",        "Resting",           "",
+            "Gathering berries",      "Eating berries", "Drinking at water", "Carrying berries"};
+        row["activity"] = activities[activity.what];
+        row["action_code"] = activity.what;
+        row["walk_cm"] = world::World::kTorus.distance(activity.from, at);
+        row["action_start"] = activity.start;
+        row["action_end"] = activity.end;
+        row["progress_ppm"] = activity.share(static_cast<time::Seconds>(screen_time()));
+        if (k < snapshot.lives.size()) {
+            const auto& saved_life = snapshot.lives[k];
+            if (saved_life && crowd()->living()) {
+                const auto& recorded = *saved_life;
+                const auto live =
+                    crowd()->living()->sample(recorded, activity, static_cast<time::Seconds>(screen_time()));
+                const auto need = demo::Living::needs(live);
+                row["food_need"] = need[0];
+                row["water_need"] = need[1];
+                row["rest_need"] = need[2];
+                row["choice"] = recorded.goal;
+                row["decision_at"] = recorded.decision_at;
+                row["carried_food_mg"] = live.carried_food;
+                row["gathering_skill"] = recorded.gathering_skill;
+                row["memory_at"] = recorded.memory_at;
+                row["memory_kind"] = recorded.memory_kind;
+                row["memory_amount"] = recorded.memory_amount;
+                godot::PackedInt64Array decision, scores, known, seen, sources, benefit, cost, blocked, unavailable;
+                for (std::size_t n = 0; n < 3; ++n) {
+                    decision.push_back(recorded.decision_needs[n]);
+                    benefit.push_back(recorded.benefit[n]);
+                    cost.push_back(recorded.cost_seconds[n]);
+                    known.push_back(recorded.known_amount[n]);
+                    seen.push_back(recorded.seen[n]);
+                    sources.push_back(recorded.source[n]);
+                    blocked.push_back(recorded.blocked_until[n]);
+                    unavailable.push_back(recorded.unavailable[n]);
+                }
+                for (const auto score : recorded.scores) scores.push_back(score);
+                row["decision_needs"] = decision;
+                row["scores"] = scores;
+                row["known_amounts"] = known;
+                row["seen_at"] = seen;
+                row["sources"] = sources;
+                row["blocked_until"] = blocked;
+                row["unavailable"] = unavailable;
+                row["benefits"] = benefit;
+                row["cost_seconds"] = cost;
+            }
+        }
         out.push_back(row);
     }
     return out;
@@ -827,9 +877,37 @@ godot::Dictionary KdWorld::camp_alpha() const {
     out["half_width_cm"] = camp.half_width_cm;
     out["half_height_cm"] = camp.half_height_cm;
     out["water_ml"] = camp.water_ml;
+    std::int64_t reserved = 0;
+    const auto& snapshot = display_.snapshot();
+    for (std::size_t i = 0; i < snapshot.walkers.size(); ++i) {
+        if (snapshot.walkers[i].camp != 0) continue;
+        const auto k = snapshot.first[i + 1] - 1;
+        if (k < snapshot.lives.size()) {
+            const auto& saved_life = snapshot.lives[k];
+            if (saved_life) reserved += saved_life->allocated_water;
+        }
+    }
+    out["reserved_water_ml"] = reserved;
     out["food_mg"] = camp.food_mg;
     out["stone_mg"] = camp.stone_mg;
     out["wood_mg"] = camp.wood_mg;
+    out["settled_frontier"] = display_.snapshot().frontier;
+    const auto& habitats = display_.snapshot().habitats;
+    if (!habitats.empty()) {
+        const auto& env = habitats.front();
+        out["rock_west"] = env.rock_west;
+        out["rock_east"] = env.rock_east;
+        out["rock_south"] = env.rock_south;
+        out["rock_north"] = env.rock_north;
+        out["upstream_ml"] = env.upstream_ml;
+        out["root_water_ml"] = env.root_water_ml;
+        out["crop_budget_mg"] = env.crop_budget_mg;
+        out["food_grown_mg"] = env.food_grown;
+        out["water_added_ml"] = env.water_added;
+        out["food_taken_mg"] = env.food_taken;
+        out["water_taken_ml"] = env.water_taken;
+        out["water_spilled_ml"] = env.water_spilled;
+    }
     for (const auto& [name, point] :
          std::array<std::pair<const char*, num::Point>, 5>{{{"water_at", camp.water_at},
                                                             {"food_at", camp.food_at},

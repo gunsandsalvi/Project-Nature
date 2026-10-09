@@ -18,6 +18,15 @@ func _draw() -> void:
 		["shelter_at", "Natural shelter", 0]
 	]:
 		_caption(drawing._site(site[0]), site[1], site[2])
+	if drawing.supplies.has("rock_west"):
+		_caption(
+			drawing._local(
+				float(drawing.supplies.rock_west + drawing.supplies.rock_east) / 200,
+				float(drawing.supplies.rock_north) / 100
+			),
+			"Rock",
+			0
+		)
 	for person: Dictionary in drawing.people:
 		if int(person.id) == drawing.selected:
 			_caption(drawing._absolute(Vector2i(person.east_cm, person.north_cm)), person.name, 0)

@@ -55,9 +55,22 @@ func test_pause_and_camera_motion_hold_the_authoritative_state() -> void:
 	page.free()
 
 
+func _settled(page: Control) -> void:
+	page._process(0)
+	# The pace uses the steady clock; headless game timers can run faster than wall time.
+	var deadline := Time.get_ticks_msec() + 1200
+	while (
+		page.world.screen_time() < float(page.world.frontier()) and Time.get_ticks_msec() < deadline
+	):
+		await await_idle_frame()
+		page._process(0)
+	assert_float(page.world.screen_time()).is_equal(float(page.world.frontier()))
+
+
 func test_reopen_export_import_preserve_people_supplies_and_digest() -> void:
 	var page := _page()
 	page.world.run_until(43200)
+	await _settled(page)
 	page.save_camp()
 	var people: Array = page.world.people()
 	var supplies: Dictionary = page.world.camp_alpha()
@@ -130,11 +143,13 @@ func test_failed_background_save_explains_why_the_world_paused() -> void:
 	page.world.play()
 	_block_snapshots(page)
 	page.world.save()
-	for i in 100:
+	var deadline := Time.get_ticks_msec() + 5000
+	while (
+		(not page.world.counters().save_failed or not page.world.is_paused())
+		and Time.get_ticks_msec() < deadline
+	):
 		await await_idle_frame()
 		page._process(0)
-		if page.world.counters().save_failed:
-			break
 	assert_bool(page.world.counters().save_failed).is_true()
 	assert_bool(page.world.is_paused()).is_true()
 	assert_str(page._summary.text).contains("could not save")
@@ -192,3 +207,50 @@ func test_phone_dock_keeps_play_and_speed_on_screen_after_text_reflows() -> void
 		assert_float(page._pause.size.y).is_greater_equal(115)
 		assert_object(page._native.theme).is_same(page.theme)
 	page.free()
+
+
+func test_living_card_uses_saved_choice_and_needs_at_the_displayed_action() -> void:
+	var page := _page()
+	page.world.run_until(30000)
+	await _settled(page)
+	var person: Dictionary = page.people[0]
+	page.select_person(int(person.id))
+	assert_str(page._card.text).contains("Needs met:")
+	assert_str(page._card.text).contains("Why:")
+	assert_str(page._card.text).contains(str(person.name))
+	assert_int(person.decision_at).is_less_equal(page.world.frontier())
+	assert_int(person.food_need).is_between(0, 100)
+	assert_int(person.water_need).is_between(0, 100)
+	assert_int(person.rest_need).is_between(0, 100)
+	page._details = true
+	page._refresh_records()
+	assert_str(page._card.text).contains("Remembered supplies")
+	assert_str(page._card.text).contains("Instead of")
+	var digest: String = page.world.digest()
+	page._more.pressed.emit()
+	assert_str(page.world.digest()).is_equal(digest)
+	page.free()
+
+
+func test_people_move_and_return_mid_action_with_the_same_recorded_reason() -> void:
+	var page := _page()
+	var before: Array = page.world.people()
+	# Find actual movement, rather than relying on an arbitrarily chosen second.
+	for moment in range(25201, 28800, 15):
+		page.world.run_until(moment)
+		await _settled(page)
+		if page.people.any(func(p: Dictionary) -> bool: return int(p.action_code) in [1, 7]):
+			break
+	var moving: Array = page.people.filter(
+		func(p: Dictionary) -> bool: return int(p.action_code) in [1, 7]
+	)
+	assert_bool(moving.is_empty()).is_false()
+	assert_array(page.people).is_not_equal(before)
+	var kept: Array = page.world.people()
+	page.save_camp()
+	var digest: String = page.world.digest()
+	page.free()
+	var again := _page()
+	assert_array(again.world.people()).is_equal(kept)
+	assert_str(again.world.digest()).is_equal(digest)
+	again.free()

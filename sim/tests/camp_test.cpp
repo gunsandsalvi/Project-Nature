@@ -5,7 +5,7 @@
 #include "kd/demo/kept.hpp"
 
 TEST_CASE("Camp alpha records survive snapshots and pool order without changing foundation worlds") {
-    const auto& catalogue = kd::test::fixture();
+    const auto& catalogue = kd::test::camp_fixture();
     kd::demo::CrowdWorld camp(17, catalogue, 1, true);
     auto& w = camp.world();
     std::size_t people = 0;
@@ -43,7 +43,7 @@ TEST_CASE("Camp alpha records survive snapshots and pool order without changing 
 }
 
 TEST_CASE("Camp alpha refuses missing, corrupt and out-of-bounds person records") {
-    const auto& catalogue = kd::test::fixture();
+    const auto& catalogue = kd::test::camp_fixture();
     kd::demo::CrowdWorld camp(17, catalogue, 1, true);
     std::string why;
     auto saved = camp.world().save();
@@ -76,7 +76,7 @@ TEST_CASE("Camp alpha metadata preserves its scene kind across rename and recove
 }
 
 TEST_CASE("checksummed snapshots with duplicate CAMP chunks are refused") {
-    const auto& catalogue = kd::test::fixture();
+    const auto& catalogue = kd::test::camp_fixture();
     kd::demo::CrowdWorld camp(17, catalogue, 1, true);
     for (int fault = 0; fault < 3; ++fault) {
         auto chunks = camp.world().save();
@@ -93,7 +93,7 @@ TEST_CASE("checksummed snapshots with duplicate CAMP chunks are refused") {
 }
 
 TEST_CASE("checksummed Camp snapshots refuse noncanonical person and centre coordinates") {
-    const auto& catalogue = kd::test::fixture();
+    const auto& catalogue = kd::test::camp_fixture();
     for (bool centre : {false, true}) {
         for (int fault = 0; fault < 4; ++fault) {
             kd::demo::CrowdWorld camp(17, catalogue, 1, true);

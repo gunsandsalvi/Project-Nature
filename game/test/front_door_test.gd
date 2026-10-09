@@ -32,10 +32,28 @@ func test_front_door_has_few_controls_and_touch_selects_a_saved_person() -> void
 	assert_str(shell.page_name()).is_equal("Camp")
 	assert_int(shell._navigation.get_child_count()).is_equal(1)
 	assert_bool(shell._developer.visible).is_false()
-	var person: Dictionary = camp.people[12]
-	var rect: Rect2 = camp.drawing.drawn[int(person.id)]
-	# Touch a thumb-sized region beyond the little glyph, through the actual input callback.
-	var at: Vector2 = rect.get_center() * float(camp.state.scale) + Vector2(42, 0)
+	var person := {}
+	var at := Vector2.ZERO
+	# Find an unobstructed thumb hit beyond a real glyph in this naturally spread camp.
+	for candidate: Dictionary in camp.people:
+		var rect: Rect2 = camp.drawing.drawn[int(candidate.id)]
+		var centre := rect.get_center() * float(camp.state.scale)
+		for offset: Vector2 in [Vector2(42, 0), Vector2(-42, 0), Vector2(0, 42)]:
+			var point := centre + offset
+			var clear := true
+			for other: Dictionary in camp.people:
+				if int(other.id) == int(candidate.id):
+					continue
+				var other_rect: Rect2 = camp.drawing.drawn[int(other.id)]
+				if point.distance_to(other_rect.get_center() * float(camp.state.scale)) <= 50:
+					clear = false
+			if clear:
+				person = candidate
+				at = point
+				break
+		if not person.is_empty():
+			break
+	assert_dict(person).is_not_empty()
 	for pressed: bool in [true, false]:
 		var event := InputEventScreenTouch.new()
 		event.position = at
@@ -65,6 +83,13 @@ func test_shell_switches_saved_camps_and_exports_imports_actual_people() -> void
 	var shell := _shell()
 	var camp := _hold(shell)
 	camp.world.run_until(43200)
+	var deadline := Time.get_ticks_msec() + 1200
+	while (
+		camp.world.screen_time() < float(camp.world.frontier()) and Time.get_ticks_msec() < deadline
+	):
+		await await_idle_frame()
+		camp._process(0)
+	assert_float(camp.world.screen_time()).is_equal(float(camp.world.frontier()))
 	camp.save_camp()
 	var id: String = camp.world_id
 	var people: Array = camp.world.people()

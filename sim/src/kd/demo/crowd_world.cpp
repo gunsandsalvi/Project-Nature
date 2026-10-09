@@ -488,7 +488,8 @@ CrowdWorld::CrowdWorld(std::uint64_t seed, const data::Catalogue& catalogue, std
         markers_.populate(world_, crowd_, camps.value_or(crowd_.camps));
         return;
     }
-    // RES-21: a labelled bounded patch, 25 idle adults and measured initial supplies.
+    living_ = std::make_unique<Living>(world_);
+    // RES-21: a bounded patch and seeded people beside their natural shelter.
     auto& raw = world_.beings().raw();
     const auto camp = world_.make_being(ecs::Family::place);
     const num::Point centre{world_.torus().width() / 2, world_.torus().height() / 2};
@@ -504,13 +505,14 @@ CrowdWorld::CrowdWorld(std::uint64_t seed, const data::Catalogue& catalogue, std
         const auto h = world_.make_being(ecs::Family::person);
         const ecs::Id id = world_.beings().id_of(h);
         const chance::Draws draws(seed, chance::name("Camp alpha"), id.value, 0, chance::name("identity"));
-        const num::Point at = world_.torus().moved(
-            centre, {static_cast<std::int64_t>(i % 5) * 500 - 1000, static_cast<std::int64_t>(i / 5) * 500 - 1000});
+        const num::Point at =
+            world_.torus().moved(centre, {draws.between(1, -1400, -500), draws.between(2, 1000, 1750)});
         raw.emplace<world::Place>(h, at);
         raw.emplace<Home>(h, home, centre);
         raw.emplace<world::Person>(h, i, 18 + static_cast<std::uint32_t>(draws.bits(0) % 28), i);
         raw.emplace<world::Activity>(h, 0, 0, 0, at, at);
     }
+    living_->start(world_);
 }
 
 CrowdWorld::CrowdWorld(const data::Catalogue& catalogue, Opening /*opening*/)
@@ -532,6 +534,7 @@ std::vector<ecs::Id> CrowdWorld::camp_ids() const {
 std::unique_ptr<CrowdWorld> CrowdWorld::open(const data::Catalogue& catalogue, std::span<const save::Chunk> chunks,
                                              std::string& why) {
     std::unique_ptr<CrowdWorld> crowd(new CrowdWorld(catalogue, Opening{}));
+    if (save::find_chunk(chunks, save::tag("CAMP"))) crowd->living_ = std::make_unique<Living>(crowd->world_);
     if (!crowd->world_.load(chunks, why)) {
         return nullptr;
     }

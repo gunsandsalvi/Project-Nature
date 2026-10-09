@@ -4,6 +4,7 @@
 #include <cstdio>
 
 #include "kd/data/toml.hpp"
+#include "kd/save/snapshot.hpp"
 
 namespace kd::demo {
 
@@ -103,6 +104,12 @@ Kept keep_crowd(save::Keeper& keeper, const data::Catalogue& catalogue, std::uin
         world::World& opened = out.crowd->world();
         std::vector<std::string>& had = keeper.versions().migrations;
         out.migrated = world::migrate(opened, had, migrations);
+        const save::Chunk* camp = save::find_chunk(*found.snapshot, save::tag("CAMP"));
+        if (camp != nullptr && camp->version == 1 && !keeper.seal_camp_start(opened)) {
+            out.problem = "the living camp's starting state could not be kept; storage failed";
+            out.crowd.reset();
+            return out;
+        }
     } else {
         // no whole snapshot: made new, from the seed and size the folder's world.toml keeps, if it is there
         const std::optional<About> about = found.about ? read_about(*found.about) : std::nullopt;
