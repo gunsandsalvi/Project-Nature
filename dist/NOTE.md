@@ -1,25 +1,31 @@
-# Kindling α2.13b: A living camp
+# Kindling α2.13c: A dream that draws a visit
 
 ## What is new
 
-The 25 adults walk, gather berries, carry them, eat, drink and rest from their saved needs and remembered supplies. Tap someone: the card shows their current needs, the reason for their choice and progress. Details shows alternatives and when they noticed supplies. Simple poses follow the actual activity; new camps start with a seeded natural spread near the shelter.
+Hold someone, choose Dream of a place, pick a remembered place and confirm. A dream waits for sleep, or acts now if they are asleep. Their needs still decide what happens next. Up to three can wait for sleep. One dream per person/night, three per camp/night; the mild three-day pull refreshes without stacking. Dreams also occur naturally.
 
-The spring and berry stand renew from finite saved inputs. Meals, drinks, interrupted work and memories survive reopening. Existing idle camp saves keep their people and positions and gain needs once; old marker worlds remain usable.
+Menu → Your dreams keeps request, reception, sleep, waking choice and actual arrival times. People remember only their own dream. Pending dreams and limits survive reopening. Existing living camps retain their bodies, actions and memories. Details now uses clock times, plain alternatives and room to read.
 
 ## What to try
 
-1. Install **31302** over the previous build. Follow someone walking to water, then drinking; watch their water need recover. Pause halfway through an action, save, close and reopen.
-2. Tap someone resting and read Why, then Details for the alternatives and remembered supplies. Use Speed to watch a day and turn the phone.
-3. **Menu → Camp supplies** shows available stock; Details shows the finite spring and fruit-growth inputs. Saved camps still support switching and export/import.
+Install **31303** over the previous build. Take five to ten minutes for the whole camp:
+
+1. Follow someone walking to water and drinking; watch their need recover. Read why another rests. Pause mid-action, save and reopen. Turn the phone.
+2. Select someone and inspect their remembered places in Details. Hold them → Dream of a place → choose a known place → Send dream. Save and reopen while it waits; Menu → Your dreams retains the request.
+3. Use one hour/sec briefly until Your dreams says they dreamt, then one minute/sec to follow them waking. Pause and read Why/Details and Your dreams. In the captured seed-17 start, Ari’s water dream tipped a visit after waking at 11:46; needs or another starting state can produce another choice. Camp supplies still shows finite inputs, and Saved camps supports export/import.
+
+Did the decision make sense? Did the dream matter without commanding them? Was it comfortable to use?
+
+Separately: Menu → Developer tools → Camp performance test. Unplug, use flight mode, cool the phone, tap Run camp test and leave it running for ten minutes. Copy report afterwards. The isolated camp measures all three speeds, frames, memory, heat, battery, thread time and dream latency without replacing your camp.
 
 [Download the APK](https://github.com/gunsandsalvi/Project-Nature/raw/ccr-13ab6fef-fspju6/dist/kindling.apk) · [Checksum](https://github.com/gunsandsalvi/Project-Nature/blob/ccr-13ab6fef-fspju6/dist/kindling.apk.sha256)
 
 ## What is rough
 
-This is a mild adult camp, with raw berries and a bounded spring, not full diet, health, ecology, families or generated geography. Adults keep age at start; a few can overlap at a supply. Full senses and memory fading come later. The first indirect choice comes next. Phone heat, power, touch feel and frame time still need owner testing; inspected phone-size cloud captures establish composition.
+This remains a mild adult camp with raw berries, simple poses and finite supplies. Full diet, health, ecology, families, discovery and other dream kinds come later. People can overlap near supplies. Physical phone measurements, touch feel and your stage answers remain pending; M2 acceptance stays open.
 
-Validation: full audit and committed routine passed, including recovery faults, race checks, compiler/worker parity and all seven benchmark scenarios. Five fixed seeds live seven days with balanced resource ledgers. Both review regressions fail on old code and pass here. Portrait 1080×2400 and landscape 2400×1080 action/save-reopen sequences were captured and inspected.
+Validation: independent review is complete with all three findings reproduced and fixed. Full audit and committed routine passed: 200 simulation/60 view cases, 85 full app audit cases, 177 tool cases, twelve matching compiler/worker/order proof runs, recovery and native analysis. The original eight M1 hashes are unchanged. Portrait 1080×2400 and landscape 2400×1080 pending save/reopen, waking decision/arrival and immediate sleeping-thought sequences were captured and inspected.
 
-**Signed release:** 31302, 52,203,478 bytes (49.79 MiB), using the registered release key. Lossless packaging retains all resources.
+**Signed release:** 31303, 52,253,065 bytes (49.83 MiB), using the registered release key. All resources are retained.
 
-Recorded time through packaging: about 116 minutes of builder work across both turns (building, checking, self-review and captures), plus 5 minutes of independent review. The final signed build took 127 seconds. Time stopped awaiting review is excluded; the final delivery gate follows packaging.
+Recorded builder time through packaging: about 172 minutes across both turns, including building, checking, self-review, repairs and captures; stopped review time is excluded. Independent review took about 3 minutes. The signed build took 122 seconds. The final delivery gate follows the delivery commit.
