@@ -6,6 +6,7 @@
 #include "kd/demo/crowd_world.hpp"
 #include "kd/demo/discovery.hpp"
 #include "kd/ecs/component.hpp"
+#include "kd/proof/learning_cases.hpp"
 #include "kd/run/workers.hpp"
 #include "kd/save/snapshot.hpp"
 
@@ -645,6 +646,91 @@ TEST_CASE("learning history records actual source and survives labelled last-hol
     CHECK(return_event->result.value != 0);
     f.reopen();
     CHECK_FALSE(kd::demo::Learning::knows(f.mind(f.watcher), f.recipe));
+}
+
+TEST_CASE("finite learning scene preserves budgets and continuation after reopen and four workers") {
+    kd::demo::CrowdWorld direct(31, watch_catalogue(), 1, true, true);
+    kd::demo::CrowdWorld other(31, watch_catalogue(), 1, true, true);
+    kd::proof::learning_reserves(direct, false);
+    kd::proof::learning_reserves(other, false);
+    const auto home = direct.camp_ids().front();
+    const auto environment = [&]() -> const kd::world::Habitat& {
+        return direct.world().beings().raw().get<kd::world::Habitat>(direct.world().beings().handle(home));
+    };
+    CHECK(environment().crop_budget_mg == 40000000000LL);
+    CHECK(environment().root_water_ml == 40000000);
+    CHECK(environment().upstream_ml == 120000000);
+    const auto initial_stone = kd::demo::Crafting::total(direct.world(), home, "stone");
+    CHECK(initial_stone >= 10000000000LL);
+    direct.world().run_to(7 * kd::time::kHour);
+    other.world().run_to(7 * kd::time::kHour);
+    std::string why;
+    const auto chunks = kd::save::read_snapshot(kd::save::write_snapshot(other.world().save()), why);
+    REQUIRE(chunks);
+    auto saved = kd::demo::CrowdWorld::open(watch_catalogue(), *chunks, why);
+    INFO(why);
+    REQUIRE(saved);
+    saved->world().beings().fuzz(313);
+    saved->world().things().fuzz(317);
+    direct.world().run_to(kd::time::kDay);
+    kd::run::Workers workers(4);
+    saved->world().run_islands(kd::time::kDay, workers, 1);
+    CHECK(direct.world().digests().whole == saved->world().digests().whole);
+    CHECK(environment().crop_budget_mg + environment().food_grown == 40000000000LL);
+    CHECK(environment().upstream_ml + environment().water_added == 120000000);
+    CHECK(kd::demo::Crafting::total(direct.world(), home, "stone") == initial_stone);
+}
+TEST_CASE("twenty skill-curve calibrations use seeded maker chance on the declared daily calendar") {
+    const auto recipe = watch_entry("blueprint", "base:sharp_flake");
+    const auto flint = watch_entry("item", "base:flint");
+    const auto granite = watch_entry("item", "base:granite");
+    int on_time = 0;
+    for (std::uint64_t seed = 1; seed <= 20; ++seed) {
+        WatchFixture f(false, 500, 7 * kd::time::kHour, seed);
+        auto& w = f.camp->world();
+        auto& skill = f.mind(f.maker).skills.front();
+        skill.recipe = recipe;
+        skill.practice = {1000, 1000, 0, 0};
+        auto& core = w.things().raw().get<kd::world::Item>(w.things().handle(f.input));
+        core.kind = flint;
+        core.material = flint;
+        core.length = 120;
+        const auto hh = w.make_thing();
+        auto& hammer = w.things().raw().emplace<kd::world::Item>(hh);
+        hammer.kind = granite;
+        hammer.material = granite;
+        hammer.mass = 2000000;
+        hammer.length = 120;
+        const std::array roles{f.input, w.things().id_of(hh)};
+        std::int64_t reached = -1;
+        for (std::int64_t day = 0; day <= 3 * 60 && reached < 0; ++day) {
+            if (day % 7 == 6) continue;
+            const kd::chance::Draws draws(seed, kd::chance::name("practice calibration"), f.maker.value, day,
+                                          kd::chance::name("physical maker trials"));
+            for (std::uint64_t attempt = 0; attempt < 120 && reached < 0; ++attempt) {
+                const auto chance = kd::demo::Crafting::success(w, w.beings().handle(f.maker), recipe, roles);
+                const bool success = draws.below(attempt, 1000000) < static_cast<std::uint64_t>(chance);
+                const auto at = day * kd::time::kDay + static_cast<std::int64_t>(attempt + 1) * 30;
+                kd::demo::Learning::practice(skill.practice, at, 30, success, f.mind(f.maker).learning_ppm);
+                if (skill.practice.level >= 5000) reached = at;
+            }
+        }
+        MESSAGE("calendar seed " << seed << " skill 5 at day " << double(reached) / kd::time::kDay);
+        if (reached >= 90 * kd::time::kDay && reached <= 180 * kd::time::kDay) ++on_time;
+        auto unused = reopen(skill.practice);
+        kd::demo::Learning::fade(unused, skill.practice.last_use + 10 * kd::time::kYear);
+        CHECK(unused.level >= (unused.best + 1) / 2);
+        CHECK(unused.level < unused.best);
+    }
+    // This calibrates the real maker-chance/credit equations, not autonomous practice or population spread.
+    CHECK(on_time >= 16);
+}
+
+TEST_CASE("brief practice does not round fractional fading into a whole-thousandth loss") {
+    kd::world::Practice skill{1000, 1000, 0, 0};
+    for (int attempt = 1; attempt <= 10; ++attempt) kd::demo::Learning::practice(skill, attempt * 30, 30, false);
+    CHECK(skill.level == 1001);
+    CHECK(skill.seconds == 300);
 }
 
 TEST_CASE("stationary observation batches exactly across dawn and dusk while moving sight stays exact") {

@@ -126,6 +126,7 @@
 #include "kd/look/frame.hpp"
 #include "kd/look/measures.hpp"
 #include "kd/num/digest.hpp"
+#include "kd/proof/learning_cases.hpp"
 #include "kd/proof/proof.hpp"
 #include "kd/run/workers.hpp"
 #include "kd/save/archive.hpp"
@@ -142,6 +143,7 @@ int usage() {
         stderr,
         "usage: kindling proof [--threads N] [suite...]\n"
         "       kindling suites\n"
+        "       kindling learning-gate <first-seed> <count> [control]  finite multi-year scenes\n"
         "       kindling discovery <seed> <new-folder> [data] [build]  capture an ordinary first flake\n"
         "       kindling catalogue check|schema|fingerprint [data]\n"
         "       kindling catalogue show <name> [data]\n"
@@ -1323,6 +1325,56 @@ int main(int argc, char** argv) {
     }
     const std::string_view command = args.front();
     args.erase(args.begin());
+    if (command == "learning-gate") {
+        if (args.size() < 2 || args.size() > 3) return usage();
+        kd::data::Catalogue catalogue;
+        if (!catalogue.load(kd::data::read_catalogue("data")).empty()) return 1;
+        const auto seed = std::strtoull(std::string(args[0]).c_str(), nullptr, 10);
+        const auto count = std::strtoull(std::string(args[1]).c_str(), nullptr, 10);
+        const bool control = args.size() == 3 && args[2] == "control";
+        if (count == 0 || count > 1000 || (args.size() == 3 && !control)) return usage();
+        for (std::uint64_t n = 0; n < count; ++n) {
+            const auto before = std::chrono::steady_clock::now();
+            const auto report = [selected = seed + n, control, before](const kd::world::World& w,
+                                                                       kd::time::Seconds end) {
+                if (w.frontier() == 0) {
+                    std::fprintf(stderr, "seed %llu initial: %zu items\n", static_cast<unsigned long long>(selected),
+                                 w.things().size());
+                    return;
+                }
+                const auto elapsed =
+                    std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - before)
+                        .count();
+                std::fprintf(stderr,
+                             "seed %llu %s day %lld / %lld: %lld ms, %.2f game days/min; %llu events, %zu items\n",
+                             static_cast<unsigned long long>(selected), control ? "control" : "primary",
+                             static_cast<long long>(w.frontier() / kd::time::kDay),
+                             static_cast<long long>(end / kd::time::kDay), static_cast<long long>(elapsed),
+                             double(w.frontier()) / double(kd::time::kDay) * 60000.0 /
+                                 double(std::max<std::int64_t>(1, elapsed)),
+                             static_cast<unsigned long long>(w.events_run()), w.things().size());
+                std::fflush(stderr);
+            };
+            const auto run = kd::proof::sharp_stone(catalogue, seed + n, control, 1, report);
+            const auto ms =
+                std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - before)
+                    .count();
+            std::printf(
+                "{\"seed\":%llu,\"control\":%s,\"first\":%lld,\"route\":%u,\"ended\":%lld,\"holders\":%lld,\"adults\":%"
+                "lld,\"flakes\":%llu,\"work_started\":%llu,\"fitting_tries\":%llu,\"crop_left_mg\":%lld,\"root_water_"
+                "left_ml\":%lld,\"upstream_"
+                "left_ml\":%lld,\"stone_left_mg\":%lld,\"digest\":\"%s\",\"ms\":%lld}\n",
+                static_cast<unsigned long long>(run.seed), control ? "true" : "false",
+                static_cast<long long>(run.first), static_cast<unsigned>(run.route), static_cast<long long>(run.ended),
+                static_cast<long long>(run.holders), static_cast<long long>(run.adults),
+                static_cast<unsigned long long>(run.flakes), static_cast<unsigned long long>(run.work_started),
+                static_cast<unsigned long long>(run.fitting_tries), static_cast<long long>(run.crop_left),
+                static_cast<long long>(run.root_water_left), static_cast<long long>(run.upstream_left),
+                static_cast<long long>(run.stone_left), run.digest.c_str(), static_cast<long long>(ms));
+            std::fflush(stdout);
+        }
+        return 0;
+    }
     if (command == "proof") {
         return proof(args);
     }

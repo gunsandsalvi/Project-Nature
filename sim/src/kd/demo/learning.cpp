@@ -283,7 +283,9 @@ void Learning::fade(world::Practice& skill, time::Seconds now) {
     const auto floor = (skill.best + 1) / 2;
     const auto span = std::max<std::int64_t>(0, skill.decay_level - floor);
     const auto elapsed = static_cast<double>(now - skill.decay_at) / static_cast<double>(5 * time::kYear);
-    skill.level = floor + num::to_int(static_cast<double>(span) * num::exp2(-elapsed), num::Round::down);
+    // Keep a sub-thousandth loss until it becomes representable. Rounding downward at every brief
+    // practice anchor otherwise loses one whole thousandth per try and can erase all real progress.
+    skill.level = floor + num::to_int(static_cast<double>(span) * num::exp2(-elapsed), num::Round::nearest);
 }
 void Learning::practice(world::Practice& skill, time::Seconds now, time::Seconds seconds, bool success,
                         std::int64_t learning_ppm, std::int64_t multiplier_ppm) {

@@ -83,6 +83,7 @@ add_library(kd_sim STATIC
     src/kd/num/maths.cpp
     src/kd/proof/fixture.cpp
     src/kd/proof/camp_cases.cpp
+    src/kd/proof/learning_cases.cpp
     src/kd/proof/maths_cases.cpp
     src/kd/proof/proof.cpp
     src/kd/run/marked.cpp
