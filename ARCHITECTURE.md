@@ -77,7 +77,7 @@ Component descriptors own stable names, versions, fields, units, ranges, links a
 Catalogue entries assemble components, without a class hierarchy for kinds.
 
 Camp alpha uses Person (name index, age at scene start, stand-in appearance), Place, Home, Activity and Schedule on person-family IDs. Camp retains rectangular traversable bounds, supply amounts in ml/mg and actual source/shelter positions. All 25 adults choose and move through the saved Life state; no renderer decides actions.
-The existing registry's positional foundation fields stay unchanged. Descriptor-written Camp/Person extensions share its EnTT storage and canonical ID iteration, in CAMP version 2 and its required LIFE version-1 chunk; idle CAMP version-1 saves convert once. Worlds with person IDs require complete valid records; the reader refuses broken links, bounds, quantities and unsupported activities. Worlds without camp records keep their original snapshot bytes and digests.
+The existing registry's positional foundation fields stay unchanged. Descriptor-written Camp/Person extensions share its EnTT storage and canonical ID iteration, in CAMP version 2 and its required LIFE version-1 chunk; the built idle CAMP version-1 conversion is frozen (A3.7). Worlds with person IDs require complete valid records; the reader refuses broken links, bounds, quantities and unsupported activities. Worlds without camp records keep their original snapshot bytes and digests.
 
 Decision order is event key or persistent ID, with explicit ties; EnTT pool order is not canonical.
 Pools are created in name order. Signals maintain indexes, never game rules. The order fuzzer must leave digests unchanged.
@@ -131,8 +131,7 @@ Writes use temporary file, sync, rename and directory sync. Any write failure st
 
 Save every 30 real seconds and on backgrounding, switching, export and quit. Backgrounding writes a pause mark then a snapshot within Android's 10-second allowance.
 Recovery uses the newest valid snapshot, sets damaged ones aside and deterministically replays journal/history to the recorded moment.
-Small updates migrate once and retain previous-version files for an hour of play; big updates keep old history readable without running incompatible rules.
-Old exported worlds remain in the regression corpus. History thinning never removes records marked permanent.
+**Older saves are not converted** (owner, 9 October 2026; `PLT-09` paused during development). A build opens only saves in its own format: it checks the format version before reading anything else and refuses older saves with a plain message, never a half-read world. Write no new upgrades, migration seals, old-save fixtures or corpus tests; delete an old-save test when a format change breaks it. Existing upgrade code (idle CAMP 1, the CAMP 1/2 dream ledger, owner-count encoding) is frozen and removed by `T3.13e.5` or earlier where it is in the way. History thinning never removes records marked permanent.
 Warn below the configured free-space line (currently 1 GB); delete nothing without the user.
 
 Archives contain all authoritative files, validate paths/checksums and remove refused partial imports.
@@ -352,7 +351,7 @@ View catch-up runs on a copy and saves nothing. Later activation must equal no v
 
 ### A7.14 Events, saves and revisions (`PLT-07`, `PLT-08`, `PLT-09`, `RES-05`)
 
-Append layer-owner IDs, preserving old owners/order. Existing owner-count encoding needs migration; old demos attach no new systems.
+Append layer-owner IDs, preserving old owners/order. Changing the owner-count encoding makes earlier saves unreadable; refuse them (A3.7). Old demos attach no new systems.
 Current SYST holds system payloads; rich disturbances exceed history's small type/two-integer payload. Add bounded versioned payloads deliberately.
 Publish immutable bases and revision manifests sampled at displayed time; caches are never authoritative archive dependencies.
 
@@ -423,7 +422,7 @@ Decide at action ends/interruptions, not frames. Save memory, pending actions an
 
 **α2.13c contract:** a place dream uses only one of a person's three remembered supply/shelter sites. At sleep it replaces that night's ordinary place dream through the same thought/choice function. At the first rest in each night, a keyed 1-in-60 natural place dream keeps the weakest known need’s site (newest observation, then stable subject order breaks ties); other place dreams are unkept. Ordinary strong place dreams can occur naturally; a kept thought has a fixed mild score pull (60), expires after three days, and refreshes without adding strength. It can favour a known use or an ordinary visit/watch choice; urgent need below 20 and exhaustion always override it. It never interrupts work, teleports, grants knowledge or starts a requested activity.
 
-A separate critical DRMS extension and CAMP 3 preserve personal ordinary dream thoughts plus a private camp ledger: requested/received/executed moments, subject position, status and observed choice/arrival. The ledger alone owns queued requests (at most three worldwide in this one-camp slice), one sent dream per sleeper/night and three per night. Nights turn over at 06:00; queued work is checked again at the next sleep and cancels for a vanished subject or exhausted cap. Minds contain no sender, request number or player provenance. Old CAMP 1/2 initializes this extension once and seals both migration copies before play.
+A separate critical DRMS extension and CAMP 3 preserve personal ordinary dream thoughts plus a private camp ledger: requested/received/executed moments, subject position, status and observed choice/arrival. The ledger alone owns queued requests (at most three worldwide in this one-camp slice), one sent dream per sleeper/night and three per night. Nights turn over at 06:00; queued work is checked again at the next sleep and cancels for a vanished subject or exhausted cap. Minds contain no sender, request number or player provenance. Built: old CAMP 1/2 initialized this extension once and sealed migration copies; this upgrade path is frozen, since older saves are no longer converted (A3.7).
 
 Opening a power chooser pauses the runner between batches and explicitly settles the display to its final frontier before presenting subjects. Confirmation records that displayed whole second, durably journals one command, and drains that command within one game second; sleep delay is separately shown. Power requests are synchronous and cannot accumulate runner jobs. Cancel restores the previous pause state without issuing a command. The only supported camp rates remain 1, 60 and 3600 game seconds/real second. The private record observes the first later choice, its ordinary dream contribution and actual arrival; it does not claim a changed outcome from correlation. Personal cards date recorded choices and remembered dreams in plain clock words. A dream delivered during sleep publishes its thought at the delivery event while preserving the original sleep interval; earlier display times retain the previous thought. Arrival must lie within the remembered site’s use area, so bringing gathered food home never counts as reaching the food site again. It is observed even when urgent needs give the dream zero pull; the record still says needs led the choice.
 
@@ -472,7 +471,7 @@ Optional ID annotations locate evidence; they do not certify full acceptance. Ol
 
 ### A17.1 Generated-world proofs (`MIL-14`, `RES-05`, `RES-21`)
 
-Deferred M7: add stage digests, structural/natural-rate scenes and camera/cache/catch-up equivalence. Preserve M1 proofs and old saves; test barriers, river continuity, conserved stores and canonical placement with actual failure cases.
+Deferred M7: add stage digests, structural/natural-rate scenes and camera/cache/catch-up equivalence. Preserve M1 proofs (older saves are refused, A3.7); test barriers, river continuity, conserved stores and canonical placement with actual failure cases.
 
 Retained gate details from the previously adopted world plan apply at M7's physical-world consumer and M8's complete ecology/settling consumer, not M2/M3. PROJECT's numerical checks also remain; these details fix denominators and stricter checks absent there. No test sample is silently reduced. Initial session-hour caps require checkpoints and an overrun report, not a claimed pass.
 

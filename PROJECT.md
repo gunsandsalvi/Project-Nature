@@ -12,6 +12,7 @@ Kindling is an offline world you watch and influence indirectly. People choose f
 The current commitment is a small valley game. Keep the accepted foundations; build a living camp and one place dream, then prove stone/fire discovery and learning. Add seasons, a neighbour and a small finish. Readable stand-ins are accepted for these early builds. The wider world, full catalogues, cultures and copper are optional production expansions whose existing requirements remain open until delivered or explicitly retired.
 
 The owner approved the revised order and 22 accompanying decisions on 8 October 2026. The owner also approved the testing-policy changes on 8 October 2026; they are now the working rules.
+During development, builds do not convert older saves: each build refuses saves from earlier builds with a plain message and you start a new camp (owner, 9 October 2026; `PLT-09`).
 Use IMPLEMENTATION.md for the next task and ARCHITECTURE.md for contracts and known faults. This file is the full decision reference. Only the owner can change decided meaning; the next sections explain its IDs and acceptance rules.
 
 ## Contents
@@ -2432,6 +2433,7 @@ Kindling is built for one phone (`SCP-02`), kept smooth, cool and responsive (`V
     Each update says if it is small or big.
     A new version keeps a copy of each world's last save until the world has run an hour under it.
   - **Done when:** worlds saved by the previous alpha open and carry on after a small update, and after a big one their books of ages open.
+  - **Paused during development (owner, 9 October 2026):** builds do not convert older saves. Each build opens only saves in its own format and refuses older ones with a plain message, and you start a new camp. No time goes on migration code, old-save fixtures or conversion tests until you bring this feature back.
 
 - `PLT-10` **Storage** *(Decided)*: Each world keeps its present state, kept areas and history (`PRN-15`); unchanged areas are remade from the seed (`WLD-13`).
   History thins with age by a fixed rule: the last 25 years keep every event, and older years keep what the book of ages and views use, such as births, deaths, firsts and events art shows (`PRE-15`).
@@ -2623,7 +2625,7 @@ How the project is run.
 
 - `PRC-11` **Each alpha reaches your phone** *(Decided)*: Every alpha ends with an installable build and a short note: What is new, What to try and What is rough, with the APK link. Those sections state proved behaviour, material remaining checks and any save incompatibility. Only stage reviews wait for you (`RES-22`).
   - **Owner OK:** 8 October 2026.
-  - **How it works:** the note opens on the phone; the build opens existing worlds unless it declares a big update (`PLT-09`). First launch runs the brief self-check and shows a code if it fails. For the next three deliveries, record actual time spent building, checking, reviewing and packaging; do not promise a fixed duration.
+  - **How it works:** the note opens on the phone and says whether the build can open the previous build's worlds; during development it usually cannot, because older saves are not converted (`PLT-09`, owner, 9 October 2026). First launch runs the brief self-check and shows a code if it fails. For the next three deliveries, record actual time spent building, checking, reviewing and packaging; do not promise a fixed duration.
   - **Check:** release checksum, signature, version and packaging pass with the routine gate; the note helps you try the delivered behaviour.
 
 - `PRC-12` **Nothing gets lost** *(Decided)*: The automatic ID check verifies traceability: live feature/rule assignments, task links and valid references in code, tests and data. Annotations are optional and may describe a module or suite. They establish neither behavioural test coverage nor complete implementation.
@@ -2695,7 +2697,7 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 
 - `RSK-21` **Updates harm worlds** *(Decided)*: Likelihood/impact: medium/high.
   - **Signs:** a world failing to open, or jumping in state, after an update.
-  - **Response:** a safety copy, the change marked, and tests opening older saves (`PLT-09`, `PRC-10`).
+  - **Response:** a safety copy, the change marked, and tests opening older saves (`PLT-09`, `PRC-10`). During development older saves are refused, not converted (owner, 9 October 2026), so the response is a clear refusal message, never a half-read world.
 
 - `RSK-29` **The signing key is lost** *(Decided)*: Likelihood/impact: low/high.
   - **Signs:** a build that won't install over the last one; removing the app deletes its worlds.
