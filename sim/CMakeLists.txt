@@ -71,6 +71,7 @@ add_library(kd_sim STATIC
     src/kd/demo/craft_work.cpp
     src/kd/demo/crafting.cpp
     src/kd/demo/discovery.cpp
+    src/kd/demo/teaching.cpp
     src/kd/demo/learning.cpp
     src/kd/demo/living.cpp
     src/kd/demo/kept.cpp

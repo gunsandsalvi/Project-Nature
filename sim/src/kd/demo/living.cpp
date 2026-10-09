@@ -388,6 +388,7 @@ void Living::begin(world::Context& c, world::Beings::Handle h, LivingAct what, t
     c.moved(id);
 }
 void Living::choose(world::Context& c, world::Beings::Handle h, ecs::Id camp) {
+    if (c.world().beings().raw().all_of<world::Knowledge>(h)) Learning::settle_mind(c, h);
     auto& raw = c.world().beings().raw();
     auto& l = raw.get<world::Life>(h);
     notice(c, h, camp);
@@ -469,6 +470,7 @@ void Living::choose(world::Context& c, world::Beings::Handle h, ecs::Id camp) {
         thought.decision_pull = kDreamPull;
         thought.decision_subject = thought.subject;
     }
+    if (Learning::choose(*this, c, h)) return;
     if (Crafting::choose(*this, c, h)) return;
     dream_consequence(c, h, camp, false);
     if (l.goal < 3)
@@ -712,6 +714,7 @@ void Living::handle(world::Context& c, const event::Event& e) {
     auto& raw = c.world().beings().raw();
     const auto old = static_cast<LivingAct>(raw.get<world::Activity>(h).what);
     const auto interrupted = e.slot == kUrgent;
+    if (Learning::handle(*this, c, h, interrupted, e.slot == 2)) return;
     Learning::observe(c, h);
     settle(c, h, camp, interrupted);
     c.cancel(id, world::kActivitySlot);

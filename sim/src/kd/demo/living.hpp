@@ -35,6 +35,7 @@ public:
 
 private:
     friend class Crafting;
+    friend class Learning;
     [[nodiscard]] num::Point use_spot(const world::World& w, world::Beings::Handle h, ecs::Id camp,
                                       std::size_t need) const;
     void notice(world::Context& c, world::Beings::Handle h, ecs::Id camp);

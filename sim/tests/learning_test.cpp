@@ -4,6 +4,7 @@
 #include "kd/data/folder.hpp"
 #include "kd/demo/crafting.hpp"
 #include "kd/demo/crowd_world.hpp"
+#include "kd/demo/discovery.hpp"
 #include "kd/ecs/component.hpp"
 #include "kd/run/workers.hpp"
 #include "kd/save/snapshot.hpp"
@@ -156,7 +157,9 @@ struct WatchFixture : kd::world::System {
     std::uint32_t recipe = watch_entry("blueprint", "base:butcher");
     std::int64_t duration = 1800, tries = 1;
     bool intended = true;
-    WatchFixture(bool busy = false, std::int64_t distance = 500, kd::time::Seconds begun = 7 * kd::time::kHour) {
+    WatchFixture(bool busy = false, std::int64_t distance = 500, kd::time::Seconds begun = 7 * kd::time::kHour,
+                 std::uint64_t seed = 17) {
+        camp = std::make_unique<kd::demo::CrowdWorld>(seed, watch_catalogue(), 1, true, true);
         auto& w = camp->world();
         auto& raw = w.beings().raw();
         home = camp->camp_ids().front();
@@ -452,4 +455,140 @@ TEST_CASE("an accidental fit is not an intentional demonstration to observers") 
     CHECK(f.mind(f.watcher).observations.empty());
     CHECK(f.mind(f.watcher).skills.empty());
     f.reopen();
+}
+
+namespace {
+struct TeachingFixture : WatchFixture {
+    explicit TeachingFixture(std::uint64_t seed = 17) : WatchFixture(true, 400, 7 * kd::time::kHour, seed) {
+        auto& w = camp->world();
+        auto& raw = w.beings().raw();
+        for (const auto id : {maker, watcher}) {
+            auto& life = raw.get<kd::world::Life>(w.beings().handle(id));
+            life.carried_food = 0;
+            life.meal_item = {};
+            life.allocated_water = 0;
+            life.portion = 0;
+            life.applied = 0;
+            life.food = 4000000;
+            life.water = 3000;
+            life.awake = 0;
+            life.settled = w.frontier();
+            mind(id).sectors.fill({});
+        }
+        mind(maker).kindness = 80;
+        mind(maker).familiar.clear();
+    }
+    void command(kd::world::Context& c, const kd::world::Command& cmd) override {
+        auto& w = c.world();
+        c.touch(home);
+        c.touch(maker);
+        c.touch(watcher);
+        const auto teacher = w.beings().handle(maker), learner = w.beings().handle(watcher);
+        if (cmd.what == 910) {
+            kd::demo::Discovery::learn(c, teacher, input, kd::demo::Discovery::kSight, 1);
+            CHECK(kd::demo::Learning::exchange(c, teacher, learner, recipe));
+            return;
+        }
+        if (cmd.what == 911) {
+            CHECK(kd::demo::Learning::choose(*const_cast<kd::demo::Living*>(camp->living()), c, teacher));
+            return;
+        }
+        WatchFixture::command(c, cmd);
+    }
+    void offer() {
+        const auto now = camp->world().frontier();
+        at(now, 910);
+        CHECK_FALSE(kd::demo::Learning::knows(mind(watcher), recipe));
+        CHECK(mind(watcher).hunches.size() == 1);
+        at(now + 1, 911);
+    }
+    const kd::world::Lessons& sessions() {
+        return camp->world().beings().raw().get<kd::world::Lessons>(camp->world().beings().handle(home));
+    }
+};
+}  // namespace
+TEST_CASE("telling gives only a hunch and evidence-backed offers meet by ordinary routes") {
+    TeachingFixture f;
+    f.offer();
+    REQUIRE(f.sessions().sessions.size() == 1);
+    CHECK(f.sessions().sessions[0].state == 0);
+    const auto& w = f.camp->world();
+    CHECK(w.beings().raw().get<kd::world::Place>(w.beings().handle(f.watcher)).at !=
+          w.beings().raw().get<kd::world::Place>(w.beings().handle(f.maker)).at);
+    f.reopen();
+    f.camp->world().run_to(7 * kd::time::kHour + 30);
+    REQUIRE(f.sessions().sessions.size() == 1);
+    INFO(f.sessions().sessions[0].end);
+    INFO(f.camp->world().beings().raw().get<kd::world::Activity>(f.camp->world().beings().handle(f.watcher)).end);
+    CHECK(f.sessions().sessions[0].state == 1);
+    f.reopen();
+}
+TEST_CASE("taught_full_chance grants knowledge on success without a discovery discount") {
+    int learned = 0;
+    for (std::uint64_t seed = 1; seed <= 100; ++seed) {
+        TeachingFixture f(seed);
+        f.offer();
+        f.camp->world().run_to(7 * kd::time::kHour + 2100);
+        if (kd::demo::Learning::knows(f.mind(f.watcher), f.recipe)) {
+            ++learned;
+            const auto& skill = f.mind(f.watcher).skills.front();
+            CHECK(skill.source == f.maker);
+            CHECK(skill.route == 5);
+            CHECK(skill.practice.level >= 1000);
+            const auto peer =
+                std::find_if(f.mind(f.maker).peers.begin(), f.mind(f.maker).peers.end(),
+                             [&](const auto& p) { return p.person == f.watcher && p.recipe == f.recipe; });
+            REQUIRE(peer != f.mind(f.maker).peers.end());
+            CHECK(peer->knows == 1);
+            CHECK(peer->route == 1);
+            CHECK(peer->event == skill.source_event);
+        }
+        CHECK_FALSE(kd::demo::Learning::knows(f.mind(f.absent), f.recipe));
+    }
+    // A level-zero learner in this rested, unskilled sector has 40% maker chance. A discount cannot pass this sample.
+    CHECK(learned >= 25);
+    CHECK(learned <= 60);
+}
+TEST_CASE("partial shared lesson reopens and resumes gradual work with no duplicate practice") {
+    TeachingFixture direct, saved;
+    direct.offer();
+    saved.offer();
+    const auto pause = 7 * kd::time::kHour + 310;
+    for (auto* f : {&direct, &saved}) {
+        f->camp->world().run_to(pause - 1);
+        f->camp->world().schedule(f->watcher, 1, pause);
+        f->camp->world().run_to(pause + 1);
+        REQUIRE(f->sessions().sessions.size() == 1);
+        INFO(f->sessions().sessions[0].begun);
+        INFO(f->sessions().sessions[0].seconds);
+        INFO(f->sessions().sessions[0].settled);
+        CHECK(f->sessions().sessions[0].state == 2);
+        CHECK(f->sessions().sessions[0].seconds == f->sessions().sessions[0].credited_seconds);
+        const auto& work =
+            f->camp->world().beings().raw().get<kd::world::Work>(f->camp->world().beings().handle(f->watcher));
+        CHECK(work.state == 4);
+        CHECK(work.retained_progress > 0);
+        CHECK_FALSE(kd::demo::Learning::knows(f->mind(f->watcher), f->recipe));
+    }
+    saved.reopen();
+    saved.camp->world().beings().fuzz(71);
+    saved.camp->world().things().fuzz(13);
+    kd::run::Workers workers(4);
+    direct.camp->world().run_to(pause + 2200);
+    saved.camp->world().run_islands(pause + 2200, workers, 1);
+    CHECK(direct.camp->world().digests().whole == saved.camp->world().digests().whole);
+    saved.reopen();
+}
+TEST_CASE("urgent learners and unfinished plans decline offers and telling never interrupts") {
+    TeachingFixture f;
+    const auto now = f.camp->world().frontier();
+    f.at(now, 910);
+    auto& raw = f.camp->world().beings().raw();
+    auto& life = raw.get<kd::world::Life>(f.camp->world().beings().handle(f.watcher));
+    life.food = 500000;
+    // Trigger the teacher's ordinary choice; the urgent learner is not recruited.
+    f.camp->world().schedule(f.maker, 0, now + 2);
+    f.camp->world().run_to(now + 3);
+    CHECK(f.sessions().sessions.empty());
+    CHECK_FALSE(kd::demo::Learning::knows(f.mind(f.watcher), f.recipe));
 }

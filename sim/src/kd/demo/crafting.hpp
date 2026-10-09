@@ -9,6 +9,8 @@ public:
     // Only fresh labelled Discovery scenes call this; never an opening/conversion hook.
     static void initialise(world::World& w);
     // Called only at bodily decision/event boundaries, never by rendering.
+    static bool prepare_lesson(world::Context& c, world::Beings::Handle teacher, world::Beings::Handle learner,
+                               std::uint32_t recipe, std::uint64_t session);
     static bool choose(Living& living, world::Context& c, world::Beings::Handle h);
     static bool continue_work(Living& living, world::Context& c, world::Beings::Handle h);
     static void settle(Living& living, world::Context& c, world::Beings::Handle h, bool interrupted, bool try_event);

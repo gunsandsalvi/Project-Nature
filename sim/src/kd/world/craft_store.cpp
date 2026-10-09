@@ -320,7 +320,7 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
                     (session.state != 0 && session.work != 0 && session.begun < session.offered) ||
                     session.settled < session.offered || session.settled > w.frontier() || session.end < 0 ||
                     session.seconds < 0 || session.begun > session.settled ||
-                    session.seconds > session.settled - session.begun || session.seconds >= 1800 ||
+                    session.seconds > session.settled - session.begun || session.seconds > 1800 ||
                     session.credited_seconds < 0 || session.credited_seconds > session.seconds ||
                     (session.state == 0 && (session.seconds != 0 || session.begun != 0)) ||
                     (session.state == 1 &&
@@ -356,8 +356,10 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
                      (session.state == 1 &&
                       (work.state != 2 || work.end != session.end ||
                        raw.get<Activity>(learner).what != static_cast<std::uint8_t>(LivingAct::craft))) ||
-                     (session.state == 0 && (work.state != 1 || raw.get<Activity>(learner).what !=
-                                                                    static_cast<std::uint8_t>(LivingAct::walk)))))
+                     (session.state == 0 &&
+                      (work.state != 1 ||
+                       (raw.get<Activity>(learner).what != static_cast<std::uint8_t>(LivingAct::walk) &&
+                        raw.get<Activity>(learner).what != static_cast<std::uint8_t>(LivingAct::carry))))))
                     return fail("shared practice disagrees with activity events");
                 if (session.state == 1 &&
                     (w.torus().squared_distance(raw.get<Place>(teacher).at, raw.get<Place>(learner).at) > 200LL * 200 ||

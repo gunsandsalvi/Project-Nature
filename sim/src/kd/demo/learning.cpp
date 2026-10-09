@@ -6,6 +6,18 @@
 #include "kd/num/convert.hpp"
 #include "kd/num/maths.hpp"
 namespace kd::demo {
+void Learning::settle_mind(world::Context& c, world::Beings::Handle h) {
+    auto& mind = c.world().beings().raw().get<world::Knowledge>(h);
+    const auto elapsed = c.now() - mind.settled;
+    const auto decline = elapsed * 10 + mind.curiosity_remainder;
+    mind.curiosity_need =
+        static_cast<std::uint8_t>(std::max<std::int64_t>(0, mind.curiosity_need - decline / time::kDay));
+    mind.curiosity_remainder = decline % time::kDay;
+    mind.settled = c.now();
+    for (auto& skill : mind.skills) fade(skill.practice, c.now());
+    for (auto& sector : mind.sectors) fade(sector, c.now());
+    std::erase_if(mind.hunches, [&](const auto& hint) { return c.now() - hint.last_use >= time::kYear; });
+}
 bool Learning::can_watch(const world::World& w, ecs::Id camp, num::Point from, num::Point to, time::Seconds at) {
     // The bounded camp has daylight, but no simulated task light yet (fire comes in alpha 3.13c).
     const auto clock = at % time::kDay;

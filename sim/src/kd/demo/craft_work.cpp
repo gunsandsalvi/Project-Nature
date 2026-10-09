@@ -346,6 +346,7 @@ void resolve(world::Context& c, world::Beings::Handle h, std::uint32_t recipe, s
             if (r.item == roles[role]) r.mass = std::min(r.mass, mutable_item(w, r.item).mass);
     }
     const auto event = Discovery::result(c, h, recipe, actual, perceived, made, success, unknown, route);
+    Learning::worked(c, h, event, success);
     Learning::demonstrated(c, h, event);
     auto& know = raw.get<world::Knowledge>(h);
     for (auto& skill : know.skills)
@@ -421,6 +422,36 @@ void Crafting::wear(world::Context& c, ecs::Id tool, std::int64_t worked, std::i
     c.item_changed(tool);
     (void)born(c, item, at);
 }
+bool Crafting::prepare_lesson(world::Context& c, world::Beings::Handle teacher, world::Beings::Handle learner,
+                              std::uint32_t recipe, std::uint64_t session) {
+    auto candidate = known(c, teacher, recipe, reachable(c, teacher));
+    if (!candidate) return false;
+    auto& w = c.world();
+    auto& raw = w.beings().raw();
+    const auto person = w.beings().id_of(learner);
+    for (const auto& r : candidate->inputs) {
+        const auto item = value(w, r.item);
+        if (item.owner.value != 0 && item.owner != person) return false;
+        if (available(w, r.item, person) < r.mass || !tool_free(w, r.item, person)) return false;
+    }
+    auto& work = raw.get<Work>(learner);
+    if (work.state != 0) return false;
+    work.state = 1;
+    work.number = raw.get<world::Knowledge>(learner).next_work++;
+    work.action = candidate->reason.action;
+    work.intended = 1;
+    work.recipe = recipe;
+    work.route = 5;
+    work.lesson = session;
+    work.start = c.now();
+    work.active_start = c.now();
+    work.try_seconds = time_cost(w, learner, candidate->duration);
+    work.unit_mass = candidate->unit;
+    work.goal_mass = candidate->goal;
+    work.target = raw.get<world::Place>(teacher).at;
+    work.inputs = std::move(candidate->inputs);
+    return true;
+}
 bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h) {
     auto& raw = c.world().beings().raw();
     auto* know = raw.try_get<world::Knowledge>(h);
@@ -433,6 +464,7 @@ bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h
     const auto& pending = raw.get<Work>(h);
     const bool preparing_food =
         pending.intended && c.world().catalogue().kind<data::Blueprint>()[pending.recipe].need == 0;
+    if (pending.lesson != 0) return false;
     if (pending.state == 4 && (!urgent || (!other_urgent && preparing_food))) return continue_work(living, c, h);
     if ((life.goal == 0 || (needs[0] < 60 && life.scores[0] == -1000000)) && meal(living, c, h)) return true;
     if (other_urgent || raw.get<Work>(h).state != 0) return false;
@@ -589,6 +621,7 @@ bool Crafting::continue_work(Living& living, world::Context& c, world::Beings::H
     work.end = c.now() + std::min<std::int64_t>(3600, remaining + (tries - 1) * work.try_seconds);
     work.next_try = c.now() + remaining;
     if (work.intended && work.next_try < work.end) c.schedule(person, 2, work.next_try);
+    if (work.lesson != 0) Learning::started(living, c, h);
     living.begin(c, h, LivingAct::craft, work.end - c.now(), here);
     return true;
 }
@@ -612,7 +645,8 @@ void Crafting::settle(Living& living, world::Context& c, world::Beings::Handle h
         }
         return;
     }
-    if (work.intended && work.applied_marker == work.completed_tries && c.now() >= work.next_try) {
+    if (work.intended && work.applied_marker == work.completed_tries && c.now() >= work.next_try &&
+        work.retained_progress + c.now() - work.active_start >= work.try_seconds) {
         const auto ids = input_ids(work);
         const auto& b = w.catalogue().kind<data::Blueprint>()[work.recipe];
         auto roles = matching(w, b, ids);
@@ -623,7 +657,7 @@ void Crafting::settle(Living& living, world::Context& c, world::Beings::Handle h
         }
         ++work.completed_tries;
         work.applied_marker = work.completed_tries;
-        resolve(c, h, work.recipe, std::move(roles), false, 0, work.completed_tries);
+        resolve(c, h, work.recipe, std::move(roles), false, work.route, work.completed_tries);
         work.retained_progress = 0;
         work.active_start = c.now();
         work.next_try = std::min(work.end, c.now() + work.try_seconds);
@@ -639,6 +673,12 @@ void Crafting::settle(Living& living, world::Context& c, world::Beings::Handle h
         living.begin(c, h, LivingAct::craft, work.end - c.now(), raw.get<world::Place>(h).at);
         return;
     }
+    if (work.lesson != 0 && !exhausted && work.retained_progress + c.now() - work.active_start < work.try_seconds) {
+        work.retained_progress += c.now() - work.active_start;
+        work.state = 4;
+        c.cancel(person, 2);
+        return;
+    }
     if (!work.rolled) {
         work.rolled = 1;
         const auto ids = input_ids(work);
@@ -647,7 +687,7 @@ void Crafting::settle(Living& living, world::Context& c, world::Beings::Handle h
         const auto memories_before = know.next_memory;
         bool noticed_success = false;
         for (std::uint32_t r = 0; r < recipes.size(); ++r) {
-            if (recipes[r].action != work.action || recipes[r].heat > 0 ||
+            if ((work.lesson != 0 && r == work.recipe) || recipes[r].action != work.action || recipes[r].heat > 0 ||
                 std::any_of(know.skills.begin(), know.skills.end(),
                             [&](const auto& s) { return s.recipe == r && s.known; }))
                 continue;
