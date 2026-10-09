@@ -11,7 +11,7 @@ var _outside_selected := 0
 
 func _init() -> void:
 	drawing_script = TerrainDrawing
-	save_folder = "user://terrain-local"
+	save_folder = "user://terrain-format-%d" % KdWorld.save_format()
 
 
 func _build() -> void:

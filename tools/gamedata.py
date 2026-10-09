@@ -283,6 +283,11 @@ def steady(report):
     return {k: v for k, v in report.items() if k != "seconds"}
 
 
+def contents(path):
+    with open(path, "rb") as file:
+        return file.read()
+
+
 def reports(tool):
     """Each scene run, its report and one of its worlds put in game/data/reports/: their names."""
     os.makedirs(REPORTS, exist_ok=True)
@@ -308,8 +313,15 @@ def reports(tool):
                 before = json.load(f)
         if before is None or steady(before) != steady(report) or not os.path.isfile(os.path.join(REPORTS, world)):
             shutil.copyfile(made, target)
-            folder = os.path.join(out, f"run-{shown:03d}")
-            subprocess.run([tool, "export", folder, os.path.join(REPORTS, world)], check=True)
+        # A stable report can accompany an obsolete archive format. Export the fresh run
+        # every time, keeping the packaged bytes only when this build writes the same ones.
+        folder = os.path.join(out, f"run-{shown:03d}")
+        target_world = os.path.join(REPORTS, world)
+        with tempfile.TemporaryDirectory(prefix="kindling-report-export-") as export_folder:
+            candidate = os.path.join(export_folder, world)
+            subprocess.run([tool, "export", folder, candidate], check=True)
+            if not os.path.isfile(target_world) or contents(candidate) != contents(target_world):
+                shutil.copyfile(candidate, target_world)
         kept |= {f"{name}.json", world}
     for gone in set(os.listdir(REPORTS)) - kept:
         os.remove(os.path.join(REPORTS, gone))

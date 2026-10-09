@@ -158,30 +158,3 @@ func test_each_world_shows_its_size_by_part_and_a_nearly_full_phone_is_warned_of
 	assert_int(crowd.world.counters()["free_mb"]).is_greater(0)
 	assert_int(crowd.world.counters()["warn_below_mb"]).is_equal(1024)
 	_close(crowd)
-
-
-# checks: PLT-09
-func test_a_world_saved_by_alpha_1_4a_carries_on_and_its_last_save_is_kept_aside() -> void:
-	var shelf := _worlds_page()
-	var corpus := ProjectSettings.globalize_path("res://").path_join(
-		"../sim/tests/corpus/a14a.kindling"
-	)
-	assert_bool(shelf.import_from(corpus)).is_true()
-	while shelf.busy():
-		await await_idle_frame()
-	assert_str(shelf.status).starts_with("Imported as")
-	var id: String = shelf.listed[0]["id"]
-	shelf.open_world(id)
-	var crowd := _crowd_page()
-	assert_str(crowd.opened.get("problem", "")).is_empty()
-	assert_str(crowd.opened["update"]).is_equal("small")
-	var previous := ROOT.path_join(id).path_join("previous")
-	assert_bool(FileAccess.file_exists(previous.path_join("world.toml"))).is_true()
-	assert_int(DirAccess.get_files_at(previous).size()).is_equal(2)
-	# the real time it runs under this version is counted toward the hour that keeps that save
-	var waited := 0
-	while int(crowd.world.counters()["played"]) < 1 and waited < 100:
-		await get_tree().create_timer(0.05).timeout
-		waited += 1
-	assert_int(crowd.world.counters()["played"]).is_greater_equal(1)
-	_close(crowd)

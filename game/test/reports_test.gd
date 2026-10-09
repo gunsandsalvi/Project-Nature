@@ -142,8 +142,11 @@ func test_a_report_s_world_opens_marked_as_a_test_world_with_its_switches_once()
 	var about := FileAccess.open(ROOT.path_join("made/source/world.toml"), FileAccess.WRITE)
 	about.store_string(
 		(
-			'name = "fixture 2"\nkind = "crowd"\nseed = 2\ncamps = 4\ntest = true\n'
-			+ 'switches = ["no_greetings"]\n'
+			"format = %d\n" % KdWorld.save_format()
+			+ (
+				'name = "fixture 2"\nkind = "crowd"\nseed = 2\ncamps = 4\ntest = true\n'
+				+ 'switches = ["no_greetings"]\n'
+			)
 		)
 	)
 	about.close()
