@@ -29,5 +29,9 @@ public:
     [[nodiscard]] static std::int64_t available(const world::World& w, ecs::Id item, ecs::Id self = {});
     [[nodiscard]] static bool tool_free(const world::World& w, ecs::Id item, ecs::Id self = {});
     [[nodiscard]] static std::int64_t total(const world::World& w, ecs::Id camp, std::string_view material_class);
+
+private:
+    struct Decision;
+    static bool meal(Living& living, world::Context& c, world::Beings::Handle h, const Decision& decision);
 };
 }  // namespace kd::demo

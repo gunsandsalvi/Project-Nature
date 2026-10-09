@@ -1,8 +1,11 @@
 #include "kd/demo/discovery.hpp"
+#include <map>
+#include <tuple>
 #include "kd/chance/chance.hpp"
 #include "kd/demo/crafting.hpp"
 #include "kd/demo/discovery_scene.hpp"
 #include "kd/demo/living.hpp"
+#include "kd/num/sort.hpp"
 namespace kd::demo {
 namespace {
 world::Familiar& fact(world::Knowledge& know, const world::Item& item) {
@@ -83,7 +86,8 @@ const world::Familiar* Discovery::familiar(const world::Knowledge& know, const w
 }
 void Discovery::learn(world::Context& c, world::Beings::Handle h, ecs::Id id, std::uint32_t mask, std::uint8_t source,
                       bool edible, std::uint64_t event, ecs::Id person) {
-    const auto& item = c.world().things().raw().get<world::Item>(c.world().things().handle(id));
+    const auto& physical_world = std::as_const(c.world());
+    const auto& item = physical_world.things().raw().get<world::Item>(physical_world.things().handle(id));
     auto& know = c.world().beings().raw().get<world::Knowledge>(h);
     auto& f = fact(know, item);
     evidence(f, Crafting::characteristics(c.world().catalogue(), item), mask, source, c.now(), event, person);
@@ -99,14 +103,28 @@ void Discovery::see(world::Context& c, world::Beings::Handle h) {
     const auto here = raw.get<world::Activity>(h).at(w.torus(), c.now());
     const auto daylight = c.now() % time::kDay >= 6 * time::kHour && c.now() % time::kDay < 20 * time::kHour;
     const std::int64_t range = daylight ? 3000 : 500;
-    w.things().each([&](ecs::Id id, world::Things::Handle th) {
-        const auto& item = w.things().raw().get<world::Item>(th);
-        const auto at = w.things().raw().get<world::Place>(th).at;
-        if (item.home != home || item.mass == 0 || w.torus().squared_distance(here, at) > range * range ||
-            !Living::visible(w, home, here, at))
-            return;
-        learn(c, h, id, kSight, 1);
-    });
+    struct Seen {
+        ecs::Id first, last;
+    };
+    std::map<std::tuple<std::uint32_t, std::uint32_t, std::uint8_t>, Seen> kinds;
+    for (const auto& site : w.item_sites()) {
+        if (site.home != home || w.torus().squared_distance(here, site.at) > range * range ||
+            !Living::visible(w, home, here, site.at))
+            continue;
+        for (const auto& seen : site.sight) {
+            const auto [kind, fresh] =
+                kinds.try_emplace({seen.kind, seen.material, seen.state}, Seen{seen.first, seen.last});
+            if (!fresh) {
+                kind->second.first = std::min(kind->second.first, seen.first);
+                kind->second.last = std::max(kind->second.last, seen.last);
+            }
+        }
+    }
+    std::vector<Seen> ordered;
+    for (const auto& entry : kinds) ordered.push_back(entry.second);
+    num::sort_strict(ordered.begin(), ordered.end(), [](const auto& a, const auto& b) { return a.first < b.first; });
+    // Preserve first insertion order and final actual masked sight evidence in canonical item order.
+    for (const auto& seen : ordered) learn(c, h, seen.last, kSight, 1);
 }
 std::vector<world::Familiar> Discovery::handling(world::Context& c, world::Beings::Handle h, std::uint8_t action,
                                                  std::span<const ecs::Id> inputs) {
@@ -117,7 +135,8 @@ std::vector<world::Familiar> Discovery::handling(world::Context& c, world::Being
         auto mask = kSight;
         if (action == 2) mask |= (1U << 2U) | (1U << 3U);  // resistance/fracture experienced while striking
         learn(c, h, id, mask, 3);
-        const auto& item = c.world().things().raw().get<world::Item>(c.world().things().handle(id));
+        const auto& physical_world = std::as_const(c.world());
+        const auto& item = physical_world.things().raw().get<world::Item>(physical_world.things().handle(id));
         const auto* f = familiar(know, item);
         KD_CHECK(f != nullptr, "Handling records its perceived input");
         out.push_back(*f);
@@ -177,10 +196,13 @@ std::uint64_t Discovery::result(world::Context& c, world::Beings::Handle h, std:
     e.kind = !success ? 5 : unknown && noticed ? 1 : 0;
     for (const auto id : inputs) e.inputs.push_back({id});
     if (e.noticed) e.word = word(c.world(), history, recipe);
-    const auto previous = std::find_if(history.events.rbegin(), history.events.rend(), [&](const auto& old) {
-        return old.recipe == recipe && old.kind >= 1 && old.kind <= 4;
-    });
-    const bool returning = e.kind == 1 && previous != history.events.rend() && previous->kind == 3;
+    bool returning = false;
+    if (e.kind == 1) {
+        const auto previous = std::find_if(history.events.rbegin(), history.events.rend(), [&](const auto& old) {
+            return old.recipe == recipe && old.kind >= 1 && old.kind <= 4;
+        });
+        returning = previous != history.events.rend() && previous->kind == 3;
+    }
     history.events.push_back(e);
     if (returning) {
         auto returned = e;

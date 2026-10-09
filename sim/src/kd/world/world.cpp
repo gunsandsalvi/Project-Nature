@@ -5,6 +5,7 @@
 #include <limits>
 #include <map>
 #include <string>
+#include <tuple>
 #include <utility>
 
 #include "kd/chance/chance.hpp"
@@ -106,6 +107,7 @@ void Context::moved(ecs::Id id) {
 }
 
 void Context::item_changed(ecs::Id id) {
+    w_.item_site_dirty_.push_back(id);
     if (!w_.item_ways_list_) return;
     KD_CHECK(in_event_ && !island_, "Craft item snapshots are emitted in reference event order");
     const auto h = w_.things_.handle(id);
@@ -181,7 +183,10 @@ void Context::run(const event::Event& e) {
     records_ = 0;
     ways_ = 0;
     in_event_ = true;
+    const bool item_event = !std::as_const(w_.beings_).raw().view<Work>().empty();
+    if (item_event) w_.item_event_ = true;  // Craft windows use reference event order.
     w_.system_of(owner).handle(*this, e);
+    if (item_event) w_.item_event_ = false;
     in_event_ = false;
 }
 
@@ -266,6 +271,71 @@ World::World(std::uint64_t seed, const data::Catalogue& catalogue) : seed_(seed)
     set_layer(ecs::owners::commands, commands_);
 }
 
+const std::vector<World::ItemSite>& World::item_sites() const {
+    std::vector<std::size_t> changed;
+    const auto add = [&](ecs::Id id, Things::Handle h) {
+        const auto* item = things_.raw().try_get<Item>(h);
+        const auto* place = things_.raw().try_get<Place>(h);
+        if (!item || !place || item->mass == 0) return;
+        const auto [site, fresh] =
+            item_site_at_.try_emplace({item->home.value, place->at.x, place->at.y}, item_sites_.size());
+        if (fresh) item_sites_.push_back({item->home, place->at, {}, {}, {}});
+        item_sites_[site->second].items.push_back({id, h});
+        item_site_of_[id.value] = {site->second, item->kind, item->material, item->state, item->owner};
+        changed.push_back(site->second);
+    };
+    if (!item_sites_valid_) {
+        item_sites_.clear();
+        item_site_at_.clear();
+        item_site_of_.clear();
+        things_.each(add);
+        item_sites_valid_ = true;
+    } else {
+        sort_unique(item_site_dirty_);
+        for (const auto id : item_site_dirty_) {
+            const auto old = item_site_of_.find(id.value);
+            const auto h = things_.find(id);
+            if (old != item_site_of_.end()) {
+                const auto& address = old->second;
+                const auto& site = item_sites_[address.site];
+                const auto* item = h ? things_.raw().try_get<Item>(*h) : nullptr;
+                const auto* place = h ? things_.raw().try_get<Place>(*h) : nullptr;
+                if (item && place && item->mass > 0 && item->home == site.home && place->at == site.at &&
+                    item->kind == address.kind && item->material == address.material && item->state == address.state &&
+                    item->owner == address.owner)
+                    continue;  // Readers fetch current mass, dimensions and properties.
+                auto& entries = item_sites_[address.site].items;
+                std::erase_if(entries, [&](const auto& entry) { return entry.id == id; });
+                changed.push_back(address.site);
+                item_site_of_.erase(old);
+            }
+            if (h) add(id, *h);
+        }
+    }
+    item_site_dirty_.clear();
+    std::stable_sort(changed.begin(), changed.end());
+    changed.erase(std::unique(changed.begin(), changed.end()), changed.end());
+    for (const auto site : changed) {
+        auto& group = item_sites_[site];
+        num::sort_strict(group.items.begin(), group.items.end(),
+                         [](const auto& a, const auto& b) { return a.id < b.id; });
+        group.sight.clear();
+        group.owned.clear();
+        for (const auto& entry : group.items) {
+            const auto& item = things_.raw().get<Item>(entry.handle);
+            group.owned[item.owner.value].push_back(entry);
+            const auto found = std::find_if(group.sight.begin(), group.sight.end(), [&](const auto& seen) {
+                return seen.kind == item.kind && seen.material == item.material && seen.state == item.state;
+            });
+            if (found == group.sight.end())
+                group.sight.push_back({item.kind, item.material, item.state, entry.id, entry.id});
+            else
+                found->last = entry.id;
+        }
+    }
+    return item_sites_;
+}
+
 Beings::Handle World::make_being(ecs::Family f) {
     KD_CHECK(!in_islands_, "world::World: beings are made only between windows");
     const ecs::Id id = ids_.make(f);
@@ -276,7 +346,9 @@ Beings::Handle World::make_being(ecs::Family f) {
 
 Things::Handle World::make_thing() {
     KD_CHECK(!in_islands_, "world::World: things are made only between windows");
-    return things_.make(ids_.make(ecs::Family::thing));
+    const auto id = ids_.make(ecs::Family::thing);
+    item_site_dirty_.push_back(id);
+    return things_.make(id);
 }
 
 void World::end_being(ecs::Id id) {
@@ -382,6 +454,7 @@ void World::died() {
 }
 
 void World::run_to(time::Seconds goal) {
+    item_sites_valid_ = false;
     KD_CHECK(goal >= frontier_, "world::World: the goal is behind the frontier");
     while (!queue_.empty() && queue_.top().key.second < goal) {
         const event::Event e = queue_.pop();

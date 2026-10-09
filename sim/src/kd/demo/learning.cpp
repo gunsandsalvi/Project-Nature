@@ -24,7 +24,24 @@ bool Learning::can_watch(const world::World& w, ecs::Id camp, num::Point from, n
     return clock >= 6 * time::kHour && clock < 20 * time::kHour &&
            w.torus().squared_distance(from, to) <= 500LL * 500 && Living::visible(w, camp, from, to);
 }
-void Learning::observe(world::Context& c, world::Beings::Handle observer) {
+namespace {
+struct ActiveMaker {
+    ecs::Id id, camp;
+    const world::Work* work;
+    const world::Activity* activity;
+};
+std::vector<ActiveMaker> active_makers(const world::World& w) {
+    std::vector<ActiveMaker> out;
+    const auto& raw = w.beings().raw();
+    w.beings().each([&](ecs::Id id, world::Beings::Handle h) {
+        if (!raw.all_of<world::Knowledge, world::Work, Home>(h)) return;
+        const auto& work = raw.get<world::Work>(h);
+        if (work.state == 2 && work.intended && work.try_seconds > 0)
+            out.push_back({id, raw.get<Home>(h).camp, &work, &raw.get<world::Activity>(h)});
+    });
+    return out;
+}
+void observe_active(world::Context& c, world::Beings::Handle observer, std::span<const ActiveMaker> makers) {
     auto& w = c.world();
     auto& raw = w.beings().raw();
     auto* mind = raw.try_get<world::Knowledge>(observer);
@@ -32,13 +49,11 @@ void Learning::observe(world::Context& c, world::Beings::Handle observer) {
     const auto id = w.beings().id_of(observer);
     const auto camp = raw.get<Home>(observer).camp;
     const auto& act = raw.get<world::Activity>(observer);
-    w.beings().each([&](ecs::Id person, world::Beings::Handle maker) {
-        if (person == id || !raw.all_of<world::Knowledge, world::Work, Home>(maker) ||
-            raw.get<Home>(maker).camp != camp)
-            return;
+    for (const auto& maker : makers) {
+        const auto person = maker.id;
+        if (person == id || maker.camp != camp) continue;
         c.touch(person);
-        const auto& work = raw.get<world::Work>(maker);
-        if (work.state != 2 || !work.intended || work.try_seconds <= 0) return;
+        const auto& work = *maker.work;
         auto found = std::lower_bound(mind->observations.begin(), mind->observations.end(), person,
                                       [](const auto& o, auto target) { return o.person < target; });
         if (found == mind->observations.end() || found->person != person)
@@ -48,28 +63,46 @@ void Learning::observe(world::Context& c, world::Beings::Handle observer) {
             *found = {person, work.number, work.completed_tries + 1, work.active_start, 0};
         const auto begin = std::max({found->settled, work.active_start, act.start});
         const auto end = std::min({c.now(), work.next_try, act.end});
-        const auto& demonstration = raw.get<world::Activity>(maker);
+        const auto& demonstration = *maker.activity;
         const auto weight =
             act.what == static_cast<std::uint8_t>(world::LivingAct::rest)                                      ? 0
             : act.what == static_cast<std::uint8_t>(world::LivingAct::watch_craft) && mind->watching == person ? 4
                                                                                                                : 1;
         if (weight != 0) {
             // Whole game-second intervals, independent of event batching, frames and save boundaries.
-            for (auto t = begin; t < end; ++t)
-                if (can_watch(w, camp, act.at(w.torus(), t), demonstration.at(w.torus(), t), t))
-                    found->weighted_seconds += weight;
+            if (act.from == act.to && demonstration.from == demonstration.to) {
+                // Stationary work has constant geometry. Count daylight exactly across the interval
+                // rather than repeating identical sight and torus tests every game second.
+                const auto daylight = [](time::Seconds t) {
+                    return t / time::kDay * (14 * time::kHour) +
+                           std::clamp(t % time::kDay - 6 * time::kHour, time::Seconds{0}, 14 * time::kHour);
+                };
+                if (end > begin && w.torus().squared_distance(act.from, demonstration.from) <= 500LL * 500 &&
+                    Living::visible(w, camp, act.from, demonstration.from))
+                    found->weighted_seconds += weight * (daylight(end) - daylight(begin));
+            } else {
+                for (auto t = begin; t < end; ++t)
+                    if (Learning::can_watch(w, camp, act.at(w.torus(), t), demonstration.at(w.torus(), t), t))
+                        found->weighted_seconds += weight;
+            }
         }
         found->settled = std::max(found->settled, end);
-    });
+    }
+}
+}  // namespace
+void Learning::observe(world::Context& c, world::Beings::Handle observer) {
+    const auto active = active_makers(c.world());
+    observe_active(c, observer, active);
 }
 void Learning::observe_maker(world::Context& c, world::Beings::Handle maker) {
     auto& w = c.world();
     auto& raw = w.beings().raw();
     const auto camp = raw.get<Home>(maker).camp;
+    const auto active = active_makers(w);
     w.beings().each([&](ecs::Id id, world::Beings::Handle h) {
         if (h == maker || !raw.all_of<world::Knowledge, Home>(h) || raw.get<Home>(h).camp != camp) return;
         c.touch(id);
-        observe(c, h);
+        observe_active(c, h, active);
     });
 }
 void Learning::forget_work(world::Context& c, world::Beings::Handle maker) {
@@ -90,9 +123,9 @@ void Learning::demonstrated(world::Context& c, world::Beings::Handle maker, std:
     const auto camp = raw.get<Home>(maker).camp;
     const auto& work = raw.get<world::Work>(maker);
     const auto& history = raw.get<world::CraftHistory>(w.beings().handle(camp));
-    const auto found_result =
-        std::find_if(history.events.begin(), history.events.end(), [&](const auto& e) { return e.id == event; });
-    KD_CHECK(found_result != history.events.end() && found_result->actor == person,
+    const auto found_result = std::lower_bound(history.events.begin(), history.events.end(), event,
+                                               [](const auto& e, auto id) { return e.id < id; });
+    KD_CHECK(found_result != history.events.end() && found_result->id == event && found_result->actor == person,
              "Observation cites an actual demonstrated end");
     // Learning appends to HIST1. Keep the evidence stable while other people acquire it.
     const auto demonstration = *found_result;
@@ -136,7 +169,8 @@ void Learning::demonstrated(world::Context& c, world::Beings::Handle maker, std:
         std::vector<world::Familiar> inputs;
         for (const auto& link : result->inputs) {
             Discovery::learn(c, h, link.id, Discovery::kSight, 5, false, event, person);
-            const auto& item = w.things().raw().get<world::Item>(w.things().handle(link.id));
+            const auto& physical = std::as_const(w);
+            const auto& item = physical.things().raw().get<world::Item>(physical.things().handle(link.id));
             inputs.push_back(*Discovery::familiar(*mind, item));
         }
         const auto& activity = raw.get<world::Activity>(h);
@@ -151,7 +185,8 @@ void Learning::demonstrated(world::Context& c, world::Beings::Handle maker, std:
             hint.source_memory = mind->next_memory - 1;
             hint.last_use = c.now();
             if (sees_result && result->result.value != 0) {
-                const auto& item = w.things().raw().get<world::Item>(w.things().handle(result->result));
+                const auto& physical = std::as_const(w);
+                const auto& item = physical.things().raw().get<world::Item>(physical.things().handle(result->result));
                 const auto& form = w.catalogue().kind<data::ItemKind>()[item.kind].form;
                 hint.result_form = static_cast<std::uint8_t>(
                     std::distance(data::kForms.begin(), std::find(data::kForms.begin(), data::kForms.end(), form)));

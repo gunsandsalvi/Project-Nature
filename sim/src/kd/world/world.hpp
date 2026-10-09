@@ -11,10 +11,13 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <map>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <span>
 #include <string_view>
+#include <tuple>
 #include <vector>
 
 #include "kd/core/bytes.hpp"
@@ -32,6 +35,10 @@
 #include "kd/world/knowledge.hpp"
 #include "kd/world/life.hpp"
 #include "kd/world/parts.hpp"
+
+namespace kd::demo {
+class Living;
+}
 
 namespace kd::world {
 
@@ -278,7 +285,29 @@ public:
 
     [[nodiscard]] Beings& beings() { return beings_; }
     [[nodiscard]] const Beings& beings() const { return beings_; }
-    [[nodiscard]] Things& things() { return things_; }
+    [[nodiscard]] Things& things() {
+        if (!item_event_) item_sites_valid_ = false;
+        return things_;
+    }
+    struct ItemSite {
+        ecs::Id home;
+        num::Point at;
+        struct Entry {
+            ecs::Id id;
+            Things::Handle handle;
+        };
+        struct Sight {
+            std::uint32_t kind, material;
+            std::uint8_t state;
+            ecs::Id first, last;
+        };
+        std::vector<Entry> items;
+        std::map<std::uint64_t, std::vector<Entry>> owned;
+        std::vector<Sight> sight;
+    };
+    // Derived physical index. Event mutations publish item_changed; outside events mutable access
+    // invalidates it. Opening and run boundaries rebuild it. Never saved or hashed.
+    [[nodiscard]] const std::vector<ItemSite>& item_sites() const;
     [[nodiscard]] const Things& things() const { return things_; }
 
     /// A new being of a family, with its id and its schedule; never inside an island.
@@ -376,6 +405,7 @@ public:
     [[nodiscard]] const IslandCounts& island_counts() const { return counts_; }
 
 private:
+    friend class demo::Living;
     friend class Context;
     friend class Commands;
 
@@ -395,6 +425,20 @@ private:
     ecs::IdMaker ids_;
     Beings beings_;
     Things things_;
+    mutable bool item_sites_valid_ = false;
+    mutable std::vector<ItemSite> item_sites_;
+    mutable std::map<std::tuple<std::uint64_t, std::int32_t, std::int32_t>, std::size_t> item_site_at_;
+    struct ItemAddress {
+        std::size_t site;
+        std::uint32_t kind, material;
+        std::uint8_t state;
+        ecs::Id owner;
+    };
+    mutable std::map<std::uint64_t, ItemAddress> item_site_of_;
+    mutable std::vector<ecs::Id> item_site_dirty_;
+    bool item_event_ = false;
+    mutable std::mutex living_paths_mutex_;
+    mutable std::map<std::array<std::int64_t, 14>, std::vector<num::Point>> living_paths_;
     event::Queue queue_;
     std::array<Schedule, ecs::owners::count> owners_{};
     // when each slot of each of the world's own owners is due, while it waits

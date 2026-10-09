@@ -5,7 +5,7 @@
 namespace kd::world {
 
 num::Point Activity::at(const num::Torus& torus, time::Seconds t) const {
-    if (t <= start || end <= start) {
+    if (from == to || t <= start || end <= start) {
         return from;
     }
     if (t >= end) {

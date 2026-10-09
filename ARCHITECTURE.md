@@ -445,6 +445,8 @@ The α3.13a Discovery scene records finite additions and materialises aggregate 
 
 World events publish copied item, work and knowledge changes. Display queries select records at screen time, hide unborn results and never consult mutable producer registries. Craft camps currently use serial event order even with four workers configured because thing births share global IDs; equal continuation is proved, parallel craft speed is not. First flake is recaptured from an ordinary declared seed in each build's own format, with no switches, and establishes neither frequency nor the full M3 gate. Learning and fire follow in α3.13b/c; injury remains M4.
 
+The learning path batches reservation reads once per decision and indexes active items by position and owner. Event mutations publish `Context::item_changed`; raw edits outside events invalidate the derived index, and run/open boundaries rebuild it. Sight groups preserve the first insertion and last physical evidence in canonical ID order. Blocked routes use a bounded, mutex-protected cache keyed by all geometry and endpoints. Stationary observation counts the same daylight seconds in one interval; moving sight keeps whole-second checks. None of these caches enters saves or digests.
+
 ## A13. Culture
 
 M5 proves knowledge/relationships between two camps; M8 finishes culture. Names use supported font letters. No scripted historical outcomes; retain actual causes and individual holders.

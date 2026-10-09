@@ -83,7 +83,10 @@ public:
 
 private:
     static constexpr std::int64_t shortest(std::int32_t from, std::int32_t to, std::int64_t size) {
-        std::int64_t d = floor_mod(std::int64_t{to} - from, size);
+        const auto raw = std::int64_t{to} - from;
+        // Canonical positions differ by less than one side. Avoid division on that common path,
+        // while preserving offset's result for positions outside the map too.
+        std::int64_t d = raw >= 0 && raw < size ? raw : raw < 0 && raw >= -size ? raw + size : floor_mod(raw, size);
         if (2 * d > size || (2 * d == size && from > to)) {
             d -= size;
         }

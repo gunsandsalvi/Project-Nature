@@ -1,5 +1,6 @@
 // Generic, event-settled work and finite meals (MAT-04, MAT-09, TIM-17).
 #include <bit>
+#include <map>
 #include "kd/chance/chance.hpp"
 #include "kd/demo/crafting.hpp"
 #include "kd/demo/discovery.hpp"
@@ -11,7 +12,7 @@ namespace {
 using world::Item;
 using world::LivingAct;
 using world::Work;
-Item value(const world::World& w, ecs::Id id) {
+const Item& value(const world::World& w, ecs::Id id) {
     return w.things().raw().get<Item>(w.things().handle(id));
 }
 Item& mutable_item(world::World& w, ecs::Id id) {
@@ -77,7 +78,50 @@ bool perceived_fit(const data::InputRole& role, const data::FitInput& physical, 
     }
     return data::fits(role, known);
 }
-std::vector<ecs::Id> reachable(world::Context& c, world::Beings::Handle h) {
+// A decision observes one immutable reservation state. Batch the same reads once, without a cache
+// surviving a task, item change or save boundary.
+class Supplies {
+    struct Claim {
+        std::int64_t mass = 0;
+        bool retained = false;
+    };
+    std::map<ecs::Id, Claim> claims_;
+
+public:
+    Supplies(const world::World& w, ecs::Id self) {
+        w.beings().each([&](ecs::Id id, world::Beings::Handle person) {
+            if (id == self) return;
+            if (const auto* life = w.beings().raw().try_get<world::Life>(person); life && life->meal_item.value != 0)
+                claims_[life->meal_item].mass += life->carried_food;
+            if (const auto* work = w.beings().raw().try_get<Work>(person))
+                for (const auto& r : work->inputs) {
+                    auto& claim = claims_[r.item];
+                    claim.mass += r.mass;
+                    claim.retained = claim.retained || r.retained;
+                }
+        });
+    }
+    std::int64_t available(ecs::Id id, const Item& item) const {
+        const auto found = claims_.find(id);
+        return found == claims_.end()   ? item.mass
+               : found->second.retained ? 0
+                                        : std::max<std::int64_t>(0, item.mass - found->second.mass);
+    }
+    bool free(ecs::Id id) const { return !claims_.contains(id); }
+};
+struct SeenInput {
+    ecs::Id id;
+    const Item* item;
+    const world::Familiar* familiar;
+    std::int64_t available;
+    bool free;
+    std::uint64_t tie;
+    std::uint8_t edge;
+};
+struct Inputs {
+    std::vector<SeenInput> all, tools;
+};
+Inputs reachable(world::Context& c, world::Beings::Handle h, const Supplies& supply) {
     const auto& w = c.world();
     const auto& raw = w.beings().raw();
     const auto person = w.beings().id_of(h);
@@ -86,25 +130,35 @@ std::vector<ecs::Id> reachable(world::Context& c, world::Beings::Handle h) {
     const auto& know = raw.get<world::Knowledge>(h);
     const auto clock = c.now() % time::kDay;
     const std::int64_t range = clock >= 6 * time::kHour && clock < 20 * time::kHour ? 3000 : 500;
-    std::vector<ecs::Id> out;
-    w.things().each([&](ecs::Id id, world::Things::Handle th) {
-        const auto& item = w.things().raw().get<Item>(th);
-        const auto at = w.things().raw().get<world::Place>(th).at;
-        if (item.home != home || item.mass == 0 || (item.owner.value != 0 && item.owner != person) ||
-            Crafting::available(w, id, person) == 0 || !Discovery::familiar(know, item) ||
-            w.torus().squared_distance(here, at) > range * range || !Living::visible(w, home, here, at) ||
-            Living::route(w, home, here, at).empty())
-            return;
-        out.push_back(id);
-    });
-    // Stable personal ties avoid all adults selecting the same otherwise equivalent stone.
     const chance::Draws draws(w.seed(), chance::name("reachable input ties"), person.value,
                               std::bit_cast<std::int64_t>(raw.get<world::Knowledge>(h).next_work),
                               chance::name("item order"));
-    num::sort_strict(out.begin(), out.end(), [&](auto a, auto b) {
-        const auto x = draws.bits(a.value), y = draws.bits(b.value);
-        return x == y ? a < b : x < y;
-    });
+    Inputs out;
+    for (const auto& site : w.item_sites()) {
+        if (site.home != home || w.torus().squared_distance(here, site.at) > range * range ||
+            !Living::visible(w, home, here, site.at) || Living::route(w, home, here, site.at).empty())
+            continue;
+        for (const auto owner : {std::uint64_t{0}, person.value}) {
+            const auto group = site.owned.find(owner);
+            if (group == site.owned.end()) continue;
+            for (const auto& entry : group->second) {
+                const auto id = entry.id;
+                const auto& item = w.things().raw().get<Item>(entry.handle);
+                const auto* familiar = Discovery::familiar(know, item);
+                const auto available = supply.available(id, item);
+                if (available == 0 || !familiar) continue;
+                out.all.push_back({id, &item, familiar, available, supply.free(id), draws.bits(id.value),
+                                   static_cast<std::uint8_t>((familiar->mask & (1U << 1U)) ? familiar->values[1] : 0)});
+            }
+        }
+    }
+    num::sort_strict(out.all.begin(), out.all.end(),
+                     [](const auto& a, const auto& b) { return a.tie != b.tie ? a.tie < b.tie : a.id < b.id; });
+    std::array<std::vector<SeenInput>, 6> edges;
+    for (const auto& input : out.all) edges[input.edge].push_back(input);
+    out.tools.reserve(out.all.size());
+    for (std::size_t edge = edges.size(); edge-- > 0;)
+        out.tools.insert(out.tools.end(), edges[edge].begin(), edges[edge].end());
     return out;
 }
 struct Candidate {
@@ -112,11 +166,9 @@ struct Candidate {
     std::vector<world::Reservation> inputs;
     std::int64_t duration = 0, unit = 0, goal = 0;
 };
-std::optional<Candidate> known(world::Context& c, world::Beings::Handle h, std::uint32_t recipe,
-                               const std::vector<ecs::Id>& seen) {
+std::optional<Candidate> known(world::Context& c, world::Beings::Handle h, std::uint32_t recipe, const Inputs& seen) {
     const auto& w = c.world();
     const auto& raw = w.beings().raw();
-    const auto person = w.beings().id_of(h);
     const auto& know = raw.get<world::Knowledge>(h);
     const auto& b = w.catalogue().kind<data::Blueprint>()[recipe];
     if (b.heat > 0) return std::nullopt;
@@ -125,13 +177,14 @@ std::optional<Candidate> known(world::Context& c, world::Beings::Handle h, std::
     for (std::size_t role = 0; role < b.inputs.size(); ++role) {
         const auto& requirement = b.inputs[role];
         ecs::Id selected{};
-        std::int64_t best = -1;
-        for (const auto id : seen) {
+        const SeenInput* selected_input = nullptr;
+        for (const auto& input : requirement.retained ? seen.tools : seen.all) {
+            const auto id = input.id;
             if (std::any_of(out.inputs.begin(), out.inputs.end(), [&](const auto& r) { return r.item == id; }))
                 continue;
-            if (requirement.retained && !Crafting::tool_free(w, id, person)) continue;
-            const auto item = value(w, id);
-            const auto* f = Discovery::familiar(know, item);
+            if (requirement.retained && !input.free) continue;
+            const auto& item = *input.item;
+            const auto* f = input.familiar;
             if (!f) continue;
             const auto& kind = w.catalogue().kind<data::ItemKind>()[item.kind];
             const auto& material = w.catalogue().kind<data::ItemKind>()[item.material];
@@ -141,23 +194,20 @@ std::optional<Candidate> known(world::Context& c, world::Beings::Handle h, std::
                 {},
                 item.length,
                 item.mass};
-            dimensions.mass = Crafting::available(w, id, person);
+            dimensions.mass = input.available;
             if (!perceived_fit(requirement, dimensions, *f)) continue;
-            // Prefer a personally known sharp edge. Unknown toughness stays uncertain.
-            const auto edge = (f->mask & (1U << 1U)) != 0 ? f->values[1] : 0;
-            if (selected.value == 0 || (requirement.retained && edge > best)) {
-                selected = id;
-                best = edge;
-            }
+            selected = id;
+            selected_input = &input;
+            break;  // Same first input / strongest known tool edge, with original stable ties.
         }
         if (selected.value == 0) {
             if (requirement.optional) continue;
             return std::nullopt;
         }
-        const auto item = value(w, selected);
+        const auto& item = *selected_input->item;
         const auto mass = requirement.retained || b.result_mass > 0
                               ? item.mass
-                              : std::min<std::int64_t>(Crafting::available(w, selected, person), 1000000);
+                              : std::min<std::int64_t>(selected_input->available, 1000000);
         out.inputs.push_back({selected, mass, static_cast<std::uint8_t>(role),
                               static_cast<std::uint8_t>(requirement.retained), 0,
                               static_cast<std::uint8_t>(item.owner.value == 0)});
@@ -354,6 +404,12 @@ void resolve(world::Context& c, world::Beings::Handle h, std::uint32_t recipe, s
     know.sectors[static_cast<std::size_t>(b.sector)].last_use = c.now();
 }
 }  // namespace
+struct Crafting::Decision {
+    Supplies supply;
+    Inputs inputs;
+    Decision(world::Context& c, world::Beings::Handle h)
+        : supply(c.world(), c.world().beings().id_of(h)), inputs(reachable(c, h, supply)) {}
+};
 std::int64_t Crafting::duration(const data::Blueprint& recipe, std::int64_t edge, bool tool) {
     auto seconds = tool ? recipe.seconds : recipe.bare_seconds;
     // Only actual edge constraints have this speed advantage.
@@ -424,13 +480,14 @@ void Crafting::wear(world::Context& c, ecs::Id tool, std::int64_t worked, std::i
 }
 bool Crafting::prepare_lesson(world::Context& c, world::Beings::Handle teacher, world::Beings::Handle learner,
                               std::uint32_t recipe, std::uint64_t session) {
-    auto candidate = known(c, teacher, recipe, reachable(c, teacher));
+    const Supplies supply(c.world(), c.world().beings().id_of(teacher));
+    auto candidate = known(c, teacher, recipe, reachable(c, teacher, supply));
     if (!candidate) return false;
     auto& w = c.world();
     auto& raw = w.beings().raw();
     const auto person = w.beings().id_of(learner);
     for (const auto& r : candidate->inputs) {
-        const auto item = value(w, r.item);
+        const auto& item = value(w, r.item);
         if (item.owner.value != 0 && item.owner != person) return false;
         if (available(w, r.item, person) < r.mass || !tool_free(w, r.item, person)) return false;
     }
@@ -466,9 +523,15 @@ bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h
         pending.intended && c.world().catalogue().kind<data::Blueprint>()[pending.recipe].need == 0;
     if (pending.lesson != 0) return false;
     if (pending.state == 4 && (!urgent || (!other_urgent && preparing_food))) return continue_work(living, c, h);
-    if ((life.goal == 0 || (needs[0] < 60 && life.scores[0] == -1000000)) && meal(living, c, h)) return true;
+    std::optional<Decision> decision;
+    if (life.goal == 0 || (needs[0] < 60 && life.scores[0] == -1000000)) {
+        decision.emplace(c, h);
+        if (meal(living, c, h, *decision)) return true;
+    }
     if (other_urgent || raw.get<Work>(h).state != 0) return false;
-    const auto seen = reachable(c, h);
+    if (!decision) decision.emplace(c, h);
+    const auto& supply = decision->supply;
+    const auto& seen = decision->inputs;
     std::vector<Candidate> options;
     for (const auto& skill : know->skills) {
         if (options.size() == 8) break;
@@ -477,7 +540,7 @@ bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h
         if (candidate) options.push_back(std::move(*candidate));
     }
     const auto hour = static_cast<std::uint64_t>(c.now() / 3600 + 1);
-    if (!urgent && know->hourly_draw != hour && !seen.empty()) {
+    if (!urgent && know->hourly_draw != hour && !seen.all.empty()) {
         know->hourly_draw = hour;
         const auto person = c.world().beings().id_of(h);
         const chance::Draws draws(c.world().seed(), chance::name("curious hour"), person.value,
@@ -494,9 +557,10 @@ bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h
             for (std::uint8_t action = 0; action < 21; ++action)
                 if (know->performed == 0 || (know->performed & (1U << action))) actions.push_back(action);
             experiment.reason.action = actions[draws.below(1, actions.size())];
-            for (const auto id : seen) {
-                if (!tool_free(c.world(), id, person)) continue;
-                const auto item = value(c.world(), id);
+            for (const auto& input : seen.all) {
+                const auto id = input.id;
+                if (!supply.free(id)) continue;
+                const auto& item = value(c.world(), id);
                 experiment.inputs.push_back({id, item.mass, static_cast<std::uint8_t>(experiment.inputs.size()), 1, 0,
                                              static_cast<std::uint8_t>(item.owner.value == 0)});
                 experiment.reason.inputs.push_back({id});
@@ -506,10 +570,10 @@ bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h
                 auto& hunch = know->hunches[draws.below(2, know->hunches.size())];
                 std::vector<world::Reservation> guessed;
                 for (const auto& familiar : hunch.inputs) {
-                    for (const auto id : seen) {
-                        const auto item = value(c.world(), id);
-                        if (item.kind != familiar.kind || item.material != familiar.material ||
-                            !tool_free(c.world(), id, person) ||
+                    for (const auto& input : seen.all) {
+                        const auto id = input.id;
+                        const auto& item = value(c.world(), id);
+                        if (item.kind != familiar.kind || item.material != familiar.material || !supply.free(id) ||
                             std::any_of(guessed.begin(), guessed.end(), [&](const auto& r) { return r.item == id; }))
                             continue;
                         guessed.push_back({id, item.mass, static_cast<std::uint8_t>(guessed.size()), 1, 0,
@@ -710,17 +774,23 @@ void Crafting::settle(Living& living, world::Context& c, world::Beings::Handle h
     release(c, h);
 }
 bool Crafting::meal(Living& living, world::Context& c, world::Beings::Handle h) {
+    const auto& life = c.world().beings().raw().get<world::Life>(h);
+    if (life.carried_food != 0 || life.meal_item.value != 0) return false;
+    const Decision decision(c, h);
+    return meal(living, c, h, decision);
+}
+bool Crafting::meal(Living& living, world::Context& c, world::Beings::Handle h, const Decision& decision) {
     auto& w = c.world();
     auto& raw = w.beings().raw();
     auto& life = raw.get<world::Life>(h);
     if (life.carried_food != 0 || life.meal_item.value != 0) return false;
-    const auto person = w.beings().id_of(h);
     const auto& work = raw.get<Work>(h);
-    for (const auto id : reachable(c, h)) {
+    for (const auto& input : decision.inputs.all) {
+        const auto id = input.id;
         if (std::any_of(work.inputs.begin(), work.inputs.end(),
                         [&](const auto& reserved) { return reserved.item == id; }))
             continue;
-        const auto item = value(w, id);
+        const auto& item = value(w, id);
         const auto* f = Discovery::familiar(raw.get<world::Knowledge>(h), item);
         if (!f || !f->edible || (f->mask & (1U << 8U)) == 0 || f->values[8] == 0) continue;
         // Finite food is collected at its actual position before it can be eaten.
@@ -729,7 +799,7 @@ bool Crafting::meal(Living& living, world::Context& c, world::Beings::Handle h) 
             life.goal = 0;
             life.use_at = place(w, id);
             life.meal_item = id;
-            life.carried_food = std::min<std::int64_t>(available(w, id, person), 1000000);
+            life.carried_food = std::min<std::int64_t>(input.available, 1000000);
             // The saved meal allocation acts as its own consumed reservation; keep the source shared while walking.
             const auto path = Living::route(w, raw.get<Home>(h).camp, here, life.use_at);
             const auto length = w.torus().distance(here, path.front()) * 10;
@@ -738,7 +808,7 @@ bool Crafting::meal(Living& living, world::Context& c, world::Beings::Handle h) 
             return true;
         }
         life.meal_item = id;
-        life.carried_food = std::min<std::int64_t>(available(w, id, person), 1000000);
+        life.carried_food = std::min<std::int64_t>(input.available, 1000000);
         life.goal = 0;
         life.use_at = here;
         const auto actual = characteristics(w.catalogue(), item);

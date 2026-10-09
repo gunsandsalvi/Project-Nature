@@ -248,9 +248,9 @@ void Learning::worked(world::Context& c, world::Beings::Handle maker, std::uint6
     const auto& work = raw.get<world::Work>(maker);
     if (!work.intended) return;
     const auto& history = raw.get<world::CraftHistory>(w.beings().handle(raw.get<Home>(maker).camp));
-    const auto result =
-        std::find_if(history.events.begin(), history.events.end(), [&](const auto& e) { return e.id == event; });
-    if (result == history.events.end() || result->recipe != work.recipe) return;
+    const auto result = std::lower_bound(history.events.begin(), history.events.end(), event,
+                                         [](const auto& e, auto id) { return e.id < id; });
+    if (result == history.events.end() || result->id != event || result->recipe != work.recipe) return;
     auto& mind = raw.get<world::Knowledge>(maker);
     if (work.lesson == 0) {
         practice(skill(mind, work.recipe).practice, c.now(), work.try_seconds, success, mind.learning_ppm);

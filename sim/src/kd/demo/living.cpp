@@ -94,46 +94,75 @@ std::vector<num::Point> Living::route(const world::World& w, ecs::Id camp, num::
     };
     if (!inside(a) || !inside(b) || in_rock(a, rock) || in_rock(b, rock)) return {};
     if (line_clear(a, b, rock)) return {to};
-    const auto cols = patch.half_width_cm * 2 / 100 + 1, rows = patch.half_height_cm * 2 / 100 + 1;
-    if (cols * rows > 10000) return {};
-    const auto point = [&](std::int64_t index) {
-        return num::Offset{index % cols * 100 - patch.half_width_cm, index / cols * 100 - patch.half_height_cm};
-    };
-    const auto cell = [&](num::Offset p) {
-        return std::clamp((p.dy + patch.half_height_cm + 50) / 100, std::int64_t{0}, rows - 1) * cols +
-               std::clamp((p.dx + patch.half_width_cm + 50) / 100, std::int64_t{0}, cols - 1);
-    };
-    const auto first = cell(a), last = cell(b);
-    if (!line_clear(a, point(first), rock) || !line_clear(point(last), b, rock)) return {};
-    std::vector<std::int64_t> previous(static_cast<std::size_t>(cols * rows), -1), queue{first};
-    previous[static_cast<std::size_t>(first)] = first;
-    for (std::size_t head = 0; head < queue.size() && previous[static_cast<std::size_t>(last)] < 0; ++head) {
-        const auto at = queue[head];
-        for (const auto step : std::array<num::Offset, 4>{{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}}) {
-            const auto x = at % cols + step.dx, y = at / cols + step.dy;
-            if (x < 0 || y < 0 || x >= cols || y >= rows) continue;
-            const auto next = y * cols + x;
-            if (previous[static_cast<std::size_t>(next)] >= 0 || !line_clear(point(at), point(next), rock)) continue;
-            previous[static_cast<std::size_t>(next)] = at;
-            queue.push_back(next);
+    const std::array<std::int64_t, 14> key{w.torus().width(),
+                                           w.torus().height(),
+                                           centre.x,
+                                           centre.y,
+                                           patch.half_width_cm,
+                                           patch.half_height_cm,
+                                           rock.rock_west,
+                                           rock.rock_east,
+                                           rock.rock_south,
+                                           rock.rock_north,
+                                           from.x,
+                                           from.y,
+                                           to.x,
+                                           to.y};
+    {
+        const std::lock_guard lock(w.living_paths_mutex_);
+        if (const auto found = w.living_paths_.find(key); found != w.living_paths_.end()) return found->second;
+    }
+    const auto make = [&]() -> std::vector<num::Point> {
+        const auto cols = patch.half_width_cm * 2 / 100 + 1, rows = patch.half_height_cm * 2 / 100 + 1;
+        if (cols * rows > 10000) return {};
+        const auto point = [&](std::int64_t index) {
+            return num::Offset{index % cols * 100 - patch.half_width_cm, index / cols * 100 - patch.half_height_cm};
+        };
+        const auto cell = [&](num::Offset p) {
+            return std::clamp((p.dy + patch.half_height_cm + 50) / 100, std::int64_t{0}, rows - 1) * cols +
+                   std::clamp((p.dx + patch.half_width_cm + 50) / 100, std::int64_t{0}, cols - 1);
+        };
+        const auto first = cell(a), last = cell(b);
+        if (!line_clear(a, point(first), rock) || !line_clear(point(last), b, rock)) return {};
+        std::vector<std::int64_t> previous(static_cast<std::size_t>(cols * rows), -1), queue{first};
+        previous[static_cast<std::size_t>(first)] = first;
+        for (std::size_t head = 0; head < queue.size() && previous[static_cast<std::size_t>(last)] < 0; ++head) {
+            const auto at = queue[head];
+            for (const auto step : std::array<num::Offset, 4>{{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}}) {
+                const auto x = at % cols + step.dx, y = at / cols + step.dy;
+                if (x < 0 || y < 0 || x >= cols || y >= rows) continue;
+                const auto next = y * cols + x;
+                if (previous[static_cast<std::size_t>(next)] >= 0 || !line_clear(point(at), point(next), rock))
+                    continue;
+                previous[static_cast<std::size_t>(next)] = at;
+                queue.push_back(next);
+            }
         }
+        if (previous[static_cast<std::size_t>(last)] < 0) return {};
+        std::vector<num::Point> reversed{to};
+        for (auto at = last; at != first; at = previous[static_cast<std::size_t>(at)])
+            reversed.push_back(w.torus().moved(centre, point(at)));
+        reversed.push_back(w.torus().moved(centre, point(first)));
+        std::reverse(reversed.begin(), reversed.end());
+        // Skip visible intermediate vertices, without ever crossing solid rock.
+        std::size_t furthest = 0;
+        for (std::size_t i = 0; i < reversed.size(); ++i) {
+            if (line_clear(a, w.torus().offset(centre, reversed[i]), rock))
+                furthest = i;
+            else
+                break;
+        }
+        reversed.erase(reversed.begin(), reversed.begin() + static_cast<std::ptrdiff_t>(furthest));
+        return reversed;
+    };
+    auto path = make();
+    {
+        const std::lock_guard lock(w.living_paths_mutex_);
+        // Bounded derived geometry cache. Its hits, eviction and thread order never affect a route.
+        if (w.living_paths_.size() >= 4096) w.living_paths_.clear();
+        w.living_paths_.insert_or_assign(key, path);
     }
-    if (previous[static_cast<std::size_t>(last)] < 0) return {};
-    std::vector<num::Point> reversed{to};
-    for (auto at = last; at != first; at = previous[static_cast<std::size_t>(at)])
-        reversed.push_back(w.torus().moved(centre, point(at)));
-    reversed.push_back(w.torus().moved(centre, point(first)));
-    std::reverse(reversed.begin(), reversed.end());
-    // Skip visible intermediate vertices, without ever crossing solid rock.
-    std::size_t furthest = 0;
-    for (std::size_t i = 0; i < reversed.size(); ++i) {
-        if (line_clear(a, w.torus().offset(centre, reversed[i]), rock))
-            furthest = i;
-        else
-            break;
-    }
-    reversed.erase(reversed.begin(), reversed.begin() + static_cast<std::ptrdiff_t>(furthest));
-    return reversed;
+    return path;
 }
 bool Living::visible(const world::World& w, ecs::Id camp, num::Point from, num::Point to) {
     const auto h = w.beings().handle(camp);

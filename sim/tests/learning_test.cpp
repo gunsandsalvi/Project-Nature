@@ -646,3 +646,81 @@ TEST_CASE("learning history records actual source and survives labelled last-hol
     f.reopen();
     CHECK_FALSE(kd::demo::Learning::knows(f.mind(f.watcher), f.recipe));
 }
+
+TEST_CASE("stationary observation batches exactly across dawn and dusk while moving sight stays exact") {
+    for (const auto begun :
+         {5 * kd::time::kHour + 45 * kd::time::kMinute, 19 * kd::time::kHour + 45 * kd::time::kMinute}) {
+        for (const bool moving : {false, true}) {
+            WatchFixture f(false, 400, begun);
+            f.duration = kd::time::kHour;
+            const auto at = f.start();
+            auto& w = f.camp->world();
+            auto& raw = w.beings().raw();
+            auto& observer = raw.get<kd::world::Activity>(w.beings().handle(f.watcher));
+            if (moving) {
+                observer.start = at;
+                observer.end = at + f.duration;
+                observer.to = w.torus().moved(observer.from, {700, 0});
+            }
+            const auto demonstration = raw.get<kd::world::Activity>(w.beings().handle(f.maker));
+            const auto until = at + f.duration - 1;
+            std::int64_t expected = 0;
+            for (auto t = at; t < until; ++t)
+                if (kd::demo::Learning::can_watch(w, f.home, observer.at(w.torus(), t), demonstration.at(w.torus(), t),
+                                                  t))
+                    expected += 4;
+            f.at(until, 902);
+            REQUIRE(f.mind(f.watcher).observations.size() == 1);
+            CHECK(f.mind(f.watcher).observations.front().weighted_seconds == expected);
+        }
+    }
+}
+
+TEST_CASE("item position index follows event mutations births and spent stock without saved state") {
+    WatchFixture f;
+    struct Mutations : kd::world::System {
+        std::string_view name() const override { return "item index mutation fixture"; }
+        void handle(kd::world::Context&, const kd::event::Event&) override {}
+        void command(kd::world::Context& c, const kd::world::Command& cmd) override {
+            auto& w = c.world();
+            const kd::ecs::Id id{cmd.a};
+            const auto present = [&](kd::ecs::Id target, kd::num::Point at) {
+                bool found = false;
+                for (const auto& site : std::as_const(w).item_sites())
+                    for (const auto& entry : site.items)
+                        if (entry.id == target) {
+                            CHECK(site.at == at);
+                            found = true;
+                        }
+                return found;
+            };
+            const auto h = w.things().handle(id);
+            const auto here = w.things().raw().get<kd::world::Place>(h).at;
+            CHECK(present(id, here));
+            auto& item = w.things().raw().get<kd::world::Item>(h);
+            item.mass = 0;
+            c.item_changed(id);
+            CHECK_FALSE(present(id, here));
+            item.mass = 1000000;
+            item.state = 2;
+            const auto moved = w.torus().moved(here, {200, 0});
+            w.things().raw().get<kd::world::Place>(h).at = moved;
+            c.item_changed(id);
+            CHECK(present(id, moved));
+            const auto copy = item;
+            const auto born = w.make_thing();
+            const auto new_id = w.things().id_of(born);
+            w.things().raw().emplace<kd::world::Place>(born, here);
+            w.things().raw().emplace<kd::world::Item>(born, copy);
+            c.item_changed(new_id);
+            CHECK(present(new_id, here));
+            w.things().end(new_id);
+            c.item_changed(new_id);
+            CHECK_FALSE(present(new_id, here));
+        }
+    } mutations;
+    auto& w = f.camp->world();
+    w.set_command_taker(mutations);
+    (void)w.command(w.frontier(), 906, f.input.value, 0);
+    w.run_to(w.frontier() + 1);
+}
