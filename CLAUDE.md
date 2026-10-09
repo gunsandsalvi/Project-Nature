@@ -22,7 +22,7 @@ Keep short evidence records only when they explain a durable decision. Remove su
 **Rules:**
 
 - Follow the principles; simulation decisions stay independent of pictures and generated prose.
-- Preserve determinism, each build's own saves and meaningful regressions. Do not convert older saves: a build refuses saves from earlier builds with a plain message (owner, 9 October 2026). Run touched checks during work and the routine check before joining/delivery. The full audit is stopped until the owner asks for it again (owner, 9 October 2026).
+- Preserve determinism, each build's own saves and meaningful regressions. Do not convert older saves: a build refuses saves from earlier builds with a plain message (owner, 9 October 2026). Run touched checks during work and the routine check before joining/delivery. The full audit runs only at the end of a milestone (owner, 9 October 2026).
 - Self-review each integrated delivery once. Independent review closes each milestone and happens before joining for changes to determinism, threading, save formats or corruption recovery; in M3 only the end-of-milestone review runs (owner, 9 October 2026). Reproduce bugs and use fault injection where risk or uncertain test sensitivity warrants it.
 - Keep stable IDs and planned task links. IDs in modules, test suites and ordinary commits are optional navigation. Changes to decided meaning require owner approval and date with the decision (`PRC-07`), not a prescribed commit trailer.
 - Partial work retains its ID; notes state proved behaviour and remaining acceptance (`PRC-12`). ID comments are not completion evidence.
