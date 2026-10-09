@@ -121,7 +121,7 @@ struct SeenInput {
 struct Inputs {
     std::vector<SeenInput> all, tools;
 };
-Inputs reachable(world::Context& c, world::Beings::Handle h, const Supplies& supply) {
+Inputs reachable(world::Context& c, world::Beings::Handle h, const Supplies& supply, ecs::Id participant = {}) {
     const auto& w = c.world();
     const auto& raw = w.beings().raw();
     const auto person = w.beings().id_of(h);
@@ -138,7 +138,10 @@ Inputs reachable(world::Context& c, world::Beings::Handle h, const Supplies& sup
         if (site.home != home || w.torus().squared_distance(here, site.at) > range * range ||
             !Living::visible(w, home, here, site.at) || Living::route(w, home, here, site.at).empty())
             continue;
-        for (const auto owner : {std::uint64_t{0}, person.value}) {
+        const std::array owners{std::uint64_t{0}, person.value, participant.value};
+        for (std::size_t n = 0; n < owners.size(); ++n) {
+            if (n == 2 && (participant.value == 0 || participant == person)) continue;
+            const auto owner = owners[n];
             const auto group = site.owned.find(owner);
             if (group == site.owned.end()) continue;
             for (const auto& entry : group->second) {
@@ -407,8 +410,9 @@ void resolve(world::Context& c, world::Beings::Handle h, std::uint32_t recipe, s
 struct Crafting::Decision {
     Supplies supply;
     Inputs inputs;
-    Decision(world::Context& c, world::Beings::Handle h)
-        : supply(c.world(), c.world().beings().id_of(h)), inputs(reachable(c, h, supply)) {}
+    Decision(world::Context& c, world::Beings::Handle h) : Decision(c, h, c.world()) {}
+    Decision(world::Context& c, world::Beings::Handle h, world::World& w)
+        : supply(w, w.beings().id_of(h)), inputs(reachable(c, h, supply)) {}
 };
 std::int64_t Crafting::duration(const data::Blueprint& recipe, std::int64_t edge, bool tool) {
     auto seconds = tool ? recipe.seconds : recipe.bare_seconds;
@@ -480,8 +484,17 @@ void Crafting::wear(world::Context& c, ecs::Id tool, std::int64_t worked, std::i
 }
 bool Crafting::prepare_lesson(world::Context& c, world::Beings::Handle teacher, world::Beings::Handle learner,
                               std::uint32_t recipe, std::uint64_t session) {
-    const Supplies supply(c.world(), c.world().beings().id_of(teacher));
-    auto candidate = known(c, teacher, recipe, reachable(c, teacher, supply));
+    const auto learner_id = c.world().beings().id_of(learner);
+    const Supplies supply(c.world(), learner_id);
+    auto inputs = reachable(c, teacher, supply, learner_id);
+    // Shared practice cannot commandeer the teacher's personal stock or tools. Filter
+    // those before selecting a recipe's first/best inputs, so accessible alternatives win.
+    const auto inaccessible = [&](const auto& input) {
+        return input.item->owner.value != 0 && input.item->owner != learner_id;
+    };
+    std::erase_if(inputs.all, inaccessible);
+    std::erase_if(inputs.tools, inaccessible);
+    auto candidate = known(c, teacher, recipe, inputs);
     if (!candidate) return false;
     auto& w = c.world();
     auto& raw = w.beings().raw();

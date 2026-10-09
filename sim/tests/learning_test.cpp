@@ -465,6 +465,7 @@ TEST_CASE("an accidental fit is not an intentional demonstration to observers") 
 
 namespace {
 struct TeachingFixture : WatchFixture {
+    kd::ecs::Id visible_tool{};
     explicit TeachingFixture(std::uint64_t seed = 17) : WatchFixture(true, 400, 7 * kd::time::kHour, seed) {
         auto& w = camp->world();
         auto& raw = w.beings().raw();
@@ -492,6 +493,8 @@ struct TeachingFixture : WatchFixture {
         const auto teacher = w.beings().handle(maker), learner = w.beings().handle(watcher);
         if (cmd.what == 910) {
             kd::demo::Discovery::learn(c, teacher, input, kd::demo::Discovery::kSight, 1);
+            if (visible_tool.value)
+                kd::demo::Discovery::learn(c, teacher, visible_tool, kd::demo::Discovery::kSight, 1);
             CHECK(kd::demo::Learning::exchange(c, teacher, learner, recipe));
             return;
         }
@@ -529,6 +532,36 @@ TEST_CASE("telling gives only a hunch and evidence-backed offers meet by ordinar
     CHECK(f.sessions().sessions[0].state == 1);
     f.reopen();
 }
+TEST_CASE("lesson selection skips unavailable teacher tools and can use the learner's visible tool") {
+    for (const bool learner_owns : {false, true}) {
+        TeachingFixture f;
+        auto& w = f.camp->world();
+        const auto h = w.make_thing();
+        f.visible_tool = w.things().id_of(h);
+        const auto holder = learner_owns ? f.watcher : f.maker;
+        w.things().raw().emplace<kd::world::Place>(
+            h, w.beings().raw().get<kd::world::Place>(w.beings().handle(holder)).at);
+        auto& tool = w.things().raw().emplace<kd::world::Item>(h);
+        tool.kind = watch_entry("item", "base:flake");
+        tool.material = watch_entry("item", "base:flint");
+        tool.mass = 20000;
+        tool.length = 40;
+        tool.home = f.home;
+        tool.owner = holder;
+        tool.changed_mask = 1U << 1U;
+        tool.changed[1] = 5;
+        f.offer();
+        REQUIRE(f.sessions().sessions.size() == 1);
+        const auto& work = w.beings().raw().get<kd::world::Work>(w.beings().handle(f.watcher));
+        const auto included = std::any_of(work.inputs.begin(), work.inputs.end(),
+                                          [&](const auto& r) { return r.item == f.visible_tool; });
+        CHECK(included == learner_owns);
+        CHECK(w.things().raw().get<kd::world::Item>(h).owner == holder);
+        CHECK(w.things().raw().get<kd::world::Item>(h).mass == 20000);
+        f.reopen();
+    }
+}
+
 TEST_CASE("taught_full_chance grants knowledge on success without a discovery discount") {
     int learned = 0;
     for (std::uint64_t seed = 1; seed <= 100; ++seed) {
@@ -667,6 +700,7 @@ TEST_CASE("finite learning scene preserves budgets and continuation after reopen
     std::string why;
     const auto chunks = kd::save::read_snapshot(kd::save::write_snapshot(other.world().save()), why);
     REQUIRE(chunks);
+    if (!chunks) return;
     auto saved = kd::demo::CrowdWorld::open(watch_catalogue(), *chunks, why);
     INFO(why);
     REQUIRE(saved);
@@ -703,7 +737,7 @@ TEST_CASE("twenty skill-curve calibrations use seeded maker chance on the declar
         hammer.length = 120;
         const std::array roles{f.input, w.things().id_of(hh)};
         std::int64_t reached = -1;
-        for (std::int64_t day = 0; day <= 3 * 60 && reached < 0; ++day) {
+        for (std::int64_t day = 0; day <= 3LL * 60 && reached < 0; ++day) {
             if (day % 7 == 6) continue;
             const kd::chance::Draws draws(seed, kd::chance::name("practice calibration"), f.maker.value, day,
                                           kd::chance::name("physical maker trials"));
@@ -728,7 +762,7 @@ TEST_CASE("twenty skill-curve calibrations use seeded maker chance on the declar
 
 TEST_CASE("brief practice does not round fractional fading into a whole-thousandth loss") {
     kd::world::Practice skill{1000, 1000, 0, 0};
-    for (int attempt = 1; attempt <= 10; ++attempt) kd::demo::Learning::practice(skill, attempt * 30, 30, false);
+    for (int attempt = 1; attempt <= 10; ++attempt) kd::demo::Learning::practice(skill, attempt * 30LL, 30, false);
     CHECK(skill.level == 1001);
     CHECK(skill.seconds == 300);
 }

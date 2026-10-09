@@ -121,6 +121,7 @@ void Discovery::see(world::Context& c, world::Beings::Handle h) {
         }
     }
     std::vector<Seen> ordered;
+    ordered.reserve(kinds.size());
     for (const auto& entry : kinds) ordered.push_back(entry.second);
     num::sort_strict(ordered.begin(), ordered.end(), [](const auto& a, const auto& b) { return a.first < b.first; });
     // Preserve first insertion order and final actual masked sight evidence in canonical item order.

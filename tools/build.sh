@@ -79,5 +79,9 @@ if [ "$MODE" = release ]; then
   (cd dist && sha256sum kindling.apk >kindling.apk.sha256)
   echo "Build: dist/kindling.apk, $NAME ($CODE), $(($(stat -c %s dist/kindling.apk) / 1024)) KB, $SECS s"
 else
-  echo "Build check: OK, $NAME ($CODE), signed with a key made for it, $SECS s"
+  mkdir -p build/apk-check
+  CHECK_APK="build/apk-check/kindling-$CODE-check.apk"
+  cp "$TMP/kindling.apk" "$CHECK_APK"
+  sha256sum "$CHECK_APK" > "$CHECK_APK.sha256"
+  echo "Build check: OK, $NAME ($CODE), $CHECK_APK, signed with a key made for it, $SECS s"
 fi

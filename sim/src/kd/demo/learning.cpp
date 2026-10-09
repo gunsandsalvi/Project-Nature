@@ -128,7 +128,8 @@ void Learning::demonstrated(world::Context& c, world::Beings::Handle maker, std:
     KD_CHECK(found_result != history.events.end() && found_result->id == event && found_result->actor == person,
              "Observation cites an actual demonstrated end");
     // Learning appends to HIST1. Keep the evidence stable while other people acquire it.
-    const auto demonstration = *found_result;
+    world::Result demonstration;
+    demonstration = *found_result;
     const auto* result = &demonstration;
     if (!work.intended) return;
     const auto duration = work.try_seconds;
