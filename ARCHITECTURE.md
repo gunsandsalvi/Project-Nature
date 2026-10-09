@@ -142,7 +142,7 @@ Full-world snapshots will also need measured immutable-state copying/compression
 ### A3.8 Talking to Godot
 
 Commands are durable plain records. Snapshots use a single-consumer triple buffer; one controller copies the latest publication and all views/jobs use its owned data.
-Never retain a recycled slot. No simulation worker touches Godot objects. Camp identities and supplies are copied into the same owned display snapshot; cards and sprites read that copy. Camp labels/cards use native integer bitmap text; the dock keeps 48 dp controls in either orientation. World panes retain the full window’s 1×/2× raster scale; a 320 ms camera settle keeps existing powers and anchored picking.
+Never retain a recycled slot. No simulation worker touches Godot objects. Camp identities and supplies are copied into the same owned display snapshot; cards and sprites read that copy. Camp labels/cards use native integer bitmap text; the dock keeps 48 dp controls in either orientation. World panes retain the full window’s 1×/2× raster scale; a 320 ms camera settle keeps existing powers and anchored picking. Camp handles each finger once, ignoring its emulated mouse events; a 550 ms hold opens the ring, and dragging, pinching, cancellation or a changed pane clears that hold. Viewport tests include safe-area offsets and paired finger/mouse events.
 Sample the saved activity way at displayed time, including interruptions and torus seams, rather than interpolating arbitrary recent positions.
 Lossless events/commands are separate from disposable picture updates.
 

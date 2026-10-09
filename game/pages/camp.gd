@@ -386,6 +386,7 @@ func _resize() -> void:
 
 
 func layout(window: Vector2, safe: Rect2) -> void:
+	var old_area := _area.get_rect()
 	_native.size = window
 	var density := clampf(minf(window.x, window.y) / 450, 1, 3)
 	camera.set_pixel_scale(2 if minf(window.x, window.y) >= 1080 else 1)
@@ -415,6 +416,8 @@ func layout(window: Vector2, safe: Rect2) -> void:
 		if landscape
 		else Vector2(safe.size.x, safe.size.y - height)
 	)
+	if _area.get_rect() != old_area:
+		_cancel_touches()
 	var style: StyleBoxFlat = _dock.get_theme_stylebox("panel")
 	for edge: String in ["left", "right", "top", "bottom"]:
 		style.set("content_margin_" + edge, gap)
@@ -425,12 +428,19 @@ func layout(window: Vector2, safe: Rect2) -> void:
 
 
 func _world_input(event: InputEvent) -> void:
+	# Finger zero already drives this gesture; Android also sends its emulated mouse.
+	if event is InputEventMouse and event.device == InputEvent.DEVICE_ID_EMULATION:
+		return
 	if _dreams.visible:
 		return
 	var at := Vector2.ZERO
 	var operation := -1
 	var finger := 0
 	if event is InputEventScreenTouch:
+		if event.canceled:
+			_cancel_touches()
+			_picture.accept_event()
+			return
 		at = event.position + _picture.position
 		finger = event.index
 		operation = 0 if event.pressed else 2
@@ -473,8 +483,15 @@ func _world_input(event: InputEvent) -> void:
 	_picture.accept_event()
 
 
+func _cancel_touches() -> void:
+	for finger: int in _touches:
+		camera.touch(2, finger, _touches[finger].position, Time.get_ticks_usec() / 1000000.0)
+	_touches.clear()
+
+
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_PAUSED:
+		_cancel_touches()
 		_paused_before_background = world.is_paused()
 		world.pause()
 		world.save_now()
