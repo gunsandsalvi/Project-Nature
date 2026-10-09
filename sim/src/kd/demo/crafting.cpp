@@ -2,6 +2,7 @@
 #include "kd/chance/chance.hpp"
 #include "kd/demo/discovery.hpp"
 #include "kd/demo/discovery_scene.hpp"
+#include "kd/demo/fire.hpp"
 namespace kd::demo {
 namespace {
 void stock(world::World& w, ecs::Id home, std::uint32_t kind, std::int64_t mass, num::Point at) {
@@ -71,6 +72,7 @@ void Crafting::initialise(world::World& w) {
             camp->wood_mg = 0;
         }
     });
+    FireRules::start(w);
 }
 std::array<std::int64_t, 18> Crafting::characteristics(const data::Catalogue& c, const world::Item& item) {
     const auto& kind = c.kind<data::ItemKind>()[item.kind];

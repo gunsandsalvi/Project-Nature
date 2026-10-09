@@ -5,7 +5,9 @@
 #include "kd/demo/living.hpp"
 namespace kd::world {
 std::uint32_t craft_features(const World& w) {
-    return w.beings().raw().view<Knowledge>().empty() ? 0U : kCraft | kLearning;
+    return w.beings().raw().view<CraftHistory>().empty()
+               ? 0U
+               : kCraft | kLearning | (w.beings().raw().view<Ambient>().empty() ? 0U : kFire);
 }
 void save_craft(const World& w, std::vector<save::Chunk>& out) {
     if (craft_features(w) == 0) return;
@@ -60,7 +62,8 @@ bool craft_headers(std::span<const save::Chunk> chunks, std::uint32_t& features,
     if (camp) {
         if (camp->version != 4 || !camp->critical || camp->data.size() < 4) return fail("unsupported Camp format");
         ByteReader mask(std::span(camp->data).last(4));
-        if (!mask.u32(features) || (features != 0 && features != (kCraft | kLearning)))
+        if (!mask.u32(features) ||
+            (features != 0 && features != (kCraft | kLearning) && features != (kCraft | kLearning | kFire)))
             return fail("unsupported camp features");
     }
     for (const auto tag : {save::tag("LIFE"), save::tag("DRMS"), save::tag("CRFT"), save::tag("KNOW"),

@@ -190,6 +190,8 @@ At heat 2–3, the cooking attempt settles after one hour at maker level, or lev
 5. `T3.13c.5` Implement cooking/burning, nutrition and incidental discovery (`RCK-03`, `MND-10`) in `demo/fire.cpp`, `living.cpp`; at-risk food may fall by heat through ordinary placement, never a scripted first-cooking event.
 6. `T3.13c.6` Add a stand-in flame and fire/food cards in the existing drawing/bridge (`PRE-35`), plus a fresh scene variant whose initial fire is already out for friction validation (`RES-23`). This variant has no forced success or added knowledge.
 
+`T3.13c.1` stores strict critical FIRE1/THER1 in format 4; earlier saves are refused. Saved camp slots retain ambient/fire and food deadlines beside hourly renewal. Reference, mass, duplicate/missing chunk and lost-event faults are refused. Records reopen exactly across shuffled storage and four configured workers, including a labelled zero-person setup; this does not implement deaths or the later fire consumers.
+
 **Tests:** `dry_friction_both_routes`, `wet_never_ignites`, `five_kg_hour`, `banked_overnight`, `warmth_two_metres`, `cook_one_hour_burn_two`, `unseen_timer`, `fuel_competition`, `fire_reopen`. Plant negative-fuel, repeated-cook and missed-transition faults; preserve interrupt and 1/4-worker/view equivalence; 200 low/high trials per recipe.
 Screens: fire card “Campfire · 2.5 kg fuel · about 30 minutes left”; person “Resting by fire · feels warmer”; food “Cooked roots · more filling”; quantities/times are sampled state, not animation guesses. History names the first noticer and actual route, not merely the person nearest the camera.
 

@@ -3,6 +3,7 @@
 #include <limits>
 #include "kd/chance/chance.hpp"
 #include "kd/demo/crafting.hpp"
+#include "kd/demo/fire.hpp"
 #include "kd/demo/learning.hpp"
 #include "kd/demo/parts.hpp"
 
@@ -735,6 +736,10 @@ void Living::handle(world::Context& c, const event::Event& e) {
     const ecs::Id id{e.key.owner};
     const auto h = c.world().beings().handle(id);
     if (id.family() == ecs::Family::place) {
+        if (e.slot >= 2) {
+            FireRules::handle(c, id, e.slot);
+            return;
+        }
         renew(c, h);
         return;
     }

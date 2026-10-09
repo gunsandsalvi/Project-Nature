@@ -1,5 +1,6 @@
 #include "kd/world/world.hpp"
 #include "kd/world/craft_store.hpp"
+#include "kd/world/fire_store.hpp"
 
 #include <algorithm>
 #include <limits>
@@ -268,6 +269,10 @@ World::World(std::uint64_t seed, const data::Catalogue& catalogue) : seed_(seed)
     beings_.raw().storage<CraftHistory>();
     beings_.raw().storage<Lessons>();
     things_.raw().storage<Item>();
+    things_.raw().storage<Fire>();
+    things_.raw().storage<HeatTimer>();
+    beings_.raw().storage<Thermal>();
+    beings_.raw().storage<Ambient>();
     set_layer(ecs::owners::commands, commands_);
 }
 
@@ -934,6 +939,7 @@ std::vector<save::Chunk> World::save() const {
         out.push_back({save::tag("DRMS"), 1, true, dreams.take()});
     }
     save_craft(*this, out);
+    save_fire(*this, out);
     return out;
 }
 
@@ -949,7 +955,7 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
     const auto* camp_chunk = save::find_chunk(chunks, save::tag("CAMP"));
     const auto* life_chunk = save::find_chunk(chunks, save::tag("LIFE"));
     std::uint32_t features = 0;
-    if (!craft_headers(chunks, features, why)) return false;
+    if (!craft_headers(chunks, features, why) || !fire_headers(chunks, features, why)) return false;
     if ((camp_chunk && camp_chunk->version >= 2 && !life_chunk) ||
         (life_chunk && (!camp_chunk || camp_chunk->version < 2))) {
         why = "living camp extension is missing or mismatched";
@@ -966,7 +972,7 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
     for (const save::Chunk& c : chunks) {
         if (c.critical && c.tag != save::tag("CAMP") && c.tag != save::tag("LIFE") && c.tag != save::tag("DRMS") &&
             c.tag != save::tag("CRFT") && c.tag != save::tag("KNOW") && c.tag != save::tag("HIST") &&
-            c.tag != save::tag("LEAR") &&
+            c.tag != save::tag("LEAR") && c.tag != save::tag("FIRE") && c.tag != save::tag("THER") &&
             std::none_of(kParts.begin(), kParts.end(), [&](const auto& p) { return p.first == c.tag; })) {
             why = "it holds a part this version cannot read";
             return false;
@@ -1554,7 +1560,8 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                 }
             }
         }
-        if (!load_craft(*this, chunks, entries, features, why)) return false;
+        if (!load_craft(*this, chunks, entries, features, why) || !load_fire(*this, chunks, entries, features, why))
+            return false;
         context_.now_ = frontier_;
         for (System* sys : systems) {
             sys->opened(*this);
@@ -1603,6 +1610,8 @@ Digests World::digests() const {
                 ecs::digest_component(*c, d);
             }
             if (const auto* life = beings_.raw().try_get<Life>(h)) ecs::digest_component(*life, d);
+            if (const auto* thermal = beings_.raw().try_get<Thermal>(h)) ecs::digest_component(*thermal, d);
+            if (const auto* ambient = beings_.raw().try_get<Ambient>(h)) ecs::digest_component(*ambient, d);
             if (const auto* work = beings_.raw().try_get<Work>(h)) ecs::digest_component(*work, d);
             if (const auto* knowledge = beings_.raw().try_get<Knowledge>(h)) ecs::digest_component(*knowledge, d);
             if (const auto* history = beings_.raw().try_get<CraftHistory>(h)) ecs::digest_component(*history, d);
@@ -1630,6 +1639,8 @@ Digests World::digests() const {
                 d.u64(id.value);
                 ecs::digest_component(*item, d);
             }
+            if (const auto* fire = things_.raw().try_get<Fire>(h)) ecs::digest_component(*fire, d);
+            if (const auto* timer = things_.raw().try_get<HeatTimer>(h)) ecs::digest_component(*timer, d);
         });
         out.things = d.value();
     }

@@ -32,6 +32,7 @@
 #include "kd/save/snapshot.hpp"
 #include "kd/world/camp.hpp"
 #include "kd/world/dream.hpp"
+#include "kd/world/fire.hpp"
 #include "kd/world/knowledge.hpp"
 #include "kd/world/life.hpp"
 #include "kd/world/parts.hpp"
