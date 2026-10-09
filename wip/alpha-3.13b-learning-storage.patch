@@ -1,0 +1,784 @@
+diff --git a/sim/CMakeLists.txt b/sim/CMakeLists.txt
+index 32ba665..123b0c0 100644
+--- a/sim/CMakeLists.txt
++++ b/sim/CMakeLists.txt
+@@ -71,6 +71,7 @@ add_library(kd_sim STATIC
+     src/kd/demo/craft_work.cpp
+     src/kd/demo/crafting.cpp
+     src/kd/demo/discovery.cpp
++    src/kd/demo/learning.cpp
+     src/kd/demo/living.cpp
+     src/kd/demo/kept.cpp
+     src/kd/num/angle.cpp
+@@ -142,6 +143,7 @@ if(KD_SIM_TESTS)
+         tests/scene_test.cpp
+         tests/world_test.cpp
+         tests/craft_test.cpp
++        tests/learning_test.cpp
+         tests/camp_test.cpp
+         tests/living_test.cpp)
+     target_include_directories(kd_sim_tests SYSTEM PRIVATE "${KD_DOCTEST}" "${KD_XXHASH}")
+diff --git a/sim/src/kd/demo/crafting.cpp b/sim/src/kd/demo/crafting.cpp
+index 7f415cc..095f115 100644
+--- a/sim/src/kd/demo/crafting.cpp
++++ b/sim/src/kd/demo/crafting.cpp
+@@ -48,6 +48,7 @@ void Crafting::initialise(world::World& w) {
+         } else if (auto* camp = raw.try_get<world::Camp>(h)) {
+             KD_CHECK(!raw.all_of<world::CraftHistory>(h), "Fresh stock is materialised once");
+             raw.emplace<world::CraftHistory>(h);
++            raw.emplace<world::Lessons>(h);
+             const auto stone = camp->stone_mg, wood = camp->wood_mg;
+             const auto& scenes = w.catalogue().kind<DiscoveryScene>();
+             KD_CHECK(scenes.size() == 1, "Fresh Discovery camp needs its recorded scene");
+diff --git a/sim/src/kd/demo/learning.cpp b/sim/src/kd/demo/learning.cpp
+new file mode 100644
+index 0000000..0b94371
+--- /dev/null
++++ b/sim/src/kd/demo/learning.cpp
+@@ -0,0 +1,53 @@
++#include "kd/demo/learning.hpp"
++#include "kd/num/convert.hpp"
++#include "kd/num/maths.hpp"
++namespace kd::demo {
++bool Learning::knows(const world::Knowledge& knowledge, std::uint32_t recipe) {
++    return std::any_of(knowledge.skills.begin(), knowledge.skills.end(),
++                       [&](const auto& s) { return s.recipe == recipe && s.known; });
++}
++std::int64_t Learning::taught_multiplier(const world::Practice& teacher) {
++    KD_CHECK(teacher.level >= 0 && teacher.level <= 10000, "Teacher skill lies between zero and ten");
++    return 4 * (1000000 + teacher.level * 100);
++}
++void Learning::fade(world::Practice& skill, time::Seconds now) {
++    KD_CHECK(now >= 0 && skill.decay_at <= now && skill.level >= 0 && skill.best >= skill.level,
++             "Fading uses an earlier personal practice anchor");
++    if (skill.decay_level == 0 && skill.level != 0) {
++        skill.decay_level = skill.level;
++        skill.decay_at = skill.last_use >= 0 ? skill.last_use : 0;
++    }
++    const auto floor = (skill.best + 1) / 2;
++    const auto span = std::max<std::int64_t>(0, skill.decay_level - floor);
++    const auto elapsed = static_cast<double>(now - skill.decay_at) / static_cast<double>(5 * time::kYear);
++    skill.level = floor + num::to_int(static_cast<double>(span) * num::exp2(-elapsed), num::Round::down);
++}
++void Learning::practice(world::Practice& skill, time::Seconds now, time::Seconds seconds, bool success,
++                        std::int64_t learning_ppm, std::int64_t multiplier_ppm) {
++    KD_CHECK(seconds >= 0 && seconds <= time::kYear && learning_ppm >= 0 && learning_ppm <= 10000000 &&
++                 multiplier_ppm >= 0 && multiplier_ppm <= 8000000,
++             "Practice uses bounded elapsed time and recorded multipliers");
++    fade(skill, now);
++    using Wide = __int128;
++    const auto numerator =
++        static_cast<Wide>(seconds) * learning_ppm * multiplier_ppm * (success ? 2 : 1) + skill.scale_remainder;
++    const auto effective = static_cast<std::int64_t>(numerator / 1000000);
++    skill.scale_remainder = static_cast<std::int64_t>(numerator % 1000000);
++    const auto accumulated = effective + skill.seconds_remainder;
++    skill.seconds += accumulated / 1000000;
++    skill.seconds_remainder = accumulated % 1000000;
++    auto remaining = effective + skill.fraction;
++    // 4,000 thousandths over 180 effective hours, then 5,000 over 780 hours.
++    while (skill.level < 10000) {
++        const auto unit = skill.level < 5000 ? 162000000 : 561600000;
++        if (remaining < unit) break;
++        remaining -= unit;
++        ++skill.level;
++    }
++    skill.fraction = skill.level == 10000 ? 0 : remaining;
++    skill.best = std::max(skill.best, skill.level);
++    skill.last_use = now;
++    skill.decay_at = now;
++    skill.decay_level = skill.level;
++}
++}  // namespace kd::demo
+diff --git a/sim/src/kd/demo/learning.hpp b/sim/src/kd/demo/learning.hpp
+new file mode 100644
+index 0000000..d436e8a
+--- /dev/null
++++ b/sim/src/kd/demo/learning.hpp
+@@ -0,0 +1,14 @@
++// Personal, event-backed learning and conserved fractional practice (MND-06 MND-13 MND-23).
++#pragma once
++#include "kd/time/calendar.hpp"
++#include "kd/world/knowledge.hpp"
++namespace kd::demo {
++class Learning {
++public:
++    [[nodiscard]] static bool knows(const world::Knowledge& knowledge, std::uint32_t recipe);
++    [[nodiscard]] static std::int64_t taught_multiplier(const world::Practice& teacher);
++    static void fade(world::Practice& skill, time::Seconds now);
++    static void practice(world::Practice& skill, time::Seconds now, time::Seconds seconds, bool success,
++                         std::int64_t learning_ppm = 1000000, std::int64_t multiplier_ppm = 1000000);
++};
++}  // namespace kd::demo
+diff --git a/sim/src/kd/save/snapshot.hpp b/sim/src/kd/save/snapshot.hpp
+index 68c4fb8..9efe79c 100644
+--- a/sim/src/kd/save/snapshot.hpp
++++ b/sim/src/kd/save/snapshot.hpp
+@@ -33,7 +33,7 @@ struct Chunk {
+ };
+ 
+ /// The snapshot format's own version, in its header.
+-inline constexpr std::uint32_t kSnapshotVersion = 2;
++inline constexpr std::uint32_t kSnapshotVersion = 3;
+ 
+ [[nodiscard]] inline std::string metadata_format() {
+     return "format = " + std::to_string(kSnapshotVersion) + "\n";
+diff --git a/sim/src/kd/world/craft.hpp b/sim/src/kd/world/craft.hpp
+index 8956867..109e235 100644
+--- a/sim/src/kd/world/craft.hpp
++++ b/sim/src/kd/world/craft.hpp
+@@ -62,10 +62,11 @@ struct Reservation {
+ };
+ struct Work {
+     static constexpr std::string_view name = "work";
+-    static constexpr std::uint32_t version = 1;
++    static constexpr std::uint32_t version = 2;
+     std::uint8_t state = 0, action = 0, intended = 0, route = 0, rolled = 0;
+     std::uint32_t recipe = kNoRecipe;
+     std::uint64_t number = 0, completed_tries = 0, applied_marker = 0;
++    std::uint64_t lesson = 0;
+     std::int64_t start = 0, end = 0, next_try = 0, retained_progress = 0;
+     std::int64_t active_start = 0, try_seconds = 0, unit_mass = 0, goal_mass = 0;
+     num::Point target{};
+@@ -84,6 +85,7 @@ struct Work {
+         v.u64({"number", "person's never-reused work number"}, c.number);
+         v.u64({"completed_tries", "completed known tries"}, c.completed_tries);
+         v.u64({"applied_marker", "last applied try"}, c.applied_marker);
++        v.u64({"lesson", "matching shared-practice session, or zero"}, c.lesson);
+         v.i64({"start", "original work start"}, c.start);
+         v.i64({"active_start", "start of current active interval"}, c.active_start);
+         v.i64({"end", "current activity end"}, c.end);
+diff --git a/sim/src/kd/world/craft_store.cpp b/sim/src/kd/world/craft_store.cpp
+index b8cd015..f1264fc 100644
+--- a/sim/src/kd/world/craft_store.cpp
++++ b/sim/src/kd/world/craft_store.cpp
+@@ -2,15 +2,16 @@
+ #include <map>
+ #include <set>
+ #include "kd/data/craft.hpp"
++#include "kd/demo/living.hpp"
+ namespace kd::world {
+ std::uint32_t craft_features(const World& w) {
+-    return w.beings().raw().view<Knowledge>().empty() ? 0U : kCraft;
++    return w.beings().raw().view<Knowledge>().empty() ? 0U : kCraft | kLearning;
+ }
+ void save_craft(const World& w, std::vector<save::Chunk>& out) {
+     if (craft_features(w) == 0) return;
+     const auto& beings = w.beings();
+     const auto& things = w.things();
+-    ByteWriter craft, know, history;
++    ByteWriter craft, know, history, learning;
+     craft.u64(things.raw().view<Item>().size() + beings.raw().view<Work>().size());
+     // Families sort people before things in canonical IDs.
+     beings.each([&](ecs::Id id, Beings::Handle h) {
+@@ -29,6 +30,7 @@ void save_craft(const World& w, std::vector<save::Chunk>& out) {
+     });
+     know.u64(beings.raw().view<Knowledge>().size());
+     history.u64(beings.raw().view<CraftHistory>().size());
++    learning.u64(beings.raw().view<Lessons>().size());
+     beings.each([&](ecs::Id id, Beings::Handle h) {
+         if (const auto* x = beings.raw().try_get<Knowledge>(h)) {
+             know.u64(id.value);
+@@ -38,10 +40,16 @@ void save_craft(const World& w, std::vector<save::Chunk>& out) {
+             history.u64(id.value);
+             ecs::write_component(*x, history);
+         }
++        if (const auto* x = beings.raw().try_get<Lessons>(h)) {
++            learning.u64(id.value);
++            ecs::write_component(*x, learning);
++        }
+     });
+     out.push_back({save::tag("CRFT"), 1, true, craft.take()});
+     out.push_back({save::tag("KNOW"), 1, true, know.take()});
+     out.push_back({save::tag("HIST"), 1, true, history.take()});
++    // LEARN1 retains the foundation's four-letter wire tags.
++    out.push_back({save::tag("LEAR"), 1, true, learning.take()});
+ }
+ bool craft_headers(std::span<const save::Chunk> chunks, std::uint32_t& features, std::string& why) {
+     const auto fail = [&](std::string text) {
+@@ -52,15 +60,17 @@ bool craft_headers(std::span<const save::Chunk> chunks, std::uint32_t& features,
+     if (camp) {
+         if (camp->version != 4 || !camp->critical || camp->data.size() < 4) return fail("unsupported Camp format");
+         ByteReader mask(std::span(camp->data).last(4));
+-        if (!mask.u32(features) || (features != 0 && features != kCraft)) return fail("unsupported camp features");
++        if (!mask.u32(features) || (features != 0 && features != (kCraft | kLearning)))
++            return fail("unsupported camp features");
+     }
+-    for (const auto tag :
+-         {save::tag("LIFE"), save::tag("DRMS"), save::tag("CRFT"), save::tag("KNOW"), save::tag("HIST")}) {
++    for (const auto tag : {save::tag("LIFE"), save::tag("DRMS"), save::tag("CRFT"), save::tag("KNOW"),
++                           save::tag("HIST"), save::tag("LEAR")}) {
+         const auto* c = save::find_chunk(chunks, tag);
+         const auto count = std::count_if(chunks.begin(), chunks.end(), [&](const auto& x) { return x.tag == tag; });
+         if (count > 1) return fail("duplicate camp extension");
+-        const bool craft = tag == save::tag("CRFT") || tag == save::tag("KNOW") || tag == save::tag("HIST");
+-        if ((craft && ((features == kCraft) != bool(c))) || (features == kCraft && !c))
++        const bool craft = tag == save::tag("CRFT") || tag == save::tag("KNOW") || tag == save::tag("HIST") ||
++                           tag == save::tag("LEAR");
++        if ((craft && ((features != 0) != bool(c))) || (features != 0 && !c))
+             return fail("required craft extension is missing or mismatched");
+         if (c && (!c->critical || c->version != (tag == save::tag("LIFE") ? 2U : 1U)))
+             return fail("unsupported camp extension version");
+@@ -83,7 +93,10 @@ bool item(const World& w, ecs::Id id, bool optional = false) {
+ }
+ bool practice(const Practice& p, time::Seconds now) {
+     return p.level >= 0 && p.level <= 10000 && p.best >= p.level && p.best <= 10000 && p.seconds >= 0 &&
+-           p.seconds <= 60 * time::kDay * 1000 && p.last_use >= -1 && p.last_use <= now;
++           p.seconds <= 60 * time::kDay * 1000 && p.last_use >= -1 && p.last_use <= now && p.fraction >= 0 &&
++           p.fraction < 561600000 && p.seconds_remainder >= 0 && p.seconds_remainder < 1000000 &&
++           p.scale_remainder >= 0 && p.scale_remainder < 1000000 && p.decay_at >= 0 && p.decay_at <= now &&
++           p.decay_level >= 0 && p.decay_level <= p.best && (p.decay_level == 0 || p.decay_level >= p.level);
+ }
+ bool familiar(const Familiar& f, time::Seconds now) {
+     if (f.mask >= (1U << 18U) || f.edible > 1 || f.state > 4 || f.edible_source > 6 || f.at < 0 || f.at > now)
+@@ -144,7 +157,7 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
+                 Work value;
+                 if (!h || !raw.all_of<Person>(*h) || !ecs::read_component(value, r, entries))
+                     return fail("invalid work record");
+-                if (value.state > 4 || value.action > 20 || value.intended > 1 || value.route > 3 || value.rolled > 1 ||
++                if (value.state > 4 || value.action > 20 || value.intended > 1 || value.route > 5 || value.rolled > 1 ||
+                     (!value.intended && value.recipe != kNoRecipe) || value.start < 0 || value.start > w.frontier() ||
+                     value.active_start < value.start || value.active_start > w.frontier() || value.end < 0 ||
+                     value.next_try < 0 || value.next_try > value.end || value.retained_progress < 0 ||
+@@ -157,7 +170,8 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
+                     (!value.inputs.empty() || value.number != 0 || value.intended || value.recipe != kNoRecipe ||
+                      value.completed_tries != 0 || value.applied_marker != 0 || value.rolled ||
+                      value.retained_progress != 0 || value.start != 0 || value.active_start != 0 || value.end != 0 ||
+-                     value.next_try != 0 || value.try_seconds != 0 || value.unit_mass != 0 || value.goal_mass != 0))
++                     value.next_try != 0 || value.try_seconds != 0 || value.unit_mass != 0 || value.goal_mass != 0 ||
++                     value.lesson != 0))
+                     return fail("idle work contains pending progress");
+                 raw.emplace<Work>(*h, std::move(value));
+             } else
+@@ -179,7 +193,10 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
+             if (value.performed >= (1U << 21U) || value.next_work == 0 || value.next_memory == 0 ||
+                 value.curiosity > 100 || value.kindness > 100 || value.curiosity_need > 100 || value.mood > 100 ||
+                 value.learning_ppm < 0 || value.learning_ppm > 10000000 || value.settled < 0 ||
+-                value.settled > w.frontier() || value.hourly_draw > static_cast<std::uint64_t>(w.frontier() / 3600 + 1))
++                value.settled > w.frontier() ||
++                value.hourly_draw > static_cast<std::uint64_t>(w.frontier() / 3600 + 1) ||
++                value.curiosity_remainder < 0 || value.curiosity_remainder >= time::kDay ||
++                !person(w, value.watching, true) || value.watching == id)
+                 return fail("invalid knowledge quantities");
+             for (const auto& p : value.sectors)
+                 if (!practice(p, w.frontier())) return fail("invalid sector practice");
+@@ -190,8 +207,8 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
+             std::set<std::uint32_t> skills;
+             for (const auto& s : value.skills)
+                 if (!skills.insert(s.recipe).second || !practice(s.practice, w.frontier()) ||
+-                    s.observation_quarters > 4 || s.observation_remainder < 0 || s.observation_remainder >= 1000000 ||
+-                    s.route > 5 || !person(w, s.source, true))
++                    s.observation_quarters > 20 || s.observation_remainder < 0 || s.observation_remainder >= 1000000 ||
++                    s.route > 5 || s.known > 1 || !person(w, s.source, true))
+                     return fail("invalid skill evidence");
+             std::set<std::uint64_t> memories;
+             for (const auto& m : value.memories) {
+@@ -221,6 +238,22 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
+                 for (const auto& input : reason.inputs)
+                     if (!item(w, input.id)) return fail("invalid choice input");
+             }
++            std::pair<ecs::Id, std::uint32_t> previous_peer{};
++            for (const auto& peer : value.peers) {
++                const auto key = std::pair{peer.person, peer.recipe};
++                if (!(previous_peer < key) || !person(w, peer.person) || peer.person == id || peer.knows > 1 ||
++                    peer.route < 1 || peer.route > 3 || peer.at < 0 || peer.at > w.frontier())
++                    return fail("invalid peer knowledge evidence");
++                previous_peer = key;
++            }
++            ecs::Id previous_observer{};
++            for (const auto& seen : value.observations) {
++                if (!(previous_observer < seen.person) || !person(w, seen.person) || seen.person == id ||
++                    seen.work == 0 || seen.settled < 0 || seen.settled > w.frontier() || seen.weighted_seconds < 0 ||
++                    seen.weighted_seconds > 4 * time::kHour)
++                    return fail("invalid partial work observation");
++                previous_observer = seen.person;
++            }
+             raw.emplace<Knowledge>(w.beings().handle(id), std::move(value));
+         }
+         if (!r.finished()) return fail("trailing knowledge records");
+@@ -255,6 +288,73 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
+         }
+         if (!r.finished()) return fail("trailing craft history records");
+     }
++    {
++        ByteReader r(save::find_chunk(chunks, save::tag("LEAR"))->data);
++        std::uint64_t count = 0;
++        ecs::Id last{};
++        if (!r.u64(count) || count != raw.view<Camp>().size()) return fail("invalid learning camp count");
++        for (std::uint64_t n = 0; n < count; ++n) {
++            ecs::Id id{};
++            Lessons value;
++            if (!r.u64(id.value) || !(last < id)) return fail("invalid learning camp order");
++            const auto h = w.beings().find(id);
++            if (!h || !raw.all_of<Camp>(*h) || !ecs::read_component(value, r, entries) || value.next == 0)
++                return fail("invalid learning camp record");
++            last = id;
++            std::uint64_t previous = 0;
++            std::set<ecs::Id> participants;
++            for (const auto& session : value.sessions) {
++                if (session.id <= previous || session.id >= value.next || !person(w, session.teacher) ||
++                    !person(w, session.learner) || session.teacher == session.learner ||
++                    !participants.insert(session.teacher).second || !participants.insert(session.learner).second ||
++                    !point(w, session.meeting) || session.state > 2 || session.offered < 0 ||
++                    session.offered > w.frontier() || session.begun < 0 || session.begun > w.frontier() ||
++                    (session.begun != 0 && session.begun < session.offered) || session.settled < session.offered ||
++                    session.settled > w.frontier() || session.end < 0 || session.seconds < 0 ||
++                    session.seconds >= 1800 || session.credited_seconds < 0 ||
++                    session.credited_seconds > session.seconds ||
++                    (session.state == 0 && (session.seconds != 0 || session.begun != 0)) ||
++                    (session.state == 1 &&
++                     (session.end < w.frontier() || session.end != session.settled + 1800 - session.seconds)))
++                    return fail("invalid shared practice progress or participants");
++                previous = session.id;
++                const auto teacher = w.beings().handle(session.teacher);
++                const auto learner = w.beings().handle(session.learner);
++                if (!raw.all_of<demo::Home, Knowledge, Work, Activity>(teacher) ||
++                    !raw.all_of<demo::Home, Knowledge, Work, Activity>(learner))
++                    return fail("shared practice participant is missing required state");
++                if (raw.get<demo::Home>(teacher).camp != id || raw.get<demo::Home>(learner).camp != id ||
++                    raw.get<Knowledge>(teacher).session != session.id ||
++                    raw.get<Knowledge>(learner).session != session.id || raw.get<Knowledge>(teacher).kindness < 60 ||
++                    std::none_of(raw.get<Knowledge>(teacher).skills.begin(), raw.get<Knowledge>(teacher).skills.end(),
++                                 [&](const auto& s) { return s.recipe == session.recipe && s.known; }))
++                    return fail("shared practice disagrees with personal knowledge");
++                const auto& work = raw.get<Work>(learner);
++                if ((session.work == 0 && (session.state != 2 || work.lesson != 0)) ||
++                    (session.work != 0 && (work.number != session.work || work.lesson != session.id || !work.intended ||
++                                           work.recipe != session.recipe || work.route != 5)))
++                    return fail("shared practice disagrees with learner work");
++                if (session.state < 2 &&
++                    (raw.get<Activity>(teacher).what != static_cast<std::uint8_t>(LivingAct::teach) ||
++                     raw.get<Activity>(teacher).end != session.end || (session.state == 1 && work.state != 2) ||
++                     (session.state == 0 && work.state != 1)))
++                    return fail("shared practice disagrees with activity events");
++                if (session.state == 1 &&
++                    (w.torus().squared_distance(raw.get<Place>(teacher).at, raw.get<Place>(learner).at) > 200 * 200 ||
++                     !demo::Living::visible(w, id, raw.get<Place>(teacher).at, raw.get<Place>(learner).at)))
++                    return fail("shared practice participants are separated");
++                if (session.last_try != 0) {
++                    const auto& history = raw.get<CraftHistory>(*h);
++                    if (std::none_of(history.events.begin(), history.events.end(), [&](const auto& e) {
++                            return e.id == session.last_try && e.actor == session.learner && e.recipe == session.recipe;
++                        }))
++                        return fail("shared practice has no actual credited try");
++                }
++            }
++            raw.emplace<Lessons>(*h, std::move(value));
++        }
++        if (!r.finished()) return fail("trailing learning records");
++    }
+     bool valid = true;
+     std::map<ecs::Id, std::int64_t> reserved;
+     std::set<ecs::Id> tools;
+@@ -274,7 +374,7 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
+     });
+     const auto events = w.queue().live_in_order([&](const auto& e) { return w.live(e); });
+     w.beings().each([&](ecs::Id id, Beings::Handle h) {
+-        if (raw.all_of<Camp>(h) && !raw.all_of<CraftHistory>(h)) valid = false;
++        if (raw.all_of<Camp>(h) && !raw.all_of<CraftHistory, Lessons>(h)) valid = false;
+         if (!raw.all_of<Person>(h)) return;
+         if (!raw.all_of<Work, Knowledge>(h)) {
+             valid = false;
+@@ -288,7 +388,7 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
+         if (work.number >= know.next_work ||
+             (work.state != 0 && (work.number == 0 || work.inputs.empty() || work.try_seconds == 0)))
+             valid = false;
+-        if ((act.what >= 8) != (work.state == 2) || work.state == 3 ||
++        if ((act.what == static_cast<std::uint8_t>(LivingAct::craft)) != (work.state == 2) || work.state == 3 ||
+             (work.state == 2 && (work.end != act.end || work.active_start != act.start || work.end < w.frontier())) ||
+             (schedule.expected[2] != 0 &&
+              (work.state != 2 || !work.intended || work.next_try < w.frontier() || work.next_try >= work.end)))
+@@ -331,6 +431,43 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
+         };
+         for (const auto& s : know.skills)
+             if (!event_exists(s.source_event)) valid = false;
++        const auto& sessions = raw.get<Lessons>(w.beings().handle(camp)).sessions;
++        const auto session = std::find_if(sessions.begin(), sessions.end(), [&](const auto& x) {
++            return x.id == know.session && (x.teacher == id || x.learner == id);
++        });
++        if ((know.session != 0 && session == sessions.end()) ||
++            (work.lesson != 0 && (session == sessions.end() || session->learner != id || work.lesson != session->id)) ||
++            (act.what == static_cast<std::uint8_t>(LivingAct::teach) &&
++             (session == sessions.end() || session->teacher != id || session->state == 2)) ||
++            ((act.what == static_cast<std::uint8_t>(LivingAct::watch_craft)) != (know.watching.value != 0)) ||
++            !event_exists(know.last_observed_event))
++            valid = false;
++        for (const auto& peer : know.peers) {
++            if (!event_exists(peer.event) || (peer.route == 3 && peer.event != 0) ||
++                (peer.route != 3 && peer.event == 0))
++                valid = false;
++            if (peer.event != 0 && std::none_of(history.events.begin(), history.events.end(), [&](const auto& e) {
++                    return e.id == peer.event && e.actor == peer.person && e.recipe == peer.recipe;
++                }))
++                valid = false;
++        }
++        for (const auto& observation : know.observations) {
++            const auto other = w.beings().handle(observation.person);
++            if (raw.get<demo::Home>(other).camp != camp || observation.work >= raw.get<Knowledge>(other).next_work)
++                valid = false;
++            if (observation.weighted_seconds != 0) {
++                const auto* source_work = raw.try_get<Work>(other);
++                if (!source_work) {
++                    valid = false;
++                    continue;
++                }
++                const auto& source = *source_work;
++                if (source.number != observation.work || (source.state != 2 && source.state != 4) ||
++                    observation.attempt != source.completed_tries + 1 ||
++                    observation.weighted_seconds > 4 * source.try_seconds)
++                    valid = false;
++            }
++        }
+         const auto evidence_valid = [&](const Familiar& f) {
+             for (std::size_t i = 0; i < 18; ++i)
+                 if (!person(w, f.source_people[i], true) || !event_exists(f.source_events[i])) valid = false;
+diff --git a/sim/src/kd/world/knowledge.hpp b/sim/src/kd/world/knowledge.hpp
+index 5413d3d..68478ae 100644
+--- a/sim/src/kd/world/knowledge.hpp
++++ b/sim/src/kd/world/knowledge.hpp
+@@ -35,25 +35,31 @@ struct Familiar {
+ };
+ struct Practice {
+     static constexpr std::string_view name = "practice";
+-    static constexpr std::uint32_t version = 1;
++    static constexpr std::uint32_t version = 2;
+     std::int64_t level = 0, best = 0, seconds = 0, last_use = -1;
++    std::int64_t fraction = 0, seconds_remainder = 0, scale_remainder = 0, decay_at = 0, decay_level = 0;
+     template <typename V, typename Self>
+     static void visit(V& v, Self& c) {
+         v.i64({"level", "thousandths of a level"}, c.level);
+         v.i64({"best", "best recorded thousandths"}, c.best);
+         v.i64({"seconds", "effective practice seconds"}, c.seconds);
+         v.i64({"last_use", "last real use, minus one when unused"}, c.last_use);
++        v.i64({"fraction", "effective microseconds toward the next skill thousandth"}, c.fraction);
++        v.i64({"seconds_remainder", "fractional effective practice microseconds"}, c.seconds_remainder);
++        v.i64({"scale_remainder", "fractional multiplier numerator"}, c.scale_remainder);
++        v.i64({"decay_at", "fixed fading anchor second"}, c.decay_at);
++        v.i64({"decay_level", "skill at the fixed fading anchor"}, c.decay_level);
+     }
+ };
+ struct Skill {
+     static constexpr std::string_view name = "skill";
+-    static constexpr std::uint32_t version = 1;
++    static constexpr std::uint32_t version = 2;
+     std::uint32_t recipe = 0, observation_quarters = 0;
+     std::int64_t observation_remainder = 0;
+     Practice practice;
+     ecs::Id source{};
+     std::uint64_t source_event = 0;
+-    std::uint8_t route = 0;
++    std::uint8_t route = 0, known = 1;
+     template <typename V, typename Self>
+     static void visit(V& v, Self& c) {
+         v.entry({"recipe", "personally learned recipe"}, c.recipe, "blueprint");
+@@ -61,10 +67,83 @@ struct Skill {
+         v.id({"source", "actual learning source"}, c.source);
+         v.u64({"source_event", "evidence event, zero for starting knowledge"}, c.source_event);
+         v.u8({"route", "starting, own accident, experiment, hunch, watched or taught"}, c.route);
++        v.u8({"known", "knows the recipe; unfinished watching or teaching is not an unlock"}, c.known);
+         v.u32({"observation_quarters", "credited observed quarters"}, c.observation_quarters);
+         v.i64({"observation_remainder", "millionths of an observation quarter"}, c.observation_remainder);
+     }
+ };
++struct PeerBelief {
++    static constexpr std::string_view name = "peer-craft-belief";
++    static constexpr std::uint32_t version = 1;
++    ecs::Id person{};
++    std::uint32_t recipe = 0;
++    std::uint8_t knows = 0, route = 0;
++    std::int64_t at = 0;
++    std::uint64_t event = 0;
++    template <typename V, typename Self>
++    static void visit(V& v, Self& c) {
++        v.id({"person", "person actually seen or spoken with"}, c.person);
++        v.entry({"recipe", "own known recipe being discussed or demonstrated"}, c.recipe, "blueprint");
++        v.u8({"knows", "belief about knowledge, zero for absence"}, c.knows);
++        v.u8({"route", "demonstration, failed attempt or truthful exchange"}, c.route);
++        v.i64({"at", "actual evidence second"}, c.at);
++        v.u64({"event", "actual evidence result, or zero for exchange"}, c.event);
++    }
++};
++struct Observation {
++    static constexpr std::string_view name = "work-observation";
++    static constexpr std::uint32_t version = 1;
++    ecs::Id person{};
++    std::uint64_t work = 0, attempt = 0;
++    std::int64_t settled = 0, weighted_seconds = 0;
++    template <typename V, typename Self>
++    static void visit(V& v, Self& c) {
++        v.id({"person", "actual demonstrator"}, c.person);
++        v.u64({"work", "demonstrator's unique work number"}, c.work);
++        v.u64({"attempt", "actual demonstrated try number"}, c.attempt);
++        v.i64({"settled", "exposure already considered through this second"}, c.settled);
++        v.i64({"weighted_seconds", "visible seconds, weighted four for deliberate watching"}, c.weighted_seconds);
++    }
++};
++struct Lesson {
++    static constexpr std::string_view name = "shared-practice";
++    static constexpr std::uint32_t version = 1;
++    std::uint64_t id = 0, work = 0, last_try = 0;
++    ecs::Id teacher{}, learner{};
++    std::uint32_t recipe = 0;
++    num::Point meeting{};
++    std::uint8_t state = 0;
++    std::int64_t offered = 0, begun = 0, settled = 0, end = 0;
++    std::int64_t seconds = 0, credited_seconds = 0;
++    template <typename V, typename Self>
++    static void visit(V& v, Self& c) {
++        v.u64({"id", "camp's unique shared session"}, c.id);
++        v.id({"teacher", "actual teacher"}, c.teacher);
++        v.id({"learner", "actual learner"}, c.learner);
++        v.entry({"recipe", "personally known recipe offered by the teacher"}, c.recipe, "blueprint");
++        v.point({"meeting", "reachable meeting position"}, c.meeting);
++        v.u8({"state", "meeting, practising or paused"}, c.state);
++        v.i64({"offered", "actual offer second"}, c.offered);
++        v.i64({"begun", "first shared work second"}, c.begun);
++        v.i64({"settled", "session progress considered through this second"}, c.settled);
++        v.i64({"end", "current shared work deadline"}, c.end);
++        v.i64({"seconds", "earned shared practice seconds"}, c.seconds);
++        v.i64({"credited_seconds", "elapsed practice already credited exactly once"}, c.credited_seconds);
++        v.u64({"work", "learner's actual work number, zero while uncollected"}, c.work);
++        v.u64({"last_try", "last demonstrated result credited exactly once"}, c.last_try);
++    }
++};
++struct Lessons {
++    static constexpr std::string_view name = "camp-learning";
++    static constexpr std::uint32_t version = 1;
++    std::uint64_t next = 1;
++    std::vector<Lesson> sessions;
++    template <typename V, typename Self>
++    static void visit(V& v, Self& c) {
++        v.u64({"next", "next shared-session identity"}, c.next);
++        v.records({"sessions", "sorted live or interrupted shared sessions"}, c.sessions, 64);
++    }
++};
+ struct Memory {
+     static constexpr std::string_view name = "handling-memory";
+     static constexpr std::uint32_t version = 1;
+@@ -134,17 +213,22 @@ struct CraftReason {
+ };
+ struct Knowledge {
+     static constexpr std::string_view name = "knowledge";
+-    static constexpr std::uint32_t version = 1;
++    static constexpr std::uint32_t version = 2;
+     std::uint32_t performed = 0;
+     std::uint64_t next_memory = 1, next_work = 1, hourly_draw = 0;
+     std::uint8_t curiosity = 50, kindness = 50, curiosity_need = 60, mood = 60;
+     std::int64_t learning_ppm = 1000000, settled = 0;
++    std::int64_t curiosity_remainder = 0;
++    std::uint64_t session = 0, last_observed_event = 0;
++    ecs::Id watching{};
+     std::array<Practice, 15> sectors{};
+     std::vector<Familiar> familiar;
+     std::vector<Skill> skills;
+     std::vector<Memory> memories;
+     std::vector<Hunch> hunches;
+     std::vector<CraftReason> reasons;
++    std::vector<PeerBelief> peers;
++    std::vector<Observation> observations;
+     template <typename V, typename Self>
+     static void visit(V& v, Self& c) {
+         v.u32({"performed", "actions actually performed"}, c.performed);
+@@ -157,12 +241,18 @@ struct Knowledge {
+         v.u8({"mood", "scoped mood"}, c.mood);
+         v.i64({"learning_ppm", "learning multiplier"}, c.learning_ppm);
+         v.i64({"settled", "last curiosity settlement"}, c.settled);
++        v.i64({"curiosity_remainder", "fractional daily curiosity settlement"}, c.curiosity_remainder);
++        v.u64({"session", "own live or paused shared session, or zero"}, c.session);
++        v.u64({"last_observed_event", "last demonstrated result already considered"}, c.last_observed_event);
++        v.id({"watching", "actual deliberate watching target, or zero"}, c.watching);
+         for (auto& x : c.sectors) Practice::visit(v, x);
+         v.records({"familiar", "known properties with evidence"}, c.familiar, 128);
+         v.records({"skills", "personal recipe skills"}, c.skills, 128);
+         v.records({"memories", "recent handling and surprise evidence"}, c.memories, 200);
+         v.records({"hunches", "bounded guesses"}, c.hunches, 5);
+         v.records({"reasons", "chosen and rejected actual options"}, c.reasons, 3);
++        v.records({"peers", "own evidence about a peer's craft knowledge"}, c.peers, 256);
++        v.records({"observations", "unfinished exposure to actual manufacture"}, c.observations, 64);
+     }
+ };
+ struct Result {
+diff --git a/sim/src/kd/world/world.cpp b/sim/src/kd/world/world.cpp
+index d45c386..d9ab0c6 100644
+--- a/sim/src/kd/world/world.cpp
++++ b/sim/src/kd/world/world.cpp
+@@ -892,6 +892,7 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
+     for (const save::Chunk& c : chunks) {
+         if (c.critical && c.tag != save::tag("CAMP") && c.tag != save::tag("LIFE") && c.tag != save::tag("DRMS") &&
+             c.tag != save::tag("CRFT") && c.tag != save::tag("KNOW") && c.tag != save::tag("HIST") &&
++            c.tag != save::tag("LEAR") &&
+             std::none_of(kParts.begin(), kParts.end(), [&](const auto& p) { return p.first == c.tag; })) {
+             why = "it holds a part this version cannot read";
+             return false;
+@@ -1531,6 +1532,7 @@ Digests World::digests() const {
+             if (const auto* work = beings_.raw().try_get<Work>(h)) ecs::digest_component(*work, d);
+             if (const auto* knowledge = beings_.raw().try_get<Knowledge>(h)) ecs::digest_component(*knowledge, d);
+             if (const auto* history = beings_.raw().try_get<CraftHistory>(h)) ecs::digest_component(*history, d);
++            if (const auto* lessons = beings_.raw().try_get<Lessons>(h)) ecs::digest_component(*lessons, d);
+             if (const auto* env = beings_.raw().try_get<Habitat>(h)) ecs::digest_component(*env, d);
+             if (const auto* thought = beings_.raw().try_get<Dream>(h)) ecs::digest_component(*thought, d);
+             if (const auto* ledger = beings_.raw().try_get<Dreams>(h)) {
+diff --git a/sim/tests/craft_test.cpp b/sim/tests/craft_test.cpp
+index a0eebb9..aaac102 100644
+--- a/sim/tests/craft_test.cpp
++++ b/sim/tests/craft_test.cpp
+@@ -37,8 +37,10 @@ struct StoredCraft {
+                 if (person.value == 0) person = id;
+                 raw.emplace<kd::world::Work>(h);
+                 raw.emplace<kd::world::Knowledge>(h);
+-            } else if (raw.all_of<kd::world::Camp>(h))
++            } else if (raw.all_of<kd::world::Camp>(h)) {
+                 raw.emplace<kd::world::CraftHistory>(h);
++                raw.emplace<kd::world::Lessons>(h);
++            }
+         });
+         const auto h = w.make_thing();
+         thing = w.things().id_of(h);
+@@ -114,7 +116,7 @@ TEST_CASE("current craft chunks refuse missing duplicate future truncated and fe
+     StoredCraft fixture;
+     const auto pristine = fixture.camp.world().save();
+     for (const auto tag : {kd::save::tag("CRFT"), kd::save::tag("KNOW"), kd::save::tag("HIST"), kd::save::tag("LIFE"),
+-                           kd::save::tag("DRMS")}) {
++                           kd::save::tag("DRMS"), kd::save::tag("LEAR")}) {
+         for (int fault = 0; fault < 5; ++fault) {
+             auto chunks = pristine;
+             std::string why;
+@@ -132,7 +134,7 @@ TEST_CASE("current craft chunks refuse missing duplicate future truncated and fe
+             CHECK_FALSE(why.empty());
+         }
+     }
+-    for (const auto flags : {0U, 2U, 3U, 16U}) {
++    for (const auto flags : {0U, 1U, 2U, 16U}) {
+         auto chunks = pristine;
+         auto& camp =
+             *std::find_if(chunks.begin(), chunks.end(), [](const auto& c) { return c.tag == kd::save::tag("CAMP"); });
+@@ -163,6 +165,44 @@ TEST_CASE("checksummed craft records refuse orphan ownership impossible progress
+         CHECK_FALSE(accepted(w, why));
+     }
+ }
++TEST_CASE("learning records preserve personal fractions and refuse impossible evidence") {
++    StoredCraft fixture;
++    auto& w = fixture.camp.world();
++    auto& raw = w.beings().raw();
++    auto& k = raw.get<kd::world::Knowledge>(w.beings().handle(fixture.person));
++    k.curiosity_remainder = 43210;
++    k.sectors[0] = {1234, 1234, 17, 0, 123456, 876543, 345678, 0, 1234};
++    kd::world::Skill unfinished;
++    unfinished.recipe = entry(catalogue(), "blueprint", "base:sharp_flake");
++    unfinished.known = 0;
++    unfinished.observation_quarters = 3;
++    unfinished.observation_remainder = 712345;
++    k.skills.push_back(unfinished);
++    std::string why;
++    auto copy = kd::demo::CrowdWorld::open(catalogue(), w.save(), why);
++    INFO(why);
++    REQUIRE(copy);
++    CHECK(kd::save::write_snapshot(copy->world().save()) == kd::save::write_snapshot(w.save()));
++    for (int fault = 0; fault < 11; ++fault) {
++        const auto previous = k;
++        if (fault == 0) k.curiosity_remainder = kd::time::kDay;
++        if (fault == 1) k.sectors[0].fraction = 561600000;
++        if (fault == 2) k.sectors[0].seconds_remainder = -1;
++        if (fault == 3) k.sectors[0].scale_remainder = 1000000;
++        if (fault == 4) k.sectors[0].decay_at = 1;
++        if (fault == 5) k.sectors[0].decay_level = 1233;
++        if (fault == 6) k.skills[0].observation_quarters = 21;
++        if (fault == 7) k.skills[0].known = 2;
++        if (fault == 8) k.session = 1;
++        if (fault == 9) k.watching = fixture.person;
++        if (fault == 10) k.last_observed_event = 1;
++        INFO(fault);
++        CHECK_FALSE(accepted(w, why));
++        k = previous;
++    }
++    raw.get<kd::world::Lessons>(w.beings().handle(fixture.home)).next = 0;
++    CHECK_FALSE(accepted(w, why));
++}
+ TEST_CASE("generic_fit and granite_control depend on characteristics and sizes rather than material names") {
+     const auto& c = catalogue();
+     REQUIRE(kd::data::run_checks(c).empty());
+diff --git a/sim/tests/learning_test.cpp b/sim/tests/learning_test.cpp
+new file mode 100644
+index 0000000..3f8125a
+--- /dev/null
++++ b/sim/tests/learning_test.cpp
+@@ -0,0 +1,80 @@
++#include "kd/demo/learning.hpp"
++#include "doctest.h"
++#include "kd/chance/chance.hpp"
++#include "kd/ecs/component.hpp"
++
++namespace {
++kd::world::Practice reopen(const kd::world::Practice& p) {
++    kd::ByteWriter writer;
++    kd::ecs::write_component(p, writer);
++    const auto bytes = writer.take();
++    kd::ByteReader reader(bytes);
++    kd::world::Practice out;
++    REQUIRE(kd::ecs::read_component(out, reader, {}));
++    REQUIRE(reader.finished());
++    return out;
++}
++std::vector<std::byte> encoded(const kd::world::Practice& p) {
++    kd::ByteWriter writer;
++    kd::ecs::write_component(p, writer);
++    return writer.take();
++}
++}  // namespace
++
++TEST_CASE("skill_curve conserves fractional effort and uses the declared two slopes") {
++    kd::world::Practice skill{1000, 1000, 0, 0};
++    kd::demo::Learning::practice(skill, 0, 180 * kd::time::kHour, false);
++    CHECK(skill.level == 5000);
++    CHECK(skill.seconds == 180 * kd::time::kHour);
++    kd::demo::Learning::practice(skill, 0, 780 * kd::time::kHour, false);
++    CHECK(skill.level == 10000);
++    CHECK(skill.best == 10000);
++    CHECK(skill.fraction == 0);
++    kd::world::Practice successful{1000, 1000, 0, 0};
++    kd::demo::Learning::practice(successful, 0, 90 * kd::time::kHour, true);
++    CHECK(successful.level == 5000);
++    kd::world::Practice whole{1000, 1000, 0, 0}, pieces = whole;
++    kd::demo::Learning::practice(whole, 0, 317, true, 917123, 5137777);
++    for (int i = 0; i < 317; ++i) {
++        kd::demo::Learning::practice(pieces, 0, 1, true, 917123, 5137777);
++        if (i % 7 == 0) pieces = reopen(pieces);
++    }
++    CHECK(encoded(pieces) == encoded(whole));
++    CHECK(whole.scale_remainder != 0);
++    CHECK(whole.seconds_remainder != 0);
++}
++
++TEST_CASE("unused skill fades from a saved fixed anchor and never below half its best") {
++    kd::world::Practice direct{8000, 10000, 960 * kd::time::kHour, 0}, split = direct;
++    kd::demo::Learning::fade(direct, 10 * kd::time::kYear);
++    for (int year = 1; year <= 10; ++year) {
++        kd::demo::Learning::fade(split, year * kd::time::kYear);
++        split = reopen(split);
++    }
++    CHECK(direct.level == 5750);
++    CHECK(encoded(split) == encoded(direct));
++    kd::demo::Learning::fade(direct, 1000 * kd::time::kYear);
++    CHECK(direct.level == 5000);
++    CHECK(direct.best == 10000);
++    kd::demo::Learning::practice(direct, 1000 * kd::time::kYear, 562, false);
++    CHECK(direct.level == 5001);
++    CHECK(direct.level < direct.best);
++}
++
++TEST_CASE("unfinished practice does not unlock a recipe and a known faded recipe remains known") {
++    kd::world::Knowledge mind;
++    kd::world::Skill unfinished;
++    unfinished.recipe = 9;
++    unfinished.known = 0;
++    kd::demo::Learning::practice(unfinished.practice, 0, kd::time::kDay, true);
++    REQUIRE(unfinished.practice.level > 1000);
++    mind.skills.push_back(unfinished);
++    CHECK_FALSE(kd::demo::Learning::knows(mind, 9));
++    mind.skills.back().known = 1;
++    kd::demo::Learning::fade(mind.skills.back().practice, 10 * kd::time::kYear);
++    CHECK(kd::demo::Learning::knows(mind, 9));
++    CHECK_FALSE(kd::demo::Learning::knows(mind, 10));
++    CHECK(kd::demo::Learning::taught_multiplier({0, 0, 0, 0}) == 4000000);
++    CHECK(kd::demo::Learning::taught_multiplier({5000, 5000, 0, 0}) == 6000000);
++    CHECK(kd::demo::Learning::taught_multiplier({10000, 10000, 0, 0}) == 8000000);
++}
