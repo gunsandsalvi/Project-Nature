@@ -28,7 +28,7 @@ var _lock_button: Button
 
 
 func _init() -> void:
-	save_folder = "user://examples-local"
+	save_folder = "user://examples-format-%d" % KdWorld.save_format()
 
 
 func _build() -> void:

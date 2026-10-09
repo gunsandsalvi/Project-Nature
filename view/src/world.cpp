@@ -72,6 +72,7 @@ void KdWorld::_bind_methods() {
     ClassDB::bind_static_method("KdWorld", D_METHOD("moment_text", "second"), &KdWorld::moment_text);
     ClassDB::bind_static_method("KdWorld", D_METHOD("crowd_seed"), &KdWorld::crowd_seed);
     ClassDB::bind_static_method("KdWorld", D_METHOD("morning"), &KdWorld::morning);
+    ClassDB::bind_static_method("KdWorld", D_METHOD("save_format"), &KdWorld::save_format);
     ClassDB::bind_method(D_METHOD("navigation_tuning"), &KdWorld::navigation_tuning);
     ClassDB::bind_method(D_METHOD("enable_time_requests", "enabled"), &KdWorld::enable_time_requests);
     ClassDB::bind_method(D_METHOD("set_zoom_density", "density"), &KdWorld::set_zoom_density);

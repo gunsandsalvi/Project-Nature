@@ -1,0 +1,73 @@
+action = 2
+sector = 3
+difficulty = 1
+yield = 1000000
+bare_yield = 1000000
+heat = 0
+edge_from = -1
+toughness = -1
+discovery = 1000000
+shatter = 0
+hint = 0
+seconds = "60 s"
+bare_seconds = "60 s"
+unit_mass = "100000 mg"
+result_mass = "0 mg"
+result_length = "100 mm"
+starting = true
+result = "kernels"
+leftover = "food_waste"
+failure = "crumb"
+[[inputs]]
+class = "any"
+classes = ["plant", "bone"]
+form = "any"
+min_length = "0 mm"
+max_length = "100000 mm"
+min_mass = "1 mg"
+max_mass = "1000000000 mg"
+retained = false
+optional = false
+wear = 0
+[[inputs.ranges]]
+characteristic = 8
+minimum = 1
+maximum = 5
+
+[[inputs]]
+class = "any"
+form = "any"
+min_length = "60 mm"
+max_length = "100000 mm"
+min_mass = "1 mg"
+max_mass = "1000000000 mg"
+retained = true
+optional = false
+wear = 0
+[[inputs.ranges]]
+characteristic = 0
+minimum = 3
+maximum = 5
+[[inputs.ranges]]
+characteristic = 2
+minimum = 0
+maximum = 5
+
+[[inputs]]
+class = "any"
+form = "any"
+min_length = "60 mm"
+max_length = "100000 mm"
+min_mass = "1 mg"
+max_mass = "1000000000 mg"
+retained = true
+optional = false
+wear = 0
+[[inputs.ranges]]
+characteristic = 0
+minimum = 3
+maximum = 5
+[[inputs.ranges]]
+characteristic = 2
+minimum = 3
+maximum = 5

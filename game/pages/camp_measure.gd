@@ -13,6 +13,8 @@ var _counting := false
 var _next_read := 0.0
 var _phase_info := {}
 var _backgrounded := 0
+var _interruption := ""
+var _run_button: Button
 
 
 func _ready() -> void:
@@ -20,11 +22,19 @@ func _ready() -> void:
 	Worlds.remove_tree(root)
 	frozen = true
 	super._ready()
-	for button: Button in [_dream_button, _more]:
-		for connection: Dictionary in button.pressed.get_connections():
-			button.pressed.disconnect(connection.callable)
-	_dream_button.pressed.connect(start_measurement)
+	if opened.has("problem"):
+		return
+	_dream_button.hide()
+	_pause.hide()
+	_speed.hide()
+	for connection: Dictionary in _more.pressed.get_connections():
+		_more.pressed.disconnect(connection.callable)
 	_more.pressed.connect(func() -> void: DisplayServer.clipboard_set(report))
+	_run_button = Button.new()
+	_run_button.text = "Run camp test"
+	_run_button.pressed.connect(start_measurement)
+	_dream_button.get_parent().add_child(_run_button)
+	_resize()
 	_refresh_records()
 
 
@@ -34,21 +44,22 @@ func _refresh_records(counters: Dictionary = {}) -> void:
 	_speed.disabled = true
 	_more.text = "Copy report"
 	_more.disabled = report.is_empty()
-	_dream_button.text = "Measuring…" if _running else "Run camp test"
-	_dream_button.disabled = _running or not report.is_empty()
+	if is_instance_valid(_run_button):
+		_run_button.text = "Measuring…" if _running else "Run camp test"
+		_run_button.disabled = _running or not report.is_empty()
 	if not report.is_empty():
-		_card.text = "Finished. Copy report, then return to your camp through Menu.\n\n" + report
+		_summary.text = "Test interrupted" if not _interruption.is_empty() else "Test finished"
+		_card.text = "Copy report, then return to your camp through Menu.\n\n" + report
 	elif _running:
 		var elapsed := (Time.get_ticks_usec() - _started) / 1000000.0 * time_scale
+		var left := maxi(0, 600 - int(elapsed))
+		_summary.text = (
+			"Camp measurement\n%d:%02d left · %s"
+			% [left / 60, left % 60, ["real time", "1 min / sec", "1 hour / sec"][maxi(0, _phase)]]
+		)
 		_card.text = (
-			(
-				"Camp measurement · %d / 600 seconds\nSpeed: %s\n"
-				+ "Leave the phone alone. Turn once if wanted.\nYour saved camp is separate."
-			)
-			% [
-				mini(600, int(elapsed)),
-				["real time", "1 min / sec", "1 hour / sec"][maxi(0, _phase)]
-			]
+			"%d / 600 seconds measured.\nScreen stays awake. Your saved camp is separate."
+			% mini(600, int(elapsed))
 		)
 	else:
 		_card.text = (
@@ -64,7 +75,9 @@ func start_measurement() -> void:
 		return
 	_started = Time.get_ticks_usec()
 	_running = true
+	DisplayServer.screen_set_keep_on(true)
 	set_process(true)
+	_refresh_records()
 
 
 func _process(delta: float) -> void:
@@ -96,28 +109,35 @@ func _process(delta: float) -> void:
 		)
 	if elapsed >= 600:
 		_finish_phase()
-		_running = false
-		world.pause()
-		report = JSON.stringify(
-			{
-				"kind": "living-camp",
-				"version": ProjectSettings.get_setting("application/config/version"),
-				"platform": OS.get_name(),
-				"real_seconds": (Time.get_ticks_usec() - _started) / 1000000.0,
-				"time_scale": time_scale,
-				"background_interruptions": _backgrounded,
-				"window": str(get_viewport().get_visible_rect().size),
-				"phases": phases,
-				"samples": samples,
-				"digest": world.digest()
-			},
-			"\t"
-		)
-		var file := FileAccess.open("user://camp-measurement.json", FileAccess.WRITE)
-		if file != null:
-			file.store_string(report)
-			file.close()
-		_refresh_records()
+		_complete()
+
+
+func _complete() -> void:
+	_running = false
+	world.pause()
+	DisplayServer.screen_set_keep_on(false)
+	report = JSON.stringify(
+		{
+			"kind": "living-camp",
+			"version": ProjectSettings.get_setting("application/config/version"),
+			"platform": OS.get_name(),
+			"real_seconds": (Time.get_ticks_usec() - _started) / 1000000.0,
+			"time_scale": time_scale,
+			"background_interruptions": _backgrounded,
+			"interrupted": not _interruption.is_empty(),
+			"interruption": _interruption,
+			"window": str(get_viewport().get_visible_rect().size),
+			"phases": phases,
+			"samples": samples,
+			"digest": world.digest()
+		},
+		"\t"
+	)
+	var file := FileAccess.open("user://camp-measurement.json", FileAccess.WRITE)
+	if file != null:
+		file.store_string(report)
+		file.close()
+	_refresh_records()
 
 
 func _start_phase(phase: int) -> void:
@@ -151,4 +171,35 @@ func _finish_phase() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_PAUSED and _running:
 		_backgrounded += 1
+		_interruption = "App left the foreground"
+		if _phase >= 0:
+			_finish_phase()
+		_complete()
 	super._notification(what)
+
+
+func _resize() -> void:
+	super._resize()
+	if is_instance_valid(_summary):
+		var density := clampf(
+			(
+				minf(
+					get_viewport().get_visible_rect().size.x,
+					get_viewport().get_visible_rect().size.y
+				)
+				/ 450.0
+			),
+			1.0,
+			3.0
+		)
+		_summary.add_theme_font_size_override("font_size", Sizing.font_size(24, density))
+
+
+func _exit_tree() -> void:
+	if _running:
+		_interruption = "Left the measurement page"
+		if _phase >= 0:
+			_finish_phase()
+		_complete()
+	DisplayServer.screen_set_keep_on(false)
+	super._exit_tree()

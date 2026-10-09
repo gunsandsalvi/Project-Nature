@@ -1,0 +1,38 @@
+action = 0
+sector = 2
+difficulty = 1
+yield = 1000000
+bare_yield = 1000000
+heat = 1
+edge_from = -1
+toughness = -1
+discovery = 1000000
+shatter = 0
+hint = 0
+seconds = "60 s"
+bare_seconds = "60 s"
+unit_mass = "100000 mg"
+result_mass = "0 mg"
+result_length = "100 mm"
+starting = true
+result = "rotten_wood"
+leftover = "wood_shavings"
+failure = "crumb"
+[[inputs]]
+class = "wood"
+form = "lump"
+min_length = "0 mm"
+max_length = "100000 mm"
+min_mass = "1 mg"
+max_mass = "1000000000 mg"
+retained = false
+optional = false
+wear = 0
+[[inputs.ranges]]
+characteristic = 6
+minimum = 4
+maximum = 5
+[[inputs.ranges]]
+characteristic = 7
+minimum = 1
+maximum = 2

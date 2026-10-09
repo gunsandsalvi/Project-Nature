@@ -16,7 +16,7 @@ func test_the_page_lists_every_source_kind_and_entry() -> void:
 	var text := "\n".join(page.shown)
 	for wanted: String in [
 		"art, version 1",
-		"base, version 3",
+		"base, version 4",
 		"demo, version 1",
 		"marker (2 entries)",
 		"tuning/crowd (1 entry)",

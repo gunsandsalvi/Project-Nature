@@ -1,0 +1,57 @@
+action = 2
+sector = 0
+difficulty = 2
+yield = 1000000
+bare_yield = 1000000
+heat = 0
+edge_from = 3
+toughness = 1
+discovery = 1000000
+shatter = 100000
+hint = 2
+seconds = "30 s"
+bare_seconds = "30 s"
+unit_mass = "20000 mg"
+result_mass = "20000 mg"
+result_length = "50 mm"
+starting = false
+result = "flake"
+leftover = "chunk"
+failure = "crumb"
+[[inputs]]
+class = "stone"
+form = "lump"
+min_length = "80 mm"
+max_length = "300 mm"
+min_mass = "20000 mg"
+max_mass = "1000000000 mg"
+retained = false
+optional = false
+wear = 0
+[[inputs.ranges]]
+characteristic = 0
+minimum = 4
+maximum = 5
+[[inputs.ranges]]
+characteristic = 3
+minimum = 3
+maximum = 5
+
+[[inputs]]
+class = "stone"
+form = "lump"
+min_length = "60 mm"
+max_length = "100000 mm"
+min_mass = "1 mg"
+max_mass = "1000000000 mg"
+retained = true
+optional = false
+wear = 0
+[[inputs.ranges]]
+characteristic = 0
+minimum = 3
+maximum = 5
+[[inputs.ranges]]
+characteristic = 2
+minimum = 3
+maximum = 5

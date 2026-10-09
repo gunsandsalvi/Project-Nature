@@ -4,10 +4,25 @@
 #include "kd/world/parts.hpp"
 
 namespace kd::world {
-enum class LivingAct : std::uint8_t { watch = 0, walk = 1, rest = 2, gather = 4, eat = 5, drink = 6, carry = 7 };
+enum class LivingAct : std::uint8_t {
+    watch = 0,
+    walk = 1,
+    rest = 2,
+    gather = 4,
+    eat = 5,
+    drink = 6,
+    carry = 7,
+    craft = 8,
+    watch_craft = 9,
+    teach = 10,
+    warm = 11,
+    tend = 12
+};
 struct Life {
     static constexpr std::string_view name = "life";
-    static constexpr std::uint32_t version = 1;
+    static constexpr std::uint32_t version = 2;
+    ecs::Id meal_item{};
+    std::int64_t food_factor_ppm = 1000000, water_ml_per_kg = 800, nutrient_remainder = 0;
     std::int64_t food = 4000000, water = 3000, awake = 0, settled = 0;
     std::int64_t food_remainder = 0, water_remainder = 0, food_water_remainder = 0;
     std::int64_t carried_food = 0, allocated_water = 0, portion = 0, applied = 0;
@@ -23,7 +38,7 @@ struct Life {
     std::array<std::int64_t, 3> benefit{}, cost_seconds{};
     std::array<std::int64_t, 4> scores{-1000000, -1000000, -1000000, 0};
     template <typename V, typename Self>
-    static void visit(V& v, Self& c) {
+    static void visit_body(V& v, Self& c) {
         v.i64({"food", "remaining daily food units, mg"}, c.food);
         v.i64({"water", "remaining water units, ml"}, c.water);
         v.i64({"awake", "fatigue in awake seconds"}, c.awake);
@@ -57,6 +72,14 @@ struct Life {
             v.i64({"decision_needs", "need satisfaction at choice"}, c.decision_needs[i]);
         }
         for (auto& score : c.scores) v.i64({"scores", "recorded candidate score"}, score);
+    }
+    template <typename V, typename Self>
+    static void visit(V& v, Self& c) {
+        visit_body(v, c);
+        v.id({"meal_item", "reserved food item, zero for legacy berries"}, c.meal_item);
+        v.i64({"food_factor_ppm", "berry-equivalent nutrition per mass"}, c.food_factor_ppm);
+        v.i64({"water_ml_per_kg", "food water per kilogram"}, c.water_ml_per_kg);
+        v.i64({"nutrient_remainder", "fractional nutrition numerator"}, c.nutrient_remainder);
     }
 };
 struct Habitat {

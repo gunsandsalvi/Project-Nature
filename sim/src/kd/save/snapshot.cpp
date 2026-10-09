@@ -69,8 +69,17 @@ std::optional<std::vector<Chunk>> read_snapshot(std::span<const std::byte> bytes
         why = "it is not a snapshot";
         return std::nullopt;
     }
-    if (!r.u32(version) || version != kSnapshotVersion) {
-        why = "its format is version " + std::to_string(version) + ", not " + std::to_string(kSnapshotVersion);
+    if (!r.u32(version)) {
+        why = "it is cut short in its header";
+        return std::nullopt;
+    }
+    if (version == 0) {
+        why = "its format header is damaged";
+        return std::nullopt;
+    }
+    if (version != kSnapshotVersion) {
+        why = version > 0 && version < kSnapshotVersion ? std::string(kOlderSave)
+                                                        : "This save has an unsupported format. Start a new camp.";
         return std::nullopt;
     }
     if (!r.u32(count)) {

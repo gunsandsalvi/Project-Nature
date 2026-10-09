@@ -1,6 +1,7 @@
 """The current app package drops obsolete derived 3D files while preserving source catalogues and 2D resources."""
 
 import os
+import json
 import sys
 import tempfile
 import unittest
@@ -33,6 +34,39 @@ class CurrentPackage(unittest.TestCase):
         self.assertIn('[bench]\nsaved = "same-world"', text)
         self.assertNotIn("[models]", text)
         self.assertNotIn("[calibration]", text)
+
+    def test_steady_report_still_exports_the_current_build_archive(self):
+        with tempfile.TemporaryDirectory() as folder:
+            scenes = os.path.join(folder, "scenes")
+            reports = os.path.join(folder, "reports")
+            runs = os.path.join(folder, "runs")
+            os.makedirs(scenes)
+            os.makedirs(reports)
+            os.makedirs(os.path.join(runs, "greetings"))
+            report = {"seconds": 1, "each": [{"index": 0, "oddities": []}]}
+            with open(os.path.join(scenes, "greetings.toml"), "w") as file:
+                file.write("scene")
+            for target in (os.path.join(runs, "greetings", "report.json"), os.path.join(reports, "greetings.json")):
+                with open(target, "w") as file:
+                    json.dump(report, file)
+            target = os.path.join(reports, "greetings-1.kindling")
+            with open(target, "wb") as file:
+                file.write(b"obsolete archive format")
+
+            def invoke(args, **_kwargs):
+                if args[1] == "export":
+                    with open(args[3], "wb") as file:
+                        file.write(b"this build's archive")
+                return mock.Mock(stdout="", stderr="", returncode=0)
+
+            with (
+                mock.patch.multiple(gamedata, SCENES=scenes, REPORTS=reports, RUNS=runs),
+                mock.patch.object(gamedata, "app_version", return_value="test"),
+                mock.patch.object(gamedata.subprocess, "run", side_effect=invoke),
+            ):
+                self.assertEqual(gamedata.reports("tool"), ["greetings.json"])
+            with open(target, "rb") as file:
+                self.assertEqual(file.read(), b"this build's archive")
 
 
 if __name__ == "__main__":

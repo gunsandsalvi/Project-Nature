@@ -29,6 +29,8 @@ namespace kd::save {
 
 /// What a world's folder holds as it is opened.
 struct Found {
+    // A refused format stops opening before metadata, journals, recovery or any writes.
+    std::string problem;
     /// The newest snapshot whose every hash holds, as its chunks, and its file's name; nothing if there is none.
     std::optional<std::vector<Chunk>> snapshot;
     std::string snapshot_name;

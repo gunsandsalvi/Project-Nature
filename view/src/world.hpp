@@ -118,6 +118,7 @@ public:
     /// The crowd's world as the Crowd page first makes it: its seed, and the moment the page opens on.
     static int64_t crowd_seed();
     static int64_t morning();
+    static int64_t save_format() { return save::kSnapshotVersion; }
 
     /// The speed asked, in game seconds a real second, at least 1.
     void set_speed(double game_per_real);
