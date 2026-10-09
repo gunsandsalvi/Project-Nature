@@ -82,7 +82,7 @@ T known-use defaults: cracking difficulty 1, 60 seconds/100 g; bedding difficult
 T food water values become 200 ml/kg per characteristic point, preserving berries at 800 ml/kg; raw/cooked poison effects remain a later health obligation, not a poison-safety pass.
 
 Rules: T flake consumes a core 80–300 mm, hardness 4–5/flaking 3–5, against retained striker ≥60 mm, hardness/toughness 3–5; strike, difficulty 2, 30 seconds; result 30–80 mm, edge=flaking, toughness 1. Allocate 20 g to each 50 mm flake, no more than available core mass (T), remainder to a reusable chunk when ≥80 mm, otherwise crumbs; no mass appears twice.
-T failures split crumbs/shattered core 90/10. Owner question: the example also has a cut-hand chance; recommend deferring injury to M4, retaining lost input/time now. Do not claim the full illustrative recipe until that scope is agreed.
+T failures split crumbs/shattered core 90/10. The example's cut-hand chance waits for M4's wound system (owner, 9 October 2026); M3 keeps lost input, time and tool wear. Do not claim the full illustrative recipe until M4 adds the injury.
 Effective sharp edge means edge ≥3 after quality/wear (T): butcher 1 kg in 10 minutes with 90% edible yield versus bare hands 30 minutes/50%; prepare 1 kg firewood in 5 versus 10 minutes; scrape 1 kg hide in 15 versus 30 minutes (T). These are separate generic affordances/recipes, not faster berry gathering. Tool steps above minimum reduce try time 10% each, capped at one third.
 Wear/quality follow `MAT-20`; T base flake wear is 25,000 millionths of a wear step per kilogram butchered, with toughness/quality multipliers applied once; use a 20 kg usable-meat deer fixture to calibrate roughly one-deer dulling. Broken pieces remain things.
 Known success: clamp 50% +10 percentage points × (mean skill/sector − difficulty), plus the specified quality/rest/cold/darkness/arm modifiers, to 5–95%.
@@ -232,6 +232,7 @@ Cut line: drop decorative effects and extra sound variants first; allow one boun
 ## M4 The camp survives change
 
 **Goal:** Add seasonal pressure, care and a family through time, separately (`MIL-11`).
+Also add the flake recipe's cut-hand chance once wounds exist, deferred from M3 (owner, 9 October 2026).
 
 **Serves:** `BIO-04`, `BIO-05`, `BIO-06`, `BIO-08`, `BIO-10`, `BIO-11`, `BIO-12`, `BIO-13`, `BIO-14`, `BIO-15`, `BIO-16`, `BIO-17`, `BIO-22`, `MAT-08`, `MAT-10`, `MAT-11`, `MAT-19`, `MAT-20`, `MOM-07`, `PRE-30`, `RCK-14`, `RCK-15`, `RCK-21`, `RCK-22`, `RES-14`, `TIM-09`, `WLD-18`, `WLD-27`, `WLD-28`, `WLD-31`.
 
