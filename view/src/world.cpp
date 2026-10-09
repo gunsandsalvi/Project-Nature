@@ -2,6 +2,7 @@
 #include <limits>
 #include "kd/demo/crafting.hpp"
 #include "kd/demo/discovery.hpp"
+#include "kd/demo/learning.hpp"
 
 #include <godot_cpp/classes/file_access.hpp>
 #include <godot_cpp/core/class_db.hpp>
@@ -824,7 +825,9 @@ godot::Array KdWorld::people() const {
             row["work_state"] = work.state;
             row["work_action"] = work.action;
             row["work_route"] = work.route;
-            row["work_known"] = bool(work.intended);
+            const auto* personal = k < snapshot.knowledge.size() ? snapshot.knowledge[k].get() : nullptr;
+            row["work_known"] = work.intended && personal && demo::Learning::knows(*personal, work.recipe);
+            row["work_taught"] = work.lesson != 0;
             row["work_recipe"] =
                 work.intended ? text_of(catalogue_->kind<data::Blueprint>().name(work.recipe)) : godot::String();
             row["work_start"] = work.start;
@@ -1014,9 +1017,15 @@ godot::Dictionary KdWorld::knowledge(int64_t person) const {
     out["kindness"] = know->kindness;
     out["curiosity_need"] = know->curiosity_need;
     out["performed"] = know->performed;
-    godot::Array skills, familiar, hunches, reasons;
+    godot::Array skills, observations, familiar, hunches, reasons;
     for (const auto& s : know->skills) {
         godot::Dictionary row;
+        if (!s.known) {
+            row["credits"] = static_cast<double>(s.observation_quarters) / 4.0 +
+                             static_cast<double>(s.observation_remainder) / 4000000.0;
+            observations.push_back(row);
+            continue;
+        }
         row["recipe"] = text_of(catalogue_->kind<data::Blueprint>().name(s.recipe));
         row["name"] = craft_label(catalogue_->kind<data::Blueprint>().name(s.recipe));
         row["level"] = s.practice.level;
@@ -1046,16 +1055,19 @@ godot::Dictionary KdWorld::knowledge(int64_t person) const {
     }
     for (const auto& r : know->reasons) {
         godot::Dictionary row;
-        row["known"] = bool(r.intended);
+        row["known"] = r.intended && demo::Learning::knows(*know, r.recipe);
         row["action"] = r.action;
-        row["name"] = r.intended ? craft_label(catalogue_->kind<data::Blueprint>().name(r.recipe))
-                                 : godot::String("Try familiar materials");
+        row["name"] = bool(row["known"]) ? craft_label(catalogue_->kind<data::Blueprint>().name(r.recipe))
+                      : r.intended       ? godot::String("Shared practice")
+                                         : godot::String("Try familiar materials");
         row["score"] = r.score;
         row["benefit"] = r.benefit;
         row["seconds"] = r.seconds;
         reasons.push_back(row);
     }
     out["skills"] = skills;
+    out["observations"] = observations;
+    out["session"] = static_cast<int64_t>(know->session);
     out["familiar"] = familiar;
     out["hunches"] = hunches;
     out["reasons"] = reasons;

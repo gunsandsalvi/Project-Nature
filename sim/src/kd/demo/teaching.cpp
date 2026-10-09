@@ -272,6 +272,7 @@ void Learning::worked(world::Context& c, world::Beings::Handle maker, std::uint6
             learned.source = s->teacher;
             learned.source_event = event;
             learned.route = 5;
+            Learning::learned(c, maker, *result, s->teacher, 5);
         }
         belief(raw.get<world::Knowledge>(w.beings().handle(s->teacher)), s->learner, s->recipe, true, c.now(), event);
         credit(c, *s, true);

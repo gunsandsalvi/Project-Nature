@@ -90,9 +90,13 @@ void Learning::demonstrated(world::Context& c, world::Beings::Handle maker, std:
     const auto camp = raw.get<Home>(maker).camp;
     const auto& work = raw.get<world::Work>(maker);
     const auto& history = raw.get<world::CraftHistory>(w.beings().handle(camp));
-    const auto result =
+    const auto found_result =
         std::find_if(history.events.begin(), history.events.end(), [&](const auto& e) { return e.id == event; });
-    KD_CHECK(result != history.events.end() && result->actor == person, "Observation cites an actual demonstrated end");
+    KD_CHECK(found_result != history.events.end() && found_result->actor == person,
+             "Observation cites an actual demonstrated end");
+    // Learning appends to HIST1. Keep the evidence stable while other people acquire it.
+    const auto demonstration = *found_result;
+    const auto* result = &demonstration;
     if (!work.intended) return;
     const auto duration = work.try_seconds;
     const auto& blueprint = w.catalogue().kind<data::Blueprint>()[result->recipe];
@@ -126,6 +130,7 @@ void Learning::demonstrated(world::Context& c, world::Beings::Handle maker, std:
             skill->source = person;
             skill->source_event = event;
             skill->route = 4;
+            learned(c, h, *result, person, 4);
         }
         // Retain only properties the observer can see, never the maker's handling knowledge.
         std::vector<world::Familiar> inputs;
@@ -178,6 +183,52 @@ void Learning::demonstrated(world::Context& c, world::Beings::Handle maker, std:
         }
         c.moved(id);
     });
+}
+void Learning::learned(world::Context& c, world::Beings::Handle learner, const world::Result& evidence, ecs::Id source,
+                       std::uint8_t route) {
+    auto& w = c.world();
+    auto& raw = w.beings().raw();
+    auto& history = raw.get<world::CraftHistory>(w.beings().handle(raw.get<Home>(learner).camp));
+    auto entry = evidence;
+    entry.id = history.next++;
+    entry.at = c.now();
+    entry.place = raw.get<world::Place>(learner).at;
+    entry.actor = w.beings().id_of(learner);
+    entry.source = source;
+    entry.route = route;
+    entry.kind = 2;
+    if (entry.word.empty()) {
+        const auto named = std::find_if(history.events.rbegin(), history.events.rend(),
+                                        [&](const auto& e) { return e.recipe == entry.recipe && !e.word.empty(); });
+        if (named != history.events.rend()) entry.word = named->word;
+    }
+    history.events.push_back(std::move(entry));
+}
+void Learning::lost(world::Context& c, world::Beings::Handle last_holder, std::uint32_t recipe) {
+    auto& w = c.world();
+    auto& raw = w.beings().raw();
+    const auto home = raw.get<Home>(last_holder).camp;
+    bool retained = false;
+    w.beings().each([&](ecs::Id, world::Beings::Handle h) {
+        if (raw.all_of<world::Knowledge, Home>(h) && raw.get<Home>(h).camp == home &&
+            knows(raw.get<world::Knowledge>(h), recipe))
+            retained = true;
+    });
+    if (retained) return;
+    auto& history = raw.get<world::CraftHistory>(w.beings().handle(home));
+    const auto previous = std::find_if(history.events.rbegin(), history.events.rend(),
+                                       [&](const auto& e) { return e.recipe == recipe && !e.word.empty(); });
+    if (previous == history.events.rend() || previous->kind == 3) return;
+    auto entry = *previous;
+    entry.id = history.next++;
+    entry.at = c.now();
+    entry.place = raw.get<world::Place>(last_holder).at;
+    entry.actor = w.beings().id_of(last_holder);
+    entry.source = {};
+    entry.result = {};
+    entry.noticed = 0;
+    entry.kind = 3;
+    history.events.push_back(std::move(entry));
 }
 bool Learning::knows(const world::Knowledge& knowledge, std::uint32_t recipe) {
     return std::any_of(knowledge.skills.begin(), knowledge.skills.end(),

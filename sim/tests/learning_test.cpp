@@ -220,6 +220,10 @@ struct WatchFixture : kd::world::System {
         auto& w = c.world();
         auto& raw = w.beings().raw();
         const auto h = w.beings().handle(maker);
+        if (cmd.what == 905) {
+            kd::demo::Learning::lost(c, w.beings().handle(maker), recipe);
+            return;
+        }
         if (cmd.what == 902) {
             kd::demo::Learning::observe(c, w.beings().handle(watcher));
             return;
@@ -242,14 +246,15 @@ struct WatchFixture : kd::world::System {
         work.intended = intended;
         work.recipe = intended ? recipe : kd::world::kNoRecipe;
         work.action = 4;
+        work.route = intended ? 0 : 2;
         work.number = mind(maker).next_work++;
         work.start = c.now();
         work.active_start = c.now();
         work.try_seconds = duration;
-        work.unit_mass = 1000000;
-        work.goal_mass = tries * 1000000;
+        work.unit_mass = intended ? 1000000 : 20000;
+        work.goal_mass = tries * work.unit_mass;
         work.target = raw.get<kd::world::Place>(h).at;
-        work.inputs.push_back({input, tries * 1000000, 0, 0, 0, 1});
+        work.inputs.push_back({input, tries * work.unit_mass, 0, 0, 0, 1});
         REQUIRE(kd::demo::Crafting::continue_work(*const_cast<kd::demo::Living*>(camp->living()), c, h));
     }
     kd::time::Seconds start() {
@@ -590,5 +595,54 @@ TEST_CASE("urgent learners and unfinished plans decline offers and telling never
     f.camp->world().schedule(f.maker, 0, now + 2);
     f.camp->world().run_to(now + 3);
     CHECK(f.sessions().sessions.empty());
+    CHECK_FALSE(kd::demo::Learning::knows(f.mind(f.watcher), f.recipe));
+}
+
+TEST_CASE("learning history records actual source and survives labelled last-holder removal") {
+    WatchFixture f;
+    for (int i = 0; i < 5; ++i) f.use();
+    auto& w = f.camp->world();
+    auto& history = w.beings().raw().get<kd::world::CraftHistory>(w.beings().handle(f.home));
+    const auto learning = std::find_if(history.events.begin(), history.events.end(),
+                                       [&](const auto& e) { return e.kind == 2 && e.actor == f.watcher; });
+    REQUIRE(learning != history.events.end());
+    CHECK(learning->source == f.maker);
+    CHECK(learning->route == 4);
+    CHECK(learning->at == f.mind(f.watcher).skills.front().practice.last_use);
+    REQUIRE_FALSE(learning->inputs.empty());
+    const auto source_event = f.mind(f.watcher).skills.front().source_event;
+    const auto demonstration =
+        std::find_if(history.events.begin(), history.events.end(), [&](const auto& e) { return e.id == source_event; });
+    REQUIRE(demonstration != history.events.end());
+    CHECK(learning->inputs.front().id == demonstration->inputs.front().id);
+    CHECK(learning->result == demonstration->result);
+    const auto word = learning->word;
+    REQUIRE_FALSE(word.empty());
+    // Labelled knowledge-holder removal; this is neither disease nor a discovery gate.
+    f.mind(f.maker).skills.clear();
+    f.mind(f.watcher).skills.clear();
+    f.at(w.frontier(), 905);
+    CHECK(history.events.back().kind == 3);
+    CHECK(history.events.back().word == word);
+    CHECK_FALSE(kd::demo::Learning::knows(f.mind(f.absent), f.recipe));
+    const auto count = history.events.size();
+    f.at(w.frontier(), 905);
+    CHECK(history.events.size() == count);
+    // Real unknown-use rolls after the labelled removal; no granted knowledge or altered chance.
+    f.intended = false;
+    f.duration = 60;
+    bool returned = false;
+    for (int attempt = 0; attempt < 100 && !returned; ++attempt) {
+        f.use();
+        returned = std::any_of(history.events.begin(), history.events.end(),
+                               [&](const auto& e) { return e.kind == 4 && e.recipe == f.recipe; });
+    }
+    REQUIRE(returned);
+    const auto return_event = std::find_if(history.events.begin(), history.events.end(),
+                                           [&](const auto& e) { return e.kind == 4 && e.recipe == f.recipe; });
+    CHECK(return_event->word == word);
+    CHECK(return_event->actor == f.maker);
+    CHECK(return_event->result.value != 0);
+    f.reopen();
     CHECK_FALSE(kd::demo::Learning::knows(f.mind(f.watcher), f.recipe));
 }

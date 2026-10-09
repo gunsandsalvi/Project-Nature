@@ -177,7 +177,17 @@ std::uint64_t Discovery::result(world::Context& c, world::Beings::Handle h, std:
     e.kind = !success ? 5 : unknown && noticed ? 1 : 0;
     for (const auto id : inputs) e.inputs.push_back({id});
     if (e.noticed) e.word = word(c.world(), history, recipe);
+    const auto previous = std::find_if(history.events.rbegin(), history.events.rend(), [&](const auto& old) {
+        return old.recipe == recipe && old.kind >= 1 && old.kind <= 4;
+    });
+    const bool returning = e.kind == 1 && previous != history.events.rend() && previous->kind == 3;
     history.events.push_back(e);
+    if (returning) {
+        auto returned = e;
+        returned.id = history.next++;
+        returned.kind = 4;
+        history.events.push_back(std::move(returned));
+    }
     if (success && result.value != 0) {
         const auto& physical = c.world().things().raw().get<world::Item>(c.world().things().handle(result));
         const bool edible = c.world().catalogue().kind<data::ItemKind>()[physical.kind].edible && !unknown;

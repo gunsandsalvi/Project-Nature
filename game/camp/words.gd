@@ -40,6 +40,8 @@ static func person(p: Dictionary, details: bool, now: int) -> String:
 		words += "Why: their known supplies weren't worth a trip yet.\nLooking around, then watching."
 	if int(p.get("work_state", 0)) != 0:
 		var work := recipe(str(p.work_recipe)) if p.work_known else "Trying familiar materials"
+		if p.get("work_taught", false):
+			work = "Shared practice: " + recipe(str(p.work_recipe))
 		words = (
 			"%s · %s\nNeeds met: food %d · water %d · rest %d\n"
 			% [p.name, work, p.food_need, p.water_need, p.rest_need]
@@ -259,14 +261,46 @@ static func knowledge(k: Dictionary, people: Array, now: int) -> String:
 		)
 		if int(skill.source) != 0:
 			words += " · " + name_of(int(skill.source), people)
+	for observation: Dictionary in k.get("observations", []):
+		words += "\nObserved use · %.2f / 5 credits · still learning." % float(observation.credits)
 	for hunch: Dictionary in k.hunches:
 		words += (
 			"\nHunch: try %s with %s · hint at %s."
 			% [actions[int(hunch.action)], ", ".join(hunch.inputs), when(int(hunch.last_use), now)]
 		)
+		if int(hunch.source) != 0:
+			words += " From " + name_of(int(hunch.source), people) + "."
 	for reason: Dictionary in k.reasons:
 		words += (
 			"\nConsidered %s: expected +%d, about %d min."
 			% [reason.name, int(reason.benefit), maxi(1, ceili(float(reason.seconds) / 60))]
 		)
+	return words
+
+
+static func history(event: Dictionary, people: Array, now: int) -> String:
+	var actor := name_of(int(event.actor), people)
+	var words := ""
+	match int(event.kind):
+		1:
+			words = "%s noticed %s" % [actor, str(event.name).to_lower()]
+		2:
+			words = "%s learned %s" % [actor, str(event.name).to_lower()]
+			if int(event.source) != 0:
+				words += " from " + name_of(int(event.source), people)
+		3:
+			words = "%s: no holder of %s remains" % [actor, str(event.name).to_lower()]
+		4:
+			words = "%s rediscovered %s" % [actor, str(event.name).to_lower()]
+	words += " at %s." % when(int(event.at), now)
+	var routes := [
+		"starting knowledge", "an accident", "an experiment", "a hunch", "watching", "teaching"
+	]
+	words += (
+		"\nRoute: %s. Place: %.1f m east, %.1f m north."
+		% [routes[int(event.route)], float(event.east_cm) / 100, float(event.north_cm) / 100]
+	)
+	if not str(event.word).is_empty():
+		words += "\nWord: " + str(event.word) + "."
+	words += "\nEvent %d · %d inputs." % [int(event.id), event.inputs.size()]
 	return words

@@ -45,6 +45,7 @@ var _hit_radius := 24.0
 var _dock_bounds := Rect2()
 var _dream_button: Button
 var _dreams: PanelContainer
+var _history: PanelContainer
 var _heat_every := 2.0
 var _heat_wait := 0.0
 var _item_second := -1
@@ -180,6 +181,13 @@ func _build() -> void:
 	_dreams = preload("res://camp/dreams.gd").new()
 	_dreams.camp = self
 	_native.add_child(_dreams)
+	var history_button := Button.new()
+	history_button.text = "History"
+	history_button.pressed.connect(func() -> void: _history.open())
+	column.add_child(history_button)
+	_history = preload("res://camp/history.gd").new()
+	_history.camp = self
+	_native.add_child(_history)
 	world.set_speed(1)
 
 
@@ -343,7 +351,7 @@ func show_dream_records() -> void:
 
 
 func toggle_pause() -> void:
-	if _dreams.visible:
+	if _dreams.visible or _history.visible:
 		return
 	if world.is_paused():
 		world.play()
@@ -353,7 +361,7 @@ func toggle_pause() -> void:
 
 
 func choose_speed(index: int) -> void:
-	if is_instance_valid(_dreams) and _dreams.visible:
+	if is_instance_valid(_dreams) and (_dreams.visible or _history.visible):
 		return
 	world.set_speed([1.0, 60.0, 3600.0][index])
 	_speed.select(index)
@@ -481,13 +489,14 @@ func layout(window: Vector2, safe: Rect2) -> void:
 	_summary.add_theme_font_size_override("font_size", Sizing.font_size(18, density))
 	_card.add_theme_font_size_override("font_size", Sizing.font_size(16, density))
 	_dreams.layout(window, safe)
+	_history.layout(window, safe)
 
 
 func _world_input(event: InputEvent) -> void:
 	# Finger zero already drives this gesture; Android also sends its emulated mouse.
 	if event is InputEventMouse and event.device == InputEvent.DEVICE_ID_EMULATION:
 		return
-	if _dreams.visible:
+	if _dreams.visible or _history.visible:
 		return
 	var at := Vector2.ZERO
 	var operation := -1

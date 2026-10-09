@@ -207,3 +207,27 @@ func test_a_stock_marker_cycles_real_portions_without_changing_stock() -> void:
 	assert_bool(pile.all(func(id: int) -> bool: return selected.has(id))).is_true()
 	assert_str(page.world.digest()).is_equal(digest)
 	shell.free()
+
+
+func test_pending_observation_is_separate_from_known_skill_and_source_is_readable() -> void:
+	var words: String = preload("res://camp/words.gd").knowledge(
+		{"skills": [], "observations": [{"credits": 1.25}], "hunches": [], "reasons": []}, [], 0
+	)
+	assert_str(words).contains("1.25 / 5 credits")
+	assert_str(words).not_contains("skill 1")
+
+
+func test_history_opens_and_back_restores_selection_without_unlocking() -> void:
+	var shell := await _shell()
+	shell.open_page("Camp")
+	var page: Control = shell._page
+	page.select_person(int(page.people[0].id))
+	var selected: int = page.selected_id
+	var digest: String = page.world.digest()
+	await _press(_button(page, "History"))
+	assert_bool(page._history.visible).is_true()
+	await _press(_button(page, "Back to camp"))
+	assert_bool(page._history.visible).is_false()
+	assert_int(page.selected_id).is_equal(selected)
+	assert_str(page.world.digest()).is_equal(digest)
+	shell.free()

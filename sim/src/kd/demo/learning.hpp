@@ -16,6 +16,9 @@ public:
     static void observe(world::Context& c, world::Beings::Handle observer);
     static void observe_maker(world::Context& c, world::Beings::Handle maker);
     static void demonstrated(world::Context& c, world::Beings::Handle maker, std::uint64_t event);
+    static void learned(world::Context& c, world::Beings::Handle learner, const world::Result& evidence, ecs::Id source,
+                        std::uint8_t route);
+    static void lost(world::Context& c, world::Beings::Handle last_holder, std::uint32_t recipe);
     static void forget_work(world::Context& c, world::Beings::Handle maker);
     [[nodiscard]] static bool can_watch(const world::World& w, ecs::Id camp, num::Point from, num::Point to,
                                         time::Seconds at);
