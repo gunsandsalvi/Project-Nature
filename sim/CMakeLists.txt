@@ -42,6 +42,7 @@ add_library(kd_sim STATIC
     src/kd/core/check.cpp
     src/kd/data/catalogue.cpp
     src/kd/data/checks.cpp
+    src/kd/data/craft.cpp
     src/kd/data/folder.cpp
     src/kd/data/kinds.cpp
     src/kd/data/loader.cpp
@@ -95,7 +96,8 @@ add_library(kd_sim STATIC
     src/kd/time/duration.cpp
     src/kd/world/parts.cpp
     src/kd/world/upgrades.cpp
-    src/kd/world/world.cpp)
+    src/kd/world/world.cpp
+    src/kd/world/craft_store.cpp)
 target_include_directories(kd_sim PUBLIC src)
 target_include_directories(kd_sim SYSTEM PUBLIC "${KD_ENTT}")
 target_include_directories(kd_sim SYSTEM PRIVATE "${KD_XXHASH}" "${KD_TOMLPP}" thirdparty/core-math)
@@ -137,6 +139,7 @@ if(KD_SIM_TESTS)
         tests/save_test.cpp
         tests/scene_test.cpp
         tests/world_test.cpp
+        tests/craft_test.cpp
         tests/camp_test.cpp
         tests/living_test.cpp)
     target_include_directories(kd_sim_tests SYSTEM PRIVATE "${KD_DOCTEST}" "${KD_XXHASH}")

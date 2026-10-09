@@ -4,6 +4,7 @@
 
 #include "kd/data/catalogue.hpp"
 #include "kd/data/checks.hpp"
+#include "kd/data/craft.hpp"
 #include "kd/data/orders.hpp"
 #include "kd/demo/checks.hpp"
 #include "kd/demo/crowd.hpp"
@@ -25,6 +26,8 @@
 namespace kd::data {
 
 Catalogue::Catalogue() {
+    add_kind<ItemKind>("item", "conserved craft materials and forms");
+    add_kind<Blueprint>("blueprint", "generic characteristic-constrained work");
     add_kind<demo::LivingRules>("tuning/living", "scoped adult camp rates and bounded renewal", Layout::single);
     add_kind<demo::NeedUse>("need_use", "known direct body need affordances");
     add_kind<look::Moment>("card", "a moment's bands on the target card, from the pictures you chose (PRE-01)");
@@ -61,10 +64,11 @@ Catalogue::Catalogue() {
 namespace {
 
 // In the order of their names.
-constexpr std::array<Check, 10> kChecks{{
+constexpr std::array<Check, 11> kChecks{{
     {"area", "PRE-26", "the strip holds the river and its banks, and the meadow lies north and south of it",
      look::check_area},
     {"company", "MAT-17", "every demonstration marker can greet or be greeted", demo::check_company},
+    {"craft", "MAT-17", "craft roles have valid characteristic bounds and conserved results", check_craft},
     {"light", "PRE-30", "every colour of the look's light is written #rrggbb", look::check_light},
     {"living", "MAT-17", "scoped camp affordances fit their body quantities and durations", demo::check_living},
     {"models", "PRE-46",

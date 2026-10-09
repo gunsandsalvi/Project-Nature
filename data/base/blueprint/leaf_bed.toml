@@ -1,0 +1,34 @@
+action = 16
+sector = 7
+difficulty = 1
+yield = 1000000
+bare_yield = 1000000
+heat = 0
+edge_from = -1
+toughness = -1
+discovery = 1000000
+shatter = 0
+hint = 0
+seconds = "600 s"
+bare_seconds = "600 s"
+unit_mass = "1000000 mg"
+result_mass = "0 mg"
+result_length = "100 mm"
+starting = true
+result = "leaf_bedding"
+leftover = "leaves"
+failure = "crumb"
+[[inputs]]
+class = "plant"
+form = "sheet"
+min_length = "0 mm"
+max_length = "100000 mm"
+min_mass = "1 mg"
+max_mass = "1000000000 mg"
+retained = false
+optional = false
+wear = 0
+[[inputs.ranges]]
+characteristic = 12
+minimum = 1
+maximum = 5

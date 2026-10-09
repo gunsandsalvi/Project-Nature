@@ -28,6 +28,7 @@
 #include "kd/save/snapshot.hpp"
 #include "kd/world/camp.hpp"
 #include "kd/world/dream.hpp"
+#include "kd/world/knowledge.hpp"
 #include "kd/world/life.hpp"
 #include "kd/world/parts.hpp"
 
@@ -267,6 +268,8 @@ public:
 
     /// A new being of a family, with its id and its schedule; never inside an island.
     Beings::Handle make_being(ecs::Family f);
+    // A new thing between windows, using the same global identity counter.
+    Things::Handle make_thing();
     /// Ends a being: its events never run, and its id is never used again.
     void end_being(ecs::Id id);
 

@@ -609,7 +609,7 @@ TEST_CASE("a damaged world's file is refused with words naming the damage") {
     kd::save::FakeFiles into;
     kd::ByteWriter w;
     w.u64(0x444c574c444e494b);
-    w.u32(1);
+    w.u32(2);
     w.u32(1);
     w.text("../outside.toml");
     w.u64(1);
@@ -731,235 +731,6 @@ TEST_CASE("a 30-year world's history keeps every event of its last 25 years and 
     }
 }
 
-namespace {
-
-std::string read_text(const std::string& path) {
-    std::ifstream in(path, std::ios::binary);
-    std::stringstream text;
-    text << in.rdbuf();
-    return text.str();
-}
-
-// The game's own catalogue, from the data folder, as the corpus's worlds were saved with it.
-const kd::data::Catalogue& game_catalogue() {
-    static const kd::data::Catalogue catalogue = [] {
-        kd::data::Catalogue c;
-        REQUIRE(c.load(kd::data::read_folder(KD_REPO "/data")).empty());
-        return c;
-    }();
-    return catalogue;
-}
-
-// A world of the corpus, imported into a folder.
-kd::save::FakeFiles corpus_world(const std::string& file) {
-    kd::save::FakeFiles folder;
-    const std::string text = read_text(KD_REPO "/sim/tests/corpus/" + file);
-    REQUIRE(!text.empty());
-    const auto [taken, why] = imported(bytes_of(text), folder, 1);
-    INFO(why);
-    REQUIRE(taken);
-    return folder;
-}
-
-// A snapshot's chunks, none if it cannot be read.
-std::vector<kd::save::Chunk> chunks_of(kd::save::Files& folder, const std::string& path) {
-    std::string why;
-    return kd::save::read_snapshot(folder.read(path).value_or(Bytes{}), why).value_or(std::vector<kd::save::Chunk>{});
-}
-
-// What the newest snapshot of a folder was saved under, or nothing.
-std::optional<kd::save::Versions> saved_under(kd::save::Files& folder) {
-    const std::vector<std::string> names = folder.list("snapshots");
-    REQUIRE(!names.empty());
-    const std::vector<kd::save::Chunk> chunks = chunks_of(folder, "snapshots/" + names.back());
-    const kd::save::Chunk* c = kd::save::find_chunk(chunks, kd::save::kVersionsTag);
-    return c != nullptr ? kd::save::read_versions(*c) : std::nullopt;
-}
-
-// Whether every year of a folder's history reads whole, and how many records it holds.
-std::pair<bool, std::size_t> history_whole(kd::save::Files& folder) {
-    bool whole = true;
-    std::size_t records = 0;
-    for (const std::string& name : folder.list("history")) {
-        const kd::save::Year y = kd::save::read_year(folder.read("history/" + name).value_or(Bytes{}));
-        whole = whole && !y.cut;
-        records += y.records.size();
-    }
-    return {whole, records};
-}
-
-}  // namespace
-
-// checks: PLT-09 PLT-08
-TEST_CASE("each alpha's world in the corpus opens and carries on, or after a big update its history is read") {
-    const kd::data::Parsed manifest =
-        kd::data::parse_toml(read_text(KD_REPO "/sim/tests/corpus/corpus.toml"), "corpus");
-    REQUIRE(manifest.problems.empty());
-    const kd::data::Value* worlds = manifest.root.find("world");
-    REQUIRE(worlds != nullptr);
-    CHECK(worlds->items.size() >= 2);
-    for (const kd::data::Value& entry : worlds->items) {
-        const std::string file = entry.find("file")->text;
-        const std::string update = entry.find("update")->text;
-        CAPTURE(file);
-        kd::save::FakeFiles folder = corpus_world(file);
-        const auto [whole_before, records_before] = history_whole(folder);
-        CHECK(whole_before);
-        CHECK(records_before > 1000);
-        kd::save::Keeper keeper(folder, "test");
-        kd::demo::Kept kept = kd::demo::keep_crowd(keeper, game_catalogue(), 1, 0);
-        if (update == "big") {
-            CHECK(kept.update == kd::save::Update::big);
-            CHECK(kept.crowd == nullptr);
-            CHECK(history_whole(folder) == std::pair{true, records_before});
-            continue;
-        }
-        REQUIRE(update == "small");
-        INFO(kept.problem);
-        REQUIRE(kept.crowd != nullptr);
-        CHECK(kept.update == kd::save::Update::small);
-        CHECK(kept.replayed == 1);
-        kd::world::World& w = kept.crowd->world();
-        std::vector<kd::world::Record> records;
-        w.keep_history(&records);
-        // it catches up to where it was, made again under this version's rules, and carries on for a day
-        w.run_to(kept.was_at + kd::time::kDay);
-        keeper.history(records);
-        keeper.snapshot(w);
-        keeper.flush();
-        CHECK(keeper.mismatches() == 0);
-        const auto [whole, after] = history_whole(folder);
-        CHECK(whole);
-        CHECK(after > records_before);
-        CHECK(after == w.history_count());
-    }
-}
-
-// checks: PLT-09
-TEST_CASE("after a small update the previous version's last snapshot is kept until the world has run an hour") {
-    kd::save::FakeFiles folder = corpus_world("a14a.kindling");
-    const std::vector<std::string> kept_aside{"00000000000005184000.kds", "world.toml"};
-    {
-        kd::save::Keeper keeper(folder, "test");
-        kd::demo::Kept kept = kd::demo::keep_crowd(keeper, game_catalogue(), 1, 0);
-        REQUIRE(kept.crowd != nullptr);
-        CHECK(kept.update == kd::save::Update::small);
-        CHECK(folder.list("previous") == kept_aside);
-        CHECK(folder.read("previous/" + kept_aside[0]) == folder.read("snapshots/" + kept_aside[0]));
-        keeper.played(kd::save::Keeper::kPreviousKept - 1);
-        keeper.snapshot(kept.crowd->world());
-        keeper.flush();
-        CHECK(folder.list("previous") == kept_aside);
-    }
-    // opened again by the same version: no update now, and its hour goes on where it was
-    kd::save::Keeper keeper(folder, "test");
-    kd::demo::Kept kept = kd::demo::keep_crowd(keeper, game_catalogue(), 1, 0);
-    REQUIRE(kept.crowd != nullptr);
-    CHECK(kept.update == kd::save::Update::none);
-    keeper.played(1);
-    keeper.snapshot(kept.crowd->world());
-    keeper.flush();
-    CHECK(folder.list("previous").empty());
-    // and the save says which versions the world has run under, and from when
-    const std::optional<kd::save::Versions> saved = saved_under(folder);
-    REQUIRE(saved.has_value());
-    const kd::save::Versions v = saved.value_or(kd::save::Versions{});
-    CHECK(v.build == "test");
-    REQUIRE(v.eras.size() == 1);
-    CHECK(v.eras[0].build == "test");
-    CHECK(v.eras[0].from == 5'184'000);
-    CHECK(v.played == kd::save::Keeper::kPreviousKept);
-    CHECK(v.making == kd::save::making_digest(game_catalogue()));
-}
-
-// checks: PLT-09
-TEST_CASE("after a big update a world is not run, nothing is written, and its history is still read") {
-    kd::save::FakeFiles folder = corpus_world("a14b.kindling");
-    // its snapshot as a version that made worlds by other rules would have saved it
-    const std::string newest = "snapshots/" + folder.list("snapshots").back();
-    std::vector<kd::save::Chunk> chunks = chunks_of(folder, newest);
-    REQUIRE(kd::save::find_chunk(chunks, kd::save::kVersionsTag) != nullptr);
-    for (kd::save::Chunk& c : chunks) {
-        if (c.tag == kd::save::kVersionsTag) {
-            kd::save::Versions v = kd::save::read_versions(c).value_or(kd::save::Versions{});
-            CHECK(v.build == "α1.4b");
-            v.making ^= 1U;
-            c = kd::save::versions_chunk(v);
-        }
-    }
-    folder.raw(newest) = kd::save::write_snapshot(chunks);
-    const kd::save::FakeFiles before = folder;
-    kd::save::Keeper keeper(folder, "test");
-    const kd::demo::Kept kept = kd::demo::keep_crowd(keeper, game_catalogue(), 1, 0);
-    keeper.flush();
-    CHECK(kept.update == kd::save::Update::big);
-    CHECK(kept.crowd == nullptr);
-    CHECK(!kept.problem.empty());
-    for (const std::string part : {"", "snapshots", "history", "previous"}) {
-        kd::save::FakeFiles was = before;
-        CHECK(folder.list(part) == was.list(part));
-        for (const std::string& name : folder.list(part)) {
-            std::string path = part;
-            path += part.empty() ? "" : "/";
-            path += name;
-            CHECK(folder.read(path) == was.read(path));
-        }
-    }
-    const auto [whole, records] = history_whole(folder);
-    CHECK(whole);
-    CHECK(records > 1000);
-}
-
-namespace {
-
-int moved = 0;
-
-// A migration for the test: every camp's marker of the first kind moved a centimetre east.
-void move_east(kd::world::World& w) {
-    ++moved;
-    w.beings().each([&](kd::ecs::Id id, kd::world::Beings::Handle h) {
-        if (id.family() == kd::ecs::Family::marker) {
-            w.beings().raw().get<kd::world::Activity>(h).from.x += 1;
-        }
-    });
-}
-
-}  // namespace
-
-// checks: PLT-09
-TEST_CASE("a migration is made once to a world saved before it, and the save records it") {
-    const std::array<kd::world::Migration, 1> list{{{"test-move-east", move_east}}};
-    kd::save::FakeFiles folder = corpus_world("a14b.kindling");
-    std::uint64_t digest = 0;
-    {
-        kd::save::Keeper keeper(folder, "test");
-        kd::demo::Kept kept = kd::demo::keep_crowd(keeper, game_catalogue(), 1, 0, list);
-        REQUIRE(kept.crowd != nullptr);
-        CHECK(kept.migrated == std::vector<std::string>{"test-move-east"});
-        CHECK(moved == 1);
-        keeper.snapshot(kept.crowd->world());
-        keeper.flush();
-        digest = kept.crowd->world().digests().whole;
-    }
-    CHECK(saved_under(folder).value_or(kd::save::Versions{}).migrations == std::vector<std::string>{"test-move-east"});
-    {
-        kd::save::Keeper keeper(folder, "test");
-        kd::demo::Kept kept = kd::demo::keep_crowd(keeper, game_catalogue(), 1, 0, list);
-        REQUIRE(kept.crowd != nullptr);
-        CHECK(kept.migrated.empty());
-        CHECK(moved == 1);
-        CHECK(kept.crowd->world().digests().whole == digest);
-    }
-    // a world made new is made as this version makes worlds, so it needs none
-    kd::save::FakeFiles fresh;
-    kd::save::Keeper keeper(fresh, "test");
-    const kd::demo::Kept kept = kd::demo::keep_crowd(keeper, game_catalogue(), 1, 1, list);
-    CHECK(kept.made);
-    CHECK(moved == 1);
-    CHECK(keeper.versions().migrations == std::vector<std::string>{"test-move-east"});
-}
-
-// checks: PLT-09
 TEST_CASE("a part of a snapshot saved by an older version is brought up to date a step at a time") {
     // version 1 held a count in 4 bytes, version 2 in 8, and version 3 added a flag after it
     const std::array<kd::save::Upgrade, 2> steps{{
@@ -997,25 +768,6 @@ TEST_CASE("a part of a snapshot saved by an older version is brought up to date 
 }
 
 // checks: PLT-09 RES-10
-TEST_CASE("a world's clock saved before test switches, at its first version, opens with none") {
-    kd::demo::CrowdWorld crowd(3, fixture(), 2);
-    crowd.world().run_to(kd::time::kDay);
-    std::vector<kd::save::Chunk> chunks = crowd.world().save();
-    // the clock as version 1 wrote it: the same, less the switches' count at its end
-    for (kd::save::Chunk& c : chunks) {
-        if (c.tag == kd::save::tag("WRLD")) {
-            CHECK(c.version == 2);
-            c.version = 1;
-            c.data.resize(c.data.size() - 8);
-        }
-    }
-    std::string why;
-    const std::unique_ptr<kd::demo::CrowdWorld> again = kd::demo::CrowdWorld::open(fixture(), chunks, why);
-    INFO(why);
-    REQUIRE(again != nullptr);
-    CHECK(again->world().switches().empty());
-    CHECK(again->world().digests().whole == crowd.world().digests().whole);
-}
 
 namespace {
 
@@ -1040,7 +792,6 @@ struct Pair {
 
 }  // namespace
 
-// checks: PLT-09
 TEST_CASE("a component saved in an older shape is read into its new one by its own upgrade") {
     const kd::ecs::EntryMap entries = [](std::string_view, std::uint32_t n) { return std::optional<std::uint32_t>(n); };
     kd::ByteWriter w;
@@ -1097,48 +848,3 @@ TEST_CASE("a world's name of any text is kept in its world.toml and read back as
 }
 
 // checks: PLT-10 PLT-09
-TEST_CASE("a world saved by α1.4a, which never thinned its history, is thinned as it opens after the update") {
-    const ThirtyYears& thirty = thirty_years();
-    kd::save::FakeFiles old = thirty.files;
-    // as α1.4a kept it: every year whole and numbered on from the year before, with no calls, which it never recorded,
-    // and no versions in its snapshots
-    std::uint64_t sequence = 1;
-    for (std::int64_t year = 1; year <= 31; ++year) {
-        Bytes file;
-        for (const kd::world::Record& r : thirty.made) {
-            if (kd::save::year_of(r.key.second) == year && !is_call(r)) {
-                const Bytes framed = kd::save::record_frame(r, sequence++, false);
-                file.insert(file.end(), framed.begin(), framed.end());
-            }
-        }
-        old.raw(kd::save::year_file(year)) = file;
-    }
-    for (const std::string& name : old.list("snapshots")) {
-        std::vector<kd::save::Chunk> chunks = chunks_of(old, "snapshots/" + name);
-        REQUIRE(!chunks.empty());
-        std::erase_if(chunks, [](const kd::save::Chunk& c) { return c.tag == kd::save::kVersionsTag; });
-        old.raw("snapshots/" + name) = kd::save::write_snapshot(chunks);
-    }
-    // opened by this version: a small update, and the years more than 25 years past thinned to what stays for ever,
-    // which in α1.4a's history is nothing; the later years read on, as α1.4a numbered them
-    kd::save::Keeper keeper(old, "test");
-    const kd::demo::Kept kept = kd::demo::keep_crowd(keeper, fixture(), 3, 1);
-    REQUIRE(kept.crowd != nullptr);
-    CHECK(kept.update == kd::save::Update::small);
-    // and as it catches up, what came after its snapshot is made again under this version
-    kd::world::World& w = kept.crowd->world();
-    std::vector<kd::world::Record> records;
-    w.keep_history(&records);
-    w.run_to(kept.was_at);
-    keeper.history(records);
-    keeper.flush();
-    CHECK(kd::save::year_of(kept.was_at) == 31);
-    CHECK(keeper.mismatches() == 0);
-    for (std::int64_t year = 1; year <= 31; ++year) {
-        CAPTURE(year);
-        const kd::save::Year held = year_held(old, year);
-        CHECK_FALSE(held.cut);
-        CHECK(held.thinned == (year <= 5));
-        CHECK(held.records.empty() == (year <= 5));
-    }
-}

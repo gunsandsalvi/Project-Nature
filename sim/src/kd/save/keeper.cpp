@@ -136,18 +136,6 @@ Keeper::~Keeper() {
 Found Keeper::open() {
     Found found;
     io_.now([&](Files& f) {
-        found.about = [&]() -> std::optional<std::string> {
-            const std::optional<Bytes> b = f.read(kAbout);
-            if (!b) {
-                return std::nullopt;
-            }
-            std::string text;
-            for (const std::byte c : *b) {
-                text.push_back(static_cast<char>(c));
-            }
-            return text;
-        }();
-
         // the newest snapshot that is whole; any newer one is moved aside
         std::vector<std::string> names = f.list("snapshots");
         std::erase_if(names, [](const std::string& n) { return !ends_with(n, ".kds"); });
@@ -167,12 +155,33 @@ Found Keeper::open() {
                     break;
                 }
             }
+            if (why == kOlderSave || why == "This save has an unsupported format. Start a new camp.") {
+                found.problem = why;
+                return;
+            }
             f.set_aside(path);
             std::string note = path;
             note += ": ";
             note += why;
             note += ", moved aside";
             found.damaged.push_back(std::move(note));
+        }
+
+        found.about = [&]() -> std::optional<std::string> {
+            const std::optional<Bytes> b = f.read(kAbout);
+            if (!b) {
+                return std::nullopt;
+            }
+            std::string text;
+            for (const std::byte c : *b) {
+                text.push_back(static_cast<char>(c));
+            }
+            return text;
+        }();
+
+        if (!found.snapshot && found.about && !found.about->starts_with(metadata_format())) {
+            found.problem = std::string(kOlderSave);
+            return;
         }
 
         // the journal, cut at its first bad record
@@ -256,15 +265,13 @@ Update Keeper::begin(const Found& found, const data::Catalogue& catalogue) {
         versions_.eras.push_back({build_, 0});
         return Update::none;
     }
+    if (found.versions && found.versions->making != making_digest(catalogue)) {
+        return Update::big;
+    }
     if (found.versions && found.versions->build == build_) {
         versions_ = *found.versions;
         played_.store(versions_.played, std::memory_order_relaxed);
         return Update::none;
-    }
-    // saved by another version; one from before versions were kept, α1.4a's, was made by today's rules for making
-    // worlds, the first
-    if (found.versions && found.versions->making != making_digest(catalogue)) {
-        return Update::big;
     }
     versions_ = found.versions.value_or(Versions{});
     versions_.build = build_;
@@ -293,7 +300,8 @@ Update Keeper::begin(const Found& found, const data::Catalogue& catalogue) {
 
 void Keeper::about(const std::string& text) {
     Bytes b;
-    for (const char c : text) {
+    const auto formatted = text.starts_with(metadata_format()) ? text : std::string(metadata_format()) + text;
+    for (const char c : formatted) {
         b.push_back(static_cast<std::byte>(c));
     }
     io_.now([&](Files& f) { f.write_whole(kAbout, b); });

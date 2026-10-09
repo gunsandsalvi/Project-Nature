@@ -56,9 +56,8 @@ struct About {
 [[nodiscard]] std::string about_text(const About& a);
 [[nodiscard]] std::optional<About> read_about(const std::string& text);
 
-/// Implements TIM-05, PLT-07 and PLT-09, see A3.7: a crowd's world from its folder, brought up to date by the
-/// migrations it has not had, or a new one from this seed and number of camps (0 for the tuning's), unless the
-/// folder's world.toml says otherwise.
+/// Opens current-format saves and replays their journal, or makes a new camp when no snapshot exists.
+/// Older formats are refused before recovery writes. The unused migration argument stays until T3.13e.5.
 [[nodiscard]] Kept keep_crowd(save::Keeper& keeper, const data::Catalogue& catalogue, std::uint64_t seed,
                               std::int64_t camps, std::span<const world::Migration> migrations = world::migrations(),
                               bool camp_alpha = false);

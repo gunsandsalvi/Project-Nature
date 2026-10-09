@@ -33,6 +33,7 @@ std::string quoted(const std::string& text) {
 
 std::string about_text(const About& a) {
     std::string out =
+        save::metadata_format() +
         "# A world of the demonstration's crowd (MAT-16): its name, and what makes it again if its snapshots are "
         "lost.\nname = " +
         quoted(a.name) + "\nkind = " + quoted(a.camp_alpha ? "camp_alpha" : "crowd") +
@@ -84,9 +85,14 @@ std::optional<About> read_about(const std::string& text) {
 
 Kept keep_crowd(save::Keeper& keeper, const data::Catalogue& catalogue, std::uint64_t seed, std::int64_t camps,
                 std::span<const world::Migration> migrations, bool camp_alpha) {
+    (void)migrations;  // No conversions; signature cleanup waits for the late-M3 chainsaw.
     Kept out;
     save::Found found = keeper.open();
     out.damaged = found.damaged;
+    if (!found.problem.empty()) {
+        out.problem = found.problem;
+        return out;
+    }
     out.update = keeper.begin(found, catalogue);
     if (out.update == save::Update::big) {
         out.problem = "this version makes worlds differently, so it cannot carry on; its history is kept";
@@ -100,16 +106,6 @@ Kept keep_crowd(save::Keeper& keeper, const data::Catalogue& catalogue, std::uin
             return out;
         }
         out.snapshot = found.snapshot_name;
-        // the migrations it has not had, made once now, before your later commands act again
-        world::World& opened = out.crowd->world();
-        std::vector<std::string>& had = keeper.versions().migrations;
-        out.migrated = world::migrate(opened, had, migrations);
-        const save::Chunk* camp = save::find_chunk(*found.snapshot, save::tag("CAMP"));
-        if (camp != nullptr && camp->version < 3 && !keeper.seal_camp_start(opened)) {
-            out.problem = "the living camp's starting state could not be kept; storage failed";
-            out.crowd.reset();
-            return out;
-        }
     } else {
         // no whole snapshot: made new, from the seed and size the folder's world.toml keeps, if it is there
         const std::optional<About> about = found.about ? read_about(*found.about) : std::nullopt;
@@ -140,10 +136,6 @@ Kept keep_crowd(save::Keeper& keeper, const data::Catalogue& catalogue, std::uin
             made.camps = camps;
             made.camp_alpha = camp_alpha;
             keeper.about(about_text(made));
-        }
-        // made as this version makes worlds, it needs none of the migrations
-        for (const world::Migration& m : migrations) {
-            keeper.versions().migrations.emplace_back(m.name);
         }
     }
     world::World& w = out.crowd->world();

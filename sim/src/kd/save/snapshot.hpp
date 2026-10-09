@@ -8,6 +8,7 @@
 #include <optional>
 #include <span>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "kd/save/files.hpp"
@@ -32,7 +33,12 @@ struct Chunk {
 };
 
 /// The snapshot format's own version, in its header.
-inline constexpr std::uint32_t kSnapshotVersion = 1;
+inline constexpr std::uint32_t kSnapshotVersion = 2;
+
+[[nodiscard]] inline std::string metadata_format() {
+    return "format = " + std::to_string(kSnapshotVersion) + "\n";
+}
+inline constexpr std::string_view kOlderSave = "This camp was made by an older build. Start a new camp.";
 
 /// Implements TIM-05 and PLT-07, see A3.7: the snapshot file of these chunks, each compressed.
 [[nodiscard]] Bytes write_snapshot(std::span<const Chunk> chunks);

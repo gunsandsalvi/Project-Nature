@@ -1,0 +1,46 @@
+action = 5
+sector = 6
+difficulty = 1
+yield = 950000
+bare_yield = 900000
+heat = 0
+edge_from = -1
+toughness = -1
+discovery = 1000000
+shatter = 0
+hint = 0
+seconds = "900 s"
+bare_seconds = "1800 s"
+unit_mass = "1000000 mg"
+result_mass = "0 mg"
+result_length = "100 mm"
+starting = false
+result = "scraped_hide"
+leftover = "food_waste"
+failure = "crumb"
+[[inputs]]
+class = "hide"
+form = "sheet"
+min_length = "0 mm"
+max_length = "100000 mm"
+min_mass = "1 mg"
+max_mass = "1000000000 mg"
+retained = false
+optional = false
+wear = 0
+ranges = []
+
+[[inputs]]
+class = "any"
+form = "any"
+min_length = "0 mm"
+max_length = "100000 mm"
+min_mass = "1 mg"
+max_mass = "1000000000 mg"
+retained = true
+optional = true
+wear = 25000
+[[inputs.ranges]]
+characteristic = 1
+minimum = 3
+maximum = 5

@@ -14,7 +14,9 @@
 #include <cstdint>
 #include <functional>
 #include <optional>
+#include <string>
 #include <string_view>
+#include <vector>
 
 #include "kd/core/bytes.hpp"
 #include "kd/ecs/id.hpp"
@@ -42,6 +44,16 @@ public:
     void u32(const Part& /*p*/, const std::uint32_t& v) { d_.u32(v); }
     void u64(const Part& /*p*/, const std::uint64_t& v) { d_.u64(v); }
     void i64(const Part& /*p*/, const std::int64_t& v) { d_.i64(v); }
+    void text(const Part& /*p*/, const std::string& v, std::size_t /*most*/ = 128) { d_.text(v); }
+    template <typename C>
+    void records(const Part& /*p*/, const std::vector<C>& values, std::size_t /*most*/) {
+        d_.u64(values.size());
+        for (const auto& value : values) {
+            d_.text(C::name);
+            d_.u32(C::version);
+            C::visit(*this, value);
+        }
+    }
     void point(const Part& /*p*/, const num::Point& v) {
         d_.u32(static_cast<std::uint32_t>(v.x));
         d_.u32(static_cast<std::uint32_t>(v.y));
@@ -72,6 +84,15 @@ public:
     void u32(const Part& /*p*/, const std::uint32_t& v) { w_.u32(v); }
     void u64(const Part& /*p*/, const std::uint64_t& v) { w_.u64(v); }
     void i64(const Part& /*p*/, const std::int64_t& v) { w_.i64(v); }
+    void text(const Part& /*p*/, const std::string& v, std::size_t /*most*/ = 128) { w_.text(v); }
+    template <typename C>
+    void records(const Part& /*p*/, const std::vector<C>& values, std::size_t /*most*/) {
+        w_.u64(values.size());
+        for (const auto& value : values) {
+            w_.u32(C::version);
+            C::visit(*this, value);
+        }
+    }
     void point(const Part& /*p*/, const num::Point& v) {
         w_.u32(static_cast<std::uint32_t>(v.x));
         w_.u32(static_cast<std::uint32_t>(v.y));
@@ -105,6 +126,25 @@ public:
     void u32(const Part& /*p*/, std::uint32_t& v) { r_.u32(v); }
     void u64(const Part& /*p*/, std::uint64_t& v) { r_.u64(v); }
     void i64(const Part& /*p*/, std::int64_t& v) { r_.i64(v); }
+    void text(const Part& /*p*/, std::string& v, std::size_t most = 128) { ok_ = ok_ && r_.text(v, most); }
+    template <typename C>
+    void records(const Part& /*p*/, std::vector<C>& values, std::size_t most) {
+        std::uint64_t count = 0;
+        if (!ok_ || !r_.u64(count) || count > most || count > r_.remaining() / 4) {
+            ok_ = false;
+            return;
+        }
+        values.resize(static_cast<std::size_t>(count));
+        for (auto& value : values) {
+            std::uint32_t version = 0;
+            if (!r_.u32(version) || version != C::version) {
+                ok_ = false;
+                return;
+            }
+            C::visit(*this, value);
+            if (!ok()) return;
+        }
+    }
     void point(const Part& /*p*/, num::Point& v) {
         std::uint32_t x = 0;
         std::uint32_t y = 0;

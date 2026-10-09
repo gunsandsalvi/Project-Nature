@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <span>
 #include <string>
 #include <string_view>
@@ -108,9 +109,9 @@ public:
         return true;
     }
     /// A text as text() wrote it.
-    bool text(std::string& t) {
+    bool text(std::string& t, std::size_t most = std::numeric_limits<std::size_t>::max()) {
         std::uint64_t n = 0;
-        if (!u64(n) || n > in_.size() - at_) {
+        if (!u64(n) || n > most || n > in_.size() - at_) {
             failed_ = true;
             return false;
         }
@@ -124,6 +125,7 @@ public:
     /// Whether every read so far succeeded and nothing is left unread.
     [[nodiscard]] bool finished() const { return !failed_ && at_ == in_.size(); }
     [[nodiscard]] bool failed() const { return failed_; }
+    [[nodiscard]] std::size_t remaining() const { return in_.size() - at_; }
 
 private:
     std::span<const std::byte> in_;

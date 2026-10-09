@@ -417,44 +417,7 @@ TEST_CASE("sight respects rock, darkness and hourly noticing; a remembered sourc
     CHECK(one.life().seen[1] <= one.w.frontier());
     CHECK(one.life().source[2] > 0);
 }
-TEST_CASE("old idle camp snapshot migrates once and all new action phases resume identically") {
-    std::string why;
-    const auto bytes = kd::save::DiskFiles(std::string(KD_REPO) + "/sim/tests/fixtures").read("camp-31301.kds");
-    REQUIRE(bytes);
-    if (!bytes) return;
-    const auto chunks = save::read_snapshot(*bytes, why);
-    REQUIRE(chunks);
-    if (!chunks) return;
-    auto old = demo::CrowdWorld::open(test::camp_fixture(), *chunks, why);
-    REQUIRE(old);
-    if (!old) return;
-    CHECK(old->world().frontier() == 25200);
-    auto second = demo::CrowdWorld::open(test::camp_fixture(), old->world().save(), why);
-    REQUIRE(second);
-    if (!second) return;
-    CHECK(old->world().digests().whole == second->world().digests().whole);
-    std::array<bool, 8> covered{};
-    for (std::int64_t t = 25201; t < 2 * time::kDay; t += 61) {
-        old->world().run_to(t);
-        bool novel = false;
-        old->world().beings().each([&](ecs::Id id, world::Beings::Handle h) {
-            if (id.family() != ecs::Family::person) return;
-            const auto act = old->world().beings().raw().get<world::Activity>(h).what;
-            if (!covered[act]) {
-                covered[act] = true;
-                novel = true;
-            }
-        });
-        if (!novel) continue;
-        auto copy = demo::CrowdWorld::open(test::camp_fixture(), old->world().save(), why);
-        REQUIRE(copy);
-        if (!copy) return;
-        copy->world().run_to(t + 3600);
-        second->world().run_to(t + 3600);
-        CHECK(copy->world().digests().whole == second->world().digests().whole);
-    }
-    for (const auto act : {0, 1, 2, 4, 5, 6, 7}) CHECK(covered[static_cast<std::size_t>(act)]);
-}
+
 TEST_CASE("five fixed camp seeds live for seven days with identical worker counts and reopening") {
     for (const auto seed : {1U, 3U, 17U, 42U, 91U}) {
         demo::CrowdWorld reference(seed, test::camp_fixture(), 1, true);
@@ -576,108 +539,6 @@ TEST_CASE("thirty-six awake hours force sleep where the exhausted person stands"
     CHECK(one.act().to == here);
 }
 
-TEST_CASE("same-second first living save recovers its migration baseline after corruption") {
-    std::string why;
-    const auto bytes = save::DiskFiles(std::string(KD_REPO) + "/sim/tests/fixtures").read("camp-31301.kds");
-    REQUIRE(bytes);
-    if (!bytes) return;
-    auto older = save::read_snapshot(*bytes, why);
-    REQUIRE(older);
-    if (!older) return;
-    // A second genuine idle snapshot, thirty seconds earlier, with a fresh whole-file checksum.
-    for (auto& c : *older) {
-        if (c.tag != save::tag("WRLD")) continue;
-        ByteWriter at;
-        at.i64(25170);
-        std::copy(at.bytes().begin(), at.bytes().end(), c.data.begin() + 8);
-    }
-    save::FakeFiles files;
-    REQUIRE(files.write_whole("snapshots/00000000000000025170.kds", save::write_snapshot(*older)));
-    REQUIRE(files.write_whole("snapshots/00000000000000025200.kds", *bytes));
-    std::uint64_t expected = 0;
-    {
-        save::Keeper keeper(files, "31302-test");
-        auto kept = demo::keep_crowd(keeper, test::camp_fixture(), 17, 1, {}, true);
-        REQUIRE(kept.crowd);
-        if (!kept.crowd) return;
-        auto& w = kept.crowd->world();
-        keeper.snapshot(w);  // Pause/save before even one second of the new rules has run.
-        keeper.flush();
-        std::vector<world::Record> history;
-        w.keep_history(&history);
-        w.run_to(27000);
-        keeper.history(history);
-        keeper.pause_mark(w.frontier());
-        keeper.flush();
-        expected = w.digests().whole;
-    }
-    files.raw("snapshots/00000000000000025200.kds").back() ^= std::byte{1};
-    save::Keeper keeper(files, "31302-test");
-    auto kept = demo::keep_crowd(keeper, test::camp_fixture(), 17, 1, {}, true);
-    REQUIRE(kept.crowd);
-    if (!kept.crowd) return;
-    CHECK_FALSE(kept.damaged.empty());
-    CHECK(kept.was_at == 27000);
-    std::vector<world::Record> history;
-    auto& w = kept.crowd->world();
-    w.keep_history(&history);
-    w.run_to(kept.was_at);
-    keeper.history(history);
-    keeper.flush();
-    CHECK(w.digests().whole == expected);
-    CHECK(keeper.mismatches() == 0);
-}
-
-TEST_CASE("migration sealing survives a power cut between every storage call and reports failures") {
-    std::string why;
-    const auto bytes = save::DiskFiles(std::string(KD_REPO) + "/sim/tests/fixtures").read("camp-31301.kds");
-    REQUIRE(bytes);
-    if (!bytes) return;
-    const auto chunks = save::read_snapshot(*bytes, why);
-    REQUIRE(chunks);
-    if (!chunks) return;
-    auto converted = demo::CrowdWorld::open(test::camp_fixture(), *chunks, why);
-    REQUIRE(converted);
-    if (!converted) return;
-    auto& w = converted->world();
-    save::FakeFiles original;
-    REQUIRE(original.write_whole("snapshots/00000000000000025200.kds", *bytes));
-    std::uint64_t calls = 0;
-    {
-        save::FakeFiles files = original;
-        save::Keeper keeper(files, "31302-test");
-        const auto found = keeper.open();
-        CHECK(keeper.begin(found, test::camp_fixture()) == save::Update::small);
-        const auto before = files.calls();
-        REQUIRE(keeper.seal_camp_start(w));
-        calls = files.calls() - before;
-    }
-    REQUIRE(calls > 0);
-    for (std::uint64_t cut = 0; cut <= calls; ++cut) {
-        INFO(cut);
-        save::FakeFiles files = original;
-        {
-            save::Keeper keeper(files, "31302-test");
-            const auto found = keeper.open();
-            CHECK(keeper.begin(found, test::camp_fixture()) == save::Update::small);
-            files.stop_after(cut);
-            const bool sealed = keeper.seal_camp_start(w);
-            CHECK(sealed == !keeper.failed());
-            if (cut < calls) CHECK_FALSE(sealed);
-        }
-        files.restart();
-        files.power_cut();
-        save::Keeper recovered(files, "31302-test");
-        const auto found = recovered.open();
-        REQUIRE(found.snapshot);
-        if (!found.snapshot) return;
-        auto same = demo::CrowdWorld::open(test::camp_fixture(), *found.snapshot, why);
-        REQUIRE(same);
-        if (!same) return;
-        CHECK(same->world().digests().whole == w.digests().whole);
-    }
-}
-
 TEST_CASE("actions begun above the fatigue threshold stop at thirty-six awake hours and reopen exactly") {
     One one;
     one.know();
@@ -728,37 +589,6 @@ TEST_CASE("intake and bodily depletion combine before clamping depleted meals an
         CHECK(one.life().food == 0);  // display sampling never settles the saved body
         CHECK(one.life().water == 0);
     }
-}
-
-TEST_CASE("real 31302 living snapshot retains each body action and memory when dreams are introduced") {
-    std::string why;
-    const auto bytes = save::DiskFiles(std::string(KD_REPO) + "/sim/tests/fixtures").read("camp-31302.kds");
-    REQUIRE(bytes);
-    if (!bytes) return;
-    const auto old = save::read_snapshot(*bytes, why);
-    REQUIRE(old);
-    if (!old) return;
-    CHECK(save::find_chunk(*old, save::tag("CAMP"))->version == 2);
-    CHECK(save::find_chunk(*old, save::tag("DRMS")) == nullptr);
-    auto migrated = demo::CrowdWorld::open(test::camp_fixture(), *old, why);
-    REQUIRE(migrated);
-    if (!migrated) return;
-    CHECK(migrated->world().frontier() == 26000);
-    const auto current = migrated->world().save();
-    for (const auto tag : {save::tag("BEIN"), save::tag("LIFE"), save::tag("QUEU"), save::tag("SYST")}) {
-        const auto* before = save::find_chunk(*old, tag);
-        const auto* after = save::find_chunk(current, tag);
-        REQUIRE(before);
-        REQUIRE(after);
-        if (!before || !after) return;
-        CHECK(before->data == after->data);
-    }
-    auto second = demo::CrowdWorld::open(test::camp_fixture(), current, why);
-    REQUIRE(second);
-    if (!second) return;
-    migrated->world().run_to(86400);
-    second->world().run_to(86400);
-    CHECK(migrated->world().digests().whole == second->world().digests().whole);
 }
 
 TEST_CASE("expired dream influence stops drawing a visit even when all needs can wait") {
@@ -911,60 +741,4 @@ TEST_CASE("an urgent water dream records the real arrival without claiming a dre
     CHECK(copy->world().beings().raw().get<world::Dream>(h).visit_at == one.act().start);
     CHECK(copy->world().beings().raw().get<world::Dreams>(ch).acts[0].visited_at == one.act().start);
     CHECK(copy->world().beings().raw().get<world::Dreams>(ch).acts[0].pull == 0);
-}
-
-TEST_CASE("a recovered migration snapshot exports and imports after the next save fails") {
-    const auto bytes = save::DiskFiles(std::string(KD_REPO) + "/sim/tests/fixtures").read("camp-31301.kds");
-    REQUIRE(bytes);
-    if (!bytes) return;
-    save::FakeFiles files;
-    REQUIRE(files.write_whole("snapshots/00000000000000025200.kds", *bytes));
-    {
-        save::Keeper keeper(files, "31304-test");
-        auto kept = demo::keep_crowd(keeper, test::camp_fixture(), 17, 1, {}, true);
-        REQUIRE(kept.crowd);
-        if (!kept.crowd) return;
-        keeper.flush();
-    }
-    files.raw("snapshots/00000000000000025200.kds").back() ^= std::byte{1};
-    std::uint64_t expected = 0;
-    {
-        save::Keeper keeper(files, "31304-test");
-        auto kept = demo::keep_crowd(keeper, test::camp_fixture(), 17, 1, {}, true);
-        REQUIRE(kept.crowd);
-        if (!kept.crowd) return;
-        CHECK(kept.snapshot == "00000000000000025200-camp-start.kds");
-        CHECK_FALSE(kept.damaged.empty());
-        files.stop_after(0);
-        keeper.snapshot(kept.crowd->world());
-        keeper.flush();
-        CHECK(keeper.failed());
-        files.restart();
-        kept.crowd->world().run_to(27000);
-        expected = kept.crowd->world().digests().whole;
-    }
-    save::ArchiveWriter writer(files);
-    save::FakeFiles copy;
-    save::ArchiveReader reader(copy);
-    for (;;) {
-        const auto piece = writer.next(137);
-        if (piece.empty()) break;
-        const bool fed = reader.feed(piece);
-        INFO(reader.why());
-        REQUIRE(fed);
-        if (!fed) return;
-    }
-    REQUIRE(reader.finish());
-    copy.power_cut();
-    save::Keeper keeper(copy, "31304-test");
-    auto kept = demo::keep_crowd(keeper, test::camp_fixture(), 17, 1, {}, true);
-    REQUIRE(kept.crowd);
-    if (!kept.crowd) return;
-    CHECK(kept.snapshot == "00000000000000025200-camp-start.kds");
-    kept.crowd->world().run_to(27000);
-    CHECK(kept.crowd->world().digests().whole == expected);
-    CHECK(keeper.mismatches() == 0);
-    for (const auto* unsafe : {"snapshots/-camp-start.kds", "snapshots/x-camp-start.kds",
-                               "snapshots/1-camp-start.kds/../world.toml", "snapshots/../1-camp-start.kds"})
-        CHECK_FALSE(save::archive_part(unsafe));
 }

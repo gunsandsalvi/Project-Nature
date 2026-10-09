@@ -20,7 +20,7 @@ Separately, the ten-minute phone measurement still waits: Menu → Developer too
 
 ## What is rough
 
-Physical-phone touch confirmation and measurements are **pending**. The living camp still uses finite supplies and simple poses; discovery follows in a separate build. M2 play acceptance stays open.
+The owner confirmed tap and hold on the phone on 9 October 2026. Phone measurements remain **pending**; the performance test’s running display needs a follow-up fix. The living camp still uses finite supplies and simple poses; discovery follows in a separate build. M2 play acceptance stays open.
 
 Validation: paired finger and emulated mouse events through the viewport reproduced the old failure and pass with the fix. Six touch regressions cover selection, the hold deadline, drag, two fingers, rotation and cancellation; the shell test now uses viewport touch too. Portrait 1080×2400 captures were inspected first, then landscape 2400×1080: two distinct people, the ring and the dream chooser. These are display-backed software-renderer checks, not physical-phone results. Save layouts and simulation rules are unchanged.
 

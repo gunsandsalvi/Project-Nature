@@ -1,4 +1,5 @@
 #include "kd/save/archive.hpp"
+#include "kd/save/snapshot.hpp"
 
 #include <algorithm>
 #include <utility>
@@ -11,7 +12,7 @@ namespace {
 
 constexpr std::uint64_t kMagic = 0x444c574c444e494b;  // "KINDLWLD", little-endian
 constexpr std::uint64_t kEnd = 0x444e45444c524f57;    // "WORLDEND"
-constexpr std::uint32_t kVersion = 1;
+constexpr std::uint32_t kVersion = kSnapshotVersion;
 // No world's file is larger, so a damaged length is refused before anything that large is written.
 constexpr std::uint64_t kLargest = std::uint64_t{1} << 34U;
 constexpr std::uint64_t kLongestPath = 256;
@@ -124,21 +125,24 @@ bool ArchiveReader::parse() {
     for (;;) {
         std::size_t used = 0;
         if (!header_) {
-            if (buffer_.size() < 16) {
+            if (buffer_.size() < 12) {
                 return true;
             }
-            ByteReader r{std::span(buffer_).first(16)};
+            ByteReader r{buffer_};
             std::uint64_t magic = 0;
             std::uint32_t version = 0;
             r.u64(magic);
             r.u32(version);
-            r.u32(parts_);
             if (magic != kMagic) {
                 return fail("it is not a world's file");
             }
             if (version != kVersion) {
-                return fail("it is a world's file of a version this one cannot read");
+                return fail(version > 0 && version < kVersion
+                                ? std::string(kOlderSave)
+                                : "This save has an unsupported format. Start a new camp.");
             }
+            if (buffer_.size() < 16) return true;
+            r.u32(parts_);
             header_ = true;
             used = 16;
         } else if (body_left_ > 0) {

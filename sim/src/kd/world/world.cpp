@@ -1,4 +1,5 @@
 #include "kd/world/world.hpp"
+#include "kd/world/craft_store.hpp"
 
 #include <algorithm>
 #include <limits>
@@ -246,6 +247,10 @@ World::World(std::uint64_t seed, const data::Catalogue& catalogue) : seed_(seed)
     beings_.raw().storage<Person>();
     beings_.raw().storage<Life>();
     beings_.raw().storage<Habitat>();
+    beings_.raw().storage<Work>();
+    beings_.raw().storage<Knowledge>();
+    beings_.raw().storage<CraftHistory>();
+    things_.raw().storage<Item>();
     set_layer(ecs::owners::commands, commands_);
 }
 
@@ -255,6 +260,11 @@ Beings::Handle World::make_being(ecs::Family f) {
     const Beings::Handle h = beings_.make(id);
     beings_.raw().emplace<Schedule>(h);
     return h;
+}
+
+Things::Handle World::make_thing() {
+    KD_CHECK(!in_islands_, "world::World: things are made only between windows");
+    return things_.make(ids_.make(ecs::Family::thing));
 }
 
 void World::end_being(ecs::Id id) {
@@ -795,7 +805,8 @@ std::vector<save::Chunk> World::save() const {
             else
                 ecs::write_component(*person, camp);
         });
-        out.push_back({save::tag("CAMP"), beings_.raw().view<Dreams>().empty() ? 2U : 3U, true, camp.take()});
+        camp.u32(craft_features(*this));
+        out.push_back({save::tag("CAMP"), 4U, true, camp.take()});
     }
     if (count != 0) {
         ByteWriter life;
@@ -811,7 +822,7 @@ std::vector<save::Chunk> World::save() const {
                 ecs::write_component(*body, life);
             }
         });
-        out.push_back({save::tag("LIFE"), 1, true, life.take()});
+        out.push_back({save::tag("LIFE"), 2, true, life.take()});
     }
     if (!beings_.raw().view<Dreams>().empty()) {
         ByteWriter dreams;
@@ -832,6 +843,7 @@ std::vector<save::Chunk> World::save() const {
         });
         out.push_back({save::tag("DRMS"), 1, true, dreams.take()});
     }
+    save_craft(*this, out);
     return out;
 }
 
@@ -846,21 +858,24 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
     }
     const auto* camp_chunk = save::find_chunk(chunks, save::tag("CAMP"));
     const auto* life_chunk = save::find_chunk(chunks, save::tag("LIFE"));
+    std::uint32_t features = 0;
+    if (!craft_headers(chunks, features, why)) return false;
     if ((camp_chunk && camp_chunk->version >= 2 && !life_chunk) ||
         (life_chunk && (!camp_chunk || camp_chunk->version < 2))) {
         why = "living camp extension is missing or mismatched";
         return false;
     }
     const auto* dream_chunk = save::find_chunk(chunks, save::tag("DRMS"));
-    if ((camp_chunk && camp_chunk->version == 3 && !dream_chunk) ||
+    if ((camp_chunk && camp_chunk->version == 4 && !dream_chunk) ||
         (dream_chunk &&
-         (!camp_chunk || camp_chunk->version != 3 || !dream_chunk->critical || dream_chunk->version != 1))) {
+         (!camp_chunk || camp_chunk->version != 4 || !dream_chunk->critical || dream_chunk->version != 1))) {
         why = "dream extension is missing or mismatched";
         return false;
     }
     // each part brought up to the version this one writes; a part it does not know is skipped, unless it must be known
     for (const save::Chunk& c : chunks) {
         if (c.critical && c.tag != save::tag("CAMP") && c.tag != save::tag("LIFE") && c.tag != save::tag("DRMS") &&
+            c.tag != save::tag("CRFT") && c.tag != save::tag("KNOW") && c.tag != save::tag("HIST") &&
             std::none_of(kParts.begin(), kParts.end(), [&](const auto& p) { return p.first == c.tag; })) {
             why = "it holds a part this version cannot read";
             return false;
@@ -874,7 +889,8 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
             return false;
         }
         parts.push_back(*c);
-        if (!save::upgrade(parts.back(), version, upgrades(), why)) {
+        if (parts.back().version != version) {
+            why = "unsupported foundation chunk version";
             return false;
         }
     }
@@ -963,8 +979,7 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
             ByteReader records(camp->data);
             std::uint64_t count = 0;
             ecs::Id last{};
-            if ((camp->version != 1 && camp->version != 2 && camp->version != 3) || !records.u64(count) ||
-                count > beings_.size()) {
+            if (camp->version != 4 || !records.u64(count) || count > beings_.size()) {
                 why = "invalid Camp alpha records";
                 return false;
             }
@@ -1029,7 +1044,8 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                     return false;
                 }
             }
-            if (!records.finished()) {
+            std::uint32_t saved_features = 0;
+            if (!records.u32(saved_features) || saved_features != features || !records.finished()) {
                 why = "trailing Camp alpha records";
                 return false;
             }
@@ -1038,7 +1054,7 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
             ByteReader r(life->data);
             std::uint64_t count = 0;
             ecs::Id last{};
-            if (life->version != 1 || !r.u64(count) || count > beings_.size()) {
+            if (life->version != 2 || !r.u64(count) || count > beings_.size()) {
                 why = "invalid living camp records";
                 return false;
             }
@@ -1092,18 +1108,21 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                         body.awake > 129600 || body.settled < 0 || body.settled > frontier_ ||
                         body.food_remainder < 0 || body.food_remainder >= time::kDay || body.water_remainder < 0 ||
                         body.water_remainder >= time::kDay || body.food_water_remainder < 0 ||
-                        body.food_water_remainder >= 1000000 || body.goal > 3 || body.gathering_skill > 10 ||
-                        body.carried_food < 0 || body.carried_food > 4000000 || body.allocated_water < 0 ||
-                        body.allocated_water > 3000 || body.portion < 0 || body.portion > 4000000 || body.applied < 0 ||
-                        body.applied > body.portion || body.decision_at < 0 || body.decision_at > frontier_ ||
-                        body.notice_at < -3600 || body.notice_at > frontier_ || body.memory_at < -1 ||
-                        body.memory_at > frontier_ || body.memory_kind < 0 || body.memory_kind > 7 ||
-                        body.memory_amount < 0 || body.memory_amount > 4000000 || act.what > 7 || act.what == 3 ||
-                        act.start != body.settled || act.start > frontier_ || act.end < frontier_ ||
-                        act.end <= act.start || act.end - act.start > time::kDay || !is_point(act.from) ||
-                        !is_point(act.to) || !is_point(body.explore_at) || !is_point(body.use_at) ||
-                        schedule.expected[kActivitySlot] == 0 || schedule.expected[2] != 0 ||
-                        schedule.expected[3] != 0 ||
+                        body.food_water_remainder >= 1000000 || body.food_factor_ppm < 0 ||
+                        body.food_factor_ppm > 2500000 || body.water_ml_per_kg < 0 || body.water_ml_per_kg > 1000 ||
+                        body.nutrient_remainder < 0 || body.nutrient_remainder >= 1000000 ||
+                        (features == 0 && (body.meal_item.value != 0 || act.what > 7)) || body.goal > 3 ||
+                        body.gathering_skill > 10 || body.carried_food < 0 || body.carried_food > 4000000 ||
+                        body.allocated_water < 0 || body.allocated_water > 3000 || body.portion < 0 ||
+                        body.portion > 4000000 || body.applied < 0 || body.applied > body.portion ||
+                        body.decision_at < 0 || body.decision_at > frontier_ || body.notice_at < -3600 ||
+                        body.notice_at > frontier_ || body.memory_at < -1 || body.memory_at > frontier_ ||
+                        body.memory_kind < 0 || body.memory_kind > 12 || body.memory_amount < 0 ||
+                        body.memory_amount > 4000000 || act.what > 12 || act.what == 3 || act.start != body.settled ||
+                        act.start > frontier_ || act.end < frontier_ || act.end <= act.start ||
+                        act.end - act.start > time::kDay || !is_point(act.from) || !is_point(act.to) ||
+                        !is_point(body.explore_at) || !is_point(body.use_at) || schedule.expected[kActivitySlot] == 0 ||
+                        (features == 0 && schedule.expected[2] != 0) || schedule.expected[3] != 0 ||
                         (act.what == 5 && body.portion - body.applied > body.carried_food) ||
                         (act.what == 6 && body.allocated_water != body.portion - body.applied) ||
                         (act.what != 6 && body.allocated_water != 0) || act.from != beings_.raw().get<Place>(*h).at) {
@@ -1415,14 +1434,11 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
         ByteReader r(chunk_of(save::tag("SYST")).data);
         const std::vector<System*> systems = systems_of(by_family_, by_owner_);
         std::uint64_t n = 0;
-        const bool old_camp =
-            save::find_chunk(chunks, save::tag("CAMP")) && !save::find_chunk(chunks, save::tag("LIFE"));
-        if (!r.u64(n) || (n != systems.size() && !(old_camp && n + 1 == systems.size()))) {
+        if (!r.u64(n) || n != systems.size()) {
             why = "it was saved with other systems than this version's";
             return false;
         }
         for (System* sys : systems) {
-            if (old_camp && n + 1 == systems.size() && sys->name() == "living") continue;
             std::string name;
             std::vector<std::byte> own;
             if (!r.text(name) || name != sys->name() || !r.blob(own)) {
@@ -1447,6 +1463,7 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                 }
             }
         }
+        if (!load_craft(*this, chunks, entries, features, why)) return false;
         context_.now_ = frontier_;
         for (System* sys : systems) {
             sys->opened(*this);
@@ -1495,6 +1512,9 @@ Digests World::digests() const {
                 ecs::digest_component(*c, d);
             }
             if (const auto* life = beings_.raw().try_get<Life>(h)) ecs::digest_component(*life, d);
+            if (const auto* work = beings_.raw().try_get<Work>(h)) ecs::digest_component(*work, d);
+            if (const auto* knowledge = beings_.raw().try_get<Knowledge>(h)) ecs::digest_component(*knowledge, d);
+            if (const auto* history = beings_.raw().try_get<CraftHistory>(h)) ecs::digest_component(*history, d);
             if (const auto* env = beings_.raw().try_get<Habitat>(h)) ecs::digest_component(*env, d);
             if (const auto* thought = beings_.raw().try_get<Dream>(h)) ecs::digest_component(*thought, d);
             if (const auto* ledger = beings_.raw().try_get<Dreams>(h)) {
@@ -1513,6 +1533,12 @@ Digests World::digests() const {
     {
         num::Digest d;
         things_.digest(d);
+        things_.each([&](ecs::Id id, Things::Handle h) {
+            if (const auto* item = things_.raw().try_get<Item>(h)) {
+                d.u64(id.value);
+                ecs::digest_component(*item, d);
+            }
+        });
         out.things = d.value();
     }
     {
