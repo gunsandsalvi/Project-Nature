@@ -1,25 +1,25 @@
-# Kindling α2.13a: Camp alpha
+# Kindling α2.13b: A living camp
 
 ## What is new
 
-The app opens on a saved camp of 25 named adults, with a bounded patch, water, food plants, stone, fallen wood and natural shelter. Tap a person for their actual saved name, age at start and position. Large Pause and Speed controls stay on screen in both orientations; one Menu holds saved camps and developer tools. Zoom settles over 320 ms, with readable labels throughout.
+The 25 adults walk, gather berries, carry them, eat, drink and rest from their saved needs and remembered supplies. Tap someone: the card shows their current needs, the reason for their choice and progress. Details shows alternatives and when they noticed supplies. Simple poses follow the actual activity; new camps start with a seeded natural spread near the shelter.
 
-People and initial quantities survive save/reopen, camp switching and export/import. Old marker worlds remain usable. Save failures visibly stop play; damaged camp records are refused. The baseline import, Examples and texture lifetime repairs are included.
+The spring and berry stand renew from finite saved inputs. Meals, drinks, interrupted work and memories survive reopening. Existing idle camp saves keep their people and positions and gain needs once; old marker worlds remain usable.
 
 ## What to try
 
-1. Install **31301** over the previous build. Tap two different people, drag, pinch, and turn the phone. Report a first-start code if one appears.
-2. Try Pause and Speed. Use **Menu → Save camp now**, close the app, then reopen the same camp.
-3. Open **Menu → Saved camps · export / import**. Make and switch camps; export one, import its copy, and compare its people. **Camp supplies** shows the initial quantities.
+1. Install **31302** over the previous build. Follow someone walking to water, then drinking; watch their water need recover. Pause halfway through an action, save, close and reopen.
+2. Tap someone resting and read Why, then Details for the alternatives and remembered supplies. Use Speed to watch a day and turn the phone.
+3. **Menu → Camp supplies** shows available stock; Details shows the finite spring and fruit-growth inputs. Saved camps still support switching and export/import.
 
 [Download the APK](https://github.com/gunsandsalvi/Project-Nature/raw/ccr-13ab6fef-fspju6/dist/kindling.apk) · [Checksum](https://github.com/gunsandsalvi/Project-Nature/blob/ccr-13ab6fef-fspju6/dist/kindling.apk.sha256)
 
 ## What is rough
 
-Adults are idle stand-ins in a regular starting grid; movement comes next. Needs, consumption, tasks, discovery and survival are still ahead; this is a saved bounded camp, not generated geography. Age is explicitly age at start. Resting zoom still uses the existing discrete levels. Phone frame time, power, heat and touch feel need owner testing; inspected cloud captures establish composition only. Developer fixture pages remain unfinished art.
+This is a mild adult camp, with raw berries and a bounded spring, not full diet, health, ecology, families or generated geography. Adults keep age at start; a few can overlap at a supply. Full senses and memory fading come later. The first indirect choice comes next. Phone heat, power, touch feel and frame time still need owner testing; inspected phone-size cloud captures establish composition.
 
-Validation: full persistence/determinism audit passed, including arm64, one/four workers, races, kill recovery and real corrupt-save tests. Front door tests cover picking, pause/speed, switching, export/import and failed opens. Portrait 1080×2400 and landscape 2400×1080 were captured and inspected.
+Validation: full audit and committed routine passed, including recovery faults, race checks, compiler/worker parity and all seven benchmark scenarios. Five fixed seeds live seven days with balanced resource ledgers. Both review regressions fail on old code and pass here. Portrait 1080×2400 and landscape 2400×1080 action/save-reopen sequences were captured and inspected.
 
-**Signed release:** 31301, 52,154,001 bytes (49.74 MiB). Lossless PNG/native repacking keeps all resources and decoded pixels.
+**Signed release:** 31302, 52,203,478 bytes (49.79 MiB), using the registered release key. Lossless packaging retains all resources.
 
-Rounded wall time, with overlapping work: ~40 min code/build, ~70 min checks, ~6 min self-review/captures, ~9 min packaging (final signed build 88 s). Restart and paused independent-review time are excluded.
+Recorded time through packaging: about 116 minutes of builder work across both turns (building, checking, self-review and captures), plus 5 minutes of independent review. The final signed build took 127 seconds. Time stopped awaiting review is excluded; the final delivery gate follows packaging.
