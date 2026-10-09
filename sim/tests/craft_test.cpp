@@ -74,7 +74,7 @@ TEST_CASE("older_save_refused") {
     REQUIRE(files.write_whole("journal.log", journal));
     const auto calls = files.calls();
     kd::save::Keeper keeper(files, "α3.13a");
-    const auto kept = kd::demo::keep_crowd(keeper, catalogue(), 17, 1, {}, true);
+    const auto kept = kd::demo::keep_crowd(keeper, catalogue(), 17, 1, true);
     keeper.flush();
     CHECK_FALSE(kept.crowd);
     CHECK_FALSE(kept.made);
@@ -245,7 +245,7 @@ TEST_CASE("current-format saves still refuse changed world-making rules without 
     REQUIRE(files.write_whole("snapshots/00000000000000000000.kds", kd::save::write_snapshot(chunks)));
     const auto calls = files.calls();
     kd::save::Keeper keeper(files, "α3.13a");
-    const auto kept = kd::demo::keep_crowd(keeper, catalogue(), 17, 1, {}, true);
+    const auto kept = kd::demo::keep_crowd(keeper, catalogue(), 17, 1, true);
     keeper.flush();
     CHECK(kept.update == kd::save::Update::big);
     CHECK_FALSE(kept.crowd);
@@ -345,7 +345,7 @@ TEST_CASE("current craft snapshots retain extensions through corruption recovery
         if (fault == 4)
             for (std::size_t i = 8; i < 12; ++i) damaged[i] = std::byte{0};
         kd::save::Keeper keeper(files, "α3.13a");
-        auto opened = kd::demo::keep_crowd(keeper, catalogue(), 17, 1, {}, true);
+        auto opened = kd::demo::keep_crowd(keeper, catalogue(), 17, 1, true);
         INFO(opened.problem);
         REQUIRE(opened.crowd);
         CHECK(opened.replayed == 1);

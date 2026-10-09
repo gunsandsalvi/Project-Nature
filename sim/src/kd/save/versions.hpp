@@ -1,7 +1,4 @@
-// What a snapshot was saved under (A3.7, PLT-09): the app's version, the rules for making worlds and the catalogue's
-// rules, the migrations the world has had, the versions it has run under and how long under the last. The keeper
-// writes them as a chunk of each snapshot, so a world opened by a new version knows what changed: a change to the
-// rules for making worlds is a big update, which the world cannot carry on through; anything else is a small one.
+// Current build identity, catalogue fingerprints and elapsed play time in each snapshot.
 #pragma once
 
 #include <cstdint>
@@ -16,7 +13,7 @@
 namespace kd::save {
 
 /// An update as a world meets it: none when the version that saved it opens it.
-enum class Update : std::uint8_t { none, small, big };
+enum class Update : std::uint8_t { none, older, big };
 
 /// Implements PLT-09, see A3.7: what a snapshot was saved under.
 struct Versions {
@@ -32,8 +29,6 @@ struct Versions {
     std::uint64_t making = 0;
     /// Each source's version and rules digest, for the record.
     std::uint64_t rules = 0;
-    /// The migrations the world has had, by name.
-    std::vector<std::string> migrations;
     /// The versions the world has run under, oldest first.
     std::vector<Era> eras;
     /// Real seconds the world has run under the last.

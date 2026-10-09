@@ -19,6 +19,10 @@ var reports: Array[Dictionary] = []
 var shown := PackedStringArray()
 var charts: Array[RangeChart] = []
 var status := ""
+var run_world: KdWorld
+var run_opened := {}
+var _run_card: Label
+var _run_step: Button
 
 var _list: VBoxContainer
 var _status: Label
@@ -43,6 +47,15 @@ func _ready() -> void:
 	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_list.add_theme_constant_override("separation", 4)
 	scroll.add_child(_list)
+	_run_card = Label.new()
+	_run_card.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	add_child(_run_card)
+	_run_step = Button.new()
+	_run_step.text = "Run test world for one hour"
+	_run_step.custom_minimum_size.y = 48
+	_run_step.hide()
+	_run_step.pressed.connect(_step_run)
+	add_child(_run_step)
 	reports = Reports.read_all(folder)
 	refresh()
 
@@ -67,7 +80,7 @@ func show_all_runs(scene: String, all: bool) -> void:
 	refresh()
 
 
-## Opens the world a report brought, on the Crowd page: imported the first time, and found again
+## Opens the world a report brought, in the test view: imported the first time, and found again
 ## after. Its id, or nothing when there is none or it was refused.
 func open_world(r: Dictionary) -> String:
 	var found := Reports.world_of(folder, r)
@@ -92,14 +105,53 @@ func open_world(r: Dictionary) -> String:
 		id = result["id"]
 	worlds.set_current(id)
 	status = "Opened %s, a test's world" % copy_name
-	var shell := get_parent()
-	while shell != null and not shell.has_method("open_page"):
-		shell = shell.get_parent()
-	if shell != null:
-		shell.open_page("Crowd")
-	else:
-		refresh()
+	open_saved_world(id)
 	return id
+
+
+## Required PLT-05 access to a current cloud run, without the obsolete marker renderer.
+func open_saved_world(id: String) -> void:
+	if run_world != null and not run_opened.has("problem"):
+		run_world.save_now()
+	var worlds := Worlds.at(root)
+	worlds.set_current(id)
+	run_world = KdWorld.new()
+	GameData.load_into(run_world)
+	run_opened = run_world.open_crowd(
+		ProjectSettings.globalize_path(root.path_join(id)),
+		1,
+		1,
+		str(ProjectSettings.get_setting("application/config/version"))
+	)
+	run_world.pause()
+	if run_opened.has("problem"):
+		_run_card.text = "Test world could not run: " + str(run_opened.problem)
+		_run_step.hide()
+		return
+	_show_run()
+	_run_step.show()
+
+
+func _show_run() -> void:
+	var marked := ""
+	for record: Dictionary in Worlds.at(root).list():
+		if record.id == Worlds.at(root).current():
+			marked = Worlds.test_words(record)
+	_run_card.text = (
+		"%s\n%s\n%d people · %s"
+		% [marked, run_world.time_text(), run_world.people().size(), run_world.digest()]
+	)
+
+
+func _step_run() -> void:
+	run_world.run_until(run_world.frontier() + 3600)
+	run_world.save_now()
+	_show_run()
+
+
+func _exit_tree() -> void:
+	if run_world != null and not run_opened.has("problem"):
+		run_world.save_now()
 
 
 func _show(r: Dictionary) -> void:

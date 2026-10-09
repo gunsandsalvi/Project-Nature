@@ -1,6 +1,4 @@
-// The world class (A3.8): the world as GDScript sees it. For now, until the world itself exists, its catalogue, read
-// from the build's copy of data/ (A3.6), the clockwork stand-in or the demonstration's crowd on its runner, and the
-// speed loop between it and the screen (A3.9); later make, open, save and commands join it here.
+// Current camp, save and test-run access through an owned simulation runner and immutable display snapshots.
 #pragma once
 
 #include <atomic>
@@ -22,7 +20,6 @@
 #include "crowd_core.hpp"
 #include "heat.hpp"
 #include "kd/data/catalogue.hpp"
-#include "kd/demo/clockwork.hpp"
 #include "kd/demo/crowd_world.hpp"
 #include "kd/run/marked.hpp"
 #include "kd/run/runner.hpp"
@@ -30,7 +27,6 @@
 #include "kd/save/keeper.hpp"
 #include "pace.hpp"
 #include "projection.hpp"
-#include "time_requests.hpp"
 
 namespace kd::view {
 
@@ -54,27 +50,13 @@ public:
     /// An entry's values by its kind's folder and its name, following renames: whole numbers in base units, chances
     /// in parts per million, texts, truth values and lists of names; empty when there is no such entry.
     godot::Dictionary entry(const godot::String& folder, const godot::String& name) const;
-    /// Implements PRE-22/PRE-46: owned validated family metadata with nested cells and attachment records.
-    godot::Array sprite_families() const;
-    /// Implements PLT-04: validated catalogue caps, with the named resident partitions.
-    godot::Dictionary stream_limits() const;
-    godot::Dictionary navigation_tuning() const;
-    void enable_time_requests(bool enabled);
-    void set_zoom_density(double density);
-    void set_manual_rate(double rate);
-    void clear_manual_rate();
-    void set_speed_lock(bool locked);
-    godot::Dictionary time_requests() const;
-
-    /// Starts the calendar's stand-in world at Year 1, spring, day 1, doing its work each game hour (MAT-16).
-    void start_clockwork();
     /// Starts the demonstration's crowd from the loaded catalogue (MAT-16): from a seed, with camps camps, or the
     /// tuning's number when 0; kept nowhere, for the tests.
     void start_crowd(int64_t seed, int64_t camps);
     /// Opens the crowd's world kept in a folder, an absolute path, or makes it there from a seed and camps (A3.7), as
     /// this version of the app, such as "α1.4b": whether it was made, the snapshot it opened, the commands acted again,
     /// the damaged files set aside, the game second it had got to and catches up to, whether another version saved it
-    /// and how big an update this one is for it ("none", "small" or "big"), the migrations made to it, and a problem
+    /// and how big an update this one is for it ("none", "older" or "big"), and a problem
     /// if it could not open. Implements TIM-05, PLT-07 and PLT-09.
     godot::Dictionary open_crowd(const godot::String& folder, int64_t seed, int64_t camps, const godot::String& build);
     /// Saves the world as it runs, between two batches, its snapshot written on another thread, and checks the free
@@ -89,15 +71,10 @@ public:
     /// Saves the world at once, as the app leaves the screen: it stops after the batch it is in, a pause mark is
     /// synced to the journal, and the snapshot is written before this returns (TIM-05).
     void save_now();
-    /// Your command to call one of the camps home, by its number in id order, acting at the world's frontier and
-    /// written to the journal before it acts (A3.8).
-    void call_home(int64_t camp);
     godot::Dictionary prepare_dream();
     godot::Array dream_subjects(int64_t person);
     godot::Dictionary send_place_dream(int64_t person, int64_t subject);
     godot::Array dream_records();
-    /// The number of the camp nearest a place in world centimetres, within a distance, or -1.
-    int64_t nearest_camp(int64_t east, int64_t north, int64_t within) const;
     /// Where a camp is, by its number: east and north in world centimetres; empty if there is no such camp.
     godot::PackedInt64Array camp_at(int64_t camp) const;
     /// Whether the world is still catching up to where it was when it closed.
@@ -105,20 +82,9 @@ public:
     /// For the tests, while the world rests between batches, as after save_now: its whole state's digest.
     godot::String digest() const;
 
-    // the benchmark's marks (A18.1)
-    /// Takes the world's digest as it passes this game second, its whole state's for the crowd and its work's for the
-    /// calendar's stand-in, as the cloud's headless run takes it (RES-05).
-    void mark(int64_t second);
-    /// The digests taken at the marks so far, in hexadecimal by game second.
-    godot::Dictionary marks() const;
-    /// Your command to call a camp home, by its number in id order, given as the world reaches exactly this game
-    /// second and written to the journal as call_home's is.
-    void call_home_at(int64_t camp, int64_t second);
-    /// Asks the world to reach a moment without waiting for it, for a page whose frames have stopped asking.
-    void reach(int64_t moment);
     /// A game second as the calendar says it, "Year 1, spring, day 1, 07:00" (TIM-14).
     static godot::String moment_text(int64_t second);
-    /// The crowd's world as the Crowd page first makes it: its seed, and the moment the page opens on.
+    /// The standard seed used by retained renderer tests, and the camp's starting morning.
     static int64_t crowd_seed();
     static int64_t morning();
     static int64_t save_format() { return save::kSnapshotVersion; }
@@ -192,13 +158,11 @@ private:
     /// On the world's thread: its snapshot handed to the keeper, timed.
     void snapshot();
     /// On the world's thread: your command to call a camp home, at the frontier, written to the journal.
-    void called_home(ecs::Id camp);
     /// The runner, for a world and how to read its digest, with the marks between them.
     void start_runner(run::Steppable& world, std::function<std::uint64_t()> digest, time::Seconds start,
                       const char* thread);
 
     std::unique_ptr<data::Catalogue> catalogue_;
-    std::unique_ptr<demo::Clockwork> clockwork_;
     // the folder a kept world is in, and its keeper, which outlast the world and its runner
     std::string folder_;
     std::unique_ptr<save::DiskFiles> files_;
@@ -220,8 +184,6 @@ private:
     int64_t warn_below_mb_ = 1024;
     double played_ = 0.0;
     Pace pace_;
-    TimeRequests time_requests_;
-    bool time_requests_enabled_ = false;
     HeatGovernor heat_;
     std::chrono::steady_clock::time_point last_frame_;
     bool framed_ = false;

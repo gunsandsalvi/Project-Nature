@@ -11,7 +11,6 @@
 
 #include "kd/demo/crowd_world.hpp"
 #include "kd/save/keeper.hpp"
-#include "kd/world/upgrades.hpp"
 
 namespace kd::demo {
 
@@ -36,8 +35,6 @@ struct Kept {
     /// Whether another version saved it, and how big an update this one is for it (PLT-09); after a big one it is not
     /// opened, and its history can still be read.
     save::Update update = save::Update::none;
-    /// The migrations made to it as it opened.
-    std::vector<std::string> migrated;
 };
 
 /// A crowd's world.toml (A3.7): its name, which the Worlds page shows and you may change, and the seed and number of
@@ -58,9 +55,8 @@ struct About {
 [[nodiscard]] std::optional<About> read_about(const std::string& text);
 
 /// Opens current-format saves and replays their journal, or makes a new camp when no snapshot exists.
-/// Older formats are refused before recovery writes. The unused migration argument stays until T3.13e.5.
+/// Older formats are refused before recovery writes.
 [[nodiscard]] Kept keep_crowd(save::Keeper& keeper, const data::Catalogue& catalogue, std::uint64_t seed,
-                              std::int64_t camps, std::span<const world::Migration> migrations = world::migrations(),
-                              bool camp_alpha = false);
+                              std::int64_t camps, bool camp_alpha = false);
 
 }  // namespace kd::demo

@@ -89,8 +89,7 @@ std::optional<About> read_about(const std::string& text) {
 }
 
 Kept keep_crowd(save::Keeper& keeper, const data::Catalogue& catalogue, std::uint64_t seed, std::int64_t camps,
-                std::span<const world::Migration> migrations, bool camp_alpha) {
-    (void)migrations;  // No conversions; signature cleanup waits for the late-M3 chainsaw.
+                bool camp_alpha) {
     Kept out;
     save::Found found = keeper.open();
     out.damaged = found.damaged;
@@ -99,6 +98,10 @@ Kept keep_crowd(save::Keeper& keeper, const data::Catalogue& catalogue, std::uin
         return out;
     }
     out.update = keeper.begin(found, catalogue);
+    if (out.update == save::Update::older) {
+        out.problem = save::kOlderSave;
+        return out;
+    }
     if (out.update == save::Update::big) {
         out.problem = "this version makes worlds differently, so it cannot carry on; its history is kept";
         return out;

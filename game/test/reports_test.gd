@@ -6,7 +6,6 @@ extends GdUnitTestSuite
 
 const ReportsPage := preload("res://pages/reports.gd")
 const WorldsPage := preload("res://pages/worlds.gd")
-const CrowdPage := preload("res://pages/crowd.gd")
 const ROOT := "user://test-reports"
 
 
@@ -119,17 +118,12 @@ func test_the_cloud_s_test_world_opens_here_exactly_as_it_ended() -> void:
 	var id: String = page.open_world(r)
 	assert_str(id).is_not_empty()
 	# saved by this version in the cloud, it opens as its own, where the report says it ended
-	var crowd: VBoxContainer = CrowdPage.new()
-	crowd.root = ROOT.path_join("worlds")
-	crowd.size = Vector2(540, 1100)
-	add_child(crowd)
-	assert_str(crowd.opened.get("problem", "")).is_empty()
-	assert_bool(crowd.opened["made"]).is_false()
-	assert_str(crowd.opened["update"]).is_equal("none")
+	assert_str(page.run_opened.get("problem", "")).is_empty()
+	assert_bool(page.run_opened["made"]).is_false()
+	assert_str(page.run_opened["update"]).is_equal("none")
 	var run: Dictionary = r["each"][found["index"]]
-	assert_str(crowd.world.digest()).is_equal(run["digest"])
-	remove_child(crowd)
-	crowd.free()
+	assert_str(page.run_world.digest()).is_equal(run["digest"])
+	assert_str(page._run_card.text).contains("A test's world")
 	for w: Dictionary in Worlds.at(ROOT.path_join("worlds")).list():
 		assert_str(Worlds.test_words(w)).is_equal("A test's world, run with no switches")
 
@@ -176,7 +170,7 @@ func test_a_report_s_world_opens_marked_as_a_test_world_with_its_switches_once()
 	assert_bool(listed[0]["test"]).is_true()
 	var marked := (
 		"A test's world, run with no_greetings; this build has no switches, "
-		+ "so it carries on without them"
+		+ "so this run cannot resume here"
 	)
 	assert_str(Worlds.test_words(listed[0])).is_equal(marked)
 	assert_str(Worlds.at(ROOT.path_join("worlds")).current()).is_equal(id)

@@ -8,8 +8,6 @@
 //     <world>/journal.log                 your commands, and a mark each time the app left the screen
 //     <world>/history/<year>.log          the history, a file for each game year, each numbered from 1; a year more
 //                                         than 25 years past is thinned to the records that stay for ever (PLT-10)
-//     <world>/previous/                   after an update, the previous version's last snapshot and world.toml, until
-//                                         the world has run an hour under the new one (PLT-09)
 #pragma once
 
 #include <atomic>
@@ -75,9 +73,6 @@ public:
     /// stay for ever, thinned as each year begins (PRN-15, PLT-10).
     static constexpr std::int64_t kWholeYears = 25;
 
-    /// Real seconds a world runs under a new version before the previous version's last snapshot goes (PLT-09).
-    static constexpr std::int64_t kPreviousKept = 3600;
-
     /// The keeper of a world's folder for a version of the app, such as "α1.4b", which each snapshot records.
     explicit Keeper(Files& files, std::string build = "");
     /// Waits for every write so far.
@@ -88,13 +83,9 @@ public:
     /// Reads the folder, first of all: each snapshot that is not whole moved aside, newest first, until one is; the
     /// journal and the history from the snapshot's year on each cut at their first bad record.
     [[nodiscard]] Found open();
-    /// After opening, before the world runs: whether a version other than this one saved the folder's snapshot, and
-    /// if so whether the update is small or big for it (PLT-09). After a small one the world carries on: the previous
-    /// version's snapshot is kept aside until the world has run an hour under this one, the history after it is made
-    /// again under this version's rules rather than compared, and the version is added to the world's eras. After a
-    /// big one nothing is written, and the world must not run.
+    /// Check this build and its world-making fingerprint before running the opened state.
     Update begin(const Found& found, const data::Catalogue& catalogue);
-    /// What each snapshot records: the world keeps its migrations up to date here as it opens.
+    /// The current build record each snapshot holds.
     [[nodiscard]] Versions& versions() { return versions_; }
     /// Real seconds the world has run under this version, added from any thread, and in all.
     void played(std::int64_t seconds) { played_.fetch_add(seconds, std::memory_order_relaxed); }
@@ -124,10 +115,6 @@ public:
     /// A snapshot of a world between events: its state copied now, then compressed and written on the I/O thread,
     /// after the history is synced; the newest two are kept.
     void snapshot(const world::World& w);
-    /// Before a legacy camp can play: keeps two durable copies of its newly initialized living state at the same
-    /// frontier. A same-second save may replace one; corruption can still recover the exact migration baseline.
-    /// False means storage failed and play must stop. Later snapshots retain the usual newest two.
-    bool seal_camp_start(const world::World& w);
     /// Waits until everything given so far is written.
     void flush();
 
@@ -163,11 +150,8 @@ private:
     std::string build_;
     Versions versions_;
     std::atomic<std::int64_t> played_{0};
-    // the frontier of the snapshot opened, whether it was saved by another version, and whether a previous version's
-    // snapshot is kept aside
+    // The frontier of the opened snapshot.
     time::Seconds opened_at_ = 0;
-    bool updated_ = false;
-    bool previous_ = false;
     std::function<bool(const world::Record&)> keeps_;
     // the stored records from the snapshot's year on, and where each is; the world makes again those from next_ on
     std::vector<world::Record> stored_;

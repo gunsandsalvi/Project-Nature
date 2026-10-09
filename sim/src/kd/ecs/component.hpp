@@ -170,24 +170,11 @@ void write_component(const C& c, ByteWriter& w) {
     C::visit(pw, c);
 }
 
-/// A component from a snapshot, as write_component() wrote it; false if it is short, of a newer version or of an older
-/// one it cannot upgrade from, or names an entry the catalogue no longer has. A component whose shape changed reads its
-/// older shapes itself (A3.7, PLT-09):
-///
-///     static bool upgrade(std::uint32_t version, ByteReader& r, const EntryMap& entries, Place& c);
+/// A component in this build's exact shape; short reads, other versions or missing entries fail.
 template <typename C>
 bool read_component(C& c, ByteReader& r, const EntryMap& entries) {
     std::uint32_t version = 0;
-    if (!r.u32(version) || version == 0 || version > C::version) {
-        return false;
-    }
-    if (version < C::version) {
-        if constexpr (requires { C::upgrade(version, r, entries, c); }) {
-            return C::upgrade(version, r, entries, c);
-        } else {
-            return false;
-        }
-    }
+    if (!r.u32(version) || version != C::version) return false;
     PartReader pr(r, entries);
     C::visit(pr, c);
     return pr.ok();

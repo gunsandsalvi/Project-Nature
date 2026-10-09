@@ -1,5 +1,5 @@
 ## Implements A3.8 PLT-02 PLT-06 PRE-31: readable navigation and composed example pages.
-## Camp is the front door; diagnostics live behind one developer menu.
+## Camp is the front door; required phone checks have direct menu routes.
 extends Control
 
 const Sizing := preload("res://ui/sizing.gd")
@@ -9,15 +9,8 @@ const PAGES := {
 	"Check": preload("res://pages/check.gd"),
 	"DiscoveryExamples": preload("res://pages/discovery_examples.gd"),
 	"FirstFlake": preload("res://pages/first_flake.gd"),
-	"Examples": preload("res://pages/examples.gd"),
-	"Time": preload("res://pages/time.gd"),
-	"Crowd": preload("res://pages/crowd.gd"),
 	"Worlds": preload("res://pages/worlds.gd"),
-	"Catalogues": preload("res://pages/catalogues.gd"),
 	"Reports": preload("res://pages/reports.gd"),
-	"Bench": preload("res://pages/bench.gd"),
-	"Fixtures": preload("res://pages/fixtures.gd"),
-	"Terrain": preload("res://pages/terrain.gd"),
 }
 const BACKGROUND := Palette.GROUND
 const TEXT := Palette.TEXT
@@ -37,7 +30,6 @@ var _menu_button: Button
 var _page: Control
 var _ui: Control
 var _layout_pending := false
-var _developer: VBoxContainer
 
 
 func _ready() -> void:
@@ -79,17 +71,13 @@ func open_page(page: String) -> void:
 	if is_instance_valid(_page):
 		_page.free()
 	_page = PAGES[page].new()
-	if page in ["Camp", "Worlds", "Crowd"]:
+	if page in ["Camp", "Worlds", "Reports"]:
 		_page.root = camp_root
 	if page == "Camp":
 		_page.frozen = camp_frozen
 	if page == "FirstFlake":
 		_page.root = example_root
-	if page == "Worlds":
-		_page.new_camp_alpha = true
 	_page_name = page
-	if page == "Examples":
-		_page.shell_header_height = _header.size.y
 	_content.add_child(_page)
 	if page == "Camp" and not first_check_code.is_empty():
 		_page.show_check(first_check_code)
@@ -172,30 +160,15 @@ func _build() -> void:
 	dreams.text = "Your dreams"
 	dreams.pressed.connect(_camp_dreams)
 	column.add_child(dreams)
-	var developer := Button.new()
-	developer.text = "Developer tools"
-	column.add_child(developer)
-	_developer = VBoxContainer.new()
-	_developer.visible = false
-	column.add_child(_developer)
-	developer.pressed.connect(func() -> void: _developer.visible = not _developer.visible)
-	var routes := {
-		"Check": "Device check",
-		"Examples": "Examples",
-		"Crowd": "Marker regression fixture",
-		"Time": "Time test",
-		"Catalogues": "Catalogues",
-		"Reports": "Reports",
-		"Bench": "Rendering test",
-		"CampMeasure": "Camp performance test",
-		"Fixtures": "Art inspector",
-		"Terrain": "Terrain inspector"
-	}
-	for route: String in routes:
+	for route: String in ["CampMeasure", "Check", "Reports"]:
 		var button := Button.new()
-		button.text = routes[route]
+		button.text = {
+			"CampMeasure": "Camp performance test",
+			"Check": "Device check",
+			"Reports": "Test reports"
+		}[route]
 		button.pressed.connect(open_page.bind(route))
-		_developer.add_child(button)
+		column.add_child(button)
 	_layout()
 
 
@@ -258,10 +231,7 @@ func _layout() -> void:
 	_content.position = safe.position + Vector2(gap, header_height + gap)
 	_content.size = Vector2(safe.size.x - gap * 2, safe.size.y - header_height - gap * 2)
 	if is_instance_valid(_page):
-		if _page_name == "Examples":
-			_page.shell_header_height = header_height
-			_page._resize()
-		elif _page.get("draws_world"):
+		if _page.get("draws_world"):
 			_page.navigation_height = header_height
 			_page._resize()
 		if not _page.get("draws_world"):
@@ -316,7 +286,7 @@ func _save_camp() -> void:
 	_menu_button.set_pressed_no_signal(false)
 
 
-## A brief first-launch smoke/thread check; the full report remains in Developer tools.
+## The required first-launch self-check; Device check retains its report.
 func _first_check() -> void:
 	var file := ConfigFile.new()
 	var path := "user://first-check.cfg"

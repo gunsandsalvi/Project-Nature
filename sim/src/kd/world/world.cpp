@@ -10,7 +10,6 @@
 #include "kd/chance/chance.hpp"
 #include "kd/num/sort.hpp"
 #include "kd/num/whole.hpp"
-#include "kd/world/upgrades.hpp"
 
 namespace kd::world {
 
@@ -720,8 +719,7 @@ std::vector<System*> systems_of(const std::array<System*, 16>& by_family, const 
     return out;
 }
 
-// Each part of a world's snapshot, and the version this one writes: a part an older version saved is brought up to
-// date by the steps of upgrades() before it is read (A3.7, PLT-09).
+// Each foundation part and its exact current version; older shapes are refused.
 constexpr std::array<std::pair<std::uint32_t, std::uint32_t>, 6> kParts{{{save::tag("WRLD"), 2},
                                                                          {save::tag("NAME"), 1},
                                                                          {save::tag("BEIN"), 1},

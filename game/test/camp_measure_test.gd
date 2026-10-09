@@ -42,10 +42,6 @@ func _route() -> Control:
 	await await_idle_frame()
 	await _press(shell._menu_button)
 	for node in shell._menu.find_children("*", "Button", true, false):
-		if node.text == "Developer tools":
-			await _press(node)
-	await await_idle_frame()
-	for node in shell._developer.get_children():
 		if node.text == "Camp performance test":
 			shell._menu_scroll.ensure_control_visible(node)
 			await await_idle_frame()

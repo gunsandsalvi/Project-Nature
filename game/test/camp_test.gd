@@ -111,7 +111,15 @@ func test_reopen_export_import_preserve_people_supplies_and_digest() -> void:
 	copy.world.run_until(90000)
 	var expected := KdWorld.new()
 	GameData.load_into(expected)
-	expected.open_camp(ProjectSettings.globalize_path(TEST_ROOT.path_join(id)), 17, "camp-test")
+	var expected_opened: Dictionary = expected.open_camp(
+		ProjectSettings.globalize_path(TEST_ROOT.path_join(id)),
+		17,
+		str(ProjectSettings.get_setting("application/config/version"))
+	)
+	assert_bool(expected_opened.has("problem")).is_false()
+	if expected_opened.has("problem"):
+		copy.free()
+		return
 	expected.begin_at(90000)
 	assert_str(copy.world.digest()).is_equal(expected.digest())
 	expected.save_now()

@@ -6,8 +6,6 @@ extends RefCounted
 
 ## Where every world is kept, a folder each.
 const ROOT := "user://worlds"
-## The world the Crowd page opens until you choose one: the crowd's, which α1.4a kept here.
-const FIRST := "crowd"
 
 
 ## The worlds under a root, as the simulation's class keeps them.
@@ -17,13 +15,12 @@ static func at(root: String = ROOT) -> KdWorlds:
 	return worlds
 
 
-## The id of the world the Crowd page opens.
+## The selected saved camp or test world.
 static func current_id(worlds: KdWorlds) -> String:
-	var id := worlds.current()
-	return id if id != "" else FIRST
+	return worlds.current()
 
 
-## A world's name as the pages show it: its own, or its folder's, "Crowd" for α1.4a's.
+## The saved name, or the folder ID if no name was recorded.
 static func name_of(world: Dictionary) -> String:
 	var own: String = world.get("name", "")
 	return own if own != "" else String(world["id"]).capitalize()
@@ -40,7 +37,7 @@ static func count_words(n: int) -> String:
 
 
 ## A test's world marked as one, with the switches it ran with (RES-10), or nothing for a world of
-## play. The game's own build has no switches, so such a world carries on here without them.
+## play. The game's own build has no switches, so a run requiring them cannot resume here.
 static func test_words(world: Dictionary) -> String:
 	if not world.get("test", false):
 		return ""
@@ -48,7 +45,7 @@ static func test_words(world: Dictionary) -> String:
 	if switches.is_empty():
 		return "A test's world, run with no switches"
 	return (
-		"A test's world, run with %s; this build has no switches, so it carries on without them"
+		"A test's world, run with %s; this build has no switches, so this run cannot resume here"
 		% ", ".join(switches)
 	)
 

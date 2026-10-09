@@ -1,14 +1,14 @@
 ## Checks PRE-03 PRE-42 PRE-43 PLT-04: canonical fields and culled receiver ownership.
 extends GdUnitTestSuite
 
-const Variants := preload("res://terrain/ground_variants.gd")
-const Drawing := preload("res://terrain/drawing.gd")
-const Stream := preload("res://fixtures/sprite_stream.gd")
-const SurfaceShader := preload("res://terrain/surface.gdshader")
+const Variants := preload("res://test/support/terrain/ground_variants.gd")
+const Drawing := preload("res://test/support/terrain/drawing.gd")
+const Stream := preload("res://test/support/fixtures/sprite_stream.gd")
+const SurfaceShader := preload("res://test/support/terrain/surface.gdshader")
 
 
 class UnitAtlas:
-	extends "res://fixtures/atlas.gd"
+	extends "res://test/support/fixtures/atlas.gd"
 	var page: ImageTexture
 	var span := 4.0
 
@@ -17,7 +17,7 @@ class UnitAtlas:
 		image.fill(Color.WHITE)
 		page = ImageTexture.create_from_image(image)
 
-	func read(_path := "res://fixtures/manifest.json") -> bool:
+	func read(_path := "res://test/support/fixtures/manifest.json") -> bool:
 		entries = [{}, {}, {}, {"name": "ground"}]
 		return true
 

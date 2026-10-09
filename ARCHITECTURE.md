@@ -54,7 +54,7 @@ Package `dev.kindling.app`, same release key, increasing version code:
 `(milestone + 1) × 10000 + alpha × 100 + step`, with a = 1.
 Never reuse a distributed code. The committed APK must fit the repository's 50 MiB file limit; a different distribution route or visible compression needs the owner's decision.
 The measured size, note and checksum in `dist/` identify the actual delivery.
-α2.13a opens the selected Camp alpha directly. A brief once-per-build smoke check compares one/four threads, numerical environment and catalogue fingerprints, and stores device/saved-moment diagnostics; the full report remains behind Menu → Developer tools.
+α2.13a opens the selected Camp alpha directly. A brief once-per-build smoke check compares one/four threads, numerical environment and catalogue fingerprints, and stores device/saved-moment diagnostics; the full report is at Menu → Device check.
 The note has What is new, What to try and What is rough plus the APK link; proved behaviour and remaining checks fit those sections. The installable build follows IMPLEMENTATION.md. First-start checks cover deterministic digests, numerical environment, catalogue fingerprints, saved moment and device diagnostics.
 
 ### A2.4 A fresh cloud session
@@ -122,6 +122,8 @@ Rules, world-making and look fingerprints are separate. Placement/size/species c
 Saves keep catalogue names and versions. New sources currently add entries only.
 Build manifests hash each exported file; the phone verifies them. Keep one authoritative catalogue, not competing editor metadata.
 
+The α3.13a cleanup removed the old developer menu, marker/time/rendering pages, catalogue and art/terrain inspectors, composed examples and their unused capture tools. Approved art remains in the repository; unused encoded textures and sheets are neither prepared nor packaged. Renderer drawing/stream regressions use excluded `game/test/support/` harnesses; their native bindings build only for host tests. The camp performance test and first-launch self-check remain. `PLT-05`/`RES-06` keep current cloud reports and a plain test-world view; deterministic proofs, cloud scenes, catalogue/provenance and current-save regressions remain required. This is a camp slice, not full renderer/performance acceptance.
+
 ### A3.7 Saves (`TIM-05`, `TIM-08`, `PLT-07`, `PLT-08`, `PLT-09`, `PLT-10`)
 
 A world folder holds metadata, two recent snapshots, command journal and yearly history.
@@ -131,7 +133,7 @@ Writes use temporary file, sync, rename and directory sync. Any write failure st
 
 Save every 30 real seconds and on backgrounding, switching, export and quit. Backgrounding writes a pause mark then a snapshot within Android's 10-second allowance.
 Recovery uses the newest valid snapshot, sets damaged ones aside and deterministically replays journal/history to the recorded moment.
-**Older saves are not converted** (owner, 9 October 2026; `PLT-09` paused during development). A build opens only saves in its own format: it checks the format version before reading anything else and refuses older saves with a plain message, never a half-read world. Write no new upgrades, migration seals, old-save fixtures or corpus tests; delete an old-save test when a format change breaks it. Existing upgrade code (idle CAMP 1, the CAMP 1/2 dream ledger, owner-count encoding) is frozen and removed by `T3.13e.5` or earlier where it is in the way. History thinning never removes records marked permanent.
+**Older saves are not converted** (owner, 9 October 2026; `PLT-09` paused during development). A build opens only saves in its own format: it checks the format version before reading anything else and refuses older saves with a plain message, never a half-read world. Write no new upgrades, migration seals, old-save fixtures or corpus tests; delete an old-save test when a format change breaks it. The cleanup removed conversion APIs, migration seals, alternate migration snapshots and old-save fixtures. Current component/chunk versions are strict; VERS1 retains a reserved zero field, with no migration names or conversion path. History thinning never removes records marked permanent.
 The current snapshot and archive envelopes are version 2; a folder's recovery metadata begins with `format = 2`. The format gate runs before decompression, metadata parsing, log replay or recovery writes. CAMP4 appends a feature mask. Its craft bit requires CRFT1 (items/work), KNOW1 (personal evidence) and HIST1 (result history), plus LIFE2 and DRMS1. Extension readers reject unsupported versions, duplicate/missing chunks, orphan links, invalid bounds and overlapping reservations. Discovery camps now use these extensions for autonomous work and immutable display records; the legacy living-camp proofs retain their unchanged rules.
 
 Warn below the configured free-space line (currently 1 GB); delete nothing without the user.
@@ -424,7 +426,7 @@ Decide at action ends/interruptions, not frames. Save memory, pending actions an
 
 **α2.13c contract:** a place dream uses only one of a person's three remembered supply/shelter sites. At sleep it replaces that night's ordinary place dream through the same thought/choice function. At the first rest in each night, a keyed 1-in-60 natural place dream keeps the weakest known need’s site (newest observation, then stable subject order breaks ties); other place dreams are unkept. Ordinary strong place dreams can occur naturally; a kept thought has a fixed mild score pull (60), expires after three days, and refreshes without adding strength. It can favour a known use or an ordinary visit/watch choice; urgent need below 20 and exhaustion always override it. It never interrupts work, teleports, grants knowledge or starts a requested activity.
 
-A separate critical DRMS extension and CAMP 3 preserve personal ordinary dream thoughts plus a private camp ledger: requested/received/executed moments, subject position, status and observed choice/arrival. The ledger alone owns queued requests (at most three worldwide in this one-camp slice), one sent dream per sleeper/night and three per night. Nights turn over at 06:00; queued work is checked again at the next sleep and cancels for a vanished subject or exhausted cap. Minds contain no sender, request number or player provenance. Older CAMP formats are refused before loading. The old migration-seal APIs remain unused and frozen until the owner-authorized cleanup before the α3.13a delivery.
+A separate critical DRMS extension and CAMP 3 preserve personal ordinary dream thoughts plus a private camp ledger: requested/received/executed moments, subject position, status and observed choice/arrival. The ledger alone owns queued requests (at most three worldwide in this one-camp slice), one sent dream per sleeper/night and three per night. Nights turn over at 06:00; queued work is checked again at the next sleep and cancels for a vanished subject or exhausted cap. Minds contain no sender, request number or player provenance. Older CAMP formats are refused before loading. The cleanup removed the unused migration-seal APIs and old-format snapshots.
 
 Opening a power chooser pauses the runner between batches and explicitly settles the display to its final frontier before presenting subjects. Confirmation records that displayed whole second, durably journals one command, and drains that command within one game second; sleep delay is separately shown. Power requests are synchronous and cannot accumulate runner jobs. Cancel restores the previous pause state without issuing a command. The only supported camp rates remain 1, 60 and 3600 game seconds/real second. The private record observes the first later choice, its ordinary dream contribution and actual arrival; it does not claim a changed outcome from correlation. Personal cards date recorded choices and remembered dreams in plain clock words. A dream delivered during sleep publishes its thought at the delivery event while preserving the original sleep interval; earlier display times retain the previous thought. Arrival must lie within the remembered site’s use area, so bringing gathered food home never counts as reaching the food site again. It is observed even when urgent needs give the dream zero pull; the record still says needs led the choice.
 
@@ -449,7 +451,7 @@ M3 starts event-backed history; M6 finishes the small book with pattern text. Di
 
 ## A15. The interface
 
-World first, truthful person cards, pause/speed, save/world controls and one indirect dream in M2. Diagnostics remain behind a developer menu.
+World first, truthful person cards, pause/speed, save/world controls and one indirect dream in M2. The camp menu gives direct access to Device check, Camp performance test and Test reports.
 Use one gesture reader/theme, safe insets, ≥48 dp targets with 8 dp gaps and both orientations.
 Current bitmap font has 135 glyphs (ASCII 95 included), base 16/line 20/baseline 15, integer physical sizing and retained licence/provenance. Arbitrary Unicode lacks coverage; the Japanese probe aliases a question mark. Production fallback remains unresolved.
 Deferred layout batching avoids the previous quadratic catalogue freeze.
@@ -461,8 +463,8 @@ M3 introduces sounds from actual action/fire; M9 completes sound obligations. Wo
 ## A17. Testing and checks
 
 Testing policy: owner OK 8 October 2026. Keep the routine/delivery/audit split; IMPLEMENTATION.md owns delivery instructions.
-Routine tests cover native/view/app/tools, accepted deterministic proofs, catalogues and document structure and ID traceability checks. Audit adds compiler/architecture/thread/sanitizer/kill/repeat/render stress and runs at stage close or affected foundation changes.
-Optional ID annotations locate evidence; they do not certify full acceptance. Old-save/corruption/determinism regressions remain mandatory.
+Routine tests cover native/view/app/tools, accepted deterministic proofs, catalogues and document structure and ID traceability checks. Native lint and source rules are in the routine gate. The full audit adds compiler/architecture/thread/sanitizer/kill/repeat/render stress and runs only at the milestone end (owner, 9 October 2026).
+Optional ID annotations locate evidence; they do not certify full acceptance. Current-save corruption/recovery and determinism regressions remain mandatory; older saves are refused.
 
 ### A17.0 Traps met so far
 

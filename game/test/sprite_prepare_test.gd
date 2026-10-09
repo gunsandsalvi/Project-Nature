@@ -1,7 +1,7 @@
 ## Checks PRE-42 PRE-43 PRE-46 PLT-04 (T2.9a.2/4): source channels stay truthful and immutable.
 extends GdUnitTestSuite
 
-const Prepare := preload("res://fixtures/sprite_prepare.gd")
+const Prepare := preload("res://test/support/fixtures/sprite_prepare.gd")
 
 
 func test_south_normal_is_converted_once_without_changing_the_source() -> void:

@@ -225,8 +225,6 @@ godot_step() {
     mapfile -t READS < <(printf '%s\n' "${ALL[@]}" | grep "^$d/"; compgen -G "$d/bin/*.so" || true; \
       compgen -G "$d/data/*.toml" || true; compgen -G "$d/data/reports/*" || true)
     # The full scenario benchmark belongs to the explicit audit, not each delivery.
-    SLOW=(-i "bench_test:test_every_scenario_runs_and_ends_as_the_cloud_s_in_a_code_the_cloud_reads")
-    [ "$AUDIT" = 0 ] || SLOW=()
     FP="$(fingerprint "${READS[@]}" tools/godot-scripts.gd "$KD_GODOT_VERSION" "$KD_GDUNIT" "deliver=$DELIVER" "audit=$AUDIT")"
     before="$(git status --porcelain --untracked-files=all -- "$d")"
     if passed "godot-${d//\//-}" "$FP"; then
@@ -250,7 +248,7 @@ godot_step() {
         # for input after a script error.
         rc=0
         timeout 600 "$GODOT" --headless --path "$d" -s -d --remote-debug tcp://127.0.0.1:0 \
-          res://addons/gdUnit4/bin/GdUnitCmdTool.gd --ignoreHeadlessMode -a res://test "${SLOW[@]}" \
+          res://addons/gdUnit4/bin/GdUnitCmdTool.gd --ignoreHeadlessMode -a res://test \
           -rd user://gdunit-reports -c \
           >"$TMP/tests" 2>&1 || rc=$?
         sed 's/\x1b\[[0-9;]*m//g' "$TMP/tests" >"$TMP/plain"

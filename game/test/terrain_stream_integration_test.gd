@@ -1,9 +1,9 @@
 ## Checks PRE-03 PRE-28 PRE-33 PLT-04 PLT-07 TIM-17 (T2.9a).
 extends GdUnitTestSuite
 
-const Drawing := preload("res://terrain/drawing.gd")
-const Examples := preload("res://pages/examples.gd")
-const Stream := preload("res://fixtures/sprite_stream.gd")
+const Drawing := preload("res://test/support/terrain/drawing.gd")
+const Targets := preload("res://test/support/render_targets.gd")
+const Stream := preload("res://test/support/fixtures/sprite_stream.gd")
 
 
 func test_scaled_fallback_alpha_pick_keeps_display_time_and_ground_receiver() -> void:
@@ -71,7 +71,7 @@ func test_target_resize_failure_preserves_old_allocation_across_cancel_and_world
 		"epoch": 1
 	}
 	assert_bool(stream.begin(identity, {"target_bytes": 800}).ok).is_true()
-	var page: Control = auto_free(Examples.new())
+	var page := Targets.new()
 	page._stream = stream
 	assert_bool(page._reserve_targets(Vector2i(4, 4))).is_true()
 	assert_int(stream.ledger.status().target_bytes).is_equal(192)
