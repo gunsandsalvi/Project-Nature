@@ -5,7 +5,7 @@ config_version=5
 [application]
 
 config/name="Kindling"
-config/version="α2.13c"
+config/version="α2.13d"
 run/main_scene="res://main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"

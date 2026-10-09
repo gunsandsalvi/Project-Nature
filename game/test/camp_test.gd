@@ -411,3 +411,85 @@ func test_sent_dream_is_readable_during_the_same_uninterrupted_sleep() -> void:
 	page._refresh_records()
 	assert_str(page._card.text).is_equal(card)
 	page.free()
+
+
+class HotDevice:
+	extends RefCounted
+	var reads := 0
+	var reading := {"available": true, "light": 0.50, "forecast_10s": 0.48}
+
+	func thermal() -> Dictionary:
+		reads += 1
+		return reading
+
+
+func test_camp_heat_reaches_the_governor_at_the_catalogue_interval() -> void:
+	var page := _page()
+	var hot := HotDevice.new()
+	page.device = hot
+	page._process(2)
+	assert_float(float(page.world.counters().share)).is_equal(0.5)
+	assert_int(hot.reads).is_equal(1)
+	page._process(1)
+	assert_int(hot.reads).is_equal(1)
+	page._process(1)
+	assert_float(float(page.world.counters().share)).is_equal(0.25)
+	assert_int(hot.reads).is_equal(2)
+	hot.reading = {"available": false}
+	page._process(2)
+	assert_float(float(page.world.counters().share)).is_equal(0.25)
+	hot.reading = {"available": true, "forecast_10s": NAN}
+	page._process(2)
+	assert_float(float(page.world.counters().share)).is_equal(0.25)
+	page.free()
+
+
+func test_low_storage_warns_before_save_failure_and_survives_saved_confirmation() -> void:
+	var page := _page()
+	var counters: Dictionary = page.world.counters()
+	counters.free_mb = 512
+	counters.warn_below_mb = 1024
+	counters.save_failed = false
+	page._message = "Camp saved. People and supplies are kept."
+	page._message_until = Time.get_ticks_msec() + 4000
+	page._refresh_records(counters)
+	assert_str(page._summary.text).contains("nearly full")
+	assert_str(page._summary.text).contains("512")
+	assert_str(page._summary.text).contains("Saved camps")
+	assert_bool(page._pause.disabled).is_false()
+	assert_bool(page._speed.disabled).is_false()
+	for free_mb: int in [2048, -1]:
+		counters.free_mb = free_mb
+		page._refresh_records(counters)
+		assert_str(page._summary.text).not_contains("nearly full")
+		assert_str(page._summary.text).contains("Camp saved")
+	counters.free_mb = 512
+	counters.save_failed = true
+	page._refresh_records(counters)
+	assert_str(page._summary.text).contains("could not save")
+	assert_bool(page._pause.disabled).is_true()
+	assert_bool(page._speed.disabled).is_true()
+	page.free()
+
+
+func test_actual_arrival_keeps_the_zero_pull_explanation() -> void:
+	var words := preload("res://camp/dreams.gd").record_words(
+		{
+			"name": "Ari",
+			"place": "water",
+			"requested": 0,
+			"received": 0,
+			"status": 2,
+			"executed": 0,
+			"until": 259200,
+			"decision_at": 120,
+			"choice": 1,
+			"pull": 0,
+			"visited_at": 143
+		},
+		144
+	)
+	assert_str(words).contains("chose water")
+	assert_str(words).contains("Their needs led this choice; the dream added no pull")
+	assert_str(words).contains("Reached the remembered place")
+	assert_str(words).not_contains("made this feel a little more worthwhile")

@@ -507,7 +507,7 @@ void Living::continue_goal(world::Context& c, world::Beings::Handle h, ecs::Id c
     auto& l = raw.get<world::Life>(h);
     const auto here = raw.get<world::Place>(h).at;
     const auto& thought = raw.get<world::Dream>(h);
-    if (thought.decision_pull > 0) {
+    if (thought.at >= 0 && thought.until > c.now() && thought.subject >= 0) {
         const auto offset = c.world().torus().offset(thought.place, here);
         const auto radius = uses_[static_cast<std::size_t>(thought.subject)].area / 10;
         const bool in_site = std::abs(offset.dx) <= radius && std::abs(offset.dy) <= radius;

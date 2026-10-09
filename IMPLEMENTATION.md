@@ -1,7 +1,7 @@
 # Kindling: the build plan
 
 Adopted by the owner on 8 October 2026. M1 remains accepted; reuse its simulation, saves and current 2D work.
-The current delivery is α2.13c: complete the place dream in the saved living camp.
+The current delivery is α2.13d: close the whole-M2 review findings before owner play.
 α2.13a/b are delivered; M2 closes after independent review, audit, phone measurement and owner play.
 Only M2 is scheduled. Detail M3 after playing M2; M4–M10 map later obligations, not parallel work.
 

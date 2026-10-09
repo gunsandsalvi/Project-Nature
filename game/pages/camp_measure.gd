@@ -6,7 +6,6 @@ var time_scale := 1.0
 var samples: Array = []
 var phases: Array = []
 var report := ""
-var _device := KdDevice.new()
 var _running := false
 var _started := 0
 var _phase := -1
@@ -29,8 +28,8 @@ func _ready() -> void:
 	_refresh_records()
 
 
-func _refresh_records() -> void:
-	super._refresh_records()
+func _refresh_records(counters: Dictionary = {}) -> void:
+	super._refresh_records(counters)
 	_pause.disabled = true
 	_speed.disabled = true
 	_more.text = "Copy report"
@@ -79,7 +78,7 @@ func _process(delta: float) -> void:
 			_finish_phase()
 		_start_phase(phase)
 	if elapsed - _phase * PHASE_SECONDS >= 5 and not _counting:
-		_device.frames_reset(1000.0 / 60, DisplayServer.screen_get_refresh_rate())
+		device.frames_reset(1000.0 / 60, DisplayServer.screen_get_refresh_rate())
 		_counting = true
 	if elapsed >= _next_read:
 		_next_read = elapsed + 5
@@ -87,11 +86,11 @@ func _process(delta: float) -> void:
 			{
 				"seconds": elapsed,
 				"phase": _phase,
-				"memory": _device.memory(),
-				"thermal": _device.thermal(),
-				"battery": _device.battery_supply(),
-				"clocks": Array(_device.clocks()),
-				"threads": _device.thread_times(),
+				"memory": device.memory(),
+				"thermal": thermal.duplicate(true),
+				"battery": device.battery_supply(),
+				"clocks": Array(device.clocks()),
+				"threads": device.thread_times(),
 				"camp": world.counters()
 			}
 		)
@@ -144,7 +143,7 @@ func _start_phase(phase: int) -> void:
 
 
 func _finish_phase() -> void:
-	_phase_info["frames"] = _device.frames() if _counting else {}
+	_phase_info["frames"] = device.frames() if _counting else {}
 	_phase_info["end_frontier"] = world.frontier()
 	phases.append(_phase_info)
 

@@ -9,6 +9,8 @@ var draws_world := true
 var navigation_height := 0.0
 var root := Worlds.ROOT
 var world := KdWorld.new()
+var device: Object = KdDevice.new()
+var thermal := {}
 var camera := KdCanvas.new()
 var worlds: KdWorlds
 var world_id := ""
@@ -41,6 +43,8 @@ var _hit_radius := 24.0
 var _dock_bounds := Rect2()
 var _dream_button: Button
 var _dreams: PanelContainer
+var _heat_every := 2.0
+var _heat_wait := 0.0
 
 
 func _ready() -> void:
@@ -54,6 +58,8 @@ func _ready() -> void:
 		world_id = str(camps[0].id) if not camps.is_empty() else worlds.make_camp("Camp alpha", 17)
 	worlds.set_current(world_id)
 	GameData.load_into(world)
+	var heat := world.entry("tuning/heat", "base:heat")
+	_heat_every = float(heat.get("reading", 2))
 	opened = world.open_camp(
 		ProjectSettings.globalize_path(root.path_join(world_id)),
 		17,
@@ -169,7 +175,7 @@ func _build() -> void:
 	world.set_speed(1)
 
 
-func _refresh_records() -> void:
+func _refresh_records(counters: Dictionary = {}) -> void:
 	people = world.people()
 	drawing.people = people
 	drawing.supplies = world.camp_alpha()
@@ -221,11 +227,22 @@ func _refresh_records() -> void:
 	_pause.disabled = _dreams.visible
 	_speed.disabled = _dreams.visible
 
-	if world.counters().get("save_failed", false):
+	if counters.is_empty():
+		counters = world.counters()
+	var warning := (
+		Worlds
+		. space_warning(int(counters.get("free_mb", -1)), int(counters.get("warn_below_mb", 0)))
+		. replace("Open Worlds", "Menu → Saved camps")
+	)
+	_summary.remove_theme_color_override("font_color")
+	if counters.get("save_failed", false):
 		_summary.text = "Camp could not save. Play stopped. Free space, then reopen."
 		_summary.add_theme_color_override("font_color", Palette.WARN)
 		_pause.disabled = true
 		_speed.disabled = true
+	elif not warning.is_empty():
+		_summary.text += "\n" + warning
+		_summary.add_theme_color_override("font_color", Palette.WARN)
 	elif not _check_code.is_empty():
 		_summary.text = "Self-check " + _check_code + ". Menu → Developer tools → Device check."
 	elif Time.get_ticks_msec() < _message_until:
@@ -317,6 +334,7 @@ func _process(delta: float) -> void:
 		return
 	_dock.size = _dock_bounds.size
 	_dock.position = _dock_bounds.position
+	_read_heat(delta)
 	world.frame()
 	for finger: int in _touches.keys():
 		var touch: Dictionary = _touches[finger]
@@ -336,6 +354,18 @@ func _process(delta: float) -> void:
 	drawing.rebuild()
 	_labels.state = state
 	_labels.queue_redraw()
+
+
+func _read_heat(delta: float) -> void:
+	_heat_wait -= delta
+	if _heat_wait > 0.0:
+		return
+	_heat_wait = _heat_every
+	thermal = device.thermal()
+	if thermal.has("light"):
+		world.set_heat_light(float(thermal.light))
+	if thermal.get("available", false) and not is_nan(float(thermal.forecast_10s)):
+		world.heat_reading(float(thermal.forecast_10s))
 
 
 func _resize() -> void:
