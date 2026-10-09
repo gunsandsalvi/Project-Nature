@@ -824,6 +824,40 @@ TEST_CASE("dream arrival records the actual use spot near remembered food rather
     CHECK(one.w.beings().raw().get<world::Dreams>(one.ch).acts[0].visited_at == thought.visit_at);
 }
 
+TEST_CASE("a food dream keeps its site arrival after carrying the berries home to eat") {
+    One one;
+    one.know();
+    one.life().food = 2800000;
+    one.life().water = 3000;
+    one.life().awake = 0;
+    const auto near = one.w.torus().moved(one.facts().food_at, {-100, 0});
+    one.set_action(world::LivingAct::rest, near, 120, 14400);
+    one.w.command(0, demo::Living::kPlaceDream, one.id.value, 0);
+    one.w.run_to(300);
+    REQUIRE(one.act().what == static_cast<std::uint8_t>(world::LivingAct::gather));
+    const auto arrival = one.w.beings().raw().get<world::Dream>(one.h).visit_at;
+    REQUIRE(arrival >= 120);
+    bool carried = false;
+    for (int step = 0; step < 20 && one.act().what != static_cast<std::uint8_t>(world::LivingAct::eat); ++step) {
+        one.w.run_to(one.act().end + 1);
+        carried = carried || one.act().what == static_cast<std::uint8_t>(world::LivingAct::carry);
+    }
+    CHECK(carried);
+    REQUIRE(one.act().what == static_cast<std::uint8_t>(world::LivingAct::eat));
+    CHECK(one.w.torus().distance(one.act().from, one.facts().food_at) > 200);
+    CHECK(one.w.beings().raw().get<world::Dream>(one.h).visit_at == arrival);
+    CHECK(one.w.beings().raw().get<world::Dreams>(one.ch).acts[0].visited_at == arrival);
+    std::string why;
+    auto copy = demo::CrowdWorld::open(test::camp_fixture(), one.w.save(), why);
+    INFO(why);
+    REQUIRE(copy);
+    if (!copy) return;
+    const auto h = copy->world().beings().handle(one.id);
+    const auto ch = copy->world().beings().handle(one.home);
+    CHECK(copy->world().beings().raw().get<world::Dream>(h).visit_at == arrival);
+    CHECK(copy->world().beings().raw().get<world::Dreams>(ch).acts[0].visited_at == arrival);
+}
+
 TEST_CASE("dream requests scheduled out of number order still reopen with the same caps") {
     One one;
     one.know();

@@ -89,9 +89,10 @@ std::string camp_dreams(run::Workers& workers) {
         for (time::Seconds day = 1; day <= 4; ++day) {
             reference.world().run_to(day * time::kDay);
             parallel->world().run_islands(day * time::kDay, workers, 600);
-            KD_CHECK(reference.world().digests().whole == parallel->world().digests().whole,
-                     "dream workers or reopening differ");
-            digest.u64(reference.world().digests().whole);
+            const auto expected = reference.world().digests().whole;
+            const auto actual = parallel->world().digests().whole;
+            KD_CHECK(expected == actual, "dream workers or reopening differ");
+            digest.u64(expected);
             parallel = demo::CrowdWorld::open(catalogue, parallel->world().save(), why);
             KD_CHECK(parallel != nullptr, "dream proof reopens delivered thoughts and caps");
         }

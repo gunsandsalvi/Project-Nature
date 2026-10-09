@@ -40,6 +40,8 @@ struct Snapshot {
     std::vector<world::Habitat> habitats{};
     std::vector<std::optional<world::Life>> lives{};  // aligned with ways in living camps; empty in marker worlds
     std::vector<std::optional<world::Dream>> dreams{};
+    // Living thought updates become visible at their event, even within an unchanged activity.
+    std::vector<time::Seconds> changed_at{};
 
     /// The way walker i was on at a moment: the latest that began by then.
     [[nodiscard]] std::size_t way_index(std::size_t i, double t) const;
@@ -112,6 +114,7 @@ private:
     std::vector<std::vector<world::Activity>> trails_;
     std::vector<std::vector<std::optional<world::Life>>> life_trails_;
     std::vector<std::vector<std::optional<world::Dream>>> dream_trails_;
+    std::vector<std::vector<time::Seconds>> change_trails_;
     std::vector<world::Way> ways_;
     TripleBuffer<Snapshot> snapshots_;
     std::vector<world::Record> history_;

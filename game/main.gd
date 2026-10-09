@@ -274,7 +274,7 @@ func _go_back() -> void:
 		_menu.hide()
 		_scrim.hide()
 		_menu_button.set_pressed_no_signal(false)
-	elif _page_name == "Camp" and _page._dreams.visible:
+	elif _page_name == "Camp" and is_instance_valid(_page._dreams) and _page._dreams.visible:
 		_page._dreams.close()
 	elif _page_name != "Camp":
 		open_page("Camp")

@@ -155,5 +155,7 @@ func test_failed_open_is_readable_and_menu_actions_remain_safe() -> void:
 	assert_str(labels[0].text).contains("Camp could not open")
 	shell._save_camp()
 	shell._camp_supplies()
+	shell._go_back()
+	assert_str(shell.page_name()).is_equal("Camp")
 	shell.free()
 	DirAccess.remove_absolute(ROOT)

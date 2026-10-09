@@ -1372,8 +1372,8 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                     ledger.acts.push_back(act);
                 }
                 auto expected_sent = delivered[ledger.night];
-                std::sort(expected_sent.begin(), expected_sent.end());
-                std::sort(used.begin(), used.end());
+                std::stable_sort(expected_sent.begin(), expected_sent.end());
+                std::stable_sort(used.begin(), used.end());
                 if (used != expected_sent) {
                     why = "nightly dream cap disagrees with delivered dreams";
                     return false;

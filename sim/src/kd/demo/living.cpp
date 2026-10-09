@@ -239,19 +239,24 @@ void Living::command(world::Context& c, const world::Command& cmd) {
         std::upper_bound(ledger.acts.begin(), ledger.acts.end(), act.number,
                          [](std::uint64_t number, const world::DreamAct& old) { return number < old.number; });
     ledger.acts.insert(position, act);
-    if (raw.get<world::Activity>(h).what == static_cast<std::uint8_t>(LivingAct::rest)) sleep_dream(c, h, camp);
+    if (raw.get<world::Activity>(h).what == static_cast<std::uint8_t>(LivingAct::rest)) {
+        sleep_dream(c, h, camp);
+        // Publish the new thought at this event, retaining the same sleep and its scheduled end.
+        c.moved(person);
+    }
 }
 void Living::sleep_dream(world::Context& c, world::Beings::Handle h, ecs::Id camp) {
     auto& raw = c.world().beings().raw();
     auto& thought = raw.get<world::Dream>(h);
-    auto& ledger = raw.get<world::Dreams>(c.world().beings().handle(camp));
+    const auto home = c.world().beings().handle(camp);
+    auto& ledger = raw.get<world::Dreams>(home);
     const auto id = c.world().beings().id_of(h);
     const auto tonight = night(c.now());
     dream_night(ledger, tonight);
     for (auto& act : ledger.acts) {
         if (act.person != id.value || act.status != 1) continue;
         act.executed = c.now();
-        if (!place_exists(c.world(), c.world().beings().handle(camp), act.subject)) {
+        if (!place_exists(c.world(), home, act.subject)) {
             act.status = 3;
             act.reason = 1;
             break;
@@ -502,8 +507,14 @@ void Living::continue_goal(world::Context& c, world::Beings::Handle h, ecs::Id c
     auto& l = raw.get<world::Life>(h);
     const auto here = raw.get<world::Place>(h).at;
     const auto& thought = raw.get<world::Dream>(h);
-    const bool reached = l.goal == 3 ? here == thought.place : l.goal == thought.subject && here == l.use_at;
-    if (thought.decision_pull > 0 && reached) dream_consequence(c, h, camp, true);
+    if (thought.decision_pull > 0) {
+        const auto offset = c.world().torus().offset(thought.place, here);
+        const auto radius = uses_[static_cast<std::size_t>(thought.subject)].area / 10;
+        const bool in_site = std::abs(offset.dx) <= radius && std::abs(offset.dy) <= radius;
+        const bool reached =
+            l.goal == 3 ? here == thought.place : l.goal == thought.subject && here == l.use_at && in_site;
+        if (reached) dream_consequence(c, h, camp, true);
+    }
     if (l.goal == 3) {
         const auto path = route(c.world(), camp, here, l.explore_at);
         l.portion = 0;

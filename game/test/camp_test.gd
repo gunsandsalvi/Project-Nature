@@ -374,3 +374,40 @@ func test_holding_a_drawn_person_opens_the_power_ring_once() -> void:
 	assert_bool(page._touches.is_empty()).is_true()
 	page._dreams.close()
 	page.free()
+
+
+func test_sent_dream_is_readable_during_the_same_uninterrupted_sleep() -> void:
+	var page := _page()
+	page.world.run_until(36000)
+	await _settled(page)
+	var sleeping: Array = page.world.people().filter(
+		func(p: Dictionary) -> bool: return int(p.action_code) == 2 and int(p.action_end) > 36060
+	)
+	assert_array(sleeping).is_not_empty()
+	var person: Dictionary = sleeping[0]
+	var at: int = page.world.frontier()
+	page.open_dream(int(person.id))
+	var shelter: Array = page.world.dream_subjects(int(person.id)).filter(
+		func(p: Dictionary) -> bool: return int(p.subject) == 2
+	)
+	page._dreams.choose(shelter[0])
+	page._dreams.send()
+	page._dreams.close()
+	var fresh: Dictionary = page.selected_person()
+	assert_int(fresh.dream_at).is_equal(at)
+	assert_int(fresh.dream_subject).is_equal(2)
+	assert_int(fresh.action_code).is_equal(2)
+	assert_int(fresh.action_start).is_equal(int(person.action_start))
+	assert_int(fresh.action_end).is_equal(int(person.action_end))
+	page._details = true
+	page._refresh_records()
+	assert_str(page._card.text).contains("Dreamt of shelter at")
+	var card: String = page._card.text
+	page.save_camp()
+	page.free()
+	page = _page()
+	page.select_person(int(person.id))
+	page._details = true
+	page._refresh_records()
+	assert_str(page._card.text).is_equal(card)
+	page.free()
