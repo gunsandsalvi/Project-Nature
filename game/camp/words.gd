@@ -38,6 +38,28 @@ static func person(p: Dictionary, details: bool, now: int) -> String:
 		words += "Why: a remembered dream draws a visit.\nTheir needs can wait for this short walk."
 	else:
 		words += "Why: their known supplies weren't worth a trip yet.\nLooking around, then watching."
+	if int(p.get("work_state", 0)) != 0:
+		var work := recipe(str(p.work_recipe)) if p.work_known else "Trying familiar materials"
+		words = (
+			"%s · %s\nNeeds met: food %d · water %d · rest %d\n"
+			% [p.name, work, p.food_need, p.water_need, p.rest_need]
+		)
+		words += (
+			(
+				"%d completed tries · next try at %s."
+				% [int(p.work_tries), when(int(p.work_next_try), now)]
+			)
+			if int(p.work_state) == 2
+			else str(p.activity)
+		)
+		if int(p.work_state) == 4:
+			words += "\n%d seconds of gradual work kept." % int(p.work_progress)
+		if details:
+			words += (
+				"\nWork began at %s. Reserved inputs: %d."
+				% [when(int(p.work_start), now), p.work_inputs.size()]
+			)
+		return words
 	if not details:
 		return words
 	words += "\n\nChose this at %s." % when(int(p.decision_at), now)
@@ -108,13 +130,142 @@ static func person(p: Dictionary, details: bool, now: int) -> String:
 			else "\nThe place still draws a visit."
 		)
 	words += (
-		"\n\nAge at start: %d. Gathering skill: %d.\nCarrying %.2f kg berries."
+		"\n\nAge at start: %d. Gathering skill: %d.\nCarrying %.2f kg food."
 		% [p.age_at_start, p.gathering_skill, float(p.carried_food_mg) / 1000000]
 	)
 	if int(p.memory_at) >= 0:
-		var acts := {2: "Rested", 5: "Ate berries", 6: "Drank water"}
+		var acts := {2: "Rested", 5: "Ate food", 6: "Drank water"}
 		words += (
 			"\n\nLast remembered: %s at %s."
 			% [acts.get(int(p.memory_kind), "Acted"), when(int(p.memory_at), now)]
+		)
+	return words
+
+
+static func name_of(id: int, people: Array) -> String:
+	for person: Dictionary in people:
+		if int(person.id) == id:
+			return str(person.name)
+	return "the scene" if id == 0 else "person %d" % id
+
+
+static func recipe(key: String) -> String:
+	return key.get_slice(":", 1).replace("_", " ").capitalize()
+
+
+static func item(p: Dictionary, people: Array, details: bool, now: int) -> String:
+	var holder := (
+		"shared stock" if int(p.owner) == 0 else "held by " + name_of(int(p.owner), people)
+	)
+	var words := (
+		"%s · %s\n%.3f kg · %d mm · %s"
+		% [p.name, p.material, float(p.mass_mg) / 1000000, int(p.length_mm), holder]
+	)
+	var facts: Dictionary = p.get("facts", {})
+	if facts.is_empty():
+		words += "\nSelect a person to inspect their familiar properties."
+	else:
+		var labels := [
+			"Hardness",
+			"Edge",
+			"Toughness",
+			"Flaking",
+			"Flexibility",
+			"Weight",
+			"Burn",
+			"Fuel",
+			"Food",
+			"Water",
+			"Poison",
+			"Medicine",
+			"Warmth",
+			"Fibre",
+			"Stickiness",
+			"Plasticity",
+			"Waterproof",
+			"Pigment"
+		]
+		var sources := [
+			"No source recorded",
+			"Seen",
+			"Starting knowledge",
+			"Handled",
+			"Experienced result",
+			"Watched",
+			"Told"
+		]
+		words += "\nKnown by %s" % name_of(int(p.observer), people)
+		var shown: Array[int] = []
+		if details:
+			for i in 18:
+				shown.append(i)
+		else:
+			for i in [1, 8, 12]:
+				if (int(facts.mask) & (1 << i)) != 0 and int(facts.values[i]) > 0:
+					shown.append(i)
+			if shown.is_empty():
+				shown.append(0)
+		for i in shown:
+			if (int(facts.mask) & (1 << i)) == 0:
+				continue
+			words += "\n%s %d" % [labels[i], int(facts.values[i])]
+			if details:
+				words += (
+					" · %s at %s"
+					% [sources[int(facts.sources[i])], when(int(facts.learned_at[i]), now)]
+				)
+	if int(p.made_at) >= 0:
+		words += "\nMade by %s at %s." % [name_of(int(p.maker), people), when(int(p.made_at), now)]
+	if details:
+		words += "\nWear %.2f / 5 · quality %d / 5." % [float(p.wear) / 1000000, int(p.quality)]
+	return words
+
+
+static func knowledge(k: Dictionary, people: Array, now: int) -> String:
+	if k.is_empty():
+		return ""
+	var actions := [
+		"gather",
+		"dig",
+		"strike",
+		"press",
+		"cut",
+		"scrape",
+		"grind",
+		"twist",
+		"bind",
+		"weave",
+		"shape",
+		"drill",
+		"heat",
+		"soak",
+		"dry",
+		"mix",
+		"stack",
+		"plant",
+		"throw",
+		"feed",
+		"apply"
+	]
+	var words := "\n\nPersonal knowledge"
+	var routes := [
+		"Known from the start", "Own accident", "Own experiment", "Own hunch", "Watched", "Taught"
+	]
+	for skill: Dictionary in k.skills:
+		words += (
+			"\n%s · skill %.1f · %s"
+			% [skill.name, float(skill.level) / 1000, routes[int(skill.route)]]
+		)
+		if int(skill.source) != 0:
+			words += " · " + name_of(int(skill.source), people)
+	for hunch: Dictionary in k.hunches:
+		words += (
+			"\nHunch: try %s with %s · hint at %s."
+			% [actions[int(hunch.action)], ", ".join(hunch.inputs), when(int(hunch.last_use), now)]
+		)
+	for reason: Dictionary in k.reasons:
+		words += (
+			"\nConsidered %s: expected +%d, about %d min."
+			% [reason.name, int(reason.benefit), maxi(1, ceili(float(reason.seconds) / 60))]
 		)
 	return words

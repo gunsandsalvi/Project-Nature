@@ -81,6 +81,7 @@ struct Blueprint {
                  bare_yield = 1000000;
     std::int64_t heat = 0, result_length = 1, result_mass = 0, edge_from = -1, toughness = -1, discovery = 1000000,
                  shatter = 0, hint = 0;
+    std::int64_t need = 3, benefit = 0;
     bool starting = false;
     Ref result, leftover, failure;
     std::vector<InputRole> inputs;
@@ -103,6 +104,8 @@ struct Blueprint {
         v.whole({"discovery", "discovery factor in millionths"}, c.discovery, {0, 1000000});
         v.whole({"shatter", "catastrophic failure share in millionths"}, c.shatter, {0, 1000000});
         v.whole({"hint", "observable failure sign"}, c.hint, {0, 18});
+        v.whole({"need", "expected known use: food, water, rest or curiosity"}, c.need, {0, 3});
+        v.whole({"benefit", "known benefit per kilogram"}, c.benefit, {0, 100});
         v.truth({"starting", "founder knows this craft"}, c.starting);
         v.link({"result", "result item"}, c.result, "item");
         v.link({"leftover", "conserved leftover item"}, c.leftover, "item");

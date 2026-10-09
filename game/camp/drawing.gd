@@ -9,11 +9,17 @@ var people: Array = []
 var supplies := {}
 var origin := Vector2i.ZERO
 var selected := 0
+var items: Array = []
+var selected_item := 0
+var drawn_items: Dictionary = {}
+var item_piles: Dictionary = {}
 var drawn: Dictionary = {}
 
 
 func rebuild() -> void:
 	drawn.clear()
+	drawn_items.clear()
+	item_piles.clear()
 	for person: Dictionary in people:
 		var foot := _absolute(Vector2i(person.east_cm, person.north_cm))
 		var density: float = state.get("density", 16.0)
@@ -25,6 +31,48 @@ func rebuild() -> void:
 			drawn[int(person.id)] = Rect2(
 				foot - Vector2(height * 0.5, height * 0.28), Vector2(height, height * 0.3)
 			)
+	var piles := {}
+	var site_counts := {}
+	# Nearby similar portions share a marker; repeated taps inspect their actual saved identities.
+	for item: Dictionary in items:
+		var key := (
+			"%s:%s:%d:%d:%d:%d"
+			% [
+				item.kind,
+				item.material,
+				int(item.owner),
+				int(item.state),
+				int(item.east_cm) / 100,
+				int(item.north_cm) / 100
+			]
+		)
+		if piles.has(key):
+			item_piles[int(piles[key])].append(int(item.id))
+			continue
+		piles[key] = int(item.id)
+		item_piles[int(item.id)] = [int(item.id)]
+		var at := _absolute(Vector2i(item.east_cm, item.north_cm))
+		var side := maxf(7, roundf(float(state.get("density", 16.0)) * 0.5))
+		var site := "%d:%d:%d" % [int(item.owner), int(item.east_cm), int(item.north_cm)]
+		var index: int = site_counts.get(site, 0)
+		# Cosmetic offsets keep distinct things selectable without covering a person's sprite.
+		for attempt in 64:
+			var offset := Vector2((index % 4) * side * 2, -((index / 4) + 1) * side * 2)
+			if int(item.owner) != 0:
+				offset += Vector2(side * 3, 0)
+			var rect := Rect2(at + offset - Vector2(side, side) * 0.5, Vector2(side, side))
+			index += 1
+			if drawn.values().any(
+				func(person: Rect2) -> bool: return person.grow(2).intersects(rect)
+			):
+				continue
+			if drawn_items.values().any(
+				func(other: Rect2) -> bool: return other.grow(2).intersects(rect)
+			):
+				continue
+			drawn_items[int(item.id)] = rect
+			break
+		site_counts[site] = index
 	queue_redraw()
 
 
@@ -46,6 +94,7 @@ func _draw() -> void:
 	draw_polyline(line, Color("a4ad88"), 1)
 	_rock()
 	_sites()
+	_items()
 	var ordered := people.duplicate()
 	ordered.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.north_cm > b.north_cm)
 	for person: Dictionary in ordered:
@@ -176,14 +225,51 @@ func _person(person: Dictionary) -> void:
 		draw_rect(Rect2(arm + Vector2(unit * 2, -unit), Vector2(unit * 2, unit * 2)), colour)
 
 
-func pick(at: Vector2, radius: float = 0) -> int:
-	var nearest := 0
+func pick(at: Vector2, radius: float = 0, previous: int = 0) -> int:
+	var nearest: Array[int] = []
 	var distance := INF
 	for id: int in drawn:
 		var rect: Rect2 = drawn[id]
-		if rect.grow(radius).has_point(at):
-			var d := at.distance_squared_to(rect.get_center())
-			if d < distance:
-				nearest = id
-				distance = d
-	return nearest
+		if not rect.grow(radius).has_point(at):
+			continue
+		var d := at.distance_squared_to(rect.get_center())
+		if d < distance and not is_equal_approx(d, distance):
+			nearest = [id]
+			distance = d
+		elif is_equal_approx(d, distance):
+			nearest.append(id)
+	if nearest.is_empty():
+		return 0
+	nearest.sort()
+	var index := nearest.find(previous)
+	return nearest[(index + 1) % nearest.size()]
+
+
+func _items() -> void:
+	for item: Dictionary in items:
+		var id := int(item.id)
+		if not drawn_items.has(id):
+			continue
+		var rect: Rect2 = drawn_items[id]
+		var colour := Color("c5b58f") if str(item.form) in ["rod", "sheet"] else Color("b9bdb2")
+		if str(item.form) == "flake":
+			draw_colored_polygon(
+				PackedVector2Array(
+					[rect.position, rect.end, rect.position + Vector2(0, rect.size.y)]
+				),
+				colour
+			)
+		elif str(item.form) == "rod":
+			draw_line(rect.position, rect.end, colour, 3)
+		else:
+			draw_rect(rect, colour)
+		if item_piles[id].has(selected_item):
+			draw_rect(rect.grow(2), Color("fff0b4"), false, 2)
+
+
+func pick_item(at: Vector2, previous: int = 0) -> int:
+	for id: int in drawn_items:
+		if drawn_items[id].grow(2).has_point(at):
+			var pile: Array = item_piles[id]
+			return int(pile[(pile.find(previous) + 1) % pile.size()])
+	return 0

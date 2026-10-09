@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <limits>
 #include "kd/chance/chance.hpp"
+#include "kd/demo/crafting.hpp"
 #include "kd/demo/parts.hpp"
 
 namespace kd::demo {
@@ -63,9 +64,12 @@ world::Life Living::sample(world::Life l, const world::Activity& a, time::Second
     body(l, rules_, act, t);
     const auto amount = std::max<std::int64_t>(0, share(a, l.portion, t) - l.applied);
     if (act == LivingAct::eat) {
-        l.food += amount;
+        const auto nutrient = amount * l.food_factor_ppm + l.nutrient_remainder;
+        l.food += nutrient / 1000000;
+        l.nutrient_remainder = nutrient % 1000000;
         l.carried_food -= amount;
-        const auto berry_water = amount * uses_[0].water_per_kg + l.food_water_remainder;
+        const auto berry_water =
+            amount * (l.meal_item.value == 0 ? uses_[0].water_per_kg : l.water_ml_per_kg) + l.food_water_remainder;
         l.water += berry_water / 1000000;
         l.food_water_remainder = berry_water % 1000000;  // raw berries: 0.8 L per kg
     } else if (act == LivingAct::drink) {
@@ -463,6 +467,7 @@ void Living::choose(world::Context& c, world::Beings::Handle h, ecs::Id camp) {
         thought.decision_pull = kDreamPull;
         thought.decision_subject = thought.subject;
     }
+    if (Crafting::choose(*this, c, h)) return;
     dream_consequence(c, h, camp, false);
     if (l.goal < 3)
         l.use_at = l.goal == 2 && l.awake >= kAwake
@@ -547,6 +552,12 @@ void Living::continue_goal(world::Context& c, world::Beings::Handle h, ecs::Id c
     }
     l.applied = 0;
     if (goal == 0 && l.carried_food > 0) {
+        if (l.meal_item.value != 0) {
+            const auto& item = c.world().things().raw().get<world::Item>(c.world().things().handle(l.meal_item));
+            const auto actual = Crafting::characteristics(c.world().catalogue(), item);
+            l.food_factor_ppm = actual[8] * 500000;
+            l.water_ml_per_kg = actual[9] * 200;
+        }
         l.portion = std::min(l.carried_food, uses_[goal].amount());
         begin(c, h, LivingAct::eat, uses_[goal].use.game, here);
     } else if (goal == 0) {
@@ -591,6 +602,7 @@ void Living::settle(world::Context& c, world::Beings::Handle h, ecs::Id camp, bo
     l.food_remainder = projected.food_remainder;
     l.water_remainder = projected.water_remainder;
     l.food_water_remainder = projected.food_water_remainder;
+    l.nutrient_remainder = projected.nutrient_remainder;
     const auto amount = std::max<std::int64_t>(0, share(a, l.portion, c.now()) - l.applied);
     const auto ch = c.world().beings().handle(camp);
     auto& facts = raw.get<world::Camp>(ch);
@@ -600,7 +612,9 @@ void Living::settle(world::Context& c, world::Beings::Handle h, ecs::Id camp, bo
         l.memory_kind = a.what;
         l.memory_at = c.now();
         l.memory_amount = amount;
+        Crafting::settle_meal(c, h, amount, interrupted || c.now() == a.end);
     }
+    if (interrupted && act != LivingAct::eat && l.meal_item.value != 0) Crafting::settle_meal(c, h, 0, true);
     if (act == LivingAct::drink) {
         l.allocated_water -= amount;
         l.memory_kind = a.what;
@@ -631,6 +645,14 @@ void Living::settle(world::Context& c, world::Beings::Handle h, ecs::Id camp, bo
     }
     l.applied += amount;
     raw.get<world::Place>(h).at = a.at(c.world().torus(), c.now());
+    if (const auto* work = raw.try_get<world::Work>(h)) {
+        for (const auto& r : work->inputs)
+            if (r.picked) {
+                c.world().things().raw().get<world::Place>(c.world().things().handle(r.item)).at =
+                    raw.get<world::Place>(h).at;
+                c.item_changed(r.item);
+            }
+    }
 }
 void Living::renew(world::Context& c, world::Beings::Handle h) {
     auto& raw = c.world().beings().raw();
@@ -673,10 +695,16 @@ void Living::handle(world::Context& c, const event::Event& e) {
     c.touch(camp);
     auto& raw = c.world().beings().raw();
     const auto old = static_cast<LivingAct>(raw.get<world::Activity>(h).what);
-    const auto interrupted = e.slot != world::kActivitySlot;
+    const auto interrupted = e.slot == kUrgent;
     settle(c, h, camp, interrupted);
     c.cancel(id, world::kActivitySlot);
     c.cancel(id, kUrgent);
+    if (raw.all_of<world::Work>(h)) {
+        const bool working = raw.get<world::Work>(h).state == 2;
+        Crafting::settle(*this, c, h, interrupted, e.slot == 2);
+        if (raw.get<world::Work>(h).state == 2) return;
+        if (!interrupted && !working && Crafting::continue_work(*this, c, h)) return;
+    }
     if (!interrupted && (old == LivingAct::walk || old == LivingAct::carry ||
                          (old == LivingAct::gather && raw.get<world::Life>(h).carried_food > 0))) {
         if (old == LivingAct::gather) raw.get<world::Life>(h).use_at = use_spot(c.world(), h, camp, 2);

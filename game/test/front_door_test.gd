@@ -136,11 +136,11 @@ func test_shell_switches_saved_camps_and_exports_imports_actual_people() -> void
 	assert_bool(shelf.export_to(id, path)).is_true()
 	while shelf.busy():
 		await await_idle_frame()
-	assert_str(shelf.status).starts_with("Exported Camp alpha")
+	assert_str(shelf.status).starts_with("Exported Discovery camp")
 	assert_bool(shelf.import_from(path)).is_true()
 	while shelf.busy():
 		await await_idle_frame()
-	assert_str(shelf.status).starts_with("Imported as Camp alpha")
+	assert_str(shelf.status).starts_with("Imported as Discovery camp")
 	var copy := ""
 	for record: Dictionary in shelf.listed:
 		if record.id != id and record.id != other:

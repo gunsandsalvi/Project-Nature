@@ -45,7 +45,9 @@ func _ready() -> void:
 	row.add_theme_constant_override("separation", 10)
 	add_child(row)
 	row.add_child(
-		_button("New camp" if new_camp_alpha else "New world", func() -> void: make_world())
+		_button(
+			"New Discovery camp" if new_camp_alpha else "New world", func() -> void: make_world()
+		)
 	)
 	row.add_child(_button("Import a world", pick_import))
 	_status = _label(16, TEXT)
@@ -83,7 +85,7 @@ func make_world() -> String:
 	if _waiting():
 		return ""
 	var id := (
-		worlds.make_camp("Camp %d" % (listed.size() + 1), randi())
+		worlds.make_discovery("Discovery camp %d" % (listed.size() + 1), randi())
 		if new_camp_alpha
 		else worlds.make("World %d" % (listed.size() + 1), randi(), new_camps)
 	)

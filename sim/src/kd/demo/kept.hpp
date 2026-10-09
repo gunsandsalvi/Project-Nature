@@ -49,6 +49,7 @@ struct About {
     std::int64_t camps = 0;
     bool test = false;
     bool camp_alpha = false;
+    bool discovery = false;
     std::vector<std::string> switches;
 };
 

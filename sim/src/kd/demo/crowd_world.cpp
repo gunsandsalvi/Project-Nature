@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "kd/chance/chance.hpp"
+#include "kd/demo/crafting.hpp"
 #include "kd/demo/parts.hpp"
 #include "kd/num/whole.hpp"
 
@@ -478,11 +479,12 @@ void Markers::near(const world::World& /*w*/, time::Seconds /*a*/, time::Seconds
 }
 
 CrowdWorld::CrowdWorld(std::uint64_t seed, const data::Catalogue& catalogue, std::optional<std::int64_t> camps,
-                       bool camp_alpha)
+                       bool camp_alpha, bool discovery)
     : crowd_(crowd_of(catalogue)),
       world_(seed, catalogue),
       daylight_(world_, crowd_.dawn, crowd_.dusk),
       markers_(world_, daylight_, crowd_) {
+    KD_CHECK(!discovery || camp_alpha, "Discovery is a labelled living camp");
     daylight_.start(world_);
     if (!camp_alpha) {
         markers_.populate(world_, crowd_, camps.value_or(crowd_.camps));
@@ -513,6 +515,7 @@ CrowdWorld::CrowdWorld(std::uint64_t seed, const data::Catalogue& catalogue, std
         raw.emplace<world::Activity>(h, 0, 0, 0, at, at);
     }
     living_->start(world_);
+    if (discovery) Crafting::initialise(world_);
 }
 
 CrowdWorld::CrowdWorld(const data::Catalogue& catalogue, Opening /*opening*/)

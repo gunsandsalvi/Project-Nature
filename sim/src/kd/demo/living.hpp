@@ -8,6 +8,9 @@ public:
     [[nodiscard]] std::string_view name() const override { return "living"; }
     void handle(world::Context& c, const event::Event& e) override;
     void opened(world::World& w) override;
+    [[nodiscard]] bool serial_windows(const world::World& w) const override {
+        return !w.beings().raw().view<world::Work>().empty();
+    }
     void start(world::World& w);
     static constexpr std::uint32_t kPlaceDream = 2;
     static constexpr std::int64_t kDreamPull = 60;
@@ -31,6 +34,7 @@ public:
     [[nodiscard]] const LivingRules& rules() const { return rules_; }
 
 private:
+    friend class Crafting;
     [[nodiscard]] num::Point use_spot(const world::World& w, world::Beings::Handle h, ecs::Id camp,
                                       std::size_t need) const;
     void notice(world::Context& c, world::Beings::Handle h, ecs::Id camp);

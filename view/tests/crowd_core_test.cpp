@@ -7,6 +7,7 @@
 #include "crowd_core.hpp"
 #include "doctest.h"
 #include "heat.hpp"
+#include "kd/data/folder.hpp"
 #include "kd/proof/camp_cases.hpp"
 #include "kd/proof/fixture.hpp"
 #include "triple.hpp"
@@ -251,4 +252,48 @@ TEST_CASE("the heat governor cuts the share within one reading and gives it back
         heat.read(0.6);
     }
     CHECK(heat.share() == doctest::Approx(0.5));
+}
+
+TEST_CASE("immutable item trails and personal knowledge do not expose a future frontier to the screen") {
+    auto files = kd::data::read_folder(KD_REPO "/data");
+    kd::data::Catalogue c;
+    REQUIRE(c.load(files).empty());
+    kd::demo::CrowdWorld camp(83, c, 1, true, true);
+    kd::view::CrowdStepper stepper(camp);
+    REQUIRE(stepper.snapshots().take());
+    const auto initial = stepper.snapshots().front();
+    auto frontier = kd::time::Seconds{0};
+    while (frontier < 90000) frontier = stepper.advance(frontier, 90000);
+    REQUIRE(stepper.snapshots().take());
+    const auto future = stepper.snapshots().front();
+    CHECK(future.frontier == 90000);
+    CHECK(future.item_first.size() >= initial.item_first.size());
+    std::int64_t mass = 0;
+    std::size_t visible = 0;
+    for (std::size_t i = 0; i + 1 < future.item_first.size(); ++i) {
+        const auto* item = future.item_at(i, 0);
+        if (!item) continue;
+        ++visible;
+        mass += item->item.mass;
+        CHECK(item->item.made_at == -1);
+    }
+    CHECK(visible + 1 == initial.item_first.size());
+    CHECK(mass == 450000000);
+    for (std::size_t i = 0; i < future.walkers.size(); ++i) {
+        const auto at = future.way_index(i, 0);
+        REQUIRE(future.knowledge[at]);
+        CHECK(future.knowledge[at]->skills.size() == 5);
+        CHECK(future.knowledge[at]->memories.empty());
+        const auto& work = future.works[at];
+        REQUIRE(work.has_value());
+        if (work.has_value()) CHECK(work->state == 0);
+    }
+    const auto digest = camp.world().digests().whole;
+    stepper.set_screen(90000);
+    stepper.refresh();
+    REQUIRE(stepper.snapshots().take());
+    CHECK(camp.world().digests().whole == digest);
+    // The old display-owned value survives slot recycling and producer pruning.
+    CHECK(initial.items.front().item.mass > 0);
+    CHECK(initial.items.front().item.made_at == -1);
 }

@@ -89,17 +89,29 @@ void Context::moved(ecs::Id id) {
     }
     const auto* life = w_.beings_.raw().try_get<Life>(w_.beings_.handle(id));
     const auto* dream = w_.beings_.raw().try_get<Dream>(w_.beings_.handle(id));
+    const auto* work = w_.beings_.raw().try_get<Work>(w_.beings_.handle(id));
+    const auto* know = w_.beings_.raw().try_get<Knowledge>(w_.beings_.handle(id));
     const Way way{current_,
                   ways_++,
                   id,
                   *a,
                   life ? std::optional<Life>(*life) : std::nullopt,
-                  dream ? std::optional<Dream>(*dream) : std::nullopt};
+                  dream ? std::optional<Dream>(*dream) : std::nullopt,
+                  work ? std::optional<Work>(*work) : std::nullopt,
+                  know ? std::make_shared<const Knowledge>(*know) : std::shared_ptr<const Knowledge>{}};
     if (island_ != nullptr) {
         island_->ways.push_back(way);
     } else {
         w_.ways_list_->push_back(way);
     }
+}
+
+void Context::item_changed(ecs::Id id) {
+    if (!w_.item_ways_list_) return;
+    KD_CHECK(in_event_ && !island_, "Craft item snapshots are emitted in reference event order");
+    const auto h = w_.things_.handle(id);
+    w_.item_ways_list_->push_back(
+        {current_, ways_++, id, w_.things_.raw().get<Place>(h), w_.things_.raw().get<Item>(h)});
 }
 
 void Context::schedule(ecs::Id owner, std::uint32_t slot, time::Seconds at) {
@@ -386,6 +398,12 @@ void World::run_to(time::Seconds goal) {
 
 void World::run_islands(time::Seconds goal, run::Workers& workers, time::Seconds window) {
     KD_CHECK(goal >= frontier_ && window >= 1, "world::World: islands need a goal ahead and a window");
+    for (const auto* system : by_family_) {
+        if (system && system->serial_windows(*this)) {
+            run_to(goal);
+            return;
+        }
+    }
     while (frontier_ < goal) {
         const time::Seconds a = frontier_;
         // the world's own owners come first within their second, and run alone, since a layer may touch anything

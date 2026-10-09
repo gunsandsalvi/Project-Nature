@@ -1,5 +1,7 @@
 #include "world.hpp"
 #include <limits>
+#include "kd/demo/crafting.hpp"
+#include "kd/demo/discovery.hpp"
 
 #include <godot_cpp/classes/file_access.hpp>
 #include <godot_cpp/core/class_db.hpp>
@@ -52,6 +54,9 @@ void KdWorld::_bind_methods() {
     ClassDB::bind_method(D_METHOD("start_crowd", "seed", "camps"), &KdWorld::start_crowd);
     ClassDB::bind_method(D_METHOD("open_crowd", "folder", "seed", "camps", "build"), &KdWorld::open_crowd);
     ClassDB::bind_method(D_METHOD("open_camp", "folder", "seed", "build"), &KdWorld::open_camp);
+    ClassDB::bind_method(D_METHOD("items", "person"), &KdWorld::items, DEFVAL(0));
+    ClassDB::bind_method(D_METHOD("knowledge", "person"), &KdWorld::knowledge);
+    ClassDB::bind_method(D_METHOD("craft_history"), &KdWorld::craft_history);
     ClassDB::bind_method(D_METHOD("people"), &KdWorld::people);
     ClassDB::bind_method(D_METHOD("camp_alpha"), &KdWorld::camp_alpha);
     ClassDB::bind_method(D_METHOD("save"), &KdWorld::save);
@@ -955,9 +960,19 @@ godot::Array KdWorld::people() const {
         row["north_cm"] = at.y;
         const auto k = snapshot.way_index(i, screen_time());
         const auto& activity = snapshot.ways[k];
-        constexpr std::array<const char*, 8> activities{
-            "Watching nearby ground", "Walking",        "Resting",           "",
-            "Gathering berries",      "Eating berries", "Drinking at water", "Carrying berries"};
+        constexpr std::array<const char*, 13> activities{"Watching nearby ground",
+                                                         "Walking",
+                                                         "Resting",
+                                                         "",
+                                                         "Gathering berries",
+                                                         "Eating berries",
+                                                         "Drinking at water",
+                                                         "Carrying berries",
+                                                         "Working",
+                                                         "Watching work",
+                                                         "Teaching",
+                                                         "Warming",
+                                                         "Tending"};
         row["activity"] = activities[activity.what];
         row["action_code"] = activity.what;
         row["walk_cm"] = world::World::kTorus.distance(activity.from, at);
@@ -1015,6 +1030,30 @@ godot::Array KdWorld::people() const {
                 row["dream_visit_at"] = thought->visit_at;
             }
         }
+        if (k < snapshot.works.size() && snapshot.works[k]) {
+            const auto& work = *snapshot.works[k];
+            row["work_state"] = work.state;
+            row["work_action"] = work.action;
+            row["work_route"] = work.route;
+            row["work_known"] = bool(work.intended);
+            row["work_recipe"] =
+                work.intended ? text_of(catalogue_->kind<data::Blueprint>().name(work.recipe)) : godot::String();
+            row["work_start"] = work.start;
+            row["work_end"] = work.end;
+            row["work_next_try"] = work.next_try;
+            row["work_progress"] = work.retained_progress;
+            row["work_tries"] = static_cast<int64_t>(work.completed_tries);
+            godot::PackedInt64Array inputs;
+            for (const auto& r : work.inputs) inputs.push_back(static_cast<int64_t>(r.item.value));
+            row["work_inputs"] = inputs;
+            if (work.state != 0)
+                row["activity"] = work.state == 1   ? "Collecting work inputs"
+                                  : work.state == 4 ? "Work paused for bodily needs"
+                                  : work.intended   ? godot::String("Making ") + godot::String(row["work_recipe"])
+                                                    : "Trying familiar materials";
+            if (k < snapshot.lives.size() && snapshot.lives[k] && snapshot.lives[k]->meal_item.value != 0)
+                row["activity"] = activity.what == 5 ? "Eating finite food" : "Going to reserved food";
+        }
         out.push_back(row);
     }
     return out;
@@ -1042,6 +1081,21 @@ godot::Dictionary KdWorld::camp_alpha() const {
     out["food_mg"] = camp.food_mg;
     out["stone_mg"] = camp.stone_mg;
     out["wood_mg"] = camp.wood_mg;
+    if (snapshot.item_first.size() > 1) {
+        std::int64_t stone = 0, wood = 0, food = 0;
+        for (std::size_t i = 0; i + 1 < snapshot.item_first.size(); ++i) {
+            const auto* saved = snapshot.item_at(i, screen_time());
+            if (!saved || saved->item.mass == 0) continue;
+            const auto physical = demo::Crafting::physical(*catalogue_, saved->item);
+            if (physical.material_class == "stone") stone += saved->item.mass;
+            if (physical.material_class == "wood") wood += saved->item.mass;
+            if (physical.values[8] > 0) food += saved->item.mass;
+        }
+        out["stone_mg"] = stone;
+        out["wood_mg"] = wood;
+        out["finite_food_mg"] = food;
+        out["discovery"] = true;
+    }
     out["settled_frontier"] = display_.snapshot().frontier;
     const auto& habitats = display_.snapshot().habitats;
     if (!habitats.empty()) {
@@ -1073,4 +1127,176 @@ godot::Dictionary KdWorld::camp_alpha() const {
     return out;
 }
 
+}  // namespace kd::view
+
+namespace kd::view {
+namespace {
+const world::Knowledge* recorded_knowledge(const Snapshot& s, std::uint64_t person, double at) {
+    for (std::size_t i = 0; i < s.walkers.size(); ++i) {
+        if (s.walkers[i].id != person) continue;
+        const auto k = s.way_index(i, at);
+        if (k < s.knowledge.size() && s.knowledge[k]) return s.knowledge[k].get();
+    }
+    return nullptr;
+}
+godot::String craft_label(std::string_view name) {
+    const auto colon = name.find(':');
+    std::string label(name.substr(colon == std::string_view::npos ? 0 : colon + 1));
+    std::replace(label.begin(), label.end(), '_', ' ');
+    if (!label.empty() && label[0] >= 'a' && label[0] <= 'z') label[0] += 'A' - 'a';
+    return godot::String::utf8(label.c_str());
+}
+godot::Dictionary evidence(const world::Familiar& f) {
+    godot::Dictionary row;
+    row["mask"] = f.mask;
+    row["edible"] = bool(f.edible);
+    row["edible_source"] = f.edible_source;
+    row["seen_at"] = f.at;
+    godot::PackedInt64Array values, certainty, sources, times, people, events;
+    for (std::size_t i = 0; i < 18; ++i) {
+        values.push_back(f.values[i]);
+        certainty.push_back(f.certainty[i]);
+        sources.push_back(f.sources[i]);
+        times.push_back(f.learned_at[i]);
+        people.push_back(static_cast<int64_t>(f.source_people[i].value));
+        events.push_back(static_cast<int64_t>(f.source_events[i]));
+    }
+    row["values"] = values;
+    row["certainty"] = certainty;
+    row["sources"] = sources;
+    row["learned_at"] = times;
+    row["source_people"] = people;
+    row["source_events"] = events;
+    return row;
+}
+}  // namespace
+
+godot::Array KdWorld::items(int64_t person) const {
+    godot::Array out;
+    const auto& s = display_.snapshot();
+    for (std::size_t i = 0; i + 1 < s.item_first.size(); ++i) {
+        const auto* saved = s.item_at(i, screen_time());
+        if (!saved || saved->item.mass == 0) continue;
+        const auto& item = saved->item;
+        godot::Dictionary row;
+        row["id"] = static_cast<int64_t>(saved->id.value);
+        row["kind"] = text_of(catalogue_->kind<data::ItemKind>().name(item.kind));
+        row["name"] = craft_label(catalogue_->kind<data::ItemKind>().name(item.kind));
+        row["form"] = text_of(catalogue_->kind<data::ItemKind>()[item.kind].form);
+        row["material"] = craft_label(catalogue_->kind<data::ItemKind>().name(item.material));
+        row["mass_mg"] = item.mass;
+        row["length_mm"] = item.length;
+        row["quality"] = item.quality;
+        row["wear"] = item.wear;
+        row["state"] = item.state;
+        row["owner"] = static_cast<int64_t>(item.owner.value);
+        row["maker"] = static_cast<int64_t>(item.maker.value);
+        row["made_at"] = item.made_at;
+        row["east_cm"] = saved->place.at.x;
+        row["north_cm"] = saved->place.at.y;
+        // A held tool follows the holder's immutable sampled way, never their later live position.
+        for (std::size_t walker = 0; walker < s.walkers.size(); ++walker) {
+            if (s.walkers[walker].id != item.owner.value) continue;
+            const auto at =
+                s.way_at(walker, screen_time()).at(world::World::kTorus, static_cast<time::Seconds>(screen_time()));
+            row["east_cm"] = at.x;
+            row["north_cm"] = at.y;
+        }
+        const auto observer = person > 0 ? static_cast<std::uint64_t>(person) : item.owner.value;
+        row["observer"] = static_cast<int64_t>(observer);
+        row["facts"] = godot::Dictionary();
+        if (const auto* know = recorded_knowledge(s, observer, screen_time())) {
+            if (const auto* f = demo::Discovery::familiar(*know, item)) {
+                row["facts"] = evidence(*f);
+                if (catalogue_->kind<data::ItemKind>()[item.kind].form == "flake" && (f->mask & (1U << 1U)) &&
+                    f->values[1] >= 3)
+                    row["name"] = "Sharp flake";
+            }
+        }
+        out.push_back(row);
+    }
+    return out;
+}
+godot::Dictionary KdWorld::knowledge(int64_t person) const {
+    godot::Dictionary out;
+    const auto* know = recorded_knowledge(display_.snapshot(), static_cast<std::uint64_t>(person), screen_time());
+    if (!know) return out;
+    out["curiosity"] = know->curiosity;
+    out["kindness"] = know->kindness;
+    out["curiosity_need"] = know->curiosity_need;
+    out["performed"] = know->performed;
+    godot::Array skills, familiar, hunches, reasons;
+    for (const auto& s : know->skills) {
+        godot::Dictionary row;
+        row["recipe"] = text_of(catalogue_->kind<data::Blueprint>().name(s.recipe));
+        row["name"] = craft_label(catalogue_->kind<data::Blueprint>().name(s.recipe));
+        row["level"] = s.practice.level;
+        row["last_use"] = s.practice.last_use;
+        row["source"] = static_cast<int64_t>(s.source.value);
+        row["source_event"] = static_cast<int64_t>(s.source_event);
+        row["route"] = s.route;
+        skills.push_back(row);
+    }
+    for (const auto& f : know->familiar) {
+        auto row = evidence(f);
+        row["kind"] = text_of(catalogue_->kind<data::ItemKind>().name(f.kind));
+        row["name"] = craft_label(catalogue_->kind<data::ItemKind>().name(f.kind));
+        familiar.push_back(row);
+    }
+    for (const auto& h : know->hunches) {
+        godot::Dictionary row;
+        row["action"] = h.action;
+        row["source_memory"] = static_cast<int64_t>(h.source_memory);
+        row["source"] = static_cast<int64_t>(h.source.value);
+        row["failures"] = h.failures;
+        row["last_use"] = h.last_use;
+        godot::Array inputs;
+        for (const auto& f : h.inputs) inputs.push_back(craft_label(catalogue_->kind<data::ItemKind>().name(f.kind)));
+        row["inputs"] = inputs;
+        hunches.push_back(row);
+    }
+    for (const auto& r : know->reasons) {
+        godot::Dictionary row;
+        row["known"] = bool(r.intended);
+        row["action"] = r.action;
+        row["name"] = r.intended ? craft_label(catalogue_->kind<data::Blueprint>().name(r.recipe))
+                                 : godot::String("Try familiar materials");
+        row["score"] = r.score;
+        row["benefit"] = r.benefit;
+        row["seconds"] = r.seconds;
+        reasons.push_back(row);
+    }
+    out["skills"] = skills;
+    out["familiar"] = familiar;
+    out["hunches"] = hunches;
+    out["reasons"] = reasons;
+    return out;
+}
+godot::Array KdWorld::craft_history() const {
+    godot::Array out;
+    for (const auto& history : display_.snapshot().craft_history) {
+        for (const auto& e : history.events) {
+            if (static_cast<double>(e.at) > screen_time()) continue;
+            godot::Dictionary row;
+            row["id"] = static_cast<int64_t>(e.id);
+            row["at"] = e.at;
+            row["actor"] = static_cast<int64_t>(e.actor.value);
+            row["source"] = static_cast<int64_t>(e.source.value);
+            row["result"] = static_cast<int64_t>(e.result.value);
+            row["recipe"] = text_of(catalogue_->kind<data::Blueprint>().name(e.recipe));
+            row["name"] = craft_label(catalogue_->kind<data::Blueprint>().name(e.recipe));
+            row["kind"] = e.kind;
+            row["noticed"] = bool(e.noticed);
+            row["route"] = e.route;
+            row["word"] = text_of(e.word);
+            godot::PackedInt64Array inputs;
+            for (const auto& r : e.inputs) inputs.push_back(static_cast<int64_t>(r.id.value));
+            row["inputs"] = inputs;
+            row["east_cm"] = e.place.x;
+            row["north_cm"] = e.place.y;
+            out.push_back(row);
+        }
+    }
+    return out;
+}
 }  // namespace kd::view

@@ -62,7 +62,8 @@ if(KD_VIEW_TESTS AND NOT ANDROID)
     add_executable(kd_view_tests tests/main.cpp tests/pace_test.cpp tests/time_requests_test.cpp tests/stream_test.cpp tests/crowd_core_test.cpp
         tests/projection_test.cpp tests/wide_test.cpp tests/terrain_test.cpp tests/frames_test.cpp tests/heat_test.cpp tests/texture_test.cpp)
     target_include_directories(kd_view_tests SYSTEM PRIVATE "${KD_DOCTEST}")
-    target_compile_definitions(kd_view_tests PRIVATE DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS)
+    target_compile_definitions(kd_view_tests PRIVATE DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
+        KD_REPO="${CMAKE_CURRENT_SOURCE_DIR}/..")
     target_link_libraries(kd_view_tests PRIVATE kd_view_core)
     kindling_rules(kd_view_tests)
     enable_testing()
