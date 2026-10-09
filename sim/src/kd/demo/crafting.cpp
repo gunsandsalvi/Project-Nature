@@ -41,6 +41,7 @@ void Crafting::initialise(world::World& w) {
                 if (!recipes[r].starting) continue;
                 world::Skill skill;
                 skill.recipe = r;
+                skill.known = 1;
                 skill.practice = {3000 + age_extra, 3000 + age_extra, 0, -1};
                 know.skills.push_back(skill);
             }
@@ -48,6 +49,7 @@ void Crafting::initialise(world::World& w) {
         } else if (auto* camp = raw.try_get<world::Camp>(h)) {
             KD_CHECK(!raw.all_of<world::CraftHistory>(h), "Fresh stock is materialised once");
             raw.emplace<world::CraftHistory>(h);
+            raw.emplace<world::Lessons>(h);
             const auto stone = camp->stone_mg, wood = camp->wood_mg;
             const auto& scenes = w.catalogue().kind<DiscoveryScene>();
             KD_CHECK(scenes.size() == 1, "Fresh Discovery camp needs its recorded scene");

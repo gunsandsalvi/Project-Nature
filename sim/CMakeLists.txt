@@ -71,6 +71,7 @@ add_library(kd_sim STATIC
     src/kd/demo/craft_work.cpp
     src/kd/demo/crafting.cpp
     src/kd/demo/discovery.cpp
+    src/kd/demo/learning.cpp
     src/kd/demo/living.cpp
     src/kd/demo/kept.cpp
     src/kd/num/angle.cpp
@@ -142,6 +143,7 @@ if(KD_SIM_TESTS)
         tests/scene_test.cpp
         tests/world_test.cpp
         tests/craft_test.cpp
+        tests/learning_test.cpp
         tests/camp_test.cpp
         tests/living_test.cpp)
     target_include_directories(kd_sim_tests SYSTEM PRIVATE "${KD_DOCTEST}" "${KD_XXHASH}")

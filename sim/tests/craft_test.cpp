@@ -37,8 +37,10 @@ struct StoredCraft {
                 if (person.value == 0) person = id;
                 raw.emplace<kd::world::Work>(h);
                 raw.emplace<kd::world::Knowledge>(h);
-            } else if (raw.all_of<kd::world::Camp>(h))
+            } else if (raw.all_of<kd::world::Camp>(h)) {
                 raw.emplace<kd::world::CraftHistory>(h);
+                raw.emplace<kd::world::Lessons>(h);
+            }
         });
         const auto h = w.make_thing();
         thing = w.things().id_of(h);
@@ -59,10 +61,11 @@ bool accepted(const kd::world::World& w, std::string& why) {
 }
 }  // namespace
 TEST_CASE("older_save_refused") {
-    // 31305 wrote outer format 1. A deliberately unreadable body proves the version is checked first.
+    // The previous build wrote the previous outer format. A deliberately unreadable body proves the version is checked
+    // first.
     kd::ByteWriter old;
     old.u64(0x50414e53444b4e49);
-    old.u32(1);
+    old.u32(kd::save::kSnapshotVersion - 1);
     old.u32(UINT32_MAX);
     const auto bytes = old.take();
     std::string why;
@@ -114,7 +117,7 @@ TEST_CASE("current craft chunks refuse missing duplicate future truncated and fe
     StoredCraft fixture;
     const auto pristine = fixture.camp.world().save();
     for (const auto tag : {kd::save::tag("CRFT"), kd::save::tag("KNOW"), kd::save::tag("HIST"), kd::save::tag("LIFE"),
-                           kd::save::tag("DRMS")}) {
+                           kd::save::tag("DRMS"), kd::save::tag("LEAR")}) {
         for (int fault = 0; fault < 5; ++fault) {
             auto chunks = pristine;
             std::string why;
@@ -132,7 +135,7 @@ TEST_CASE("current craft chunks refuse missing duplicate future truncated and fe
             CHECK_FALSE(why.empty());
         }
     }
-    for (const auto flags : {0U, 2U, 3U, 16U}) {
+    for (const auto flags : {0U, 1U, 2U, 16U}) {
         auto chunks = pristine;
         auto& camp =
             *std::find_if(chunks.begin(), chunks.end(), [](const auto& c) { return c.tag == kd::save::tag("CAMP"); });
@@ -162,6 +165,346 @@ TEST_CASE("checksummed craft records refuse orphan ownership impossible progress
         std::string why;
         CHECK_FALSE(accepted(w, why));
     }
+}
+TEST_CASE("learning records preserve personal fractions and refuse impossible evidence") {
+    StoredCraft fixture;
+    auto& w = fixture.camp.world();
+    auto& raw = w.beings().raw();
+    auto& k = raw.get<kd::world::Knowledge>(w.beings().handle(fixture.person));
+    k.curiosity_remainder = 43210;
+    k.sectors[0] = {1234, 1234, 17, 0, 123456, 876543, 345678, 0, 1234};
+    kd::world::Skill unfinished;
+    unfinished.recipe = entry(catalogue(), "blueprint", "base:sharp_flake");
+    unfinished.known = 0;
+    unfinished.observation_quarters = 3;
+    unfinished.observation_remainder = 712345;
+    k.skills.push_back(unfinished);
+    std::string why;
+    auto copy = kd::demo::CrowdWorld::open(catalogue(), w.save(), why);
+    INFO(why);
+    REQUIRE(copy);
+    CHECK(kd::save::write_snapshot(copy->world().save()) == kd::save::write_snapshot(w.save()));
+    for (int fault = 0; fault < 11; ++fault) {
+        const auto previous = k;
+        if (fault == 0) k.curiosity_remainder = kd::time::kDay;
+        if (fault == 1) k.sectors[0].fraction = 561600000;
+        if (fault == 2) k.sectors[0].seconds_remainder = -1;
+        if (fault == 3) k.sectors[0].scale_remainder = 1000000;
+        if (fault == 4) k.sectors[0].decay_at = 1;
+        if (fault == 5) k.sectors[0].decay_level = 1233;
+        if (fault == 6) k.skills[0].observation_quarters = 21;
+        if (fault == 7) k.skills[0].known = 2;
+        if (fault == 8) k.session = 1;
+        if (fault == 9) k.watching = fixture.person;
+        if (fault == 10) k.last_observed_event = 1;
+        INFO(fault);
+        CHECK_FALSE(accepted(w, why));
+        k = previous;
+    }
+    raw.get<kd::world::Lessons>(w.beings().handle(fixture.home)).next = 0;
+    CHECK_FALSE(accepted(w, why));
+}
+// These sessions are labelled storage setups. Autonomous offers and work are T3.13b.3.
+namespace {
+struct StoredLesson : StoredCraft {
+    kd::ecs::Id learner{};
+    StoredLesson(bool active = false) {
+        auto& w = camp.world();
+        w.run_to(100);
+        auto& raw = w.beings().raw();
+        w.beings().each([&](kd::ecs::Id id, kd::world::Beings::Handle h) {
+            if (learner.value == 0 && id != person && raw.all_of<kd::world::Person>(h)) learner = id;
+        });
+        const auto teacher_h = w.beings().handle(person), learner_h = w.beings().handle(learner);
+        const auto recipe = entry(catalogue(), "blueprint", "base:sharp_flake");
+        auto& teacher = raw.get<kd::world::Knowledge>(teacher_h);
+        teacher.kindness = 70;
+        teacher.session = 1;
+        kd::world::Skill known;
+        known.recipe = recipe;
+        known.known = 1;
+        known.practice = {1000, 1000, 0, -1};
+        teacher.skills.push_back(known);
+        teacher.peers.push_back({learner, recipe, 0, 3, w.frontier() - 100, 0});
+        auto& student = raw.get<kd::world::Knowledge>(learner_h);
+        student.session = 1;
+        student.next_work = 2;
+        known.known = 0;
+        known.practice = {};
+        known.observation_quarters = 3;
+        known.observation_remainder = 712345;
+        student.skills.push_back(known);
+        auto& work = raw.get<kd::world::Work>(learner_h);
+        work.state = active ? 2 : 4;
+        work.intended = 1;
+        work.route = 5;
+        work.recipe = recipe;
+        work.number = work.lesson = 1;
+        work.start = w.frontier() - 100;
+        work.active_start = w.frontier();
+        work.try_seconds = 120;
+        work.retained_progress = 75;
+        work.end = w.frontier() + 1800 - 75;
+        work.next_try = active ? w.frontier() + 45 : 0;
+        work.inputs.push_back({thing, 1000000, 0, 0, 0, 0});
+        kd::world::Lesson lesson;
+        lesson.id = lesson.work = 1;
+        lesson.teacher = person;
+        lesson.learner = learner;
+        lesson.recipe = recipe;
+        lesson.meeting = raw.get<kd::world::Camp>(w.beings().handle(home)).shelter_at;
+        lesson.state = active ? 1 : 2;
+        lesson.offered = lesson.begun = w.frontier() - 100;
+        lesson.settled = w.frontier();
+        lesson.end = active ? work.end : 0;
+        lesson.seconds = 75;
+        lesson.credited_seconds = 60;
+        auto& lessons = raw.get<kd::world::Lessons>(w.beings().handle(home));
+        lessons.next = 2;
+        lessons.sessions.push_back(lesson);
+        teacher.observations.push_back({learner, 1, 1, w.frontier(), 300});
+        if (active) {
+            for (const auto id : {person, learner}) {
+                const auto h = w.beings().handle(id);
+                raw.get<kd::world::Place>(h).at = lesson.meeting;
+                auto& act = raw.get<kd::world::Activity>(h);
+                act.what =
+                    static_cast<std::uint8_t>(id == person ? kd::world::LivingAct::teach : kd::world::LivingAct::craft);
+                act.from = act.to = lesson.meeting;
+                act.start = w.frontier();
+                act.end = lesson.end;
+                raw.get<kd::world::Life>(h).settled = act.start;
+                w.schedule(id, kd::world::kActivitySlot, act.end);
+            }
+            work.target = lesson.meeting;
+            w.schedule(learner, 2, work.next_try);
+        }
+    }
+};
+}  // namespace
+TEST_CASE("partial_lesson_reopen retains active and paused applied counters and personal evidence") {
+    for (const bool active : {false, true}) {
+        INFO(active);
+        StoredLesson fixture(active);
+        auto& w = fixture.camp.world();
+        std::string why;
+        const auto original = kd::save::write_snapshot(w.save());
+        auto decoded = kd::save::read_snapshot(original, why);
+        REQUIRE(decoded);
+        if (!decoded) continue;
+        auto reopened = kd::demo::CrowdWorld::open(catalogue(), *decoded, why);
+        INFO(why);
+        REQUIRE(reopened);
+        CHECK(reopened->world().digests().whole == w.digests().whole);
+        CHECK(kd::save::write_snapshot(reopened->world().save()) == original);
+        auto twice = kd::demo::CrowdWorld::open(catalogue(), reopened->world().save(), why);
+        REQUIRE(twice);
+        CHECK(kd::save::write_snapshot(twice->world().save()) == original);
+        const auto& session = twice->world()
+                                  .beings()
+                                  .raw()
+                                  .get<kd::world::Lessons>(twice->world().beings().handle(fixture.home))
+                                  .sessions.front();
+        CHECK(session.seconds == 75);
+        CHECK(session.credited_seconds == 60);
+        w.beings().fuzz(19);
+        w.things().fuzz(91);
+        CHECK(kd::save::write_snapshot(w.save()) == original);
+    }
+}
+TEST_CASE("meeting session reopens with matching travel and teacher activity events") {
+    StoredLesson fixture(true);
+    auto& w = fixture.camp.world();
+    auto& raw = w.beings().raw();
+    auto& session = raw.get<kd::world::Lessons>(w.beings().handle(fixture.home)).sessions.front();
+    session.state = 0;
+    session.begun = session.seconds = session.credited_seconds = 0;
+    const auto learner = w.beings().handle(fixture.learner);
+    auto& work = raw.get<kd::world::Work>(learner);
+    work.state = 1;
+    work.next_try = work.retained_progress = 0;
+    raw.get<kd::world::Activity>(learner).what = static_cast<std::uint8_t>(kd::world::LivingAct::walk);
+    raw.get<kd::world::Knowledge>(w.beings().handle(fixture.person)).observations.clear();
+    w.cancel(fixture.learner, 2);
+    std::string why;
+    REQUIRE(accepted(w, why));
+    auto copy = kd::demo::CrowdWorld::open(catalogue(), w.save(), why);
+    REQUIRE(copy);
+    CHECK(kd::save::write_snapshot(copy->world().save()) == kd::save::write_snapshot(w.save()));
+    raw.get<kd::world::Activity>(learner).what = 0;
+    CHECK_FALSE(accepted(w, why));
+}
+TEST_CASE("shared session validation refuses corrupt links counters activities and queued events") {
+    for (int fault = 0; fault < 27; ++fault) {
+        StoredLesson fixture(true);
+        auto& w = fixture.camp.world();
+        auto& raw = w.beings().raw();
+        const auto teacher = w.beings().handle(fixture.person), learner = w.beings().handle(fixture.learner);
+        auto& lessons = raw.get<kd::world::Lessons>(w.beings().handle(fixture.home));
+        auto& session = lessons.sessions.front();
+        auto& work = raw.get<kd::world::Work>(learner);
+        auto& know = raw.get<kd::world::Knowledge>(teacher);
+        if (fault == 0) session.teacher = {123};
+        if (fault == 1) session.learner = session.teacher;
+        if (fault == 2) session.id = lessons.next;
+        if (fault == 3) lessons.sessions.push_back(session);
+        if (fault == 4) session.state = 3;
+        if (fault == 5) session.recipe = UINT32_MAX;
+        if (fault == 6) session.meeting.x = w.torus().width();
+        if (fault == 7) session.seconds = 1800;
+        if (fault == 8) session.credited_seconds = 76;
+        if (fault == 9) session.begun = w.frontier() - 74;
+        if (fault == 10) ++session.end;
+        if (fault == 11) session.last_try = 1;
+        if (fault == 12) know.session = 0;
+        if (fault == 13) know.kindness = 59;
+        if (fault == 14) know.skills.front().known = 0;
+        if (fault == 15) work.lesson = 2;
+        if (fault == 16) work.number = 0;
+        if (fault == 17) work.route = 0;
+        if (fault == 18) work.state = 4;
+        if (fault == 19) raw.get<kd::world::Activity>(teacher).what = 0;
+        if (fault == 20) {
+            const auto separated = w.torus().moved(session.meeting, {201, 0});
+            raw.get<kd::world::Place>(teacher).at = separated;
+            raw.get<kd::world::Activity>(teacher).from = separated;
+            raw.get<kd::world::Activity>(teacher).to = separated;
+        }
+        if (fault == 21) w.cancel(fixture.learner, 2);
+        if (fault == 22) w.schedule(fixture.person, kd::world::kActivitySlot, session.end + 1);
+        if (fault == 23) raw.remove<kd::world::Work>(learner);
+        if (fault == 24) raw.remove<kd::world::Knowledge>(learner);
+        if (fault == 25) session.meeting = w.torus().moved(session.meeting, {6000, 0});
+        if (fault == 26) session.settled = w.frontier() + 1;
+        INFO(fault);
+        std::string why;
+        CHECK_FALSE(accepted(w, why));
+        CHECK_FALSE(why.empty());
+    }
+}
+TEST_CASE("active session separation is refused by its own validation at the two metre boundary") {
+    StoredLesson fixture(true);
+    auto& w = fixture.camp.world();
+    auto& raw = w.beings().raw();
+    const auto teacher = w.beings().handle(fixture.person);
+    const auto meeting = raw.get<kd::world::Lessons>(w.beings().handle(fixture.home)).sessions.front().meeting;
+    const auto move = [&](std::int64_t centimetres) {
+        const auto at = w.torus().moved(meeting, {centimetres, 0});
+        raw.get<kd::world::Place>(teacher).at = at;
+        raw.get<kd::world::Activity>(teacher).from = at;
+        raw.get<kd::world::Activity>(teacher).to = at;
+    };
+    std::string why;
+    move(200);
+    REQUIRE(accepted(w, why));
+    move(201);
+    CHECK_FALSE(accepted(w, why));
+    CHECK(why == "shared practice participants are separated");
+}
+TEST_CASE("taught work cannot reopen without its shared session link") {
+    StoredLesson fixture(true);
+    auto& w = fixture.camp.world();
+    auto& raw = w.beings().raw();
+    raw.get<kd::world::Lessons>(w.beings().handle(fixture.home)).sessions.clear();
+    for (const auto id : {fixture.person, fixture.learner})
+        raw.get<kd::world::Knowledge>(w.beings().handle(id)).session = 0;
+    raw.get<kd::world::Activity>(w.beings().handle(fixture.person)).what = 0;
+    raw.get<kd::world::Work>(w.beings().handle(fixture.learner)).lesson = 0;
+    std::string why;
+    CHECK_FALSE(accepted(w, why));
+    CHECK(why == "invalid work progress");
+}
+TEST_CASE("ordinary intended work requires personal knowledge rather than a partial skill record") {
+    StoredLesson fixture(true);
+    auto& w = fixture.camp.world();
+    auto& raw = w.beings().raw();
+    raw.get<kd::world::Lessons>(w.beings().handle(fixture.home)).sessions.clear();
+    for (const auto id : {fixture.person, fixture.learner})
+        raw.get<kd::world::Knowledge>(w.beings().handle(id)).session = 0;
+    raw.get<kd::world::Activity>(w.beings().handle(fixture.person)).what = 0;
+    auto& work = raw.get<kd::world::Work>(w.beings().handle(fixture.learner));
+    work.lesson = 0;
+    work.route = 0;
+    std::string why;
+    CHECK_FALSE(accepted(w, why));
+    auto& skill = raw.get<kd::world::Knowledge>(w.beings().handle(fixture.learner)).skills.front();
+    skill.known = 1;
+    skill.practice = {750, 1000, 0, -1};
+    CHECK(accepted(w, why));
+}
+TEST_CASE("personal learning evidence must refer to the actual recipe") {
+    StoredLesson fixture;
+    auto& w = fixture.camp.world();
+    auto& raw = w.beings().raw();
+    auto& skill = raw.get<kd::world::Knowledge>(w.beings().handle(fixture.person)).skills.front();
+    kd::world::Result result;
+    result.id = 1;
+    result.at = 0;
+    result.place = raw.get<kd::world::Place>(w.beings().handle(fixture.person)).at;
+    result.actor = fixture.person;
+    result.recipe = skill.recipe;
+    result.inputs.push_back({fixture.thing});
+    auto& history = raw.get<kd::world::CraftHistory>(w.beings().handle(fixture.home));
+    history.next = 2;
+    history.events.push_back(result);
+    skill.source = fixture.person;
+    skill.source_event = result.id;
+    skill.route = 2;
+    std::string why;
+    REQUIRE(accepted(w, why));
+    history.events.front().recipe = entry(catalogue(), "blueprint", "base:butcher");
+    CHECK_FALSE(accepted(w, why));
+}
+TEST_CASE("peer beliefs and unfinished observation have bounded unique actual sources") {
+    for (int fault = 0; fault < 14; ++fault) {
+        StoredLesson fixture;
+        auto& w = fixture.camp.world();
+        auto& k = w.beings().raw().get<kd::world::Knowledge>(w.beings().handle(fixture.person));
+        if (fault == 0) k.peers.push_back(k.peers.front());
+        if (fault == 1) k.peers.front().person = fixture.person;
+        if (fault == 2) k.peers.front().recipe = UINT32_MAX;
+        if (fault == 3) k.peers.front().route = 1;
+        if (fault == 4) k.peers.front().event = 1;
+        if (fault == 5) k.peers.front().at = w.frontier() + 1;
+        if (fault == 6) k.observations.push_back(k.observations.front());
+        if (fault == 7) k.observations.front().work = 2;
+        if (fault == 8) k.observations.front().attempt = 0;
+        if (fault == 9) k.observations.front().attempt = 2;
+        if (fault == 10) k.observations.front().weighted_seconds = 481;
+        if (fault == 11) k.observations.front().settled -= 100;
+        if (fault == 12) k.observations.front().person = fixture.person;
+        if (fault == 13) k.observations.front().weighted_seconds = -1;
+        INFO(fault);
+        std::string why;
+        CHECK_FALSE(accepted(w, why));
+    }
+    StoredLesson fixture;
+    auto& w = fixture.camp.world();
+    auto& k = w.beings().raw().get<kd::world::Knowledge>(w.beings().handle(fixture.person));
+    const auto recipe = k.peers.front().recipe;
+    kd::world::Result failed;
+    failed.id = 1;
+    failed.at = k.peers.front().at;
+    failed.actor = fixture.learner;
+    failed.place = w.beings().raw().get<kd::world::Place>(w.beings().handle(fixture.learner)).at;
+    failed.recipe = recipe;
+    failed.kind = 5;
+    failed.inputs.push_back({fixture.thing});
+    auto& history = w.beings().raw().get<kd::world::CraftHistory>(w.beings().handle(fixture.home));
+    history.next = 2;
+    history.events.push_back(failed);
+    k.peers.front().route = 2;
+    k.peers.front().event = failed.id;
+    std::string why;
+    REQUIRE(accepted(w, why));
+    // A later skill change cannot rewrite a holder's older evidence about their peer.
+    w.beings().raw().get<kd::world::Knowledge>(w.beings().handle(fixture.learner)).skills.front().known = 1;
+    CHECK(accepted(w, why));
+    k.peers.front().knows = 1;
+    CHECK_FALSE(accepted(w, why));
+    k.peers.front().knows = 0;
+    history.events.front().kind = 0;
+    CHECK_FALSE(accepted(w, why));
 }
 TEST_CASE("generic_fit and granite_control depend on characteristics and sizes rather than material names") {
     const auto& c = catalogue();
@@ -268,6 +611,7 @@ TEST_CASE("paused gradual progress and atomic reservations survive current-forma
         know.next_work = 2;
         kd::world::Skill skill;
         skill.recipe = work.recipe;
+        skill.known = 1;
         skill.practice = {3000, 3000, 0, -1};
         know.skills.push_back(skill);
         work.start = 100;
@@ -624,6 +968,7 @@ struct WorkFixture final : kd::world::System {
         if (intended) {
             kd::world::Skill skill;
             skill.recipe = recipe;
+            skill.known = 1;
             skill.practice = {level * 1000, level * 1000, 0, -1};
             know.skills.push_back(skill);
         }
@@ -710,6 +1055,31 @@ struct WorkFixture final : kd::world::System {
     }
 };
 }  // namespace
+TEST_CASE("partial evidence cannot suppress an actual personal discovery or create a duplicate skill") {
+    bool noticed = false;
+    for (std::uint64_t seed = 1; seed <= 50 && !noticed; ++seed) {
+        WorkFixture trial(seed, "base:sharp_flake", 10, {"base:flint", "base:granite"}, false);
+        auto& know = trial.w.beings().raw().get<kd::world::Knowledge>(trial.h);
+        kd::world::Skill partial;
+        partial.recipe = trial.recipe;
+        partial.observation_quarters = 3;
+        partial.observation_remainder = 712345;
+        know.skills.push_back(partial);
+        trial.start();
+        trial.w.run_to(trial.seconds + 1);
+        REQUIRE(know.skills.size() == 1);
+        const auto& skill = know.skills.front();
+        if (!skill.known) continue;
+        noticed = true;
+        CHECK(skill.practice.level == 1000);
+        CHECK(skill.source == trial.person);
+        CHECK(skill.source_event != 0);
+        CHECK(skill.route == 2);
+        CHECK(skill.observation_quarters == 3);
+        CHECK(skill.observation_remainder == 712345);
+    }
+    CHECK(noticed);
+}
 TEST_CASE("interrupted_strike has no result and gradual work retains its earned seconds") {
     for (const bool strike : {true, false}) {
         WorkFixture trial(7, strike ? "base:sharp_flake" : "base:butcher", 2,
@@ -820,30 +1190,33 @@ TEST_CASE("declared 200 low and high skill trials per runnable craft respect cha
 }
 
 TEST_CASE("urgent hunger can choose personally known food preparation when remembered berries are gone") {
-    WorkFixture trial(91, "base:butcher", 3, {"base:carcass"});
-    auto& raw = trial.w.beings().raw();
-    auto& life = raw.get<kd::world::Life>(trial.h);
-    auto& facts = raw.get<kd::world::Camp>(trial.w.beings().handle(trial.home));
-    facts.food_mg = 0;
-    auto& habitat = raw.get<kd::world::Habitat>(trial.w.beings().handle(trial.home));
-    habitat.crop_budget_mg = 0;
-    life.food = 0;
-    life.water = 3000;
-    life.awake = 0;
-    // Remove ready-to-eat choices only in this labelled starvation regression fixture.
-    trial.w.things().each([&](kd::ecs::Id, auto h) {
-        auto& item = trial.w.things().raw().get<kd::world::Item>(h);
-        if (!catalogue().kind<kd::data::ItemKind>()[item.kind].edible) return;
-        item.mass = 0;
-        item.state = 4;
-    });
-    trial.w.run_to(2);
-    const auto& work = raw.get<kd::world::Work>(trial.h);
-    CHECK(work.state != 0);
-    CHECK(work.intended == 1);
-    CHECK(work.recipe == trial.recipe);
-    std::string why;
-    CHECK(accepted(trial.w, why));
+    for (const auto level : {3000, 750}) {
+        WorkFixture trial(91, "base:butcher", 3, {"base:carcass"});
+        auto& raw = trial.w.beings().raw();
+        raw.get<kd::world::Knowledge>(trial.h).skills.front().practice = {level, level < 1000 ? 1000 : 3000, 0, -1};
+        auto& life = raw.get<kd::world::Life>(trial.h);
+        auto& facts = raw.get<kd::world::Camp>(trial.w.beings().handle(trial.home));
+        facts.food_mg = 0;
+        auto& habitat = raw.get<kd::world::Habitat>(trial.w.beings().handle(trial.home));
+        habitat.crop_budget_mg = 0;
+        life.food = 0;
+        life.water = 3000;
+        life.awake = 0;
+        // Remove ready-to-eat choices only in this labelled starvation regression fixture.
+        trial.w.things().each([&](kd::ecs::Id, auto h) {
+            auto& item = trial.w.things().raw().get<kd::world::Item>(h);
+            if (!catalogue().kind<kd::data::ItemKind>()[item.kind].edible) return;
+            item.mass = 0;
+            item.state = 4;
+        });
+        trial.w.run_to(2);
+        const auto& work = raw.get<kd::world::Work>(trial.h);
+        CHECK(work.state != 0);
+        CHECK(work.intended == 1);
+        CHECK(work.recipe == trial.recipe);
+        std::string why;
+        CHECK(accepted(trial.w, why));
+    }
 }
 
 TEST_CASE("a paused edible work input cannot also be allocated to a finite meal") {

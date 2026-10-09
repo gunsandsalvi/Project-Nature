@@ -604,19 +604,24 @@ TEST_CASE("a damaged world's file is refused with words naming the damage") {
         CHECK_FALSE(ok);
         CHECK(why == "its part " + snapshot + " is damaged");
     }
-    // a part that is no part of a world, such as a path out of its folder, is refused before it is written
-    kd::save::FakeFiles into;
-    kd::ByteWriter w;
-    w.u64(0x444c574c444e494b);
-    w.u32(2);
-    w.u32(1);
-    w.text("../outside.toml");
-    w.u64(1);
-    w.u64(0);
-    w.u8(1);
-    kd::save::ArchiveReader r(into);
-    CHECK_FALSE(r.feed(w.bytes()));
-    CHECK(r.why().find("not a part of a world") != std::string::npos);
+}
+
+// A current writer supplies the header; no fixed-format older archive fixture is retained.
+TEST_CASE("current archive refuses outside paths before writing a part") {
+    kd::save::FakeFiles source, into;
+    const Bytes metadata{std::byte{1}};
+    REQUIRE(source.write_whole("world.toml", metadata));
+    kd::save::ArchiveWriter writer(source);
+    Bytes header = writer.next(16);
+    kd::ByteWriter part;
+    part.text("../outside.toml");
+    part.u64(1);
+    part.u64(0);
+    part.u8(1);
+    header.insert(header.end(), part.bytes().begin(), part.bytes().end());
+    kd::save::ArchiveReader reader(into);
+    CHECK_FALSE(reader.feed(header));
+    CHECK(reader.why().find("not a part of a world") != std::string::npos);
     CHECK(into.list("").empty());
 }
 

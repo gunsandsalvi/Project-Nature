@@ -62,10 +62,11 @@ struct Reservation {
 };
 struct Work {
     static constexpr std::string_view name = "work";
-    static constexpr std::uint32_t version = 1;
+    static constexpr std::uint32_t version = 2;
     std::uint8_t state = 0, action = 0, intended = 0, route = 0, rolled = 0;
     std::uint32_t recipe = kNoRecipe;
     std::uint64_t number = 0, completed_tries = 0, applied_marker = 0;
+    std::uint64_t lesson = 0;
     std::int64_t start = 0, end = 0, next_try = 0, retained_progress = 0;
     std::int64_t active_start = 0, try_seconds = 0, unit_mass = 0, goal_mass = 0;
     num::Point target{};
@@ -74,16 +75,17 @@ struct Work {
     static void visit(V& v, Self& c) {
         v.u8({"state", "idle, collecting, working, eating or paused"}, c.state);
         v.u8({"action", "base action"}, c.action);
-        v.u8({"intended", "knows an intended recipe"}, c.intended);
+        v.u8({"intended", "intentional recipe work, including supervised practice"}, c.intended);
         if (c.intended)
-            v.entry({"recipe", "known intended recipe"}, c.recipe, "blueprint");
+            v.entry({"recipe", "intended recipe, personally known or supplied by the teacher"}, c.recipe, "blueprint");
         else
             v.u32({"recipe", "no intended recipe sentinel"}, c.recipe);
-        v.u8({"route", "known use, accident, experiment or hunch"}, c.route);
+        v.u8({"route", "known use, accident, experiment, hunch or taught practice"}, c.route);
         v.u8({"rolled", "unknown fits already settled"}, c.rolled);
         v.u64({"number", "person's never-reused work number"}, c.number);
         v.u64({"completed_tries", "completed known tries"}, c.completed_tries);
         v.u64({"applied_marker", "last applied try"}, c.applied_marker);
+        v.u64({"lesson", "matching shared-practice session, or zero"}, c.lesson);
         v.i64({"start", "original work start"}, c.start);
         v.i64({"active_start", "start of current active interval"}, c.active_start);
         v.i64({"end", "current activity end"}, c.end);

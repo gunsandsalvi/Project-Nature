@@ -437,9 +437,7 @@ bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h
     std::vector<Candidate> options;
     for (const auto& skill : know->skills) {
         if (options.size() == 8) break;
-        if (skill.practice.level < 1000 ||
-            (urgent && c.world().catalogue().kind<data::Blueprint>()[skill.recipe].need != 0))
-            continue;
+        if (!skill.known || (urgent && c.world().catalogue().kind<data::Blueprint>()[skill.recipe].need != 0)) continue;
         auto candidate = known(c, h, skill.recipe, seen);
         if (candidate) options.push_back(std::move(*candidate));
     }
@@ -646,12 +644,14 @@ void Crafting::settle(Living& living, world::Context& c, world::Beings::Handle h
         bool noticed_success = false;
         for (std::uint32_t r = 0; r < recipes.size(); ++r) {
             if (recipes[r].action != work.action || recipes[r].heat > 0 ||
-                std::any_of(know.skills.begin(), know.skills.end(), [&](const auto& s) { return s.recipe == r; }))
+                std::any_of(know.skills.begin(), know.skills.end(),
+                            [&](const auto& s) { return s.recipe == r && s.known; }))
                 continue;
             auto roles = matching(w, recipes[r], ids);
             if (roles.empty()) continue;
             resolve(c, h, r, std::move(roles), true, work.intended ? 1 : work.route, 0);
-            if (std::any_of(know.skills.begin(), know.skills.end(), [&](const auto& s) { return s.recipe == r; }))
+            if (std::any_of(know.skills.begin(), know.skills.end(),
+                            [&](const auto& s) { return s.recipe == r && s.known; }))
                 noticed_success = true;
         }
         if (work.route == 3 && !noticed_success) {

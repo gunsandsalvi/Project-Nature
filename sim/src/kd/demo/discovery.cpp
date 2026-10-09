@@ -187,14 +187,20 @@ std::uint64_t Discovery::result(world::Context& c, world::Beings::Handle h, std:
     memory(c, h, static_cast<std::uint8_t>(blueprint.action), std::move(perceived), sign, result, e.id,
            static_cast<std::uint8_t>(noticed && unknown ? 90 : 30));
     if (success && unknown && noticed && result.value != 0) {
-        if (std::none_of(know.skills.begin(), know.skills.end(), [&](const auto& s) { return s.recipe == recipe; })) {
+        auto found =
+            std::find_if(know.skills.begin(), know.skills.end(), [&](const auto& s) { return s.recipe == recipe; });
+        if (found == know.skills.end()) {
             world::Skill skill;
             skill.recipe = recipe;
-            skill.practice = {1000, 1000, 0, c.now()};
-            skill.source = person;
-            skill.source_event = e.id;
-            skill.route = route;
             know.skills.push_back(skill);
+            found = std::prev(know.skills.end());
+        }
+        if (!found->known || found->practice.level == 0) {
+            found->known = 1;
+            found->practice = {1000, 1000, 0, c.now()};
+            found->source = person;
+            found->source_event = e.id;
+            found->route = route;
         }
         know.curiosity_need = static_cast<std::uint8_t>(std::min<int>(100, know.curiosity_need + 10));
     } else if (sign != 0 && unknown) {

@@ -261,6 +261,7 @@ World::World(std::uint64_t seed, const data::Catalogue& catalogue) : seed_(seed)
     beings_.raw().storage<Work>();
     beings_.raw().storage<Knowledge>();
     beings_.raw().storage<CraftHistory>();
+    beings_.raw().storage<Lessons>();
     things_.raw().storage<Item>();
     set_layer(ecs::owners::commands, commands_);
 }
@@ -892,6 +893,7 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
     for (const save::Chunk& c : chunks) {
         if (c.critical && c.tag != save::tag("CAMP") && c.tag != save::tag("LIFE") && c.tag != save::tag("DRMS") &&
             c.tag != save::tag("CRFT") && c.tag != save::tag("KNOW") && c.tag != save::tag("HIST") &&
+            c.tag != save::tag("LEAR") &&
             std::none_of(kParts.begin(), kParts.end(), [&](const auto& p) { return p.first == c.tag; })) {
             why = "it holds a part this version cannot read";
             return false;
@@ -1531,6 +1533,7 @@ Digests World::digests() const {
             if (const auto* work = beings_.raw().try_get<Work>(h)) ecs::digest_component(*work, d);
             if (const auto* knowledge = beings_.raw().try_get<Knowledge>(h)) ecs::digest_component(*knowledge, d);
             if (const auto* history = beings_.raw().try_get<CraftHistory>(h)) ecs::digest_component(*history, d);
+            if (const auto* lessons = beings_.raw().try_get<Lessons>(h)) ecs::digest_component(*lessons, d);
             if (const auto* env = beings_.raw().try_get<Habitat>(h)) ecs::digest_component(*env, d);
             if (const auto* thought = beings_.raw().try_get<Dream>(h)) ecs::digest_component(*thought, d);
             if (const auto* ledger = beings_.raw().try_get<Dreams>(h)) {

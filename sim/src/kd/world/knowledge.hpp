@@ -35,25 +35,31 @@ struct Familiar {
 };
 struct Practice {
     static constexpr std::string_view name = "practice";
-    static constexpr std::uint32_t version = 1;
+    static constexpr std::uint32_t version = 2;
     std::int64_t level = 0, best = 0, seconds = 0, last_use = -1;
+    std::int64_t fraction = 0, seconds_remainder = 0, scale_remainder = 0, decay_at = 0, decay_level = 0;
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
         v.i64({"level", "thousandths of a level"}, c.level);
         v.i64({"best", "best recorded thousandths"}, c.best);
         v.i64({"seconds", "effective practice seconds"}, c.seconds);
         v.i64({"last_use", "last real use, minus one when unused"}, c.last_use);
+        v.i64({"fraction", "effective microseconds toward the next skill thousandth"}, c.fraction);
+        v.i64({"seconds_remainder", "fractional effective practice microseconds"}, c.seconds_remainder);
+        v.i64({"scale_remainder", "fractional multiplier numerator"}, c.scale_remainder);
+        v.i64({"decay_at", "fixed fading anchor second"}, c.decay_at);
+        v.i64({"decay_level", "skill at the fixed fading anchor"}, c.decay_level);
     }
 };
 struct Skill {
     static constexpr std::string_view name = "skill";
-    static constexpr std::uint32_t version = 1;
+    static constexpr std::uint32_t version = 2;
     std::uint32_t recipe = 0, observation_quarters = 0;
     std::int64_t observation_remainder = 0;
     Practice practice;
     ecs::Id source{};
     std::uint64_t source_event = 0;
-    std::uint8_t route = 0;
+    std::uint8_t route = 0, known = 0;
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
         v.entry({"recipe", "personally learned recipe"}, c.recipe, "blueprint");
@@ -61,8 +67,81 @@ struct Skill {
         v.id({"source", "actual learning source"}, c.source);
         v.u64({"source_event", "evidence event, zero for starting knowledge"}, c.source_event);
         v.u8({"route", "starting, own accident, experiment, hunch, watched or taught"}, c.route);
+        v.u8({"known", "knows the recipe; unfinished watching or teaching is not an unlock"}, c.known);
         v.u32({"observation_quarters", "credited observed quarters"}, c.observation_quarters);
         v.i64({"observation_remainder", "millionths of an observation quarter"}, c.observation_remainder);
+    }
+};
+struct PeerBelief {
+    static constexpr std::string_view name = "peer-craft-belief";
+    static constexpr std::uint32_t version = 1;
+    ecs::Id person{};
+    std::uint32_t recipe = 0;
+    std::uint8_t knows = 0, route = 0;
+    std::int64_t at = 0;
+    std::uint64_t event = 0;
+    template <typename V, typename Self>
+    static void visit(V& v, Self& c) {
+        v.id({"person", "person actually seen or spoken with"}, c.person);
+        v.entry({"recipe", "own known recipe being discussed or demonstrated"}, c.recipe, "blueprint");
+        v.u8({"knows", "belief about knowledge, zero for absence"}, c.knows);
+        v.u8({"route", "demonstration, failed attempt or truthful exchange"}, c.route);
+        v.i64({"at", "actual evidence second"}, c.at);
+        v.u64({"event", "actual evidence result, or zero for exchange"}, c.event);
+    }
+};
+struct Observation {
+    static constexpr std::string_view name = "work-observation";
+    static constexpr std::uint32_t version = 1;
+    ecs::Id person{};
+    std::uint64_t work = 0, attempt = 0;
+    std::int64_t settled = 0, weighted_seconds = 0;
+    template <typename V, typename Self>
+    static void visit(V& v, Self& c) {
+        v.id({"person", "actual demonstrator"}, c.person);
+        v.u64({"work", "demonstrator's unique work number"}, c.work);
+        v.u64({"attempt", "actual demonstrated try number"}, c.attempt);
+        v.i64({"settled", "exposure already considered through this second"}, c.settled);
+        v.i64({"weighted_seconds", "visible seconds, weighted four for deliberate watching"}, c.weighted_seconds);
+    }
+};
+struct Lesson {
+    static constexpr std::string_view name = "shared-practice";
+    static constexpr std::uint32_t version = 1;
+    std::uint64_t id = 0, work = 0, last_try = 0;
+    ecs::Id teacher{}, learner{};
+    std::uint32_t recipe = 0;
+    num::Point meeting{};
+    std::uint8_t state = 0;
+    std::int64_t offered = 0, begun = 0, settled = 0, end = 0;
+    std::int64_t seconds = 0, credited_seconds = 0;
+    template <typename V, typename Self>
+    static void visit(V& v, Self& c) {
+        v.u64({"id", "camp's unique shared session"}, c.id);
+        v.id({"teacher", "actual teacher"}, c.teacher);
+        v.id({"learner", "actual learner"}, c.learner);
+        v.entry({"recipe", "personally known recipe offered by the teacher"}, c.recipe, "blueprint");
+        v.point({"meeting", "reachable meeting position"}, c.meeting);
+        v.u8({"state", "meeting, practising or paused"}, c.state);
+        v.i64({"offered", "actual offer second"}, c.offered);
+        v.i64({"begun", "first shared work second"}, c.begun);
+        v.i64({"settled", "session progress considered through this second"}, c.settled);
+        v.i64({"end", "current shared work deadline"}, c.end);
+        v.i64({"seconds", "earned shared practice seconds"}, c.seconds);
+        v.i64({"credited_seconds", "elapsed practice already credited exactly once"}, c.credited_seconds);
+        v.u64({"work", "learner's actual work number, zero while uncollected"}, c.work);
+        v.u64({"last_try", "last demonstrated result credited exactly once"}, c.last_try);
+    }
+};
+struct Lessons {
+    static constexpr std::string_view name = "camp-learning";
+    static constexpr std::uint32_t version = 1;
+    std::uint64_t next = 1;
+    std::vector<Lesson> sessions;
+    template <typename V, typename Self>
+    static void visit(V& v, Self& c) {
+        v.u64({"next", "next shared-session identity"}, c.next);
+        v.records({"sessions", "sorted live or interrupted shared sessions"}, c.sessions, 64);
     }
 };
 struct Memory {
@@ -134,17 +213,22 @@ struct CraftReason {
 };
 struct Knowledge {
     static constexpr std::string_view name = "knowledge";
-    static constexpr std::uint32_t version = 1;
+    static constexpr std::uint32_t version = 2;
     std::uint32_t performed = 0;
     std::uint64_t next_memory = 1, next_work = 1, hourly_draw = 0;
     std::uint8_t curiosity = 50, kindness = 50, curiosity_need = 60, mood = 60;
     std::int64_t learning_ppm = 1000000, settled = 0;
+    std::int64_t curiosity_remainder = 0;
+    std::uint64_t session = 0, last_observed_event = 0;
+    ecs::Id watching{};
     std::array<Practice, 15> sectors{};
     std::vector<Familiar> familiar;
     std::vector<Skill> skills;
     std::vector<Memory> memories;
     std::vector<Hunch> hunches;
     std::vector<CraftReason> reasons;
+    std::vector<PeerBelief> peers;
+    std::vector<Observation> observations;
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
         v.u32({"performed", "actions actually performed"}, c.performed);
@@ -157,12 +241,18 @@ struct Knowledge {
         v.u8({"mood", "scoped mood"}, c.mood);
         v.i64({"learning_ppm", "learning multiplier"}, c.learning_ppm);
         v.i64({"settled", "last curiosity settlement"}, c.settled);
+        v.i64({"curiosity_remainder", "fractional daily curiosity settlement"}, c.curiosity_remainder);
+        v.u64({"session", "own live or paused shared session, or zero"}, c.session);
+        v.u64({"last_observed_event", "last demonstrated result already considered"}, c.last_observed_event);
+        v.id({"watching", "actual deliberate watching target, or zero"}, c.watching);
         for (auto& x : c.sectors) Practice::visit(v, x);
         v.records({"familiar", "known properties with evidence"}, c.familiar, 128);
         v.records({"skills", "personal recipe skills"}, c.skills, 128);
         v.records({"memories", "recent handling and surprise evidence"}, c.memories, 200);
         v.records({"hunches", "bounded guesses"}, c.hunches, 5);
         v.records({"reasons", "chosen and rejected actual options"}, c.reasons, 3);
+        v.records({"peers", "own evidence about a peer's craft knowledge"}, c.peers, 256);
+        v.records({"observations", "unfinished exposure to actual manufacture"}, c.observations, 64);
     }
 };
 struct Result {

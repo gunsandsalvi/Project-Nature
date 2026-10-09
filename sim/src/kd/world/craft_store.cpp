@@ -2,15 +2,16 @@
 #include <map>
 #include <set>
 #include "kd/data/craft.hpp"
+#include "kd/demo/living.hpp"
 namespace kd::world {
 std::uint32_t craft_features(const World& w) {
-    return w.beings().raw().view<Knowledge>().empty() ? 0U : kCraft;
+    return w.beings().raw().view<Knowledge>().empty() ? 0U : kCraft | kLearning;
 }
 void save_craft(const World& w, std::vector<save::Chunk>& out) {
     if (craft_features(w) == 0) return;
     const auto& beings = w.beings();
     const auto& things = w.things();
-    ByteWriter craft, know, history;
+    ByteWriter craft, know, history, learning;
     craft.u64(things.raw().view<Item>().size() + beings.raw().view<Work>().size());
     // Families sort people before things in canonical IDs.
     beings.each([&](ecs::Id id, Beings::Handle h) {
@@ -29,6 +30,7 @@ void save_craft(const World& w, std::vector<save::Chunk>& out) {
     });
     know.u64(beings.raw().view<Knowledge>().size());
     history.u64(beings.raw().view<CraftHistory>().size());
+    learning.u64(beings.raw().view<Lessons>().size());
     beings.each([&](ecs::Id id, Beings::Handle h) {
         if (const auto* x = beings.raw().try_get<Knowledge>(h)) {
             know.u64(id.value);
@@ -38,10 +40,16 @@ void save_craft(const World& w, std::vector<save::Chunk>& out) {
             history.u64(id.value);
             ecs::write_component(*x, history);
         }
+        if (const auto* x = beings.raw().try_get<Lessons>(h)) {
+            learning.u64(id.value);
+            ecs::write_component(*x, learning);
+        }
     });
     out.push_back({save::tag("CRFT"), 1, true, craft.take()});
     out.push_back({save::tag("KNOW"), 1, true, know.take()});
     out.push_back({save::tag("HIST"), 1, true, history.take()});
+    // LEARN1 retains the foundation's four-letter wire tags.
+    out.push_back({save::tag("LEAR"), 1, true, learning.take()});
 }
 bool craft_headers(std::span<const save::Chunk> chunks, std::uint32_t& features, std::string& why) {
     const auto fail = [&](std::string text) {
@@ -52,15 +60,17 @@ bool craft_headers(std::span<const save::Chunk> chunks, std::uint32_t& features,
     if (camp) {
         if (camp->version != 4 || !camp->critical || camp->data.size() < 4) return fail("unsupported Camp format");
         ByteReader mask(std::span(camp->data).last(4));
-        if (!mask.u32(features) || (features != 0 && features != kCraft)) return fail("unsupported camp features");
+        if (!mask.u32(features) || (features != 0 && features != (kCraft | kLearning)))
+            return fail("unsupported camp features");
     }
-    for (const auto tag :
-         {save::tag("LIFE"), save::tag("DRMS"), save::tag("CRFT"), save::tag("KNOW"), save::tag("HIST")}) {
+    for (const auto tag : {save::tag("LIFE"), save::tag("DRMS"), save::tag("CRFT"), save::tag("KNOW"),
+                           save::tag("HIST"), save::tag("LEAR")}) {
         const auto* c = save::find_chunk(chunks, tag);
         const auto count = std::count_if(chunks.begin(), chunks.end(), [&](const auto& x) { return x.tag == tag; });
         if (count > 1) return fail("duplicate camp extension");
-        const bool craft = tag == save::tag("CRFT") || tag == save::tag("KNOW") || tag == save::tag("HIST");
-        if ((craft && ((features == kCraft) != bool(c))) || (features == kCraft && !c))
+        const bool craft = tag == save::tag("CRFT") || tag == save::tag("KNOW") || tag == save::tag("HIST") ||
+                           tag == save::tag("LEAR");
+        if ((craft && ((features != 0) != bool(c))) || (features != 0 && !c))
             return fail("required craft extension is missing or mismatched");
         if (c && (!c->critical || c->version != (tag == save::tag("LIFE") ? 2U : 1U)))
             return fail("unsupported camp extension version");
@@ -82,8 +92,12 @@ bool item(const World& w, ecs::Id id, bool optional = false) {
     return h && w.things().raw().all_of<Item>(*h);
 }
 bool practice(const Practice& p, time::Seconds now) {
-    return p.level >= 0 && p.level <= 10000 && p.best >= p.level && p.best <= 10000 && p.seconds >= 0 &&
-           p.seconds <= 60 * time::kDay * 1000 && p.last_use >= -1 && p.last_use <= now;
+    return p.level >= 0 && p.level <= 10000 && p.best >= p.level && p.best <= 10000 && p.level >= (p.best + 1) / 2 &&
+           p.seconds >= 0 && p.seconds <= 60 * time::kDay * 1000 && p.last_use >= -1 && p.last_use <= now &&
+           p.fraction >= 0 && p.fraction < 561600000 && (p.level != 10000 || p.fraction == 0) &&
+           p.seconds_remainder >= 0 && p.seconds_remainder < 1000000 && p.scale_remainder >= 0 &&
+           p.scale_remainder < 1000000 && p.decay_at >= 0 && p.decay_at <= now && p.decay_level >= 0 &&
+           p.decay_level <= p.best && (p.decay_level == 0 || p.decay_level >= p.level);
 }
 bool familiar(const Familiar& f, time::Seconds now) {
     if (f.mask >= (1U << 18U) || f.edible > 1 || f.state > 4 || f.edible_source > 6 || f.at < 0 || f.at > now)
@@ -144,20 +158,21 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
                 Work value;
                 if (!h || !raw.all_of<Person>(*h) || !ecs::read_component(value, r, entries))
                     return fail("invalid work record");
-                if (value.state > 4 || value.action > 20 || value.intended > 1 || value.route > 3 || value.rolled > 1 ||
-                    (!value.intended && value.recipe != kNoRecipe) || value.start < 0 || value.start > w.frontier() ||
-                    value.active_start < value.start || value.active_start > w.frontier() || value.end < 0 ||
-                    value.next_try < 0 || value.next_try > value.end || value.retained_progress < 0 ||
-                    value.try_seconds < 0 || value.try_seconds > 3600 || value.retained_progress > value.try_seconds ||
-                    value.unit_mass < 0 || value.unit_mass > 1000000000 || value.goal_mass < 0 ||
-                    value.goal_mass > 1000000000 || value.applied_marker > value.completed_tries ||
-                    !point(w, value.target))
+                if (value.state > 4 || value.action > 20 || value.intended > 1 || value.route > 5 || value.rolled > 1 ||
+                    ((value.route == 5) != (value.lesson != 0)) || (!value.intended && value.recipe != kNoRecipe) ||
+                    value.start < 0 || value.start > w.frontier() || value.active_start < value.start ||
+                    value.active_start > w.frontier() || value.end < 0 || value.next_try < 0 ||
+                    value.next_try > value.end || value.retained_progress < 0 || value.try_seconds < 0 ||
+                    value.try_seconds > 3600 || value.retained_progress > value.try_seconds || value.unit_mass < 0 ||
+                    value.unit_mass > 1000000000 || value.goal_mass < 0 || value.goal_mass > 1000000000 ||
+                    value.applied_marker > value.completed_tries || !point(w, value.target))
                     return fail("invalid work progress");
                 if (value.state == 0 &&
                     (!value.inputs.empty() || value.number != 0 || value.intended || value.recipe != kNoRecipe ||
                      value.completed_tries != 0 || value.applied_marker != 0 || value.rolled ||
                      value.retained_progress != 0 || value.start != 0 || value.active_start != 0 || value.end != 0 ||
-                     value.next_try != 0 || value.try_seconds != 0 || value.unit_mass != 0 || value.goal_mass != 0))
+                     value.next_try != 0 || value.try_seconds != 0 || value.unit_mass != 0 || value.goal_mass != 0 ||
+                     value.lesson != 0))
                     return fail("idle work contains pending progress");
                 raw.emplace<Work>(*h, std::move(value));
             } else
@@ -179,7 +194,10 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
             if (value.performed >= (1U << 21U) || value.next_work == 0 || value.next_memory == 0 ||
                 value.curiosity > 100 || value.kindness > 100 || value.curiosity_need > 100 || value.mood > 100 ||
                 value.learning_ppm < 0 || value.learning_ppm > 10000000 || value.settled < 0 ||
-                value.settled > w.frontier() || value.hourly_draw > static_cast<std::uint64_t>(w.frontier() / 3600 + 1))
+                value.settled > w.frontier() ||
+                value.hourly_draw > static_cast<std::uint64_t>(w.frontier() / 3600 + 1) ||
+                value.curiosity_remainder < 0 || value.curiosity_remainder >= time::kDay ||
+                !person(w, value.watching, true) || value.watching == id)
                 return fail("invalid knowledge quantities");
             for (const auto& p : value.sectors)
                 if (!practice(p, w.frontier())) return fail("invalid sector practice");
@@ -190,8 +208,8 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
             std::set<std::uint32_t> skills;
             for (const auto& s : value.skills)
                 if (!skills.insert(s.recipe).second || !practice(s.practice, w.frontier()) ||
-                    s.observation_quarters > 4 || s.observation_remainder < 0 || s.observation_remainder >= 1000000 ||
-                    s.route > 5 || !person(w, s.source, true))
+                    s.observation_quarters > 20 || s.observation_remainder < 0 || s.observation_remainder >= 1000000 ||
+                    s.route > 5 || s.known > 1 || !person(w, s.source, true))
                     return fail("invalid skill evidence");
             std::set<std::uint64_t> memories;
             for (const auto& m : value.memories) {
@@ -220,6 +238,22 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
                     return fail("invalid craft choice");
                 for (const auto& input : reason.inputs)
                     if (!item(w, input.id)) return fail("invalid choice input");
+            }
+            std::pair<ecs::Id, std::uint32_t> previous_peer{};
+            for (const auto& peer : value.peers) {
+                const auto key = std::pair{peer.person, peer.recipe};
+                if (!(previous_peer < key) || !person(w, peer.person) || peer.person == id || peer.knows > 1 ||
+                    peer.route < 1 || peer.route > 3 || peer.at < 0 || peer.at > w.frontier())
+                    return fail("invalid peer knowledge evidence");
+                previous_peer = key;
+            }
+            ecs::Id previous_observer{};
+            for (const auto& seen : value.observations) {
+                if (!(previous_observer < seen.person) || !person(w, seen.person) || seen.person == id ||
+                    seen.work == 0 || seen.attempt == 0 || seen.settled < 0 || seen.settled > w.frontier() ||
+                    seen.weighted_seconds < 0 || seen.weighted_seconds > 4 * time::kHour)
+                    return fail("invalid partial work observation");
+                previous_observer = seen.person;
             }
             raw.emplace<Knowledge>(w.beings().handle(id), std::move(value));
         }
@@ -255,6 +289,94 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
         }
         if (!r.finished()) return fail("trailing craft history records");
     }
+    // Cross references below may only dereference complete extension owners.
+    bool complete = true;
+    w.beings().each([&](ecs::Id, Beings::Handle h) {
+        if (raw.all_of<Person>(h) && !raw.all_of<Knowledge, Work, Life, demo::Home, Activity>(h)) complete = false;
+        if (raw.all_of<Camp>(h) && !raw.all_of<CraftHistory>(h)) complete = false;
+    });
+    if (!complete) return fail("missing personal craft state or camp history");
+    {
+        ByteReader r(save::find_chunk(chunks, save::tag("LEAR"))->data);
+        std::uint64_t count = 0;
+        ecs::Id last{};
+        if (!r.u64(count) || count != raw.view<Camp>().size()) return fail("invalid learning camp count");
+        for (std::uint64_t n = 0; n < count; ++n) {
+            ecs::Id id{};
+            Lessons value;
+            if (!r.u64(id.value) || !(last < id)) return fail("invalid learning camp order");
+            const auto h = w.beings().find(id);
+            if (!h || !raw.all_of<Camp>(*h) || !ecs::read_component(value, r, entries) || value.next == 0)
+                return fail("invalid learning camp record");
+            last = id;
+            std::uint64_t previous = 0;
+            std::set<ecs::Id> participants;
+            for (const auto& session : value.sessions) {
+                if (session.id <= previous || session.id >= value.next || !person(w, session.teacher) ||
+                    !person(w, session.learner) || session.teacher == session.learner ||
+                    !participants.insert(session.teacher).second || !participants.insert(session.learner).second ||
+                    !point(w, session.meeting) || session.state > 2 || session.offered < 0 ||
+                    session.offered > w.frontier() || session.begun < 0 || session.begun > w.frontier() ||
+                    (session.state != 0 && session.work != 0 && session.begun < session.offered) ||
+                    session.settled < session.offered || session.settled > w.frontier() || session.end < 0 ||
+                    session.seconds < 0 || session.begun > session.settled ||
+                    session.seconds > session.settled - session.begun || session.seconds >= 1800 ||
+                    session.credited_seconds < 0 || session.credited_seconds > session.seconds ||
+                    (session.state == 0 && (session.seconds != 0 || session.begun != 0)) ||
+                    (session.state == 1 &&
+                     (session.end < w.frontier() || session.end != session.settled + 1800 - session.seconds)))
+                    return fail("invalid shared practice progress or participants");
+                previous = session.id;
+                const auto centre = raw.get<Place>(*h).at;
+                const auto offset = w.torus().offset(centre, session.meeting);
+                const auto& patch = raw.get<Camp>(*h);
+                if (std::abs(offset.dx) > patch.half_width_cm || std::abs(offset.dy) > patch.half_height_cm ||
+                    demo::Living::route(w, id, centre, session.meeting).empty())
+                    return fail("shared practice meeting is outside reachable camp");
+                const auto teacher = w.beings().handle(session.teacher);
+                const auto learner = w.beings().handle(session.learner);
+                if (!raw.all_of<demo::Home, Knowledge, Work, Activity>(teacher) ||
+                    !raw.all_of<demo::Home, Knowledge, Work, Activity>(learner))
+                    return fail("shared practice participant is missing required state");
+                if (raw.get<demo::Home>(teacher).camp != id || raw.get<demo::Home>(learner).camp != id ||
+                    raw.get<Knowledge>(teacher).session != session.id ||
+                    raw.get<Knowledge>(learner).session != session.id || raw.get<Knowledge>(teacher).kindness < 60 ||
+                    std::none_of(raw.get<Knowledge>(teacher).skills.begin(), raw.get<Knowledge>(teacher).skills.end(),
+                                 [&](const auto& s) { return s.recipe == session.recipe && s.known; }))
+                    return fail("shared practice disagrees with personal knowledge");
+                const auto& work = raw.get<Work>(learner);
+                if ((session.work == 0 && (session.state != 2 || work.lesson != 0)) ||
+                    (session.work != 0 && (work.number != session.work || work.lesson != session.id || !work.intended ||
+                                           work.recipe != session.recipe || work.route != 5)) ||
+                    (session.state == 2 && work.lesson != 0 && work.state != 4))
+                    return fail("shared practice disagrees with learner work");
+                if (session.state < 2 &&
+                    (raw.get<Activity>(teacher).what != static_cast<std::uint8_t>(LivingAct::teach) ||
+                     raw.get<Activity>(teacher).end != session.end ||
+                     (session.state == 1 &&
+                      (work.state != 2 || work.end != session.end ||
+                       raw.get<Activity>(learner).what != static_cast<std::uint8_t>(LivingAct::craft))) ||
+                     (session.state == 0 && (work.state != 1 || raw.get<Activity>(learner).what !=
+                                                                    static_cast<std::uint8_t>(LivingAct::walk)))))
+                    return fail("shared practice disagrees with activity events");
+                if (session.state == 1 &&
+                    (w.torus().squared_distance(raw.get<Place>(teacher).at, raw.get<Place>(learner).at) > 200LL * 200 ||
+                     !demo::Living::visible(w, id, raw.get<Place>(teacher).at, raw.get<Place>(learner).at)))
+                    return fail("shared practice participants are separated");
+                if (session.last_try != 0) {
+                    const auto& history = raw.get<CraftHistory>(*h);
+                    if (std::none_of(history.events.begin(), history.events.end(), [&](const auto& e) {
+                            return e.id == session.last_try && e.actor == session.learner &&
+                                   e.recipe == session.recipe && e.route == 5 && e.at >= session.begun &&
+                                   e.at <= session.settled;
+                        }))
+                        return fail("shared practice has no actual credited try");
+                }
+            }
+            raw.emplace<Lessons>(*h, std::move(value));
+        }
+        if (!r.finished()) return fail("trailing learning records");
+    }
     bool valid = true;
     std::map<ecs::Id, std::int64_t> reserved;
     std::set<ecs::Id> tools;
@@ -274,7 +396,7 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
     });
     const auto events = w.queue().live_in_order([&](const auto& e) { return w.live(e); });
     w.beings().each([&](ecs::Id id, Beings::Handle h) {
-        if (raw.all_of<Camp>(h) && !raw.all_of<CraftHistory>(h)) valid = false;
+        if (raw.all_of<Camp>(h) && !raw.all_of<CraftHistory, Lessons>(h)) valid = false;
         if (!raw.all_of<Person>(h)) return;
         if (!raw.all_of<Work, Knowledge>(h)) {
             valid = false;
@@ -285,10 +407,14 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
         const auto& act = raw.get<Activity>(h);
         const auto& schedule = raw.get<Schedule>(h);
         const auto& know = raw.get<Knowledge>(h);
+        if (work.intended && work.lesson == 0 &&
+            std::none_of(know.skills.begin(), know.skills.end(),
+                         [&](const auto& s) { return s.recipe == work.recipe && s.known; }))
+            valid = false;
         if (work.number >= know.next_work ||
             (work.state != 0 && (work.number == 0 || work.inputs.empty() || work.try_seconds == 0)))
             valid = false;
-        if ((act.what >= 8) != (work.state == 2) || work.state == 3 ||
+        if ((act.what == static_cast<std::uint8_t>(LivingAct::craft)) != (work.state == 2) || work.state == 3 ||
             (work.state == 2 && (work.end != act.end || work.active_start != act.start || work.end < w.frontier())) ||
             (schedule.expected[2] != 0 &&
              (work.state != 2 || !work.intended || work.next_try < w.frontier() || work.next_try >= work.end)))
@@ -329,8 +455,54 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
             return n == 0 ||
                    std::any_of(history.events.begin(), history.events.end(), [&](const auto& e) { return e.id == n; });
         };
-        for (const auto& s : know.skills)
+        for (const auto& s : know.skills) {
             if (!event_exists(s.source_event)) valid = false;
+            if (s.source_event != 0 && std::none_of(history.events.begin(), history.events.end(), [&](const auto& e) {
+                    return e.id == s.source_event && e.recipe == s.recipe;
+                }))
+                valid = false;
+        }
+        const auto& sessions = raw.get<Lessons>(w.beings().handle(camp)).sessions;
+        const auto session = std::find_if(sessions.begin(), sessions.end(), [&](const auto& x) {
+            return x.id == know.session && (x.teacher == id || x.learner == id);
+        });
+        if ((know.session != 0 && session == sessions.end()) ||
+            (work.lesson != 0 && (session == sessions.end() || session->learner != id || work.lesson != session->id)) ||
+            (act.what == static_cast<std::uint8_t>(LivingAct::teach) &&
+             (session == sessions.end() || session->teacher != id || session->state == 2)) ||
+            ((act.what == static_cast<std::uint8_t>(LivingAct::watch_craft)) != (know.watching.value != 0)) ||
+            !event_exists(know.last_observed_event))
+            valid = false;
+        for (const auto& peer : know.peers) {
+            if (!event_exists(peer.event) || (peer.route == 3 && peer.event != 0) ||
+                (peer.route != 3 && peer.event == 0))
+                valid = false;
+            // The evidence record checks the route, never another person's private skill table.
+            if ((peer.route == 1 && !peer.knows) || (peer.route == 2 && peer.knows)) valid = false;
+            if (peer.event != 0 && std::none_of(history.events.begin(), history.events.end(), [&](const auto& e) {
+                    return e.id == peer.event && e.actor == peer.person && e.recipe == peer.recipe && e.at == peer.at &&
+                           (peer.route == 2 ? e.kind == 5 : e.kind == 0 || e.kind == 1);
+                }))
+                valid = false;
+        }
+        for (const auto& observation : know.observations) {
+            const auto other = w.beings().handle(observation.person);
+            if (raw.get<demo::Home>(other).camp != camp || observation.work >= raw.get<Knowledge>(other).next_work)
+                valid = false;
+            if (observation.weighted_seconds != 0) {
+                const auto* source_work = raw.try_get<Work>(other);
+                if (!source_work) {
+                    valid = false;
+                    continue;
+                }
+                const auto& source = *source_work;
+                if (source.number != observation.work || (source.state != 2 && source.state != 4) ||
+                    observation.attempt != source.completed_tries + 1 || observation.settled < source.start ||
+                    observation.weighted_seconds > 4 * (observation.settled - source.start) ||
+                    observation.weighted_seconds > 4 * source.try_seconds)
+                    valid = false;
+            }
+        }
         const auto evidence_valid = [&](const Familiar& f) {
             for (std::size_t i = 0; i < 18; ++i)
                 if (!person(w, f.source_people[i], true) || !event_exists(f.source_events[i])) valid = false;
