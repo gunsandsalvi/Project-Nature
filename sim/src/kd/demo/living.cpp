@@ -3,6 +3,7 @@
 #include <limits>
 #include "kd/chance/chance.hpp"
 #include "kd/demo/crafting.hpp"
+#include "kd/demo/learning.hpp"
 #include "kd/demo/parts.hpp"
 
 namespace kd::demo {
@@ -367,6 +368,7 @@ void Living::begin(world::Context& c, world::Beings::Handle h, LivingAct what, t
     const auto id = c.world().beings().id_of(h);
     auto& l = raw.get<world::Life>(h);
     auto& a = raw.get<world::Activity>(h);
+    if (auto* mind = raw.try_get<world::Knowledge>(h); mind && what != LivingAct::watch_craft) mind->watching = {};
     const auto from = raw.get<world::Place>(h).at;
     a = {static_cast<std::uint8_t>(what), c.now(), c.now() + std::max<time::Seconds>(1, takes), from, to};
     l.applied = 0;
@@ -526,8 +528,22 @@ void Living::continue_goal(world::Context& c, world::Beings::Handle h, ecs::Id c
         if (here != l.explore_at && !path.empty()) {
             const auto length = c.world().torus().distance(here, path.front()) * 10;
             begin(c, h, LivingAct::walk, (length + rules_.speed - 1) / rules_.speed, path.front());
-        } else
-            begin(c, h, LivingAct::watch, 3600, here);
+        } else {
+            ecs::Id target{};
+            c.world().beings().each([&](ecs::Id person, world::Beings::Handle other) {
+                const auto* work = raw.try_get<world::Work>(other);
+                if (other == h || !work || work->state != 2 || raw.get<Home>(other).camp != camp) return;
+                const auto at = raw.get<world::Activity>(other).at(c.world().torus(), c.now());
+                if (Learning::can_watch(c.world(), camp, here, at, c.now()) && (target.value == 0 || person < target))
+                    target = person;
+            });
+            if (target.value != 0) {
+                raw.get<world::Knowledge>(h).watching = target;
+                const auto end = raw.get<world::Work>(c.world().beings().handle(target)).end;
+                begin(c, h, LivingAct::watch_craft, std::min<time::Seconds>(3600, end - c.now()), here);
+            } else
+                begin(c, h, LivingAct::watch, 3600, here);
+        }
         return;
     }
     const auto ch = c.world().beings().handle(camp);
@@ -696,6 +712,7 @@ void Living::handle(world::Context& c, const event::Event& e) {
     auto& raw = c.world().beings().raw();
     const auto old = static_cast<LivingAct>(raw.get<world::Activity>(h).what);
     const auto interrupted = e.slot == kUrgent;
+    Learning::observe(c, h);
     settle(c, h, camp, interrupted);
     c.cancel(id, world::kActivitySlot);
     c.cancel(id, kUrgent);

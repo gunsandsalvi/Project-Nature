@@ -3,6 +3,7 @@
 #include "kd/chance/chance.hpp"
 #include "kd/demo/crafting.hpp"
 #include "kd/demo/discovery.hpp"
+#include "kd/demo/learning.hpp"
 #include "kd/demo/living.hpp"
 #include "kd/num/sort.hpp"
 namespace kd::demo {
@@ -62,6 +63,7 @@ void release(world::Context& c, world::Beings::Handle h) {
         if (r.picked) c.world().things().raw().get<world::Place>(c.world().things().handle(r.item)).at = here;
         c.item_changed(r.item);
     }
+    Learning::forget_work(c, h);
     work = {};
     c.cancel(person, 2);
 }
@@ -343,7 +345,8 @@ void resolve(world::Context& c, world::Beings::Handle h, std::uint32_t recipe, s
         for (auto& r : work.inputs)
             if (r.item == roles[role]) r.mass = std::min(r.mass, mutable_item(w, r.item).mass);
     }
-    (void)Discovery::result(c, h, recipe, actual, perceived, made, success, unknown, route);
+    const auto event = Discovery::result(c, h, recipe, actual, perceived, made, success, unknown, route);
+    Learning::demonstrated(c, h, event);
     auto& know = raw.get<world::Knowledge>(h);
     for (auto& skill : know.skills)
         if (skill.recipe == recipe) skill.practice.last_use = c.now();
@@ -598,6 +601,7 @@ void Crafting::settle(Living& living, world::Context& c, world::Beings::Handle h
         if (interrupted && work.state == 1) release(c, h);
         return;
     }
+    Learning::observe_maker(c, h);
     if (interrupted) {
         c.cancel(person, 2);
         if (work.action == 2)

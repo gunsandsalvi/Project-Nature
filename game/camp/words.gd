@@ -55,6 +55,7 @@ static func person(p: Dictionary, details: bool, now: int) -> String:
 		if int(p.work_state) == 4:
 			words += "\n%d seconds of gradual work kept." % int(p.work_progress)
 		if details:
+			words += "\n\nChose this at %s." % when(int(p.decision_at), now)
 			words += (
 				"\nWork began at %s. Reserved inputs: %d."
 				% [when(int(p.work_start), now), p.work_inputs.size()]
