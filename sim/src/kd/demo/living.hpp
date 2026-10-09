@@ -9,7 +9,8 @@ public:
     void handle(world::Context& c, const event::Event& e) override;
     void opened(world::World& w) override;
     [[nodiscard]] bool serial_windows(const world::World& w) const override {
-        return !w.beings().raw().view<world::Work>().empty();
+        return !w.beings().raw().view<world::Work>().empty() || !w.things().raw().view<world::Fire>().empty() ||
+               !w.things().raw().view<world::HeatTimer>().empty();
     }
     void start(world::World& w);
     static constexpr std::uint32_t kPlaceDream = 2;
@@ -27,7 +28,8 @@ public:
     void near(const world::World& w, time::Seconds a, time::Seconds b, const world::Bound& bound,
               std::vector<ecs::Id>& out) const override;
     [[nodiscard]] static std::array<std::int64_t, 3> needs(const world::Life& life);
-    [[nodiscard]] world::Life sample(world::Life life, const world::Activity& act, time::Seconds t) const;
+    [[nodiscard]] world::Life sample(world::Life life, const world::Activity& act, time::Seconds t,
+                                     std::int64_t extra_water = 0) const;
     [[nodiscard]] static std::vector<num::Point> route(const world::World& w, ecs::Id camp, num::Point from,
                                                        num::Point to);
     [[nodiscard]] static bool visible(const world::World& w, ecs::Id camp, num::Point from, num::Point to);
@@ -39,6 +41,7 @@ private:
     friend class Learning;
     [[nodiscard]] num::Point use_spot(const world::World& w, world::Beings::Handle h, ecs::Id camp,
                                       std::size_t need) const;
+    void thermal_alarm(world::Context& c, world::Beings::Handle h);
     void notice(world::Context& c, world::Beings::Handle h, ecs::Id camp);
     void choose(world::Context& c, world::Beings::Handle h, ecs::Id camp);
     void continue_goal(world::Context& c, world::Beings::Handle h, ecs::Id camp);

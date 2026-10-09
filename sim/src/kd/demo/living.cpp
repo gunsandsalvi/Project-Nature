@@ -33,7 +33,8 @@ void body(world::Life& l, const LivingRules& rules, LivingAct act, time::Seconds
     l.water -= water_units / kDay;
     l.food_remainder = food_units % kDay;
     l.water_remainder = water_units % kDay;
-    l.awake = std::clamp<std::int64_t>(l.awake + (act == LivingAct::rest ? -2 * elapsed : elapsed), 0, kAwake);
+    l.awake = std::clamp<std::int64_t>(
+        l.awake + ((act == LivingAct::rest || act == LivingAct::warm) ? -2 * elapsed : elapsed), 0, kAwake);
     l.settled = t;
 }
 std::int64_t share(const world::Activity& a, std::int64_t portion, time::Seconds t) {
@@ -60,7 +61,7 @@ Living::Living(world::World& w) : rules_(tuning(w.catalogue())) {
 std::array<std::int64_t, 3> Living::needs(const world::Life& l) {
     return {l.food * 100 / kFood, l.water * 100 / kWater, 100 - l.awake * 100 / kAwake};
 }
-world::Life Living::sample(world::Life l, const world::Activity& a, time::Seconds t) const {
+world::Life Living::sample(world::Life l, const world::Activity& a, time::Seconds t, std::int64_t extra_water) const {
     t = std::clamp(t, a.start, a.end);
     const auto act = static_cast<LivingAct>(a.what);
     body(l, rules_, act, t);
@@ -80,7 +81,7 @@ world::Life Living::sample(world::Life l, const world::Activity& a, time::Second
     }
     // Intake and depletion belong to the same elapsed interval. Clamp only their net result.
     l.food = std::clamp<std::int64_t>(l.food, 0, kFood);
-    l.water = std::clamp<std::int64_t>(l.water, 0, kWater);
+    l.water = std::clamp<std::int64_t>(l.water - extra_water, 0, kWater);
     return l;
 }
 std::vector<num::Point> Living::route(const world::World& w, ecs::Id camp, num::Point from, num::Point to) {
@@ -404,18 +405,43 @@ void Living::begin(world::Context& c, world::Beings::Handle h, LivingAct what, t
     l.applied = 0;
     c.schedule(id, world::kActivitySlot, a.end);
     c.cancel(id, kUrgent);
+    FireRules::experience(c, h);
     auto urgent = a.end;
     if (what != LivingAct::eat && l.food >= kFood / 5)
         urgent = std::min(urgent, c.now() + ((l.food - kFood / 5) * kDay - l.food_remainder) / rules_.food_day + 1);
-    if (what != LivingAct::drink && what != LivingAct::eat && l.water >= kWater / 5)
-        urgent = std::min(urgent, c.now() + ((l.water - kWater / 5) * kDay - l.water_remainder) / rules_.water_day + 1);
+    if (what != LivingAct::drink && what != LivingAct::eat && l.water >= kWater / 5) {
+        const auto* thermal = raw.try_get<world::Thermal>(h);
+        const auto above = thermal ? std::max<std::int64_t>(0, thermal->felt_milli_c - 32000) : 0;
+        const auto rate = rules_.water_day * (100000 + 2 * above);
+        const auto remainder = l.water_remainder * 100000 + (thermal ? thermal->water_remainder : 0);
+        urgent = std::min(urgent, c.now() + ((l.water - kWater / 5) * kDay * 100000 - remainder) / rate + 1);
+    }
     // Exhaustion must still interrupt work that began after the earlier fatigue warning.
-    if (what != LivingAct::rest) urgent = std::min(urgent, c.now() + kAwake - l.awake);
-    if (what != LivingAct::rest && l.awake <= kAwake * 4 / 5)
+    if (what != LivingAct::rest && what != LivingAct::warm) urgent = std::min(urgent, c.now() + kAwake - l.awake);
+    if (what != LivingAct::rest && what != LivingAct::warm && l.awake <= kAwake * 4 / 5)
         urgent = std::min(urgent, c.now() + kAwake * 4 / 5 - l.awake + 1);
     if (urgent < a.end) c.schedule(id, kUrgent, std::max(c.now() + 1, urgent));
     if (what == LivingAct::rest) sleep_dream(c, h, raw.get<Home>(h).camp);
     c.moved(id);
+}
+void Living::thermal_alarm(world::Context& c, world::Beings::Handle h) {
+    auto& w = c.world();
+    const auto& raw = w.beings().raw();
+    const auto& a = raw.get<world::Activity>(h);
+    if (a.what == 5 || a.what == 6 || a.end <= c.now()) return;
+    const auto& thermal = raw.get<world::Thermal>(h);
+    const auto body = sample(raw.get<world::Life>(h), a, c.now(), thermal.water_due_ml);
+    const auto above = std::max<std::int64_t>(0, thermal.felt_milli_c - 32000);
+    if (!above) return;  // baseline alarms already belong to the person's current plan
+    const auto rate = rules_.water_day * (100000 + 2 * above);
+    const auto remainder = body.water_remainder * 100000 + thermal.water_remainder;
+    const auto due =
+        c.now() + std::max<std::int64_t>(1, ((body.water - kWater / 5) * kDay * 100000 - remainder) / rate + 1);
+    if (due >= a.end) return;
+    const auto person = w.beings().id_of(h);
+    for (const auto& event : w.queue().live_in_order([&](const auto& e) { return w.live(e); }))
+        if (event.key.owner == person.value && event.slot == kUrgent && event.key.second <= due) return;
+    c.schedule(person, kUrgent, due);
 }
 void Living::choose(world::Context& c, world::Beings::Handle h, ecs::Id camp) {
     if (c.world().beings().raw().all_of<world::Knowledge>(h)) Learning::settle_mind(c, h);
@@ -500,6 +526,7 @@ void Living::choose(world::Context& c, world::Beings::Handle h, ecs::Id camp) {
         thought.decision_pull = kDreamPull;
         thought.decision_subject = thought.subject;
     }
+    if (FireRules::choose_warm(*this, c, h)) return;
     if (FireRules::choose(*this, c, h)) return;
     if (Learning::choose(*this, c, h)) return;
     if (Crafting::choose(*this, c, h)) return;
@@ -643,7 +670,10 @@ void Living::settle(world::Context& c, world::Beings::Handle h, ecs::Id camp, bo
     auto& a = raw.get<world::Activity>(h);
     const auto act = static_cast<LivingAct>(a.what);
     const auto elapsed = c.now() - l.settled;
-    const auto projected = sample(l, a, c.now());
+    FireRules::experience(c, h);
+    auto* thermal = raw.try_get<world::Thermal>(h);
+    const auto projected = sample(l, a, c.now(), thermal ? thermal->water_due_ml : 0);
+    if (thermal) thermal->water_due_ml = 0;
     l.food = projected.food;
     l.water = projected.water;
     l.awake = projected.awake;
@@ -739,6 +769,11 @@ void Living::handle(world::Context& c, const event::Event& e) {
     if (id.family() == ecs::Family::place) {
         if (e.slot >= 2) {
             FireRules::handle(c, id, e.slot);
+            c.world().beings().each([&](ecs::Id, world::Beings::Handle person) {
+                const auto& raw = c.world().beings().raw();
+                if (raw.all_of<world::Thermal, Home>(person) && raw.get<Home>(person).camp == id)
+                    thermal_alarm(c, person);
+            });
             return;
         }
         renew(c, h);
@@ -754,6 +789,13 @@ void Living::handle(world::Context& c, const event::Event& e) {
     settle(c, h, camp, interrupted);
     c.cancel(id, world::kActivitySlot);
     c.cancel(id, kUrgent);
+    const auto* warm = raw.try_get<world::Thermal>(h);
+    const bool was_warming = warm && warm->warm_phase;
+    if (FireRules::continue_warm(*this, c, h, interrupted)) return;
+    if (was_warming) {
+        choose(c, h, camp);
+        return;
+    }
     const auto* thermal = raw.try_get<world::Thermal>(h);
     const bool was_tending = thermal && thermal->tending;
     if (FireRules::continue_tending(*this, c, h, interrupted)) return;

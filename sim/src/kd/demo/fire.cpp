@@ -99,6 +99,9 @@ void FireRules::fresh_hearth(world::World& w) {
         i.length = 500;
         i.parents = std::move(parents);
         i.made_at = w.frontier();
+        i.state = 3;
+        i.changed_mask = 1U << 12U;
+        i.changed[12] = 3;
         auto& f = w.things().raw().emplace<Fire>(h);
         f.hearth = camp;
         f.at = here;
@@ -132,6 +135,7 @@ void FireRules::ember(world::Context& c, ecs::Id id) {
 }
 void FireRules::settle_fire(world::Context& c, ecs::Id id) {
     auto& w = c.world();
+    thermal_before(c, fire(w, id).hearth);
     auto& f = fire(w, id);
     const auto elapsed = c.now() - f.settled_at;
     const auto units = rate(f) * elapsed + f.burn_remainder;
@@ -200,6 +204,7 @@ void FireRules::settle_fire(world::Context& c, ecs::Id id) {
         remains.changed_mask = 0;
         remains.changed.fill(0);
     }
+    thermal_after(c, f.hearth);
     c.item_changed(id);
 }
 bool FireRules::feed(world::Context& c, ecs::Id hearth, ecs::Id input, std::int64_t mass, ecs::Id person) {
@@ -229,6 +234,7 @@ bool FireRules::feed(world::Context& c, ecs::Id hearth, ecs::Id input, std::int6
     if (!item(w, input).mass) item(w, input).state = 4;
     f.next = f.heat ? next_fire(f) : 0;
     if (!f.heat) settle_fire(c, hearth);
+    thermal_after(c, f.hearth);
     c.item_changed(input);
     c.item_changed(hearth);
     deadlines(c, f.hearth);
@@ -257,6 +263,7 @@ bool FireRules::bank(world::Context& c, ecs::Id hearth) {
     f.banked_until = c.now() + 12 * time::kHour;
     f.embers_until = f.banked_until;
     f.next = next_fire(f);
+    thermal_after(c, f.hearth);
     deadlines(c, f.hearth);
     return true;
 }
@@ -335,6 +342,7 @@ void FireRules::deadlines(world::Context& c, ecs::Id camp) {
 }
 void FireRules::handle(world::Context& c, ecs::Id camp, std::uint32_t slot) {
     auto& w = c.world();
+    thermal_before(c, camp);
     auto& a = w.beings().raw().get<world::Ambient>(w.beings().handle(camp));
     if (slot == 2 && a.next <= c.now()) {
         a.milli_c = ambient(c.now());
@@ -373,6 +381,7 @@ void FireRules::handle(world::Context& c, ecs::Id camp, std::uint32_t slot) {
         f.next = next_fire(f);
         c.item_changed(id);
     }
+    thermal_after(c, camp);
     deadlines(c, camp);
 }
 bool FireRules::choose(Living& living, world::Context& c, world::Beings::Handle h) {

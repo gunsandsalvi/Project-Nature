@@ -1,0 +1,217 @@
+#include "kd/demo/discovery.hpp"
+#include "kd/demo/fire.hpp"
+#include "kd/demo/living.hpp"
+namespace kd::demo {
+namespace {
+struct Felt {
+    std::int64_t temperature = 18000;
+    ecs::Id source{};
+};
+Felt felt(const world::World& w, world::Beings::Handle h, time::Seconds at) {
+    const auto& raw = w.beings().raw();
+    const auto camp = raw.get<Home>(h).camp;
+    const auto* ambient = raw.try_get<world::Ambient>(w.beings().handle(camp));
+    Felt out{ambient ? ambient->milli_c : FireRules::ambient(at), {}};
+    const auto here = raw.get<world::Activity>(h).at(w.torus(), at);
+    const auto& things = w.things().raw();
+    for (const auto th : things.view<world::Fire>()) {
+        const auto& f = things.get<world::Fire>(th);
+        if (f.hearth != camp || f.heat < 2) continue;
+        const auto place =
+            f.owner.value ? raw.get<world::Activity>(w.beings().handle(f.owner)).at(w.torus(), at) : f.at;
+        if (w.torus().squared_distance(here, place) > 200LL * 200) continue;
+        const auto id = w.things().id_of(th);
+        if (!out.source.value || id < out.source) out.source = id;
+    }
+    if (out.source.value) out.temperature += 15000;
+    return out;
+}
+bool moving_heat(const world::World& w) {
+    for (const auto th : w.things().raw().view<world::Fire>()) {
+        const auto& f = w.things().raw().get<world::Fire>(th);
+        if (f.heat >= 2 && f.owner.value) {
+            const auto& a = w.beings().raw().get<world::Activity>(w.beings().handle(f.owner));
+            if (a.from != a.to) return true;
+        }
+    }
+    return false;
+}
+void clear_warm(world::Thermal& t) {
+    t.warm_phase = 0;
+    t.warm_fire = {};
+    t.warm_at = {};
+}
+}  // namespace
+std::int64_t FireRules::warmth(std::int64_t milli_c, world::LivingAct action) {
+    const bool work = action == world::LivingAct::craft || action == world::LivingAct::tend ||
+                      action == world::LivingAct::gather || action == world::LivingAct::carry ||
+                      action == world::LivingAct::walk;
+    const auto comfort = work ? 14000 : 24000;
+    return std::clamp<std::int64_t>(100 - 5 * std::max<std::int64_t>(0, comfort - milli_c) / 1000, 0, 100);
+}
+world::Thermal FireRules::sample_thermal(const world::World& w, world::Beings::Handle h, time::Seconds at) {
+    const auto& raw = w.beings().raw();
+    auto t = raw.get<world::Thermal>(h);
+    const auto& a = raw.get<world::Activity>(h);
+    at = std::clamp(at, a.start, a.end);
+    const auto water = w.catalogue().kind<LivingRules>()[0].water_day;
+    const auto charge = [&](Felt feeling, time::Seconds seconds) {
+        const auto numerator =
+            seconds * water * std::max<std::int64_t>(0, feeling.temperature - 32000) * 2 + t.water_remainder;
+        const auto used = numerator / (time::kDay * 100000);
+        t.water_remainder = numerator % (time::kDay * 100000);
+        t.water_used_ml += used;
+        t.water_due_ml += used;
+        if (feeling.source.value) t.warming_progress += seconds;
+    };
+    const auto begin = std::max(t.settled_at, a.start);
+    if (at > begin) {
+        if (a.from == a.to && !moving_heat(w))
+            charge(felt(w, h, begin), at - begin);
+        else
+            for (auto second = begin; second < at; ++second) charge(felt(w, h, second), 1);
+    }
+    const auto current = felt(w, h, at);
+    t.felt_milli_c = current.temperature;
+    t.warmth = warmth(current.temperature, static_cast<world::LivingAct>(a.what));
+    t.settled_at = std::max(t.settled_at, at);
+    return t;
+}
+void FireRules::thermal_before(world::Context& c, ecs::Id camp) {
+    auto& w = c.world();
+    auto& raw = w.beings().raw();
+    w.beings().each([&](ecs::Id id, auto h) {
+        if (raw.all_of<world::Thermal, Home>(h) && raw.get<Home>(h).camp == camp) {
+            raw.get<world::Thermal>(h) = sample_thermal(w, h, c.now());
+            c.moved(id);
+        }
+    });
+}
+void FireRules::thermal_after(world::Context& c, ecs::Id camp) {
+    auto& w = c.world();
+    auto& raw = w.beings().raw();
+    for (const auto th : w.things().raw().view<world::Fire>()) {
+        const auto& f = w.things().raw().get<world::Fire>(th);
+        if (f.hearth != camp) continue;
+        auto& physical = w.things().raw().get<world::Item>(th);
+        const auto state = static_cast<std::uint8_t>(physical.mass ? (f.heat >= 2 ? 3 : 0) : 4);
+        const auto warmth = static_cast<std::uint8_t>(f.heat >= 2 ? 3 : f.heat == 1 ? 1 : 0);
+        if (physical.state == state && physical.changed[12] == warmth) continue;
+        physical.state = state;
+        physical.changed_mask |= 1U << 12U;
+        physical.changed[12] = warmth;
+        c.item_changed(w.things().id_of(th));
+    }
+    w.beings().each([&](ecs::Id id, auto h) {
+        if (!raw.all_of<world::Thermal, Home>(h) || raw.get<Home>(h).camp != camp) return;
+        auto& t = raw.get<world::Thermal>(h);
+        const auto current = felt(w, h, c.now());
+        t.felt_milli_c = current.temperature;
+        t.warmth = warmth(current.temperature, static_cast<world::LivingAct>(raw.get<world::Activity>(h).what));
+        c.moved(id);
+    });
+}
+void FireRules::experience(world::Context& c, world::Beings::Handle h) {
+    auto& w = c.world();
+    auto& raw = w.beings().raw();
+    if (!raw.all_of<world::Thermal>(h)) return;
+    auto& t = raw.get<world::Thermal>(h);
+    t = sample_thermal(w, h, c.now());
+    const auto current = felt(w, h, c.now());
+    if (!current.source.value || !t.warming_progress || raw.get<world::Activity>(h).what == 2) return;
+    auto& know = raw.get<world::Knowledge>(h);
+    if (std::any_of(know.memories.begin(), know.memories.end(),
+                    [&](const auto& m) { return m.action == 12 && m.sign == 13 && m.result == current.source; }))
+        return;
+    Discovery::learn(c, h, current.source, 1U << 12U, 3);
+    const auto& physical = w.things().raw().get<world::Item>(w.things().handle(current.source));
+    const auto* remembered = Discovery::familiar(know, physical);
+    KD_CHECK(remembered, "Actual experienced fire has personal evidence");
+    Discovery::memory(c, h, 12, {*remembered}, 13, current.source, 0, 70);
+}
+bool FireRules::choose_warm(Living& living, world::Context& c, world::Beings::Handle h) {
+    auto& w = c.world();
+    auto& raw = w.beings().raw();
+    auto* t = raw.try_get<world::Thermal>(h);
+    if (!t || t->warm_phase || t->tending || t->warm_blocked_until > c.now()) return false;
+    const auto wanted = warmth(t->felt_milli_c, world::LivingAct::rest);
+    if (wanted >= 100 || (raw.get<world::Work>(h).state && wanted >= 20)) return false;
+    const auto& l = raw.get<world::Life>(h);
+    if (*std::min_element(l.decision_needs.begin(), l.decision_needs.end()) < 20) return false;
+    const auto here = raw.get<world::Place>(h).at;
+    const auto camp = raw.get<Home>(h).camp;
+    ecs::Id source{};
+    num::Point spot{};
+    const auto clock = c.now() % time::kDay;
+    const auto range = clock >= 6 * time::kHour && clock < 20 * time::kHour ? 3000 : 500;
+    for (const auto th : w.things().raw().view<world::Fire>()) {
+        const auto& f = w.things().raw().get<world::Fire>(th);
+        const auto id = w.things().id_of(th);
+        if (f.hearth != camp || f.heat < 2 || f.owner.value || w.torus().squared_distance(here, f.at) > range * range ||
+            !Living::visible(w, camp, here, f.at) || (source.value && source < id))
+            continue;
+        const auto proposed = w.torus().moved(f.at, {160, 0});
+        if (Living::route(w, camp, here, proposed).empty()) continue;
+        source = id;
+        spot = proposed;
+    }
+    if (!source.value) {
+        const auto& know = raw.get<world::Knowledge>(h);
+        for (const auto& memory : know.memories) {
+            if (memory.action != 12 || memory.sign != 13 || !memory.result.value || !w.things().find(memory.result))
+                continue;
+            const auto th = w.things().handle(memory.result);
+            const auto* f = w.things().raw().try_get<world::Fire>(th);
+            if (!f || f->hearth != camp) continue;
+            if (w.torus().squared_distance(here, f->at) <= range * range && Living::visible(w, camp, here, f->at) &&
+                f->heat < 2)
+                continue;
+            if (!Living::route(w, camp, here, memory.place).empty()) {
+                source = memory.result;
+                spot = memory.place;
+                break;
+            }
+        }
+    }
+    if (!source.value) return false;
+    const auto score = (wanted < 20 ? 200 : std::max<std::int64_t>(0, 80 - wanted)) * (100 - wanted) * 10 -
+                       w.torus().distance(here, spot) / 100;
+    if (score <= l.scores[l.goal]) return false;
+    t->warm_fire = source;
+    t->warm_at = spot;
+    t->warm_phase = 1;
+    return continue_warm(living, c, h, false);
+}
+bool FireRules::continue_warm(Living& living, world::Context& c, world::Beings::Handle h, bool interrupted) {
+    auto& w = c.world();
+    auto& raw = w.beings().raw();
+    auto* t = raw.try_get<world::Thermal>(h);
+    if (!t || !t->warm_phase) return false;
+    if (interrupted || t->warm_phase == 2) {
+        clear_warm(*t);
+        return false;
+    }
+    const auto here = raw.get<world::Place>(h).at;
+    if (here != t->warm_at) {
+        const auto path = Living::route(w, raw.get<Home>(h).camp, here, t->warm_at);
+        if (path.empty()) {
+            clear_warm(*t);
+            return false;
+        }
+        raw.get<world::Life>(h).portion = 0;
+        living.begin(c, h, world::LivingAct::walk,
+                     (w.torus().distance(here, path.front()) * 10 + living.rules_.speed - 1) / living.rules_.speed,
+                     path.front());
+        return true;
+    }
+    if (!felt(w, h, c.now()).source.value) {
+        t->warm_blocked_until = c.now() + time::kHour;
+        clear_warm(*t);
+        return false;
+    }
+    t->warm_phase = 2;
+    raw.get<world::Life>(h).portion = 0;
+    living.begin(c, h, world::LivingAct::warm, 1800, here);
+    return true;
+}
+}  // namespace kd::demo

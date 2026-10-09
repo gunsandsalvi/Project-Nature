@@ -136,8 +136,21 @@ bool load_fire(World& w, std::span<const save::Chunk> chunks, const ecs::EntryMa
                     t.settled_at > now || t.warming_progress < 0 || t.warming_progress > now || t.water_remainder < 0 ||
                     t.water_remainder >= time::kDay * 100000 || t.water_used_ml < 0 || t.tending > 4 ||
                     t.tending_phase > 3 || t.tending_shared > 1 || t.tending_mass < 0 || t.tending_started < 0 ||
-                    t.tending_started > now)
+                    t.tending_started > now || t.water_due_ml < 0 || t.water_due_ml > t.water_used_ml ||
+                    t.warm_phase > 2 || t.warm_blocked_until < 0 || (t.warm_phase && t.tending))
                     return fail("invalid felt temperature or thermal remainder");
+                if (!t.warm_phase && (t.warm_fire.value || t.warm_at != num::Point{}))
+                    return fail("idle person has a warming plan");
+                if (t.warm_phase) {
+                    const auto source = w.things().find(t.warm_fire);
+                    const auto& act = beings.get<Activity>(*h);
+                    if (!source || !things.all_of<Fire>(*source) ||
+                        things.get<Fire>(*source).hearth != beings.get<demo::Home>(*h).camp ||
+                        (t.warm_phase == 1 ? act.what != 1 : act.what != 11) ||
+                        (beings.get<Work>(*h).state != 0 && beings.get<Work>(*h).state != 4) || t.warm_at.x < 0 ||
+                        t.warm_at.y < 0 || t.warm_at.x >= w.torus().width() || t.warm_at.y >= w.torus().height())
+                        return fail("invalid remembered warming source or activity");
+                }
                 if (!t.tending && (t.tending_fire.value || t.tending_input.value || t.tending_phase || t.tending_mass ||
                                    t.tending_shared || t.tending_started))
                     return fail("idle person has pending tending state");

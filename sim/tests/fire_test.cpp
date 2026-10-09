@@ -466,3 +466,124 @@ TEST_CASE("rebanking the same ember cannot extend its saved lifetime") {
     CHECK_FALSE(ops.applied);
     CHECK(ops.fixture.fire().banked_until == until);
 }
+TEST_CASE("warmth_two_metres follows physical distance and working comfort") {
+    FireFixture f;
+    auto& w = f.camp.world();
+    kd::ecs::Id person{};
+    w.beings().each([&](kd::ecs::Id id, auto h) {
+        if (!person.value && w.beings().raw().all_of<kd::world::Person>(h)) person = id;
+    });
+    const auto h = w.beings().handle(person);
+    auto& raw = w.beings().raw();
+    for (const auto distance : {200, 201}) {
+        const auto place = w.torus().moved(f.fire().at, {distance, 0});
+        raw.get<kd::world::Place>(h).at = place;
+        raw.get<kd::world::Activity>(h) = {0, 0, kd::time::kDay, place, place};
+        raw.get<kd::world::Thermal>(h) = {};
+        const auto t = kd::demo::FireRules::sample_thermal(w, h, 3600);
+        CHECK(t.felt_milli_c == (distance == 200 ? 33000 : 18000));
+        CHECK(t.warmth == (distance == 200 ? 100 : 70));
+    }
+    CHECK(kd::demo::FireRules::warmth(18000, kd::world::LivingAct::craft) == 100);
+    CHECK(kd::demo::FireRules::warmth(18000, kd::world::LivingAct::rest) == 70);
+    CHECK(kd::demo::FireRules::warmth(5000, kd::world::LivingAct::rest) < 20);
+}
+TEST_CASE("thermal water rate keeps every fraction across tiny settlements and net intake") {
+    FireFixture f;
+    auto& w = f.camp.world();
+    auto& raw = w.beings().raw();
+    raw.get<kd::world::Ambient>(w.beings().handle(f.home)).milli_c = 24000;
+    kd::ecs::Id person{};
+    w.beings().each([&](kd::ecs::Id id, auto h) {
+        if (!person.value && raw.all_of<kd::world::Person>(h)) person = id;
+    });
+    const auto h = w.beings().handle(person);
+    const auto here = f.fire().at;
+    raw.get<kd::world::Place>(h).at = here;
+    raw.get<kd::world::Activity>(h) = {0, 0, kd::time::kDay, here, here};
+    raw.get<kd::world::Thermal>(h) = {};
+    const auto direct = kd::demo::FireRules::sample_thermal(w, h, kd::time::kDay);
+    const auto rate = w.catalogue().kind<kd::demo::LivingRules>()[0].water_day;
+    CHECK(direct.water_used_ml == rate * 14 / 100);
+    CHECK(direct.water_due_ml == direct.water_used_ml);
+    for (kd::time::Seconds second = 1; second <= kd::time::kDay; ++second)
+        raw.get<kd::world::Thermal>(h) = kd::demo::FireRules::sample_thermal(w, h, second);
+    kd::ByteWriter a, b;
+    kd::ecs::write_component(direct, a);
+    kd::ecs::write_component(raw.get<kd::world::Thermal>(h), b);
+    CHECK(a.take() == b.take());
+    kd::demo::Living living(w);
+    kd::world::Life body;
+    body.water = 3000;
+    body.portion = 3000;
+    body.allocated_water = 3000;
+    const kd::world::Activity drink{6, 0, kd::time::kHour, here, here};
+    const auto extra_hour = rate * 14 * kd::time::kHour / (100 * kd::time::kDay);
+    CHECK(living.sample(body, drink, kd::time::kHour, extra_hour).water == 3000);
+}
+TEST_CASE("thermal readers refuse negative deferred water and invalid warming plans") {
+    for (int fault = 0; fault < 4; ++fault) {
+        FireFixture f;
+        auto& w = f.camp.world();
+        kd::ecs::Id person{};
+        w.beings().each([&](kd::ecs::Id id, auto h) {
+            if (!person.value && w.beings().raw().all_of<kd::world::Person>(h)) person = id;
+        });
+        auto& t = w.beings().raw().get<kd::world::Thermal>(w.beings().handle(person));
+        if (fault == 0) t.water_due_ml = -1;
+        if (fault == 1) t.water_due_ml = 1;
+        if (fault == 2) {
+            t.warm_phase = 1;
+            t.warm_fire = {999};
+        }
+        if (fault == 3) {
+            t.warm_phase = 2;
+            t.warm_fire = f.hearth;
+        }
+        std::string why;
+        CHECK_FALSE(reopen_fire(w, why));
+        CHECK_FALSE(why.empty());
+    }
+}
+
+TEST_CASE("ordinary warming preserves its walk and reopen and records only actual experienced warmth") {
+    FireOperations ops;
+    auto& w = ops.fixture.camp.world();
+    auto& raw = w.beings().raw();
+    kd::ecs::Id person{};
+    w.beings().each([&](kd::ecs::Id id, auto h) {
+        if (!raw.all_of<kd::world::Knowledge>(h)) return;
+        CHECK(raw.get<kd::world::Knowledge>(h).memories.empty());
+        if (!person.value) person = id;
+    });
+    const auto h = w.beings().handle(person);
+    const auto cold = w.torus().moved(ops.fixture.fire().at, {201, 0});
+    raw.get<kd::world::Place>(h).at = cold;
+    raw.get<kd::world::Activity>(h) = {0, 0, 60, cold, cold};
+    w.schedule(person, 0, 60);
+    w.run_to(61);
+    CHECK(raw.get<kd::world::Thermal>(h).warm_phase == 1);
+    CHECK(raw.get<kd::world::Activity>(h).what == 1);
+    std::string why;
+    auto opened = reopen_fire(w, why);
+    INFO(why);
+    REQUIRE(opened);
+    w.run_to(62);
+    opened->world().run_to(62);
+    CHECK(raw.get<kd::world::Thermal>(h).warm_phase == 2);
+    CHECK(raw.get<kd::world::Activity>(h).what == 11);
+    CHECK(w.digests().whole == opened->world().digests().whole);
+    kd::run::Workers workers(4);
+    w.run_to(1862);
+    opened->world().run_islands(1862, workers, 1);
+    CHECK(w.digests().whole == opened->world().digests().whole);
+    const auto& know = raw.get<kd::world::Knowledge>(h);
+    const auto memory = std::find_if(know.memories.begin(), know.memories.end(),
+                                     [](const auto& m) { return m.action == 12 && m.sign == 13; });
+    REQUIRE(memory != know.memories.end());
+    CHECK(memory->at > 0);
+    CHECK(memory->result.value != 0);
+    REQUIRE_FALSE(memory->inputs.empty());
+    CHECK(memory->inputs[0].values[12] == 3);
+    CHECK((know.performed & (1U << 12U)) == 0);  // feeling heat is not performing the heat action
+}

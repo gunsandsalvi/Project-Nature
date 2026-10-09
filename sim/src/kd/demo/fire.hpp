@@ -6,6 +6,13 @@ class Living;
 class FireRules {
 public:
     static void start(world::World& w);
+    static world::Thermal sample_thermal(const world::World& w, world::Beings::Handle person, time::Seconds at);
+    static void thermal_before(world::Context& c, ecs::Id camp);
+    static void thermal_after(world::Context& c, ecs::Id camp);
+    static void experience(world::Context& c, world::Beings::Handle person);
+    static bool choose_warm(Living& living, world::Context& c, world::Beings::Handle person);
+    static bool continue_warm(Living& living, world::Context& c, world::Beings::Handle person, bool interrupted);
+    static std::int64_t warmth(std::int64_t milli_c, world::LivingAct action);
     static void fresh_hearth(world::World& w);
     static void ember(world::Context& c, ecs::Id item);
     static void settle_fire(world::Context& c, ecs::Id item);

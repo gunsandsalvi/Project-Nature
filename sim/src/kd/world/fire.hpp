@@ -69,12 +69,21 @@ struct Thermal {
     static constexpr std::string_view name = "thermal";
     static constexpr std::uint32_t version = 1;
     std::int64_t felt_milli_c = 24000, warmth = 100, settled_at = 0, warming_progress = 0;
-    std::int64_t water_remainder = 0, water_used_ml = 0;
+    std::int64_t water_remainder = 0, water_used_ml = 0, water_due_ml = 0;
+    ecs::Id warm_fire{};
+    num::Point warm_at{};
+    std::int64_t warm_blocked_until = 0;
+    std::uint8_t warm_phase = 0;
     ecs::Id tending_fire{}, tending_input{};
     std::int64_t tending_mass = 0, tending_started = 0;
     std::uint8_t tending = 0, tending_phase = 0, tending_shared = 0;
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
+        v.id({"warm_fire", "remembered or visible warming source"}, c.warm_fire);
+        v.point({"warm_at", "chosen experienced warming position"}, c.warm_at);
+        v.i64({"warm_blocked_until", "cold arrival prevents repeated guesses"}, c.warm_blocked_until);
+        v.u8({"warm_phase", "none, walking or warming"}, c.warm_phase);
+        v.i64({"water_due_ml", "integrated extra depletion pending bodily settlement"}, c.water_due_ml);
         v.id({"tending_fire", "actual tending target"}, c.tending_fire);
         v.id({"tending_input", "reserved finite tending input"}, c.tending_input);
         v.i64({"tending_mass", "reserved tending mass"}, c.tending_mass);
