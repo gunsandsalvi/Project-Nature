@@ -59,6 +59,8 @@ CrowdStepper::CrowdStepper(demo::CrowdWorld& crowd) : crowd_(crowd), camp_ids_(c
         if (crowd_.living() != nullptr) {
             const auto* life = raw.try_get<world::Life>(h);
             life_trails_.push_back({life ? std::optional<world::Life>(*life) : std::nullopt});
+            const auto* thought = raw.try_get<world::Dream>(h);
+            dream_trails_.push_back({thought ? std::optional<world::Dream>(*thought) : std::nullopt});
         }
     });
     crowd_.world().keep_history(&history_);
@@ -74,6 +76,7 @@ void CrowdStepper::fill(Snapshot& s) const {
     s.supplies.clear();
     s.habitats.clear();
     s.lives.clear();
+    s.dreams.clear();
     for (const ecs::Id id : camp_ids_) {
         const auto* camp = crowd_.world().beings().raw().try_get<world::Camp>(crowd_.world().beings().handle(id));
         if (camp != nullptr) s.supplies.push_back(*camp);
@@ -85,6 +88,7 @@ void CrowdStepper::fill(Snapshot& s) const {
     for (std::size_t i = 0; i < trails_.size(); ++i) {
         const auto& trail = trails_[i];
         if (!life_trails_.empty()) s.lives.insert(s.lives.end(), life_trails_[i].begin(), life_trails_[i].end());
+        if (!dream_trails_.empty()) s.dreams.insert(s.dreams.end(), dream_trails_[i].begin(), dream_trails_[i].end());
         s.first.push_back(static_cast<std::uint32_t>(s.ways.size()));
         s.ways.insert(s.ways.end(), trail.begin(), trail.end());
     }
@@ -134,6 +138,7 @@ time::Seconds CrowdStepper::advance(time::Seconds frontier, time::Seconds goal) 
         const auto i = static_cast<std::size_t>(std::lower_bound(ids_.begin(), ids_.end(), way.id) - ids_.begin());
         trails_[i].push_back(way.activity);
         if (!life_trails_.empty()) life_trails_[i].push_back(way.life);
+        if (!dream_trails_.empty()) dream_trails_[i].push_back(way.dream);
     }
     ways_.clear();
     const double screen = screen_.load(std::memory_order_relaxed);
@@ -147,6 +152,8 @@ time::Seconds CrowdStepper::advance(time::Seconds frontier, time::Seconds goal) 
         if (!life_trails_.empty()) {
             auto& life_trail = life_trails_[i];
             life_trail.erase(life_trail.begin(), life_trail.begin() + static_cast<std::ptrdiff_t>(gone));
+            auto& dream_trail = dream_trails_[i];
+            dream_trail.erase(dream_trail.begin(), dream_trail.begin() + static_cast<std::ptrdiff_t>(gone));
         }
     }
     fill(snapshots_.back());

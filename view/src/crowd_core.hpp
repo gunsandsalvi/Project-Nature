@@ -39,6 +39,7 @@ struct Snapshot {
     std::vector<world::Camp> supplies{};
     std::vector<world::Habitat> habitats{};
     std::vector<std::optional<world::Life>> lives{};  // aligned with ways in living camps; empty in marker worlds
+    std::vector<std::optional<world::Dream>> dreams{};
 
     /// The way walker i was on at a moment: the latest that began by then.
     [[nodiscard]] std::size_t way_index(std::size_t i, double t) const;
@@ -66,6 +67,11 @@ public:
 
     /// One batch of the world, then its snapshot published; timed, and the thread pinned first if asked.
     time::Seconds advance(time::Seconds frontier, time::Seconds goal) override;
+    /// Publish the paused frontier without advancing time; called only on the producer's thread.
+    void refresh() {
+        fill(snapshots_.back());
+        snapshots_.publish();
+    }
 
     /// The screen's side of the triple buffer.
     [[nodiscard]] TripleBuffer<Snapshot>& snapshots() { return snapshots_; }
@@ -105,6 +111,7 @@ private:
     // each walker's ways from the screen's time on, oldest first, and the world's new ones since the last batch
     std::vector<std::vector<world::Activity>> trails_;
     std::vector<std::vector<std::optional<world::Life>>> life_trails_;
+    std::vector<std::vector<std::optional<world::Dream>>> dream_trails_;
     std::vector<world::Way> ways_;
     TripleBuffer<Snapshot> snapshots_;
     std::vector<world::Record> history_;

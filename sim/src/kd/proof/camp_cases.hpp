@@ -5,4 +5,5 @@ namespace kd::proof {
 // Frozen living-camp fixture, separate from the accepted M1 catalogue.
 [[nodiscard]] std::vector<data::SourceFile> camp_files();
 [[nodiscard]] std::string camp_life(run::Workers& workers);
+[[nodiscard]] std::string camp_dreams(run::Workers& workers);
 }  // namespace kd::proof

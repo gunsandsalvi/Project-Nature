@@ -65,6 +65,10 @@ void KdWorld::_bind_methods() {
     ClassDB::bind_method(D_METHOD("marks"), &KdWorld::marks);
     ClassDB::bind_method(D_METHOD("call_home_at", "camp", "second"), &KdWorld::call_home_at);
     ClassDB::bind_method(D_METHOD("reach", "moment"), &KdWorld::reach);
+    ClassDB::bind_method(D_METHOD("prepare_dream"), &KdWorld::prepare_dream);
+    ClassDB::bind_method(D_METHOD("dream_subjects", "person"), &KdWorld::dream_subjects);
+    ClassDB::bind_method(D_METHOD("send_place_dream", "person", "subject"), &KdWorld::send_place_dream);
+    ClassDB::bind_method(D_METHOD("dream_records"), &KdWorld::dream_records);
     ClassDB::bind_static_method("KdWorld", D_METHOD("moment_text", "second"), &KdWorld::moment_text);
     ClassDB::bind_static_method("KdWorld", D_METHOD("crowd_seed"), &KdWorld::crowd_seed);
     ClassDB::bind_static_method("KdWorld", D_METHOD("morning"), &KdWorld::morning);
@@ -440,6 +444,141 @@ void KdWorld::save_now() {
     });
 }
 
+godot::Dictionary KdWorld::prepare_dream() {
+    godot::Dictionary out;
+    if (!runner_ || !crowd_ || !crowd_->living() || catching_up()) {
+        out["problem"] = "Wait for the camp to finish opening";
+        return out;
+    }
+    const double before = screen_time();
+    pause();
+    runner_->set_goal(runner_->frontier());
+    time::Seconds edge = 0;
+    runner_->call_and_wait([this, &edge] {
+        edge = crowd_->world().frontier();
+        runner_->set_goal(edge);
+        stepper_->refresh();
+    });
+    pace_.settle(edge);
+    stepper_->set_screen(static_cast<double>(edge));
+    display_.acquire(*stepper_);
+    out["displayed_before"] = before;
+    out["at"] = edge;
+    return out;
+}
+godot::Array KdWorld::dream_subjects(int64_t person) {
+    godot::Array out;
+    if (!runner_ || !crowd_ || !crowd_->living() || !is_paused()) return out;
+    runner_->call_and_wait([this, person, &out] {
+        const auto& w = crowd_->world();
+        const ecs::Id id{static_cast<std::uint64_t>(person)};
+        const auto h = w.beings().find(id);
+        if (!h || !w.beings().raw().all_of<world::Life>(*h)) return;
+        const auto& life = w.beings().raw().get<world::Life>(*h);
+        const auto live = crowd_->living()->sample(life, w.beings().raw().get<world::Activity>(*h), w.frontier());
+        const auto need = demo::Living::needs(live);
+        std::vector<std::size_t> subjects;
+        for (std::size_t i = 0; i < 3; ++i)
+            if (life.source[i] != 0) subjects.push_back(i);
+        std::sort(subjects.begin(), subjects.end(), [&](std::size_t a, std::size_t b) {
+            if (need[a] != need[b]) return need[a] < need[b];
+            if (life.seen[a] != life.seen[b]) return life.seen[a] > life.seen[b];
+            return a < b;
+        });
+        constexpr std::array<const char*, 3> names{"Food plants", "Water", "Shelter"};
+        for (const auto i : subjects) {
+            godot::Dictionary row;
+            row["subject"] = static_cast<int64_t>(i);
+            row["name"] = names[i];
+            row["seen_at"] = life.seen[i];
+            row["problem"] = demo::Living::dream_problem(w, id, static_cast<std::int64_t>(i)).c_str();
+            out.push_back(row);
+        }
+    });
+    return out;
+}
+godot::Dictionary KdWorld::send_place_dream(int64_t person, int64_t subject) {
+    godot::Dictionary out;
+    if (!runner_ || !crowd_ || !crowd_->living() || !is_paused() ||
+        screen_time() != static_cast<double>(runner_->frontier())) {
+        out["problem"] = "Pause at the camp's current moment before choosing";
+        return out;
+    }
+    time::Seconds asked = static_cast<time::Seconds>(screen_time());
+    std::string problem;
+    std::uint64_t number = 0;
+    runner_->call_and_wait([this, person, subject, asked, &problem, &number] {
+        auto& w = crowd_->world();
+        const ecs::Id id{static_cast<std::uint64_t>(person)};
+        if (w.frontier() != asked) {
+            problem = "The camp moved; choose again";
+            return;
+        }
+        problem = demo::Living::dream_problem(w, id, subject);
+        if (!problem.empty()) return;
+        const auto cmd = w.command(asked, demo::Living::kPlaceDream, id.value, static_cast<std::uint64_t>(subject));
+        if (keeper_) {
+            keeper_->command(cmd);
+            if (keeper_->failed()) {
+                problem = "Camp could not save; the dream has not acted";
+                return;
+            }
+        }
+        number = cmd.number;
+    });
+    if (!problem.empty()) {
+        out["problem"] = problem.c_str();
+        return out;
+    }
+    runner_->set_goal(asked + 1);
+    runner_->wait_for(asked + 1);
+    pace_.settle(asked + 1);
+    stepper_->set_screen(static_cast<double>(asked + 1));
+    display_.acquire(*stepper_);
+    out["number"] = static_cast<int64_t>(number);
+    out["requested"] = asked;
+    out["received"] = asked;
+    return out;
+}
+godot::Array KdWorld::dream_records() {
+    godot::Array out;
+    if (!runner_ || !crowd_ || !crowd_->living()) return out;
+    runner_->call_and_wait([this, &out] {
+        const auto& w = crowd_->world();
+        constexpr std::array<const char*, 3> names{"Food plants", "Water", "Shelter"};
+        for (const auto camp : stepper_->camp_ids()) {
+            const auto* ledger = w.beings().raw().try_get<world::Dreams>(w.beings().handle(camp));
+            if (!ledger) continue;
+            for (const auto& a : ledger->acts) {
+                godot::Dictionary row;
+                row["number"] = static_cast<int64_t>(a.number);
+                row["person"] = static_cast<int64_t>(a.person);
+                row["name"] = "Someone who is gone";
+                const auto h = w.beings().find(ecs::Id{a.person});
+                if (h && w.beings().raw().all_of<world::Person>(*h)) {
+                    const auto& p = w.beings().raw().get<world::Person>(*h);
+                    row["name"] = godot::String::utf8(world::kPersonNames[p.name_index].data());
+                }
+                row["subject"] = a.subject;
+                row["place"] = names[static_cast<std::size_t>(a.subject)];
+                row["requested"] = a.requested;
+                row["received"] = a.received;
+                row["executed"] = a.executed;
+                row["until"] = a.until;
+                row["status"] = a.status;
+                row["reason"] = a.reason;
+                row["decision_at"] = a.decision_at;
+                row["choice"] = a.choice;
+                row["pull"] = a.pull;
+                row["visited_at"] = a.visited_at;
+                row["east_cm"] = a.place.x;
+                row["north_cm"] = a.place.y;
+                out.push_back(row);
+            }
+        }
+    });
+    return out;
+}
 void KdWorld::call_home(int64_t camp) {
     if (!runner_ || !stepper_ || camp < 0 || static_cast<std::size_t>(camp) >= stepper_->camp_ids().size()) {
         return;
@@ -862,6 +1001,17 @@ godot::Array KdWorld::people() const {
                 row["unavailable"] = unavailable;
                 row["benefits"] = benefit;
                 row["cost_seconds"] = cost;
+            }
+        }
+        if (k < snapshot.dreams.size()) {
+            const auto& thought = snapshot.dreams[k];
+            if (thought) {
+                row["dream_at"] = thought->at;
+                row["dream_until"] = thought->until;
+                row["dream_subject"] = thought->subject;
+                row["dream_pull"] = thought->decision_pull;
+                row["dream_decision_subject"] = thought->decision_subject;
+                row["dream_visit_at"] = thought->visit_at;
             }
         }
         out.push_back(row);

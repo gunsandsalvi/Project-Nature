@@ -39,6 +39,8 @@ public:
 
     /// The screen's game time, in game seconds with their fractions.
     [[nodiscard]] double screen() const { return screen_; }
+    /// At a paused power chooser, show the final frontier before accepting any subject or request.
+    void settle(std::int64_t frontier);
 
     /// Game seconds a real second over the last kWindow of real time drawn: 0 once paused and still.
     [[nodiscard]] double speed_shown() const;

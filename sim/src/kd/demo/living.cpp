@@ -52,6 +52,7 @@ Living::Living(world::World& w) : rules_(tuning(w.catalogue())) {
              "Living camp needs its three body affordances");
     w.set_system(ecs::Family::person, *this);
     w.set_system(ecs::Family::place, *this);
+    w.set_command_taker(*this);
 }
 std::array<std::int64_t, 3> Living::needs(const world::Life& l) {
     return {l.food * 100 / kFood, l.water * 100 / kWater, 100 - l.awake * 100 / kAwake};
@@ -138,6 +139,8 @@ bool Living::visible(const world::World& w, ecs::Id camp, num::Point from, num::
 void Living::start(world::World& w) {
     auto& raw = w.beings().raw();
     w.beings().each([&](ecs::Id id, world::Beings::Handle h) {
+        if (raw.all_of<world::Camp>(h) && !raw.all_of<world::Dreams>(h)) raw.emplace<world::Dreams>(h);
+        if (raw.all_of<world::Person>(h) && !raw.all_of<world::Dream>(h)) raw.emplace<world::Dream>(h);
         if (const auto* facts = raw.try_get<world::Camp>(h); facts && !raw.all_of<world::Habitat>(h)) {
             auto& env = raw.emplace<world::Habitat>(h);
             env.food_cap_mg = facts->food_mg;
@@ -169,6 +172,139 @@ void Living::start(world::World& w) {
 }
 void Living::opened(world::World& w) {
     start(w);
+}
+namespace {
+bool place_exists(const world::World& w, world::Beings::Handle home, std::int64_t subject) {
+    const auto& env = w.beings().raw().get<world::Habitat>(home);
+    return subject == 2 || (subject == 0 && env.food_cap_mg > 0) || (subject == 1 && env.water_cap_ml > 0);
+}
+void dream_night(world::Dreams& ledger, std::int64_t night) {
+    if (ledger.night != night) {
+        ledger.night = night;
+        ledger.sent.fill(0);
+    }
+}
+}  // namespace
+std::string Living::dream_problem(const world::World& w, ecs::Id person, std::int64_t subject, time::Seconds at) {
+    const auto h = w.beings().find(person);
+    const auto& raw = w.beings().raw();
+    if (!h || !raw.all_of<world::Person, world::Life, Home>(*h)) return "That person is gone";
+    if (subject < 0 || subject > 2 || raw.get<world::Life>(*h).source[static_cast<std::size_t>(subject)] == 0)
+        return "They haven't noticed that place";
+    const auto ch = w.beings().find(raw.get<Home>(*h).camp);
+    if (!ch || !raw.all_of<world::Dreams, world::Habitat>(*ch)) return "That camp is gone";
+    if (!place_exists(w, *ch, subject)) return "That place is gone";
+    const auto& ledger = raw.get<world::Dreams>(*ch);
+    const auto pending =
+        std::count_if(ledger.acts.begin(), ledger.acts.end(), [](const auto& a) { return a.status == 1; });
+    if (std::any_of(ledger.acts.begin(), ledger.acts.end(),
+                    [&](const auto& a) { return a.person == person.value && a.status == 1; }))
+        return "A dream already waits for their sleep";
+    if (pending >= 3) return "Three dreams are already waiting";
+    if (ledger.night == night(at < 0 ? w.frontier() : at)) {
+        if (std::find(ledger.sent.begin(), ledger.sent.end(), person.value) != ledger.sent.end())
+            return "Already dreamt tonight; ready after 06:00";
+        if (ledger.sent.back() != 0) return "Three dreams tonight; ready after 06:00";
+    }
+    return {};
+}
+void Living::place_dream(world::Context& c, world::Beings::Handle h, std::int64_t subject, num::Point place) {
+    auto& thought = c.world().beings().raw().get<world::Dream>(h);
+    thought.night = night(c.now());
+    thought.at = c.now();
+    thought.until = c.now() + kDreamLife;
+    thought.subject = subject;
+    thought.place = place;
+    thought.visit_at = -1;
+    // This same ordinary thought is the only path for natural and sent dreams. No sender enters a mind.
+    c.record(150, c.world().beings().id_of(h).value, static_cast<std::uint64_t>(subject));
+}
+void Living::command(world::Context& c, const world::Command& cmd) {
+    if (cmd.what != kPlaceDream || cmd.b > 2) return;
+    const ecs::Id person{cmd.a};
+    if (!dream_problem(c.world(), person, static_cast<std::int64_t>(cmd.b), c.now()).empty()) return;
+    const auto h = c.world().beings().handle(person);
+    auto& raw = c.world().beings().raw();
+    const auto camp = raw.get<Home>(h).camp;
+    auto& ledger = raw.get<world::Dreams>(c.world().beings().handle(camp));
+    const auto subject = static_cast<std::int64_t>(cmd.b);
+    world::DreamAct act;
+    act.number = cmd.number;
+    act.person = cmd.a;
+    act.requested = cmd.at;
+    act.received = c.now();
+    act.subject = subject;
+    act.place = raw.get<world::Life>(h).known_at[static_cast<std::size_t>(subject)];
+    const auto position =
+        std::upper_bound(ledger.acts.begin(), ledger.acts.end(), act.number,
+                         [](std::uint64_t number, const world::DreamAct& old) { return number < old.number; });
+    ledger.acts.insert(position, act);
+    if (raw.get<world::Activity>(h).what == static_cast<std::uint8_t>(LivingAct::rest)) sleep_dream(c, h, camp);
+}
+void Living::sleep_dream(world::Context& c, world::Beings::Handle h, ecs::Id camp) {
+    auto& raw = c.world().beings().raw();
+    auto& thought = raw.get<world::Dream>(h);
+    auto& ledger = raw.get<world::Dreams>(c.world().beings().handle(camp));
+    const auto id = c.world().beings().id_of(h);
+    const auto tonight = night(c.now());
+    dream_night(ledger, tonight);
+    for (auto& act : ledger.acts) {
+        if (act.person != id.value || act.status != 1) continue;
+        act.executed = c.now();
+        if (!place_exists(c.world(), c.world().beings().handle(camp), act.subject)) {
+            act.status = 3;
+            act.reason = 1;
+            break;
+        }
+        const auto free = std::find(ledger.sent.begin(), ledger.sent.end(), 0);
+        if (free == ledger.sent.end() ||
+            std::find(ledger.sent.begin(), ledger.sent.end(), id.value) != ledger.sent.end()) {
+            act.status = 3;
+            act.reason = 2;
+            break;
+        }
+        *free = id.value;
+        act.status = 2;
+        act.until = c.now() + kDreamLife;
+        place_dream(c, h, act.subject, act.place);
+        return;
+    }
+    if (thought.night == tonight) return;
+    thought.night = tonight;
+    // Scoped natural place dreams: weak dreams are unkept; occasionally the same strong thought remains.
+    const chance::Draws draws(c.world().seed(), chance::name("living"), id.value, tonight, chance::name("place dream"));
+    if (draws.between(0, 0, 59) != 0) return;
+    const auto& life = raw.get<world::Life>(h);
+    const auto need = needs(life);
+    std::int64_t subject = -1;
+    for (std::size_t i = 0; i < 3; ++i) {
+        if (life.source[i] == 0) continue;
+        if (subject < 0 || need[i] < need[static_cast<std::size_t>(subject)] ||
+            (need[i] == need[static_cast<std::size_t>(subject)] &&
+             life.seen[i] > life.seen[static_cast<std::size_t>(subject)]))
+            subject = static_cast<std::int64_t>(i);
+    }
+    if (subject >= 0) place_dream(c, h, subject, life.known_at[static_cast<std::size_t>(subject)]);
+}
+void Living::dream_consequence(world::Context& c, world::Beings::Handle h, ecs::Id camp, bool arrived) {
+    auto& raw = c.world().beings().raw();
+    auto& thought = raw.get<world::Dream>(h);
+    const auto& life = raw.get<world::Life>(h);
+    if (thought.at < 0 || thought.until <= c.now()) return;
+    const auto id = c.world().beings().id_of(h);
+    if (arrived) thought.visit_at = c.now();
+    auto& acts = raw.get<world::Dreams>(c.world().beings().handle(camp)).acts;
+    for (auto& act : acts) {
+        if (act.status != 2 || act.person != id.value || act.executed != thought.at || act.subject != thought.subject)
+            continue;
+        if (arrived)
+            act.visited_at = c.now();
+        else if (act.decision_at == -1) {
+            act.decision_at = c.now();
+            act.choice = life.goal;
+            act.pull = thought.decision_pull;
+        }
+    }
 }
 num::Point Living::use_spot(const world::World& w, world::Beings::Handle h, ecs::Id camp, std::size_t need) const {
     const auto& raw = w.beings().raw();
@@ -237,6 +373,7 @@ void Living::begin(world::Context& c, world::Beings::Handle h, LivingAct what, t
     if (what != LivingAct::rest && l.awake <= kAwake * 4 / 5)
         urgent = std::min(urgent, c.now() + kAwake * 4 / 5 - l.awake + 1);
     if (urgent < a.end) c.schedule(id, kUrgent, std::max(c.now() + 1, urgent));
+    if (what == LivingAct::rest) sleep_dream(c, h, raw.get<Home>(h).camp);
     c.moved(id);
 }
 void Living::choose(world::Context& c, world::Beings::Handle h, ecs::Id camp) {
@@ -292,14 +429,42 @@ void Living::choose(world::Context& c, world::Beings::Handle h, ecs::Id camp) {
         l.cost_seconds[i] = uses_[i].use.game + work + (distance * 10 + rules_.speed - 1) / rules_.speed;
         l.scores[i] = urgency * benefit * 10 - l.cost_seconds[i] / 60;
     }
+    auto& thought = raw.get<world::Dream>(h);
+    thought.decision_pull = 0;
+    thought.decision_subject = -1;
+    const bool mild = *std::min_element(l.decision_needs.begin(), l.decision_needs.end()) >= 20 && l.awake < kAwake;
+    const bool dreaming = mild && thought.at >= 0 && thought.until > c.now() && thought.subject >= 0;
+    bool visiting = false;
+    if (dreaming) {
+        const auto subject = static_cast<std::size_t>(thought.subject);
+        if (l.scores[subject] != kUnavailable && !(subject == 0 && l.carried_food > 0)) l.scores[subject] += kDreamPull;
+        const auto path = route(c.world(), camp, here, thought.place);
+        if (!path.empty() && here != thought.place) {
+            std::int64_t distance = 0;
+            auto previous = here;
+            for (const auto point : path) {
+                distance += c.world().torus().distance(previous, point);
+                previous = point;
+            }
+            l.scores[3] = kDreamPull - (distance * 10 / rules_.speed) / 60;
+            visiting = l.scores[3] > 0;
+        }
+    }
     l.goal = 3;
     for (std::uint8_t i = 0; i < 3; ++i)
         if (l.scores[i] > l.scores[l.goal]) l.goal = i;
+    if (dreaming &&
+        ((l.goal == 3 && visiting) || (l.goal == thought.subject && !(l.goal == 0 && l.carried_food > 0)))) {
+        thought.decision_pull = kDreamPull;
+        thought.decision_subject = thought.subject;
+    }
+    dream_consequence(c, h, camp, false);
     if (l.goal < 3)
         l.use_at = l.goal == 2 && l.awake >= kAwake
                        ? here
                        : use_spot(c.world(), h, camp, l.goal == 0 && l.carried_food > 0 ? 2 : l.goal);
-    if (l.goal == 3) {
+    if (l.goal == 3 && visiting) l.explore_at = thought.place;
+    if (l.goal == 3 && !visiting) {
         const auto id = c.world().beings().id_of(h);
         const chance::Draws draws(c.world().seed(), chance::name("living"), id.value, c.now(),
                                   chance::name("nearby ground"));
@@ -336,6 +501,9 @@ void Living::continue_goal(world::Context& c, world::Beings::Handle h, ecs::Id c
     auto& raw = c.world().beings().raw();
     auto& l = raw.get<world::Life>(h);
     const auto here = raw.get<world::Place>(h).at;
+    const auto& thought = raw.get<world::Dream>(h);
+    const bool reached = l.goal == 3 ? here == thought.place : l.goal == thought.subject && here == l.use_at;
+    if (thought.decision_pull > 0 && reached) dream_consequence(c, h, camp, true);
     if (l.goal == 3) {
         const auto path = route(c.world(), camp, here, l.explore_at);
         l.portion = 0;
@@ -457,6 +625,14 @@ void Living::renew(world::Context& c, world::Beings::Handle h) {
     auto& raw = c.world().beings().raw();
     auto& facts = raw.get<world::Camp>(h);
     auto& env = raw.get<world::Habitat>(h);
+    auto& ledger = raw.get<world::Dreams>(h);
+    for (auto& act : ledger.acts) {
+        if (act.status == 1 && !c.world().beings().find(ecs::Id{act.person})) {
+            act.status = 3;
+            act.reason = 3;
+            act.executed = c.now();
+        }
+    }
     const auto hours = (c.now() - env.renewed_at) / 3600;
     const auto water = std::max<std::int64_t>(
         0, std::min({rules_.spring_hour * hours, env.upstream_ml, env.water_cap_ml - facts.water_ml}));

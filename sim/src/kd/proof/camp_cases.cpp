@@ -1,6 +1,7 @@
-// Frozen α2.13b fixtures; changes in tuning add a proof rather than shifting M1 suites.
+// Frozen camp catalogue, separate from the eight accepted M1 suites.
 #include "kd/proof/camp_cases.hpp"
 #include "kd/demo/crowd_world.hpp"
+#include "kd/demo/living.hpp"
 namespace kd::proof {
 std::vector<data::SourceFile> camp_files() {
     auto files = fixture_files();
@@ -66,6 +67,33 @@ std::string camp_life(run::Workers& workers) {
             auto reopened = demo::CrowdWorld::open(catalogue, parallel->world().save(), why);
             KD_CHECK(reopened != nullptr, "camp proof resumes needs, actions and memory");
             parallel = std::move(reopened);
+        }
+    }
+    return digest.hex();
+}
+std::string camp_dreams(run::Workers& workers) {
+    data::Catalogue catalogue;
+    KD_CHECK(catalogue.load(camp_files()).empty(), "dream proof catalogue loads");
+    num::Digest digest;
+    for (const std::uint64_t seed : {1ULL, 17ULL, 91ULL}) {
+        demo::CrowdWorld reference(seed, catalogue, 1, true);
+        std::vector<ecs::Id> people;
+        reference.world().beings().each([&](ecs::Id id, world::Beings::Handle) {
+            if (id.family() == ecs::Family::person) people.push_back(id);
+        });
+        for (std::size_t i = 0; i < 4; ++i) reference.world().command(0, demo::Living::kPlaceDream, people[i].value, 2);
+        reference.world().run_to(1);
+        std::string why;
+        auto parallel = demo::CrowdWorld::open(catalogue, reference.world().save(), why);
+        KD_CHECK(parallel != nullptr, "dream proof opens queued thoughts");
+        for (time::Seconds day = 1; day <= 4; ++day) {
+            reference.world().run_to(day * time::kDay);
+            parallel->world().run_islands(day * time::kDay, workers, 600);
+            KD_CHECK(reference.world().digests().whole == parallel->world().digests().whole,
+                     "dream workers or reopening differ");
+            digest.u64(reference.world().digests().whole);
+            parallel = demo::CrowdWorld::open(catalogue, parallel->world().save(), why);
+            KD_CHECK(parallel != nullptr, "dream proof reopens delivered thoughts and caps");
         }
     }
     return digest.hex();

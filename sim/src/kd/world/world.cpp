@@ -1,6 +1,8 @@
 #include "kd/world/world.hpp"
 
 #include <algorithm>
+#include <limits>
+#include <map>
 #include <string>
 #include <utility>
 
@@ -85,7 +87,13 @@ void Context::moved(ecs::Id id) {
         return;
     }
     const auto* life = w_.beings_.raw().try_get<Life>(w_.beings_.handle(id));
-    const Way way{current_, ways_++, id, *a, life ? std::optional<Life>(*life) : std::nullopt};
+    const auto* dream = w_.beings_.raw().try_get<Dream>(w_.beings_.handle(id));
+    const Way way{current_,
+                  ways_++,
+                  id,
+                  *a,
+                  life ? std::optional<Life>(*life) : std::nullopt,
+                  dream ? std::optional<Dream>(*dream) : std::nullopt};
     if (island_ != nullptr) {
         island_->ways.push_back(way);
     } else {
@@ -787,7 +795,7 @@ std::vector<save::Chunk> World::save() const {
             else
                 ecs::write_component(*person, camp);
         });
-        out.push_back({save::tag("CAMP"), 2, true, camp.take()});
+        out.push_back({save::tag("CAMP"), beings_.raw().view<Dreams>().empty() ? 2U : 3U, true, camp.take()});
     }
     if (count != 0) {
         ByteWriter life;
@@ -805,6 +813,25 @@ std::vector<save::Chunk> World::save() const {
         });
         out.push_back({save::tag("LIFE"), 1, true, life.take()});
     }
+    if (!beings_.raw().view<Dreams>().empty()) {
+        ByteWriter dreams;
+        dreams.u64(count);
+        beings_.each([&](ecs::Id id, Beings::Handle h) {
+            if (const auto* ledger = beings_.raw().try_get<Dreams>(h)) {
+                dreams.u64(id.value);
+                dreams.u8(1);
+                dreams.i64(ledger->night);
+                for (const auto sent : ledger->sent) dreams.u64(sent);
+                dreams.u64(ledger->acts.size());
+                for (const auto& act : ledger->acts) ecs::write_component(act, dreams);
+            } else if (const auto* thought = beings_.raw().try_get<Dream>(h)) {
+                dreams.u64(id.value);
+                dreams.u8(2);
+                ecs::write_component(*thought, dreams);
+            }
+        });
+        out.push_back({save::tag("DRMS"), 1, true, dreams.take()});
+    }
     return out;
 }
 
@@ -812,20 +839,28 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
     KD_CHECK(beings_.size() == 0 && things_.size() == 0 && frontier_ == 0 && events_ == 0,
              "world::World: a snapshot is loaded into a world with nothing in it");
     if (std::count_if(chunks.begin(), chunks.end(), [](const auto& c) { return c.tag == save::tag("CAMP"); }) > 1 ||
-        std::count_if(chunks.begin(), chunks.end(), [](const auto& c) { return c.tag == save::tag("LIFE"); }) > 1) {
+        std::count_if(chunks.begin(), chunks.end(), [](const auto& c) { return c.tag == save::tag("LIFE"); }) > 1 ||
+        std::count_if(chunks.begin(), chunks.end(), [](const auto& c) { return c.tag == save::tag("DRMS"); }) > 1) {
         why = "duplicate Camp alpha records";
         return false;
     }
     const auto* camp_chunk = save::find_chunk(chunks, save::tag("CAMP"));
     const auto* life_chunk = save::find_chunk(chunks, save::tag("LIFE"));
-    if ((camp_chunk && camp_chunk->version == 2 && !life_chunk) ||
-        (life_chunk && (!camp_chunk || camp_chunk->version != 2))) {
+    if ((camp_chunk && camp_chunk->version >= 2 && !life_chunk) ||
+        (life_chunk && (!camp_chunk || camp_chunk->version < 2))) {
         why = "living camp extension is missing or mismatched";
+        return false;
+    }
+    const auto* dream_chunk = save::find_chunk(chunks, save::tag("DRMS"));
+    if ((camp_chunk && camp_chunk->version == 3 && !dream_chunk) ||
+        (dream_chunk &&
+         (!camp_chunk || camp_chunk->version != 3 || !dream_chunk->critical || dream_chunk->version != 1))) {
+        why = "dream extension is missing or mismatched";
         return false;
     }
     // each part brought up to the version this one writes; a part it does not know is skipped, unless it must be known
     for (const save::Chunk& c : chunks) {
-        if (c.critical && c.tag != save::tag("CAMP") && c.tag != save::tag("LIFE") &&
+        if (c.critical && c.tag != save::tag("CAMP") && c.tag != save::tag("LIFE") && c.tag != save::tag("DRMS") &&
             std::none_of(kParts.begin(), kParts.end(), [&](const auto& p) { return p.first == c.tag; })) {
             why = "it holds a part this version cannot read";
             return false;
@@ -928,7 +963,8 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
             ByteReader records(camp->data);
             std::uint64_t count = 0;
             ecs::Id last{};
-            if ((camp->version != 1 && camp->version != 2) || !records.u64(count) || count > beings_.size()) {
+            if ((camp->version != 1 && camp->version != 2 && camp->version != 3) || !records.u64(count) ||
+                count > beings_.size()) {
                 why = "invalid Camp alpha records";
                 return false;
             }
@@ -1216,6 +1252,165 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
             }
         }
     }
+    if (dream_chunk) {
+        ByteReader r(dream_chunk->data);
+        std::uint64_t count = 0;
+        std::uint64_t expected = 0;
+        beings_.each([&](ecs::Id, Beings::Handle h) {
+            if (beings_.raw().any_of<Camp, Person>(h)) ++expected;
+        });
+        if (!r.u64(count) || count != expected) {
+            why = "missing dream records";
+            return false;
+        }
+        ecs::Id last{};
+        for (std::uint64_t i = 0; i < count; ++i) {
+            ecs::Id id{};
+            std::uint8_t kind = 0;
+            if (!r.u64(id.value) || !(last < id) || !r.u8(kind)) {
+                why = "invalid dream identity order";
+                return false;
+            }
+            last = id;
+            const auto h = beings_.find(id);
+            if (!h) {
+                why = "dream record has no entity";
+                return false;
+            }
+            const auto home = kind == 1                              ? id
+                              : beings_.raw().all_of<demo::Home>(*h) ? beings_.raw().get<demo::Home>(*h).camp
+                                                                     : ecs::Id{};
+            const auto ch = beings_.find(home);
+            if (!ch || !beings_.raw().all_of<Camp, Place>(*ch)) {
+                why = "dream record has no camp";
+                return false;
+            }
+            const auto& patch = beings_.raw().get<Camp>(*ch);
+            const auto centre = beings_.raw().get<Place>(*ch).at;
+            const auto inside = [&](num::Point p) {
+                if (p.x < 0 || p.x >= torus_.width() || p.y < 0 || p.y >= torus_.height()) return false;
+                const auto offset = torus_.offset(centre, p);
+                return std::abs(offset.dx) <= patch.half_width_cm && std::abs(offset.dy) <= patch.half_height_cm;
+            };
+            const auto night = frontier_ / time::kDay + (frontier_ % time::kDay + 18 * time::kHour) / time::kDay - 1;
+            if (kind == 1 && beings_.raw().all_of<Camp>(*h)) {
+                Dreams ledger;
+                std::uint64_t n = 0;
+                if (!r.i64(ledger.night) || ledger.night < -2 || ledger.night > night) {
+                    why = "invalid dream night";
+                    return false;
+                }
+                for (auto& sent : ledger.sent)
+                    if (!r.u64(sent)) {
+                        why = "damaged nightly dream cap";
+                        return false;
+                    }
+                std::vector<std::uint64_t> used;
+                bool empty = false;
+                for (const auto sent : ledger.sent) {
+                    if (sent == 0) {
+                        empty = true;
+                        continue;
+                    }
+                    if (empty || ecs::Id{sent}.family() != ecs::Family::person ||
+                        std::find(used.begin(), used.end(), sent) != used.end()) {
+                        why = "invalid nightly dream cap";
+                        return false;
+                    }
+                    used.push_back(sent);
+                }
+                if (!r.u64(n) || n > 1000000 || n > dream_chunk->data.size() / 100) {
+                    why = "oversized dream ledger";
+                    return false;
+                }
+                std::uint64_t previous = 0;
+                std::vector<std::uint64_t> pending;
+                std::map<std::int64_t, std::vector<std::uint64_t>> delivered;
+                for (std::uint64_t a = 0; a < n; ++a) {
+                    DreamAct act;
+                    if (!ecs::read_component(act, r, entries) || act.number <= previous ||
+                        ecs::Id{act.person}.family() != ecs::Family::person || act.subject < 0 || act.subject > 2 ||
+                        !inside(act.place) || act.requested < 0 || act.requested > frontier_ ||
+                        act.received != act.requested || act.status < 1 || act.status > 3 || act.reason > 3 ||
+                        act.executed < -1 || act.executed > frontier_ ||
+                        act.executed > std::numeric_limits<std::int64_t>::max() - 3 * time::kDay ||
+                        act.decision_at < -1 || act.decision_at > frontier_ || act.visited_at < -1 ||
+                        act.visited_at > frontier_ || act.choice < -1 || act.choice > 3 || act.pull < 0 ||
+                        (act.pull != 0 && act.pull != 60) || (act.decision_at == -1 && act.pull != 0) ||
+                        ((act.decision_at == -1) != (act.choice == -1)) ||
+                        (act.status == 1 && (act.executed != -1 || act.until != -1 || act.reason != 0 ||
+                                             act.decision_at != -1 || act.visited_at != -1)) ||
+                        (act.status == 2 && (act.executed < act.received ||
+                                             act.until != act.executed + 3 * time::kDay || act.reason != 0)) ||
+                        (act.status == 3 && (act.executed < act.received || act.until != -1 || act.reason == 0)) ||
+                        (act.decision_at != -1 && (act.status != 2 || act.decision_at < act.executed ||
+                                                   act.decision_at >= act.until || act.choice == -1)) ||
+                        (act.visited_at != -1 &&
+                         (act.status != 2 || act.visited_at < act.executed || act.visited_at >= act.until))) {
+                        why = "invalid private dream act";
+                        return false;
+                    }
+                    previous = act.number;
+                    if (act.status == 1) {
+                        if (pending.size() == 3 ||
+                            std::find(pending.begin(), pending.end(), act.person) != pending.end()) {
+                            why = "uncapped queued dreams";
+                            return false;
+                        }
+                        pending.push_back(act.person);
+                    }
+                    if (act.status == 2) {
+                        const auto acted_night = (act.executed + 18 * time::kHour) / time::kDay - 1;
+                        auto& sleepers = delivered[acted_night];
+                        if (acted_night > ledger.night || sleepers.size() == 3 ||
+                            std::find(sleepers.begin(), sleepers.end(), act.person) != sleepers.end()) {
+                            why = "uncapped delivered dreams";
+                            return false;
+                        }
+                        sleepers.push_back(act.person);
+                    }
+                    ledger.acts.push_back(act);
+                }
+                auto expected_sent = delivered[ledger.night];
+                std::sort(expected_sent.begin(), expected_sent.end());
+                std::sort(used.begin(), used.end());
+                if (used != expected_sent) {
+                    why = "nightly dream cap disagrees with delivered dreams";
+                    return false;
+                }
+                beings_.raw().emplace<Dreams>(*h, std::move(ledger));
+            } else if (kind == 2 && beings_.raw().all_of<Person>(*h)) {
+                Dream thought;
+                if (!ecs::read_component(thought, r, entries) || thought.night < -2 || thought.night > night ||
+                    thought.at < -1 || thought.at > frontier_ ||
+                    thought.at > std::numeric_limits<std::int64_t>::max() - 3 * time::kDay || thought.subject < -1 ||
+                    thought.subject > 2 || (thought.decision_pull != 0 && thought.decision_pull != 60) ||
+                    thought.decision_subject < -1 || thought.decision_subject > 2 ||
+                    ((thought.decision_pull == 0) != (thought.decision_subject == -1)) || thought.visit_at < -1 ||
+                    thought.visit_at > frontier_ ||
+                    (thought.at == -1 && (thought.subject != -1 || thought.until != -1 || thought.decision_pull != 0 ||
+                                          thought.visit_at != -1)) ||
+                    (thought.at >= 0 &&
+                     (thought.subject == -1 || thought.until != thought.at + 3 * time::kDay || !inside(thought.place) ||
+                      (thought.at + 18 * time::kHour) / time::kDay - 1 > thought.night ||
+                      beings_.raw().get<Life>(*h).source[static_cast<std::size_t>(thought.subject)] == 0 ||
+                      thought.place !=
+                          beings_.raw().get<Life>(*h).known_at[static_cast<std::size_t>(thought.subject)])) ||
+                    (thought.visit_at != -1 && thought.visit_at < thought.at)) {
+                    why = "invalid ordinary dream thought";
+                    return false;
+                }
+                beings_.raw().emplace<Dream>(*h, thought);
+            } else {
+                why = "invalid dream record kind";
+                return false;
+            }
+        }
+        if (!r.finished()) {
+            why = "trailing dream records";
+            return false;
+        }
+    }
     {
         ByteReader r(chunk_of(save::tag("SYST")).data);
         const std::vector<System*> systems = systems_of(by_family_, by_owner_);
@@ -1243,6 +1438,14 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
         if (!r.finished()) {
             why = "its systems are damaged";
             return false;
+        }
+        for (const auto h : beings_.raw().view<Dreams>()) {
+            for (const auto& act : beings_.raw().get<Dreams>(h).acts) {
+                if (act.number > commands_.made_) {
+                    why = "dream has no requested command";
+                    return false;
+                }
+            }
         }
         context_.now_ = frontier_;
         for (System* sys : systems) {
@@ -1293,6 +1496,13 @@ Digests World::digests() const {
             }
             if (const auto* life = beings_.raw().try_get<Life>(h)) ecs::digest_component(*life, d);
             if (const auto* env = beings_.raw().try_get<Habitat>(h)) ecs::digest_component(*env, d);
+            if (const auto* thought = beings_.raw().try_get<Dream>(h)) ecs::digest_component(*thought, d);
+            if (const auto* ledger = beings_.raw().try_get<Dreams>(h)) {
+                d.i64(ledger->night);
+                for (const auto sent : ledger->sent) d.u64(sent);
+                d.u64(ledger->acts.size());
+                for (const auto& act : ledger->acts) ecs::digest_component(act, d);
+            }
             if (const auto* p = beings_.raw().try_get<Person>(h)) {
                 d.u64(id.value);
                 ecs::digest_component(*p, d);
