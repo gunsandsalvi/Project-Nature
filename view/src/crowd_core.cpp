@@ -55,8 +55,11 @@ CrowdStepper::CrowdStepper(demo::CrowdWorld& crowd) : crowd_(crowd), camp_ids_(c
         walkers_.push_back({id.value, person != nullptr ? 0 : raw.get<demo::MarkerKind>(h).kind, c,
                             person != nullptr ? std::optional<world::Person>(*person) : std::nullopt});
         trails_.push_back({raw.get<world::Activity>(h)});
-        const auto* life = raw.try_get<world::Life>(h);
-        life_trails_.push_back({life ? std::optional<world::Life>(*life) : std::nullopt});
+        // Marker worlds have no body state. Avoid retaining a full empty Life for every historical way.
+        if (crowd_.living() != nullptr) {
+            const auto* life = raw.try_get<world::Life>(h);
+            life_trails_.push_back({life ? std::optional<world::Life>(*life) : std::nullopt});
+        }
     });
     crowd_.world().keep_history(&history_);
     crowd_.world().keep_ways(&ways_);
@@ -81,7 +84,7 @@ void CrowdStepper::fill(Snapshot& s) const {
     s.first.clear();
     for (std::size_t i = 0; i < trails_.size(); ++i) {
         const auto& trail = trails_[i];
-        s.lives.insert(s.lives.end(), life_trails_[i].begin(), life_trails_[i].end());
+        if (!life_trails_.empty()) s.lives.insert(s.lives.end(), life_trails_[i].begin(), life_trails_[i].end());
         s.first.push_back(static_cast<std::uint32_t>(s.ways.size()));
         s.ways.insert(s.ways.end(), trail.begin(), trail.end());
     }
@@ -130,7 +133,7 @@ time::Seconds CrowdStepper::advance(time::Seconds frontier, time::Seconds goal) 
     for (const world::Way& way : ways_) {
         const auto i = static_cast<std::size_t>(std::lower_bound(ids_.begin(), ids_.end(), way.id) - ids_.begin());
         trails_[i].push_back(way.activity);
-        life_trails_[i].push_back(way.life);
+        if (!life_trails_.empty()) life_trails_[i].push_back(way.life);
     }
     ways_.clear();
     const double screen = screen_.load(std::memory_order_relaxed);
@@ -141,8 +144,10 @@ time::Seconds CrowdStepper::advance(time::Seconds frontier, time::Seconds goal) 
             ++gone;
         }
         trail.erase(trail.begin(), trail.begin() + static_cast<std::ptrdiff_t>(gone));
-        auto& life_trail = life_trails_[i];
-        life_trail.erase(life_trail.begin(), life_trail.begin() + static_cast<std::ptrdiff_t>(gone));
+        if (!life_trails_.empty()) {
+            auto& life_trail = life_trails_[i];
+            life_trail.erase(life_trail.begin(), life_trail.begin() + static_cast<std::ptrdiff_t>(gone));
+        }
     }
     fill(snapshots_.back());
     snapshots_.publish();

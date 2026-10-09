@@ -7,6 +7,7 @@
 #include "crowd_core.hpp"
 #include "doctest.h"
 #include "heat.hpp"
+#include "kd/proof/camp_cases.hpp"
 #include "kd/proof/fixture.hpp"
 #include "triple.hpp"
 
@@ -29,6 +30,47 @@ const kd::data::Catalogue& fixture() {
 }
 
 }  // namespace
+
+TEST_CASE("marker trails retain no living state while living trails follow each activity") {
+    kd::demo::CrowdWorld markers(3, fixture(), 1);
+    kd::view::CrowdStepper marker_stepper(markers);
+    REQUIRE(marker_stepper.snapshots().take());
+    CHECK(marker_stepper.snapshots().front().lives.empty());
+    kd::time::Seconds frontier = 0;
+    while (frontier < kd::time::kDay) frontier = marker_stepper.advance(frontier, kd::time::kDay);
+    REQUIRE(marker_stepper.snapshots().take());
+    CHECK(marker_stepper.snapshots().front().lives.empty());
+    CHECK(marker_stepper.snapshots().front().ways.size() > markers.world().beings().size());
+
+    kd::data::Catalogue catalogue;
+    REQUIRE(catalogue.load(kd::proof::camp_files()).empty());
+    kd::demo::CrowdWorld camp(3, catalogue, 1, true);
+    kd::demo::CrowdWorld reference(3, catalogue, 1, true);
+    kd::view::CrowdStepper camp_stepper(camp);
+    frontier = 0;
+    for (kd::time::Seconds screen = 1; screen < kd::time::kDay; screen += 997) {
+        camp_stepper.set_screen(static_cast<double>(screen));
+        while (frontier < screen + 3600) frontier = camp_stepper.advance(frontier, screen + 3600);
+        REQUIRE(camp_stepper.snapshots().take());
+        const auto& snapshot = camp_stepper.snapshots().front();
+        REQUIRE(snapshot.lives.size() == snapshot.ways.size());
+        reference.world().run_to(screen + 1);
+        for (std::size_t i = 0; i < snapshot.walkers.size(); ++i) {
+            const auto k = snapshot.way_index(i, static_cast<double>(screen));
+            const auto& life = snapshot.lives[k];
+            REQUIRE(life);
+            if (!life) return;
+            const auto h = reference.world().beings().handle(kd::ecs::Id{snapshot.walkers[i].id});
+            const auto& raw = reference.world().beings().raw();
+            const auto& activity = raw.get<kd::world::Activity>(h);
+            const auto expected = reference.living()->sample(raw.get<kd::world::Life>(h), activity, screen);
+            const auto drawn = camp.living()->sample(*life, snapshot.ways[k], screen);
+            CHECK(snapshot.ways[k].what == activity.what);
+            CHECK(kd::demo::Living::needs(drawn) == kd::demo::Living::needs(expected));
+            CHECK(drawn.goal == expected.goal);
+        }
+    }
+}
 
 // checks: WLD-13
 TEST_CASE("each walker is drawn where the world has it doing what it does however far ahead the world has run") {

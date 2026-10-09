@@ -38,7 +38,7 @@ struct Snapshot {
     std::vector<std::uint32_t> first;
     std::vector<world::Camp> supplies{};
     std::vector<world::Habitat> habitats{};
-    std::vector<std::optional<world::Life>> lives{};
+    std::vector<std::optional<world::Life>> lives{};  // aligned with ways in living camps; empty in marker worlds
 
     /// The way walker i was on at a moment: the latest that began by then.
     [[nodiscard]] std::size_t way_index(std::size_t i, double t) const;

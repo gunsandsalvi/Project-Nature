@@ -26,8 +26,8 @@ void body(world::Life& l, const LivingRules& rules, LivingAct act, time::Seconds
     const auto elapsed = std::max<time::Seconds>(0, t - l.settled);
     const auto food_units = elapsed * rules.food_day + l.food_remainder;
     const auto water_units = elapsed * rules.water_day + l.water_remainder;
-    l.food = std::max<std::int64_t>(0, l.food - food_units / kDay);
-    l.water = std::max<std::int64_t>(0, l.water - water_units / kDay);
+    l.food -= food_units / kDay;
+    l.water -= water_units / kDay;
     l.food_remainder = food_units % kDay;
     l.water_remainder = water_units % kDay;
     l.awake = std::clamp<std::int64_t>(l.awake + (act == LivingAct::rest ? -2 * elapsed : elapsed), 0, kAwake);
@@ -62,15 +62,18 @@ world::Life Living::sample(world::Life l, const world::Activity& a, time::Second
     body(l, rules_, act, t);
     const auto amount = std::max<std::int64_t>(0, share(a, l.portion, t) - l.applied);
     if (act == LivingAct::eat) {
-        l.food = std::min(kFood, l.food + amount);
+        l.food += amount;
         l.carried_food -= amount;
         const auto berry_water = amount * uses_[0].water_per_kg + l.food_water_remainder;
-        l.water = std::min(kWater, l.water + berry_water / 1000000);
+        l.water += berry_water / 1000000;
         l.food_water_remainder = berry_water % 1000000;  // raw berries: 0.8 L per kg
     } else if (act == LivingAct::drink) {
-        l.water = std::min(kWater, l.water + amount);
+        l.water += amount;
         l.allocated_water -= amount;
     }
+    // Intake and depletion belong to the same elapsed interval. Clamp only their net result.
+    l.food = std::clamp<std::int64_t>(l.food, 0, kFood);
+    l.water = std::clamp<std::int64_t>(l.water, 0, kWater);
     return l;
 }
 std::vector<num::Point> Living::route(const world::World& w, ecs::Id camp, num::Point from, num::Point to) {
@@ -229,6 +232,8 @@ void Living::begin(world::Context& c, world::Beings::Handle h, LivingAct what, t
         urgent = std::min(urgent, c.now() + ((l.food - kFood / 5) * kDay - l.food_remainder) / rules_.food_day + 1);
     if (what != LivingAct::drink && what != LivingAct::eat && l.water >= kWater / 5)
         urgent = std::min(urgent, c.now() + ((l.water - kWater / 5) * kDay - l.water_remainder) / rules_.water_day + 1);
+    // Exhaustion must still interrupt work that began after the earlier fatigue warning.
+    if (what != LivingAct::rest) urgent = std::min(urgent, c.now() + kAwake - l.awake);
     if (what != LivingAct::rest && l.awake <= kAwake * 4 / 5)
         urgent = std::min(urgent, c.now() + kAwake * 4 / 5 - l.awake + 1);
     if (urgent < a.end) c.schedule(id, kUrgent, std::max(c.now() + 1, urgent));

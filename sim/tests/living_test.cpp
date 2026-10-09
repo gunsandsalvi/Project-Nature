@@ -100,7 +100,7 @@ TEST_CASE("interrupted drinking returns unused allocation without duplicating wa
     CHECK(one.env().water_spilled == 223);
     CHECK(one.life().allocated_water == 500);
     CHECK(one.env().water_taken == 1000);
-    CHECK(one.life().water == 277);  // initial water depleted; actual elapsed share only
+    CHECK(one.life().water == 239);  // 100 + 277 ml intake - 138 ml bodily use
     CHECK(one.facts().water_ml <= one.env().water_cap_ml);
     std::string why;
     CHECK(demo::CrowdWorld::open(test::camp_fixture(), one.w.save(), why));
@@ -432,5 +432,57 @@ TEST_CASE("migration sealing survives a power cut between every storage call and
         REQUIRE(same);
         if (!same) return;
         CHECK(same->world().digests().whole == w.digests().whole);
+    }
+}
+
+TEST_CASE("actions begun above the fatigue threshold stop at thirty-six awake hours and reopen exactly") {
+    One one;
+    one.know();
+    one.life().food = 0;
+    one.life().water = 3000;
+    one.life().awake = 129000;  // 35 hours 50 minutes; hunger wins before the hard sleep limit.
+    one.w.run_to(590);
+    CHECK(one.act().what == static_cast<std::uint8_t>(world::LivingAct::gather));
+    std::string why;
+    auto copy = demo::CrowdWorld::open(test::camp_fixture(), one.w.save(), why);
+    REQUIRE(copy);
+    if (!copy) return;
+    one.w.run_to(601);
+    copy->world().run_to(601);
+    CHECK(one.act().what == static_cast<std::uint8_t>(world::LivingAct::rest));
+    CHECK(one.act().start == 600);
+    CHECK(one.life().goal == 2);
+    CHECK(one.life().carried_food > 0);
+    CHECK(one.life().carried_food < 1000000);
+    CHECK(one.act().from == one.act().to);
+    CHECK(copy->world().digests().whole == one.w.digests().whole);
+}
+
+TEST_CASE("intake and bodily depletion combine before clamping depleted meals and drinks") {
+    for (const auto act : {world::LivingAct::eat, world::LivingAct::drink}) {
+        One one;
+        one.life().food = one.life().water = 0;
+        const auto end = act == world::LivingAct::eat ? 1200 : 120;
+        const auto portion = act == world::LivingAct::eat ? 1000000 : 500;
+        one.life().carried_food = act == world::LivingAct::eat ? portion : 0;
+        one.life().allocated_water = act == world::LivingAct::drink ? portion : 0;
+        one.set_action(act, one.act().from, end, portion);
+        const auto partial = one.camp.living()->sample(one.life(), one.act(), end / 2);
+        const auto full = one.camp.living()->sample(one.life(), one.act(), end);
+        INFO(static_cast<int>(act));
+        if (act == world::LivingAct::eat) {
+            CHECK(partial.food == 472223);  // 500000 intake - 27777 depletion
+            CHECK(full.food == 944445);     // 1000000 intake - 55555 depletion
+            CHECK(partial.water == 380);    // berry water also pays bodily consumption
+            CHECK(full.water == 759);
+            CHECK(full.carried_food == 0);
+        } else {
+            CHECK(partial.water == 248);  // 250 intake - 2 depletion
+            CHECK(full.water == 496);
+            CHECK(full.food == 0);
+            CHECK(full.allocated_water == 0);
+        }
+        CHECK(one.life().food == 0);  // display sampling never settles the saved body
+        CHECK(one.life().water == 0);
     }
 }
