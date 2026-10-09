@@ -1,7 +1,8 @@
 # Kindling: the build plan
 
 Adopted by the owner on 8 October 2026. M1 remains accepted; reuse its simulation, saves and current 2D work.
-The next delivery is α2.13a: repair the stopped baseline and put real person records in one saved camp.
+The current delivery is α2.13c: complete the place dream in the saved living camp.
+α2.13a/b are delivered; M2 closes after independent review, audit, phone measurement and owner play.
 Only M2 is scheduled. Detail M3 after playing M2; M4–M10 map later obligations, not parallel work.
 
 ## Route and scope

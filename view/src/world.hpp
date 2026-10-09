@@ -89,6 +89,10 @@ public:
     /// Your command to call one of the camps home, by its number in id order, acting at the world's frontier and
     /// written to the journal before it acts (A3.8).
     void call_home(int64_t camp);
+    godot::Dictionary prepare_dream();
+    godot::Array dream_subjects(int64_t person);
+    godot::Dictionary send_place_dream(int64_t person, int64_t subject);
+    godot::Array dream_records();
     /// The number of the camp nearest a place in world centimetres, within a distance, or -1.
     int64_t nearest_camp(int64_t east, int64_t north, int64_t within) const;
     /// Where a camp is, by its number: east and north in world centimetres; empty if there is no such camp.

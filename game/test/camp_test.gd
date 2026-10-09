@@ -225,7 +225,7 @@ func test_living_card_uses_saved_choice_and_needs_at_the_displayed_action() -> v
 	page._details = true
 	page._refresh_records()
 	assert_str(page._card.text).contains("Remembered supplies")
-	assert_str(page._card.text).contains("Instead of")
+	assert_str(page._card.text).contains("Didn't")
 	var digest: String = page.world.digest()
 	page._more.pressed.emit()
 	assert_str(page.world.digest()).is_equal(digest)
@@ -254,3 +254,160 @@ func test_people_move_and_return_mid_action_with_the_same_recorded_reason() -> v
 	assert_array(again.world.people()).is_equal(kept)
 	assert_str(again.world.digest()).is_equal(digest)
 	again.free()
+
+
+func test_dream_cancel_and_saved_pending_times() -> void:
+	var page := _page()
+	var awake_people: Array = page.people.filter(
+		func(p: Dictionary) -> bool: return int(p.action_code) != 2
+	)
+	var awake: Dictionary = awake_people[0]
+	page.select_person(int(awake.id))
+	var digest: String = page.world.digest()
+	page.open_dream(int(awake.id), true)
+	assert_str(page._dreams.stage).is_equal("ring")
+	page._dreams.subjects()
+	page._dreams.close()
+	assert_str(page.world.digest()).is_equal(digest)
+	assert_array(page.world.dream_records()).is_empty()
+	page.open_dream(int(awake.id))
+	var subjects: Array = page.world.dream_subjects(int(awake.id))
+	assert_bool(subjects.is_empty()).is_false()
+	page._dreams.choose(subjects[0])
+	assert_str(page._dreams.stage).is_equal("confirm")
+	page._dreams.send()
+	assert_str(page._dreams.stage).is_equal("records")
+	var records: Array = page.world.dream_records()
+	assert_int(records.size()).is_equal(1)
+	assert_int(records[0].status).is_equal(1)
+	assert_int(records[0].received).is_equal(int(records[0].requested))
+	assert_int(records[0].executed).is_equal(-1)
+	page._dreams.close()
+	page.save_camp()
+	digest = page.world.digest()
+	page.free()
+	page = _page()
+	assert_array(page.world.dream_records()).is_equal(records)
+	assert_str(page.world.digest()).is_equal(digest)
+	page.world.run_until(int(records[0].requested) + 86400)
+	await _settled(page)
+	var delivered: Dictionary = page.world.dream_records()[0]
+	assert_int(delivered.status).is_equal(2)
+	assert_int(delivered.executed).is_greater(int(delivered.requested))
+	page.select_person(int(awake.id))
+	page._details = true
+	page._refresh_records()
+	assert_str(page._card.text).not_contains("Your")
+	assert_str(page._card.text).not_contains("player")
+	assert_str(page._card.text).contains("Chose this at")
+	page.free()
+
+
+func test_dream_frontier_and_request_latency_at_every_supported_speed() -> void:
+	for speed in 3:
+		Worlds.remove_tree(TEST_ROOT)
+		var page := _page()
+		page.choose_speed(speed)
+		page.world.play()
+		var deadline := Time.get_ticks_msec() + 300
+		while Time.get_ticks_msec() < deadline:
+			page._process(0.016)
+			await await_idle_frame()
+		var displayed: float = page.world.screen_time()
+		var started := Time.get_ticks_usec()
+		var settled: Dictionary = page.world.prepare_dream()
+		assert_bool(settled.has("problem")).is_false()
+		assert_float(page.world.screen_time()).is_equal(float(page.world.frontier()))
+		assert_float(float(settled.at) - displayed).is_between(0, 901)
+		var person: int = int(page.world.people()[0].id)
+		var subjects: Array = page.world.dream_subjects(person)
+		assert_bool(subjects.is_empty()).is_false()
+		var result: Dictionary = page.world.send_place_dream(person, int(subjects[0].subject))
+		assert_bool(result.has("problem")).is_false()
+		assert_int(result.requested).is_equal(int(settled.at))
+		assert_int(result.received).is_equal(int(settled.at))
+		assert_int(page.world.frontier()).is_equal(int(settled.at) + 1)
+		var elapsed := (Time.get_ticks_usec() - started) / 1000.0
+		print(
+			"DREAM LATENCY speed=",
+			[1, 60, 3600][speed],
+			" ms=",
+			elapsed,
+			" displayed lead=",
+			float(settled.at) - displayed,
+			" request drift=0 s"
+		)
+		assert_float(elapsed).is_less(1000)
+		page.free()
+
+
+func test_dream_confirmation_controls_fit_both_phone_orientations() -> void:
+	var page := _page()
+	var person: int = int(page.people[0].id)
+	page.open_dream(person)
+	page._dreams.choose(page.world.dream_subjects(person)[0])
+	for window: Vector2 in [Vector2(1080, 2400), Vector2(2400, 1080)]:
+		page.layout(window, Rect2(Vector2(0, 154), window - Vector2(0, 154)))
+		for i in 4:
+			await await_idle_frame()
+		for button: Control in [page._dreams._cancel, page._dreams._confirm]:
+			assert_float(button.size.y).is_greater_equal(115)
+			assert_float(button.get_global_rect().end.x).is_less_equal(window.x)
+			assert_float(button.get_global_rect().end.y).is_less_equal(window.y)
+			assert_float(button.get_global_rect().position.y).is_greater_equal(154)
+	page._dreams.close()
+	page.free()
+
+
+func test_holding_a_drawn_person_opens_the_power_ring_once() -> void:
+	var page := _page()
+	var person: int = int(page.people[0].id)
+	var press := InputEventMouseButton.new()
+	press.button_index = MOUSE_BUTTON_LEFT
+	press.pressed = true
+	press.position = page.drawing.drawn[person].get_center() * float(page.state.scale)
+	page._world_input(press)
+	page._touches[0].started -= 600
+	page._process(0)
+	assert_str(page._dreams.stage).is_equal("ring")
+	assert_int(page.selected_id).is_equal(person)
+	assert_bool(page._touches.is_empty()).is_true()
+	page._dreams.close()
+	page.free()
+
+
+func test_sent_dream_is_readable_during_the_same_uninterrupted_sleep() -> void:
+	var page := _page()
+	page.world.run_until(36000)
+	await _settled(page)
+	var sleeping: Array = page.world.people().filter(
+		func(p: Dictionary) -> bool: return int(p.action_code) == 2 and int(p.action_end) > 36060
+	)
+	assert_array(sleeping).is_not_empty()
+	var person: Dictionary = sleeping[0]
+	var at: int = page.world.frontier()
+	page.open_dream(int(person.id))
+	var shelter: Array = page.world.dream_subjects(int(person.id)).filter(
+		func(p: Dictionary) -> bool: return int(p.subject) == 2
+	)
+	page._dreams.choose(shelter[0])
+	page._dreams.send()
+	page._dreams.close()
+	var fresh: Dictionary = page.selected_person()
+	assert_int(fresh.dream_at).is_equal(at)
+	assert_int(fresh.dream_subject).is_equal(2)
+	assert_int(fresh.action_code).is_equal(2)
+	assert_int(fresh.action_start).is_equal(int(person.action_start))
+	assert_int(fresh.action_end).is_equal(int(person.action_end))
+	page._details = true
+	page._refresh_records()
+	assert_str(page._card.text).contains("Dreamt of shelter at")
+	var card: String = page._card.text
+	page.save_camp()
+	page.free()
+	page = _page()
+	page.select_person(int(person.id))
+	page._details = true
+	page._refresh_records()
+	assert_str(page._card.text).is_equal(card)
+	page.free()

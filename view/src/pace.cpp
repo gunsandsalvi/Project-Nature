@@ -27,6 +27,13 @@ void Pace::pause() {
 void Pace::play() {
     paused_ = false;
 }
+void Pace::settle(std::int64_t frontier) {
+    KD_CHECK(paused_ && static_cast<double>(frontier) >= screen_, "view::Pace: settle a paused forward clock");
+    screen_ = static_cast<double>(frontier);
+    since_pause_ = kLead;
+    drawn_.clear();
+    drawn_real_ = 0.0;
+}
 
 std::int64_t Pace::frame(double real_seconds, std::int64_t frontier) {
     KD_CHECK(real_seconds >= 0.0, "view::Pace: a frame cannot take less than no time");

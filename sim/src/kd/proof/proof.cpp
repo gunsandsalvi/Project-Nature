@@ -365,6 +365,7 @@ std::string islands(run::Workers& workers) {
 }
 
 constexpr std::array kSuites = {
+    Suite{"camp_dreams", "queued and delivered place dreams, nightly caps and saved influence", &camp_dreams},
     Suite{"camp_life", "saved needs, actions, memories and finite renewal on one/four workers", &camp_life},
     Suite{"smoke", "arithmetic, square roots and a sum in fixed pieces", &smoke},
     Suite{"maths", "every maths function on its stream of inputs and its hard cases", &maths},

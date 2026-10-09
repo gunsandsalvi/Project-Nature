@@ -36,10 +36,12 @@ TEST_CASE("marker trails retain no living state while living trails follow each 
     kd::view::CrowdStepper marker_stepper(markers);
     REQUIRE(marker_stepper.snapshots().take());
     CHECK(marker_stepper.snapshots().front().lives.empty());
+    CHECK(marker_stepper.snapshots().front().changed_at.empty());
     kd::time::Seconds frontier = 0;
     while (frontier < kd::time::kDay) frontier = marker_stepper.advance(frontier, kd::time::kDay);
     REQUIRE(marker_stepper.snapshots().take());
     CHECK(marker_stepper.snapshots().front().lives.empty());
+    CHECK(marker_stepper.snapshots().front().changed_at.empty());
     CHECK(marker_stepper.snapshots().front().ways.size() > markers.world().beings().size());
 
     kd::data::Catalogue catalogue;
@@ -70,6 +72,76 @@ TEST_CASE("marker trails retain no living state while living trails follow each 
             CHECK(drawn.goal == expected.goal);
         }
     }
+}
+
+TEST_CASE("a dream sent during sleep is visible at its event without interrupting or rewriting earlier sleep") {
+    using namespace kd;
+    data::Catalogue catalogue;
+    REQUIRE(catalogue.load(proof::camp_files()).empty());
+    demo::CrowdWorld camp(17, catalogue, 1, true);
+    view::CrowdStepper stepper(camp);
+    time::Seconds frontier = 0;
+    while (frontier < 36000) frontier = stepper.advance(frontier, 36000);
+    REQUIRE(stepper.snapshots().take());
+    const auto& before = stepper.snapshots().front();
+    std::size_t sleeper = before.walkers.size();
+    for (std::size_t i = 0; i < before.walkers.size(); ++i) {
+        const auto& activity = before.way_at(i, static_cast<double>(frontier));
+        if (activity.what == static_cast<std::uint8_t>(world::LivingAct::rest) && activity.end > frontier + 60) {
+            sleeper = i;
+            break;
+        }
+    }
+    REQUIRE(sleeper < before.walkers.size());
+    if (sleeper >= before.walkers.size()) return;
+    const auto& old_thought = before.dreams[before.way_index(sleeper, static_cast<double>(frontier))];
+    REQUIRE(old_thought);
+    if (!old_thought) return;
+    const auto old_at = old_thought->at;
+    const auto old_activity = before.way_at(sleeper, static_cast<double>(frontier));
+    const ecs::Id id{before.walkers[sleeper].id};
+    camp.world().command(frontier, demo::Living::kPlaceDream, id.value, 2);
+    const auto asked = frontier;
+    frontier = stepper.advance(frontier, frontier + 1);
+    REQUIRE(stepper.snapshots().take());
+    const auto& after = stepper.snapshots().front();
+    const auto now = after.way_index(sleeper, static_cast<double>(asked));
+    const auto& thought = after.dreams[now];
+    REQUIRE(thought);
+    if (!thought) return;
+    CHECK(thought->at == asked);
+    CHECK(thought->subject == 2);
+    const auto past = after.way_index(sleeper, static_cast<double>(asked - 1));
+    const auto& past_thought = after.dreams[past];
+    REQUIRE(past_thought);
+    if (!past_thought) return;
+    CHECK(past_thought->at == old_at);
+    CHECK(after.ways[now].start == old_activity.start);
+    CHECK(after.ways[now].end == old_activity.end);
+    CHECK(after.ways[now].what == old_activity.what);
+    CHECK(after.ways[now].from == old_activity.from);
+    CHECK(after.ways[now].to == old_activity.to);
+    const auto h = camp.world().beings().handle(id);
+    const auto& raw = camp.world().beings().raw();
+    CHECK(thought->at == raw.get<world::Dream>(h).at);
+    const auto& life = after.lives[now];
+    REQUIRE(life);
+    if (!life) return;
+    const auto drawn = camp.living()->sample(*life, after.ways[now], asked);
+    const auto expected = camp.living()->sample(raw.get<world::Life>(h), raw.get<world::Activity>(h), asked);
+    CHECK(demo::Living::needs(drawn) == demo::Living::needs(expected));
+    std::string why;
+    auto reopened = demo::CrowdWorld::open(catalogue, camp.world().save(), why);
+    INFO(why);
+    REQUIRE(reopened);
+    if (!reopened) return;
+    view::CrowdStepper again(*reopened);
+    REQUIRE(again.snapshots().take());
+    const auto& saved = again.snapshots().front();
+    const auto& saved_thought = saved.dreams[saved.way_index(sleeper, static_cast<double>(frontier))];
+    REQUIRE(saved_thought);
+    if (!saved_thought) return;
+    CHECK(saved_thought->at == thought->at);
 }
 
 // checks: WLD-13

@@ -1,6 +1,8 @@
 #include "kd/demo/living.hpp"
+#include <limits>
 #include "doctest.h"
 #include "helpers.hpp"
+#include "kd/chance/chance.hpp"
 #include "kd/demo/crowd_world.hpp"
 #include "kd/demo/kept.hpp"
 #include "kd/save/files.hpp"
@@ -8,11 +10,15 @@
 namespace {
 using namespace kd;
 struct One {
-    demo::CrowdWorld camp{17, test::camp_fixture(), 1, true};
-    world::World& w = camp.world();
-    ecs::Id id{}, home = camp.camp_ids().front();
-    world::Beings::Handle h{}, ch = w.beings().handle(home);
-    One() {
+    demo::CrowdWorld camp;
+    world::World& w;
+    ecs::Id id{}, home{};
+    world::Beings::Handle h{}, ch{};
+    One(std::uint64_t seed = 17)
+        : camp(seed, test::camp_fixture(), 1, true),
+          w(camp.world()),
+          home(camp.camp_ids().front()),
+          ch(w.beings().handle(home)) {
         std::vector<ecs::Id> remove;
         w.beings().each([&](ecs::Id other, world::Beings::Handle handle) {
             if (other.family() != ecs::Family::person) return;
@@ -47,6 +53,242 @@ struct One {
     }
 };
 }  // namespace
+TEST_CASE("a sleeping place dream tips a close autonomous visit but urgent thirst wins") {
+    for (const bool urgent : {false, true}) {
+        One one;
+        one.know();
+        one.life().food = 4000000;
+        one.life().water = urgent ? 300 : 3000;
+        one.life().awake = 0;
+        one.life().goal = 2;
+        one.set_action(world::LivingAct::rest, one.act().from, 120, 14400);
+        CHECK(demo::Living::dream_problem(one.w, one.id, 0).empty());
+        one.w.command(0, demo::Living::kPlaceDream, one.id.value, 0);
+        one.w.run_to(121);
+        const auto& thought = one.w.beings().raw().get<world::Dream>(one.h);
+        CHECK(thought.subject == 0);
+        CHECK(thought.at == 0);
+        CHECK(thought.until == demo::Living::kDreamLife);
+        CHECK(one.life().goal == (urgent ? 1 : 3));
+        if (!urgent) {
+            CHECK(one.life().explore_at == one.facts().food_at);
+            CHECK(thought.decision_pull == demo::Living::kDreamPull);
+        } else
+            CHECK(thought.decision_pull == 0);
+        CHECK(one.life().memory_kind == 2);  // ordinary sleep memory has no sender/request metadata
+    }
+}
+TEST_CASE("awake dreams wait for sleep and keep requested and execution times through reopening") {
+    One one;
+    one.know();
+    one.life().awake = 129590;
+    one.life().goal = 3;
+    one.set_action(world::LivingAct::watch, one.act().from, 120, 0);
+    one.w.command(0, demo::Living::kPlaceDream, one.id.value, 0);
+    one.w.run_to(1);
+    auto& records = one.w.beings().raw().get<world::Dreams>(one.ch).acts;
+    REQUIRE(records.size() == 1);
+    if (records.size() != 1) return;
+    CHECK(records[0].requested == 0);
+    CHECK(records[0].received == 0);
+    CHECK(records[0].executed == -1);
+    CHECK(records[0].status == 1);
+    std::string why;
+    auto copy = demo::CrowdWorld::open(test::camp_fixture(), one.w.save(), why);
+    REQUIRE(copy);
+    if (!copy) return;
+    one.w.run_to(121);
+    copy->world().run_to(121);
+    CHECK(records[0].executed == 120);
+    CHECK(records[0].status == 2);
+    CHECK(one.w.digests().whole == copy->world().digests().whole);
+}
+TEST_CASE("vanished queued dream subjects cancel without a remembered player trace") {
+    One one;
+    one.know();
+    one.life().awake = 129590;
+    one.set_action(world::LivingAct::watch, one.act().from, 120, 0);
+    one.w.command(0, demo::Living::kPlaceDream, one.id.value, 0);
+    one.w.run_to(1);
+    one.env().food_cap_mg = one.facts().food_mg = 0;
+    one.w.run_to(121);
+    const auto& records = one.w.beings().raw().get<world::Dreams>(one.ch).acts;
+    REQUIRE(records.size() == 1);
+    if (records.size() != 1) return;
+    CHECK(records[0].status == 3);
+    CHECK(records[0].reason == 1);
+    CHECK(one.w.beings().raw().get<world::Dream>(one.h).at == -1);
+}
+TEST_CASE("unknown dream subjects and a fourth queued sleeper are refused with saved caps") {
+    demo::CrowdWorld camp(17, test::camp_fixture(), 1, true);
+    auto& w = camp.world();
+    const auto home = camp.camp_ids().front();
+    std::vector<ecs::Id> people;
+    w.beings().each([&](ecs::Id id, world::Beings::Handle) {
+        if (id.family() == ecs::Family::person) people.push_back(id);
+    });
+    CHECK_FALSE(demo::Living::dream_problem(w, people[0], 0).empty());
+    CHECK_FALSE(demo::Living::dream_problem(w, people[0], 99).empty());
+    for (std::size_t i = 0; i < 4; ++i) w.command(0, demo::Living::kPlaceDream, people[i].value, 2);
+    w.run_to(1);
+    const auto& records = w.beings().raw().get<world::Dreams>(w.beings().handle(home)).acts;
+    CHECK(records.size() == 3);
+    CHECK_FALSE(demo::Living::dream_problem(w, people[0], 2).empty());
+    CHECK_FALSE(demo::Living::dream_problem(w, people[4], 2).empty());
+    std::string why;
+    auto copy = demo::CrowdWorld::open(test::camp_fixture(), w.save(), why);
+    REQUIRE(copy);
+    if (!copy) return;
+    CHECK(copy->world().digests().whole == w.digests().whole);
+    CHECK_FALSE(demo::Living::dream_problem(copy->world(), people[4], 2).empty());
+}
+TEST_CASE("dream caps count execution nights inside one fast batch and survive reopening") {
+    One one;
+    one.know();
+    one.set_action(world::LivingAct::rest, one.facts().shelter_at, 50000, 0);
+    one.w.command(0, demo::Living::kPlaceDream, one.id.value, 0);
+    one.w.command(1, demo::Living::kPlaceDream, one.id.value, 1);
+    one.w.command(21600, demo::Living::kPlaceDream, one.id.value, 1);
+    one.w.command(21601, demo::Living::kPlaceDream, one.id.value, 2);
+    one.w.run_to(21602);
+    const auto& ledger = one.w.beings().raw().get<world::Dreams>(one.ch);
+    REQUIRE(ledger.acts.size() == 2);
+    if (ledger.acts.size() != 2) return;
+    CHECK(ledger.acts[0].executed == 0);
+    CHECK(ledger.acts[1].executed == 21600);
+    CHECK(ledger.sent[0] == one.id.value);
+    CHECK(ledger.sent[1] == 0);
+    const auto& dream = one.w.beings().raw().get<world::Dream>(one.h);
+    CHECK(dream.subject == 1);
+    CHECK(dream.until == 21600 + demo::Living::kDreamLife);  // replaced, never accumulated
+    std::string why;
+    auto copy = demo::CrowdWorld::open(test::camp_fixture(), one.w.save(), why);
+    REQUIRE(copy);
+    if (!copy) return;
+    CHECK_FALSE(demo::Living::dream_problem(copy->world(), one.id, 0).empty());
+}
+TEST_CASE("checksummed dream state rejects missing caps, invented times and duplicated influence") {
+    for (int fault = 0; fault < 12; ++fault) {
+        One one;
+        one.know();
+        one.set_action(world::LivingAct::rest, one.facts().shelter_at, 120, 14400);
+        one.w.command(0, demo::Living::kPlaceDream, one.id.value, 0);
+        one.w.run_to(1);
+        auto& ledger = one.w.beings().raw().get<world::Dreams>(one.ch);
+        auto& thought = one.w.beings().raw().get<world::Dream>(one.h);
+        if (fault == 0) ledger.sent.fill(0);
+        if (fault == 1) ledger.acts[0].executed = 2;
+        if (fault == 2) thought.decision_pull = 120;
+        if (fault == 3) ledger.acts[0].number = 99;
+        if (fault == 4) ledger.acts[0].choice = 0;
+        if (fault == 5) thought.until += time::kDay;
+        if (fault == 8) ledger.acts[0].place.x = std::numeric_limits<std::int32_t>::min();
+        if (fault == 9) thought.place.y = std::numeric_limits<std::int32_t>::min();
+        if (fault == 10) {
+            ledger.acts[0].decision_at = 0;
+            ledger.acts[0].choice = 0;
+            ledger.acts[0].pull = 59;
+        }
+        if (fault == 11) {
+            thought.decision_subject = 0;
+            thought.decision_pull = 59;
+        }
+        auto chunks = one.w.save();
+        if (fault == 6) std::erase_if(chunks, [](const auto& c) { return c.tag == save::tag("DRMS"); });
+        if (fault == 7) {
+            const auto* c = save::find_chunk(chunks, save::tag("DRMS"));
+            chunks.push_back(*c);
+        }
+        std::string why;
+        const auto decoded = save::read_snapshot(save::write_snapshot(chunks), why);
+        REQUIRE(decoded);
+        if (!decoded) return;
+        INFO(fault);
+        CHECK_FALSE(demo::CrowdWorld::open(test::camp_fixture(), *decoded, why));
+    }
+}
+TEST_CASE("three delivered dreams close the night's cap and a missing sleeper cancels its pending dream") {
+    demo::CrowdWorld camp(17, test::camp_fixture(), 1, true);
+    auto& w = camp.world();
+    std::vector<ecs::Id> people;
+    w.beings().each([&](ecs::Id id, world::Beings::Handle h) {
+        if (id.family() != ecs::Family::person) return;
+        people.push_back(id);
+        auto& activity = w.beings().raw().get<world::Activity>(h);
+        const auto at = activity.from;
+        activity = {2, 0, 120, at, at};
+        w.schedule(id, world::kActivitySlot, 120);
+    });
+    for (std::size_t i = 0; i < 4; ++i) w.command(0, demo::Living::kPlaceDream, people[i].value, 2);
+    w.run_to(1);
+    const auto home = camp.camp_ids().front();
+    CHECK(w.beings().raw().get<world::Dreams>(w.beings().handle(home)).acts.size() == 3);
+    CHECK_FALSE(demo::Living::dream_problem(w, people[3], 2).empty());
+    One one;
+    one.know();
+    one.set_action(world::LivingAct::watch, one.act().from, 120, 0);
+    one.w.command(0, demo::Living::kPlaceDream, one.id.value, 2);
+    one.w.run_to(1);
+    for (std::uint32_t s = 0; s < 4; ++s) one.w.cancel(one.id, s);
+    one.w.beings().end(one.id);
+    one.w.run_to(3601);
+    const auto& act = one.w.beings().raw().get<world::Dreams>(one.ch).acts.front();
+    CHECK(act.status == 3);
+    CHECK(act.reason == 3);
+}
+TEST_CASE("natural and sent place dreams leave identical ordinary thoughts and waking choices") {
+    One identity;
+    std::uint64_t seed = 1;
+    for (; seed < 1000; ++seed) {
+        const chance::Draws draws(seed, chance::name("living"), identity.id.value, -1, chance::name("place dream"));
+        if (draws.between(0, 0, 59) == 0) break;
+    }
+    REQUIRE(seed < 1000);
+    One natural(seed), sent(seed);
+    for (One* one : {&natural, &sent}) {
+        one->know();
+        one->life().awake = 129600;
+        one->life().food = 4000000;
+        one->life().water = 3000;
+    }
+    sent.w.command(1, demo::Living::kPlaceDream, sent.id.value, 2);
+    natural.w.run_to(2);
+    sent.w.run_to(2);
+    CHECK(natural.w.beings().raw().get<world::Dream>(natural.h).subject == 2);
+    ByteWriter a, b;
+    ecs::write_component(natural.w.beings().raw().get<world::Dream>(natural.h), a);
+    ecs::write_component(sent.w.beings().raw().get<world::Dream>(sent.h), b);
+    CHECK(a.bytes() == b.bytes());
+    natural.w.run_to(7202);
+    sent.w.run_to(7202);
+    ByteWriter first, second;
+    ecs::write_component(natural.life(), first);
+    ecs::write_component(sent.life(), second);
+    CHECK(first.bytes() == second.bytes());
+}
+TEST_CASE("sent dreams remain identical across worker counts and saved pending continuation") {
+    demo::CrowdWorld reference(17, test::camp_fixture(), 1, true);
+    auto& w = reference.world();
+    ecs::Id first{};
+    w.beings().each([&](ecs::Id id, world::Beings::Handle) {
+        if (first.value == 0 && id.family() == ecs::Family::person) first = id;
+    });
+    w.command(0, demo::Living::kPlaceDream, first.value, 2);
+    w.run_to(1);
+    std::string why;
+    auto copy = demo::CrowdWorld::open(test::camp_fixture(), w.save(), why);
+    REQUIRE(copy);
+    if (!copy) return;
+    run::Workers workers(4);
+    for (time::Seconds day = 1; day <= 4; ++day) {
+        w.run_to(day * time::kDay);
+        copy->world().run_islands(day * time::kDay, workers, 600);
+        CHECK(w.digests().whole == copy->world().digests().whole);
+        copy = demo::CrowdWorld::open(test::camp_fixture(), copy->world().save(), why);
+        REQUIRE(copy);
+        if (!copy) return;
+    }
+}
 TEST_CASE("living choices favour a thirstier otherwise identical person using recorded knowledge") {
     One fed, thirsty;
     fed.know();
@@ -485,4 +727,149 @@ TEST_CASE("intake and bodily depletion combine before clamping depleted meals an
         CHECK(one.life().food == 0);  // display sampling never settles the saved body
         CHECK(one.life().water == 0);
     }
+}
+
+TEST_CASE("real 31302 living snapshot retains each body action and memory when dreams are introduced") {
+    std::string why;
+    const auto bytes = save::DiskFiles(std::string(KD_REPO) + "/sim/tests/fixtures").read("camp-31302.kds");
+    REQUIRE(bytes);
+    if (!bytes) return;
+    const auto old = save::read_snapshot(*bytes, why);
+    REQUIRE(old);
+    if (!old) return;
+    CHECK(save::find_chunk(*old, save::tag("CAMP"))->version == 2);
+    CHECK(save::find_chunk(*old, save::tag("DRMS")) == nullptr);
+    auto migrated = demo::CrowdWorld::open(test::camp_fixture(), *old, why);
+    REQUIRE(migrated);
+    if (!migrated) return;
+    CHECK(migrated->world().frontier() == 26000);
+    const auto current = migrated->world().save();
+    for (const auto tag : {save::tag("BEIN"), save::tag("LIFE"), save::tag("QUEU"), save::tag("SYST")}) {
+        const auto* before = save::find_chunk(*old, tag);
+        const auto* after = save::find_chunk(current, tag);
+        REQUIRE(before);
+        REQUIRE(after);
+        if (!before || !after) return;
+        CHECK(before->data == after->data);
+    }
+    auto second = demo::CrowdWorld::open(test::camp_fixture(), current, why);
+    REQUIRE(second);
+    if (!second) return;
+    migrated->world().run_to(86400);
+    second->world().run_to(86400);
+    CHECK(migrated->world().digests().whole == second->world().digests().whole);
+}
+
+TEST_CASE("expired dream influence stops drawing a visit even when all needs can wait") {
+    One one;
+    one.know();
+    one.set_action(world::LivingAct::rest, one.facts().shelter_at, demo::Living::kDreamLife + 1, 0);
+    one.w.command(0, demo::Living::kPlaceDream, one.id.value, 0);
+    one.w.run_to(demo::Living::kDreamLife);
+    one.life().food = 4000000;
+    one.life().water = 3000;
+    one.life().awake = 0;
+    one.life().settled = demo::Living::kDreamLife;
+    one.act().start = demo::Living::kDreamLife;
+    one.w.run_to(demo::Living::kDreamLife + 2);
+    const auto& thought = one.w.beings().raw().get<world::Dream>(one.h);
+    CHECK(thought.at == 0);
+    CHECK(thought.until == demo::Living::kDreamLife);
+    CHECK(thought.decision_pull == 0);
+    CHECK(one.life().scores[3] == 0);
+}
+TEST_CASE("a queued water dream in seed seventeen tips Ari's ordinary visit after sleep") {
+    demo::CrowdWorld normal(17, test::camp_fixture(), 1, true), dreamt(17, test::camp_fixture(), 1, true);
+    const ecs::Id ari{3458764513820540930ULL};
+    normal.world().run_to(25200);
+    dreamt.world().run_to(25200);
+    CHECK(demo::Living::dream_problem(dreamt.world(), ari, 1).empty());
+    dreamt.world().command(25200, demo::Living::kPlaceDream, ari.value, 1);
+    normal.world().run_to(42601);
+    dreamt.world().run_to(42601);
+    const auto h = dreamt.world().beings().handle(ari);
+    const auto& thought = dreamt.world().beings().raw().get<world::Dream>(h);
+    const auto& life = dreamt.world().beings().raw().get<world::Life>(h);
+    const auto& control = normal.world().beings().raw().get<world::Life>(normal.world().beings().handle(ari));
+    CHECK(life.goal == 3);
+    CHECK(thought.decision_pull == 60);
+    CHECK(life.explore_at == life.known_at[1]);
+    CHECK(control.explore_at != life.explore_at);
+    CHECK(thought.visit_at >= thought.at);
+    const auto home = dreamt.camp_ids().front();
+    const auto& act =
+        dreamt.world().beings().raw().get<world::Dreams>(dreamt.world().beings().handle(home)).acts.front();
+    CHECK(act.requested == 25200);
+    CHECK(act.executed > act.requested);
+    CHECK(act.pull == 60);
+    CHECK(act.visited_at == thought.visit_at);
+}
+
+TEST_CASE("dream arrival records the actual use spot near remembered food rather than demanding its centre") {
+    One one;
+    one.know();
+    one.life().food = 2800000;
+    one.life().water = 3000;
+    one.life().awake = 0;
+    const auto near = one.w.torus().moved(one.facts().food_at, {-100, 0});
+    one.set_action(world::LivingAct::rest, near, 120, 14400);
+    one.w.command(0, demo::Living::kPlaceDream, one.id.value, 0);
+    one.w.run_to(300);
+    CHECK(one.life().goal == 0);
+    CHECK(one.act().what == static_cast<std::uint8_t>(world::LivingAct::gather));
+    CHECK(one.act().from != one.facts().food_at);
+    const auto& thought = one.w.beings().raw().get<world::Dream>(one.h);
+    CHECK(thought.decision_pull == 60);
+    CHECK(thought.visit_at >= 120);
+    CHECK(one.w.beings().raw().get<world::Dreams>(one.ch).acts[0].visited_at == thought.visit_at);
+}
+
+TEST_CASE("a food dream keeps its site arrival after carrying the berries home to eat") {
+    One one;
+    one.know();
+    one.life().food = 2800000;
+    one.life().water = 3000;
+    one.life().awake = 0;
+    const auto near = one.w.torus().moved(one.facts().food_at, {-100, 0});
+    one.set_action(world::LivingAct::rest, near, 120, 14400);
+    one.w.command(0, demo::Living::kPlaceDream, one.id.value, 0);
+    one.w.run_to(300);
+    REQUIRE(one.act().what == static_cast<std::uint8_t>(world::LivingAct::gather));
+    const auto arrival = one.w.beings().raw().get<world::Dream>(one.h).visit_at;
+    REQUIRE(arrival >= 120);
+    bool carried = false;
+    for (int step = 0; step < 20 && one.act().what != static_cast<std::uint8_t>(world::LivingAct::eat); ++step) {
+        one.w.run_to(one.act().end + 1);
+        carried = carried || one.act().what == static_cast<std::uint8_t>(world::LivingAct::carry);
+    }
+    CHECK(carried);
+    REQUIRE(one.act().what == static_cast<std::uint8_t>(world::LivingAct::eat));
+    CHECK(one.w.torus().distance(one.act().from, one.facts().food_at) > 200);
+    CHECK(one.w.beings().raw().get<world::Dream>(one.h).visit_at == arrival);
+    CHECK(one.w.beings().raw().get<world::Dreams>(one.ch).acts[0].visited_at == arrival);
+    std::string why;
+    auto copy = demo::CrowdWorld::open(test::camp_fixture(), one.w.save(), why);
+    INFO(why);
+    REQUIRE(copy);
+    if (!copy) return;
+    const auto h = copy->world().beings().handle(one.id);
+    const auto ch = copy->world().beings().handle(one.home);
+    CHECK(copy->world().beings().raw().get<world::Dream>(h).visit_at == arrival);
+    CHECK(copy->world().beings().raw().get<world::Dreams>(ch).acts[0].visited_at == arrival);
+}
+
+TEST_CASE("dream requests scheduled out of number order still reopen with the same caps") {
+    One one;
+    one.know();
+    one.set_action(world::LivingAct::rest, one.facts().shelter_at, 50000, 0);
+    one.w.command(21600, demo::Living::kPlaceDream, one.id.value, 1);
+    one.w.command(0, demo::Living::kPlaceDream, one.id.value, 0);
+    one.w.run_to(21601);
+    std::string why;
+    auto copy = demo::CrowdWorld::open(test::camp_fixture(), one.w.save(), why);
+    INFO(why);
+    REQUIRE(copy);
+    if (!copy) return;
+    CHECK(copy->world().digests().whole == one.w.digests().whole);
+    CHECK_FALSE(demo::Living::dream_problem(copy->world(), one.id, 2).empty());
 }

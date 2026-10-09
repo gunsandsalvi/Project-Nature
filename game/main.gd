@@ -5,6 +5,7 @@ extends Control
 const Sizing := preload("res://ui/sizing.gd")
 const PAGES := {
 	"Camp": preload("res://pages/camp.gd"),
+	"CampMeasure": preload("res://pages/camp_measure.gd"),
 	"Check": preload("res://pages/check.gd"),
 	"Examples": preload("res://pages/examples.gd"),
 	"Time": preload("res://pages/time.gd"),
@@ -158,6 +159,10 @@ func _build() -> void:
 	supplies.text = "Camp supplies"
 	supplies.pressed.connect(_camp_supplies)
 	column.add_child(supplies)
+	var dreams := Button.new()
+	dreams.text = "Your dreams"
+	dreams.pressed.connect(_camp_dreams)
+	column.add_child(dreams)
 	var developer := Button.new()
 	developer.text = "Developer tools"
 	column.add_child(developer)
@@ -173,6 +178,7 @@ func _build() -> void:
 		"Catalogues": "Catalogues",
 		"Reports": "Reports",
 		"Bench": "Rendering test",
+		"CampMeasure": "Camp performance test",
 		"Fixtures": "Art inspector",
 		"Terrain": "Terrain inspector"
 	}
@@ -268,6 +274,8 @@ func _go_back() -> void:
 		_menu.hide()
 		_scrim.hide()
 		_menu_button.set_pressed_no_signal(false)
+	elif _page_name == "Camp" and is_instance_valid(_page._dreams) and _page._dreams.visible:
+		_page._dreams.close()
 	elif _page_name != "Camp":
 		open_page("Camp")
 	elif OS.get_name() == "Android" and Engine.has_singleton("AndroidRuntime"):
@@ -341,6 +349,15 @@ func _camp_supplies() -> void:
 	if _page_name != "Camp":
 		open_page("Camp")
 	_page.show_supplies()
+	_menu.hide()
+	_scrim.hide()
+	_menu_button.set_pressed_no_signal(false)
+
+
+func _camp_dreams() -> void:
+	if _page_name != "Camp":
+		open_page("Camp")
+	_page.show_dream_records()
 	_menu.hide()
 	_scrim.hide()
 	_menu_button.set_pressed_no_signal(false)

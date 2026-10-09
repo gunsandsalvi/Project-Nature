@@ -105,7 +105,7 @@ Kept keep_crowd(save::Keeper& keeper, const data::Catalogue& catalogue, std::uin
         std::vector<std::string>& had = keeper.versions().migrations;
         out.migrated = world::migrate(opened, had, migrations);
         const save::Chunk* camp = save::find_chunk(*found.snapshot, save::tag("CAMP"));
-        if (camp != nullptr && camp->version == 1 && !keeper.seal_camp_start(opened)) {
+        if (camp != nullptr && camp->version < 3 && !keeper.seal_camp_start(opened)) {
             out.problem = "the living camp's starting state could not be kept; storage failed";
             out.crowd.reset();
             return out;

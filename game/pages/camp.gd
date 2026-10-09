@@ -1,6 +1,7 @@
 ## Camp alpha front door: actual saved people, a bounded patch, and thumb-sized controls.
 extends Control
 
+const Words := preload("res://camp/words.gd")
 const Drawing := preload("res://camp/drawing.gd")
 const Labels := preload("res://camp/labels.gd")
 const Sizing := preload("res://ui/sizing.gd")
@@ -38,6 +39,8 @@ var _show_supplies := false
 var _labels: Node2D
 var _hit_radius := 24.0
 var _dock_bounds := Rect2()
+var _dream_button: Button
+var _dreams: PanelContainer
 
 
 func _ready() -> void:
@@ -152,9 +155,17 @@ func _build() -> void:
 	_more.pressed.connect(
 		func() -> void:
 			_details = not _details
+			_resize()
 			_refresh_records()
 	)
 	row.add_child(_more)
+	_dream_button = Button.new()
+	_dream_button.text = "Dream…"
+	_dream_button.pressed.connect(func() -> void: open_dream(selected_id))
+	column.add_child(_dream_button)
+	_dreams = preload("res://camp/dreams.gd").new()
+	_dreams.camp = self
+	_native.add_child(_dreams)
 	world.set_speed(1)
 
 
@@ -186,7 +197,7 @@ func _refresh_records() -> void:
 				(
 					"\nSpring input left: %.1f L.\nStand root water: %.1f L."
 					+ "\nSeason's fruit growth left: %.1f kg.\nGrown: %.1f kg; gathered: %.1f kg."
-					+ "\nSupplies settled at second %d.\nHourly growth uses root water; no daily refill."
+					+ "\nSupplies checked at %s.\nSpring and fruit inputs are finite."
 				)
 				% [
 					float(supplies.upstream_ml) / 1000,
@@ -194,18 +205,21 @@ func _refresh_records() -> void:
 					float(supplies.crop_budget_mg) / 1000000,
 					float(supplies.food_grown_mg) / 1000000,
 					float(supplies.food_taken_mg) / 1000000,
-					supplies.settled_frontier
+					Words.when(int(supplies.settled_frontier), int(world.screen_time()))
 				]
 			)
 	elif person.is_empty():
 		_card.text = (
-			"Tap a person to meet them.\nDrag to look · pinch to zoom\n"
+			"Tap a person · hold for a dream.\nDrag to look · pinch to zoom\n"
 			+ "They choose from needs and remembered supplies."
 		)
 	else:
 		_card.text = person_words(person, _details)
 	_more.text = "Back" if _details else "Details"
-	_more.disabled = person.is_empty() and not _show_supplies
+	_more.disabled = (person.is_empty() and not _show_supplies) or _dreams.visible
+	_dream_button.disabled = person.is_empty() or _dreams.visible
+	_pause.disabled = _dreams.visible
+	_speed.disabled = _dreams.visible
 
 	if world.counters().get("save_failed", false):
 		_summary.text = "Camp could not save. Play stopped. Free space, then reopen."
@@ -220,84 +234,7 @@ func _refresh_records() -> void:
 
 
 func person_words(person: Dictionary, details: bool) -> String:
-	var goals := ["food", "water", "rest", "nearby supplies"]
-	var choice := int(person.choice)
-	var action := str(person.activity)
-	if int(person.action_code) == 1:
-		action += " to " + goals[choice]
-	var words := (
-		"%s · %s\nNeeds met: food %d · water %d · rest %d\n"
-		% [person.name, action, person.food_need, person.water_need, person.rest_need]
-	)
-	if choice < 3:
-		words += (
-			"Why: %s was %d/100. Expected +%d.\nAbout %d min for travel and work."
-			% [
-				goals[choice],
-				person.decision_needs[choice],
-				person.benefits[choice],
-				maxi(1, ceili(float(person.cost_seconds[choice]) / 60))
-			]
-		)
-	else:
-		words += "Why: no known need use scored higher.\nLooking for supplies, then watching."
-	words += "\nThis action: %d%% done." % (int(person.progress_ppm) / 10000)
-	if not details:
-		return words
-	words += (
-		"\n\nAge at start: %d. Gathering skill: %d.\nChoice made at game second %d."
-		% [person.age_at_start, person.gathering_skill, person.decision_at]
-	)
-	var rejected := [0, 1, 2, 3]
-	rejected.erase(choice)
-	rejected.sort_custom(
-		func(a: int, b: int) -> bool: return int(person.scores[a]) > int(person.scores[b])
-	)
-	var exclusions := [
-		"",
-		"not yet noticed",
-		"last seen empty",
-		"path blocked",
-		"gathering unknown",
-		"failed path; waiting to retry"
-	]
-	for option: int in rejected.slice(0, 2):
-		var reason := "watching offers less than this use"
-		if option < 3:
-			reason = exclusions[int(person.unavailable[option])]
-			if reason.is_empty():
-				reason = (
-					"need was %d; +%d expected; %d min"
-					% [
-						person.decision_needs[option],
-						person.benefits[option],
-						maxi(1, ceili(float(person.cost_seconds[option]) / 60))
-					]
-				)
-		words += "\nInstead of %s: %s." % [goals[option], reason]
-	words += "\n\nRemembered supplies (may have changed):"
-	var sources := ["unknown", "seen", "starting knowledge", "own task"]
-	for i in 3:
-		if int(person.sources[i]) == 0:
-			words += "\n%s: not yet noticed." % goals[i]
-		else:
-			var amount := "shelter"
-			if i == 0:
-				amount = "%.2f kg" % (float(person.known_amounts[i]) / 1000000)
-			elif i == 1:
-				amount = "%.2f L" % (float(person.known_amounts[i]) / 1000)
-			words += (
-				"\n%s: %s, %s at second %d."
-				% [goals[i], amount, sources[int(person.sources[i])], person.seen_at[i]]
-			)
-	words += "\nCarrying %.2f kg berries." % (float(person.carried_food_mg) / 1000000)
-	if int(person.memory_at) >= 0:
-		var acts := {2: "Rested", 5: "Ate berries", 6: "Drank water"}
-		words += (
-			"\nLast remembered: %s at second %d."
-			% [acts.get(int(person.memory_kind), "Acted"), person.memory_at]
-		)
-	return words
+	return Words.person(person, details, int(world.screen_time()))
 
 
 func selected_person() -> Dictionary:
@@ -322,7 +259,19 @@ func tap(at: Vector2) -> void:
 		select_person(id)
 
 
+func open_dream(id: int, ring: bool = false) -> void:
+	if is_instance_valid(_dreams) and not _dreams.visible:
+		_dreams.open_person(id, ring)
+
+
+func show_dream_records() -> void:
+	if is_instance_valid(_dreams) and not _dreams.visible:
+		_dreams.records()
+
+
 func toggle_pause() -> void:
+	if _dreams.visible:
+		return
 	if world.is_paused():
 		world.play()
 	else:
@@ -331,6 +280,8 @@ func toggle_pause() -> void:
 
 
 func choose_speed(index: int) -> void:
+	if is_instance_valid(_dreams) and _dreams.visible:
+		return
 	world.set_speed([1.0, 60.0, 3600.0][index])
 	_speed.select(index)
 
@@ -367,6 +318,15 @@ func _process(delta: float) -> void:
 	_dock.size = _dock_bounds.size
 	_dock.position = _dock_bounds.position
 	world.frame()
+	for finger: int in _touches.keys():
+		var touch: Dictionary = _touches[finger]
+		if touch.alone and not touch.moved and Time.get_ticks_msec() - int(touch.started) >= 550:
+			touch.moved = true
+			var id := int(touch.person)
+			if id != 0:
+				camera.touch(2, finger, touch.position, Time.get_ticks_usec() / 1000000.0)
+				open_dream(id, true)
+				_touches.clear()
 	state = camera.frame(int(_area.size.x), int(_area.size.y), delta)
 	_viewport.size = Vector2i(state.size)
 	_picture.size = Vector2(state.size) * float(state.scale) * float(state.live_scale)
@@ -406,8 +366,16 @@ func layout(window: Vector2, safe: Rect2) -> void:
 	popup.add_theme_constant_override("v_separation", roundi(32 * density))
 	var gap := 12 * density
 	var landscape := window.x > window.y
-	var width := minf(360 * density, safe.size.x * 0.38) if landscape else safe.size.x
-	var height := safe.size.y if landscape else 280 * density
+	var width := (
+		minf((420 if _details else 360) * density, safe.size.x * (0.46 if _details else 0.38))
+		if landscape
+		else safe.size.x
+	)
+	var height := (
+		safe.size.y
+		if landscape
+		else minf(440 * density, safe.size.y * 0.60) if _details else 336 * density
+	)
 	_dock.position = safe.position + Vector2(safe.size.x - width, safe.size.y - height)
 	_dock.size = Vector2(width, height)
 	_dock_bounds = Rect2(_dock.position, Vector2(width, height))
@@ -423,9 +391,12 @@ func layout(window: Vector2, safe: Rect2) -> void:
 	Sizing.page(_dock, density)
 	_summary.add_theme_font_size_override("font_size", Sizing.font_size(18, density))
 	_card.add_theme_font_size_override("font_size", Sizing.font_size(16, density))
+	_dreams.layout(window, safe)
 
 
 func _world_input(event: InputEvent) -> void:
+	if _dreams.visible:
+		return
 	var at := Vector2.ZERO
 	var operation := -1
 	var finger := 0
@@ -447,7 +418,16 @@ func _world_input(event: InputEvent) -> void:
 		return
 	var seconds := Time.get_ticks_usec() / 1000000.0
 	if operation == 0:
-		_touches[finger] = {"position": at, "alone": _touches.is_empty(), "moved": false}
+		_touches[finger] = {
+			"position": at,
+			"alone": _touches.is_empty(),
+			"moved": false,
+			"started": Time.get_ticks_msec(),
+			"person":
+			drawing.pick(
+				camera.from_screen(at), _hit_radius / float(state.scale) / float(state.live_scale)
+			)
+		}
 		if _touches.size() > 1:
 			for touch: Dictionary in _touches.values():
 				touch.alone = false
