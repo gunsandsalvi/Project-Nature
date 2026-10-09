@@ -3,9 +3,15 @@ extends GdUnitTestSuite
 
 const Main := preload("res://main.gd")
 const ROOT := "user://test-worlds/front-door"
+var _window_before := Vector2i.ZERO
+var _mouse_before := false
 
 
 func after_test() -> void:
+	if _window_before != Vector2i.ZERO:
+		get_tree().root.size = _window_before
+		_window_before = Vector2i.ZERO
+		Input.emulate_mouse_from_touch = _mouse_before
 	Worlds.remove_tree(ROOT)
 
 
@@ -27,8 +33,13 @@ func _hold(shell: Control) -> Control:
 
 
 func test_front_door_has_few_controls_and_touch_selects_a_saved_person() -> void:
+	_window_before = get_tree().root.size
+	_mouse_before = Input.emulate_mouse_from_touch
+	Input.emulate_mouse_from_touch = false
+	get_tree().root.size = Vector2i(1080, 2400)
 	var shell := _shell()
 	var camp := _hold(shell)
+	await await_idle_frame()
 	assert_str(shell.page_name()).is_equal("Camp")
 	assert_int(shell._navigation.get_child_count()).is_equal(1)
 	assert_bool(shell._developer.visible).is_false()
@@ -56,12 +67,27 @@ func test_front_door_has_few_controls_and_touch_selects_a_saved_person() -> void
 	assert_dict(person).is_not_empty()
 	for pressed: bool in [true, false]:
 		var event := InputEventScreenTouch.new()
-		event.position = at
+		event.position = camp._area.global_position + at
 		event.pressed = pressed
-		camp._world_input(event)
+		get_viewport().push_input(event, true)
 	assert_int(camp.selected_id).is_equal(int(person.id))
 	assert_str(camp._card.text).contains(str(person.name))
 	assert_int(camp.selected_person().east_cm).is_equal(int(person.east_cm))
+	# Shell overlays and the dock must not send their touches to the world beneath.
+	shell._toggle_menu()
+	for point: Vector2 in [
+		camp._area.global_position + at,
+		shell._header.position + Vector2(10, 10),
+		camp._dock.position + Vector2(10, 10)
+	]:
+		for pressed: bool in [true, false]:
+			var event := InputEventScreenTouch.new()
+			event.position = point
+			event.pressed = pressed
+			get_viewport().push_input(event, true)
+		assert_dict(camp._touches).is_empty()
+		assert_int(camp.selected_id).is_equal(int(person.id))
+	shell._toggle_menu()
 	assert_int(int(camp.state.scale)).is_equal(2)
 	camp.layout(Vector2(2400, 1080), Rect2(0, 154, 2400, 926))
 	camp._process(0)
