@@ -2,7 +2,7 @@
 
 Read this guide, PROJECT.md's working brief/principles/current milestone, then touched IDs and architecture. PROJECT.md owns decisions; its catalogue is reference.
 
-**Now:** M3 built; awaiting independent review (T3.13e.4) and owner evidence; M4 planning next
+**Now:** M3 closed by owner 10 October 2026 with failed spread and fire-chain acceptance carried to M4; M4 planning next
 
 **Roles:** one builder owns each increment. At most one agent runs; all use the same model (owner, 8 October 2026). Reviews/support run with builder stopped. Coordinator owns integration and scoped implementation choices; independent reviewer closes each milestone. Follow session git permissions.
 

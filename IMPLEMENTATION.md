@@ -4,9 +4,7 @@ PROJECT.md owns decisions; ARCHITECTURE.md owns contracts. This plan records M3'
 
 ## Where M3 stands (10 October 2026)
 
-M3 built; awaiting independent review (`T3.13e.4`) and owner evidence; M4 planning next. M1 is accepted; M2's play answers remain open. M3 is ready for review, **not accepted complete**. Do not start another foundation or renderer.
-
-The latest check APK is 41305, 27.930 MiB. Release signing awaits the owner's passphrase; the existing signed `dist/kindling.apk` remains 41301. [Latest delivery](dist/NOTE-3.13e.md), [closing evidence](dist/M3-CHECKS.md) and [short M3 record](dist/NOTE.md) distinguish shipped software from acceptance. Superseded storage drafts must not be reapplied.
+Current owner disposition and remaining acceptance are recorded once in [M3 result](#m3-result). M1 is accepted; M2's play answers remain open. Do not start another foundation or renderer. [Delivery note](dist/NOTE-3.13e.md) distinguishes existing APKs from source repairs; [checks](dist/M3-CHECKS.md) retain technical evidence. Superseded storage drafts must not be reapplied.
 
 ## Rules every alpha keeps
 
@@ -24,8 +22,8 @@ Outstanding acceptance follows its real consumer:
 
 | Still owed | Destination |
 |---|---|
-| Phone performance/digests (`PLT-04`, `RES-06`), sustained heat/battery, audible quality and unaided play answers (`RES-22`) | Before M3 acceptance. Run the ten-minute Camp performance test cool, unplugged, in flight mode; a short report does not prove an hour's battery target. ≥97% on-time frames; no frame >50 ms late. |
-| Spread failure and named fire selection (`PRN-07`) | Independent M3 review and repair, with new evidence under unchanged acceptance. No passing retune or rejudging failed seeds. |
+| Phone performance/digests (`PLT-04`, `RES-06`), sustained heat/battery, audible quality and unaided play answers (`RES-22`) | Owner evidence remains owed into M4 planning. Run the ten-minute Camp performance test cool, unplugged, in flight mode; a short report does not prove an hour's battery target. ≥97% on-time frames; no frame >50 ms late. |
+| Spread/fire-chain outcomes and repaired principle boundaries | Owner-carried M4 work under unchanged acceptance. No passing retune or rejudging failed seeds. |
 | Full starting kit/map/renewal, bodies, minds, materials, social clauses | Physical generation/weather M7; complete living settling and biological starts M8. The bounded camp proves neither. |
 | Care (`BIO-23`), winter fire (`MOM-01`) | M4 scoped care/cold consequences; M8 completes health/body dependencies. Mild-camp fire is not winter acceptance. |
 | Fever loss, buried tools, cultural transmission (`MOM-02`, `MOM-09`, `CUL-01`, `CUL-03`, `CUL-16`) | M5/M8; `RES-17` follows actual dependencies. |
@@ -57,13 +55,31 @@ Retain pause/speed (`TIM-04`), identity (`BIO-03`), needs/actions/senses (`BIO-0
 
 Storage is format 6 with strict CAMP4/LIFE2/CRFT2/KNOW2/HIST2/LEARN1/FIRE2/THER2/DRMS2 requirements selected by feature bits (A3.7, A10–A12). Torus centimetres, mm/mg/ml/milli-°C and integer seconds; a year is 60 days. Stable IDs, NAME remapping, keyed chance, canonical digests and immutable display copies remain authoritative. Rules-only additions leave the world-making fingerprint unchanged. No global recipe unlock, camera-based learning, scripted outcome, replenishment or second simulation. Tunable values remain labelled T in catalogues; collapsed finished-task text grants no new calibration authority.
 
-Fireless b gate: discovery 40/40, spread **4/40 fails** the required 32/40, three routes and zero-flake control. A reproduced accessible-input selection bug was fixed without changing T values. Fresh full-kit e seeds 1001–1020: discovery **18/20 passes**, spread **6/20 fails** 16/20, two routes and four-year zero-flake control pass. RES-13 fresh rerun not run: spread failure was already mathematically certain (max 26/40 < 32); other thresholds passed on the first 20. The attempted rerun was cancelled; eight completed partial results are excluded. No third set or retuning.
+**CLOSED by the owner, 10 October 2026** (“if bug fixes are done, close M3”). This is an explicit partial closure, not passing acceptance: the independent review remains **NOT CLOSE**, and no fresh independent re-review has occurred. Failed acceptance and owed evidence carry to M4 planning. PROJECT.md's numbers remain unchanged; questionable rules or numbers should be raised with the owner, never worked around.
 
-Idea d ALL40 had 37 relevant tries (≥30), but reopen acceptance failed. Fixture/paused-lesson faults have regressions; fresh e pairs 2001–2020 have 20/20 relevant tries (≥15) and all pending/delivered/final reopens pass. Success is recorded separately, never guaranteed. Name-based bank/carry choices in `FireRules::choose` still fail `PRN-07`; generic craft matching alone does not close that Check.
+| Review finding / repair | Commits and regression evidence |
+|---|---|
+| 4: strict saves | `a8f1e4aa`, `f3ae3029`: exact hearth Item/Fire ownership including zero; pending ideas require a real allocated person, not merely a plausible global serial. Rejection probes and cross-record tests pass. |
+| 3: generic rules | `34b949af`: food thermal processing and craft/bank/carry selection use characteristic fits; identically renamed food/fuel behave the same. |
+| 2: perceived facts | `6e376fd5`, `35745523`: personal uncertain fire evidence; hidden-property choice invariance; teacher uses visible evidence/recorded reply and learner decides from its own state. Unknown-fuel trials retain uncertainty. |
+| 5: kept reasons | `ea26fa44`: immutable winning and two rejected craft/fire/warming options, saved and shown in Details; current reasons cleared/replaced correctly. |
+| New own-save bug | `ea8b424c`: reopen large choice histories with encoded-byte bounds and linear link validation; 100,001 choices/Results round-trip and orphan rejection. |
+| 6: fire-chain scene | `758b4fb2`, `bc6e3189`, `9d961601`: autonomous frozen scene/control, storage measurements, both friction routes observed; actual-action regressions pass. Scene exists; its acceptance fails below. |
+| Performance | `43da3f87`: fire/deadline indexes skip spent stock; exact retained-seed digest and shuffled/distractor regressions pass. |
 
-Missing learners rarely completed observation/practice despite kind teachers; hourly diagnosis cannot establish every refusal/interruption/material cause. Spent history inputs remain full items (~22.5k by day 45); live carried-food indexing is digest-exact, but long-game compaction remains proposed. Endpoint seek/recovery no longer retains unseen deep knowledge trails. Craft events still settle serially under both worker settings; matching digests do not prove parallel craft speed.
+Fresh build/source `bc6e3189` was frozen before judging untouched seeds; [retained freeze and per-seed records](dist/M3-REPAIR-GATES.json) identify binary, settings, timings and excluded runs. No installed actions or forced memories/discoveries. T values did not change.
 
-The final routine and single milestone audit passed; timings, seeds, digests, principle Checks and memory figures live in `dist/M3-CHECKS.md`. The completed audit predates the owner's subsequent reduction of future audits. The requested tens-of-years/minute per-seed speed remains unmet. No cloud emulation or labelled First flake proves phone performance or discovery frequency.
+- **Spread FAILED:** range 6101–6120 stopped after six completed runs, **1/6 joint** timely discovery and ≥19/25 holders; five misses make the best possible final result **15/20 <16**. All six discovered in time; routes 1 and 3 occurred. Control 6141 was stopped incomplete (last progress day 140/240); no four-year control pass is claimed. Earlier 1001–1020 joint count is corrected to **5/20**, not the standalone holder count 6/20; even 20 fresh successes could give only **25/40 <32**.
+- **Fire chain RES-23 FAILED:** range 7101–7120 stopped after eleven completed three-year runs, **0/11**, so at best **9/20 <10**. All eleven recorded zero successful tending and zero cooked food. Wet control 7141 completed with no ember/flame/cooking. Drill embers were recorded in **7101, 7104 and 7109**; 7101's was at day 55. These original ember counts omitted plough results; `9d961601` repairs the observer. Zero tending/cooking independently establishes failure, so a rerun cannot change this verdict. Cancelled seeds are excluded.
+- **VOID earlier repair build:** SHA `59916f95…`, range 7001–7020: completed scenes hit the now-fixed 100,000-choice reopen cap. No gate verdict is drawn from that build; spread never started.
+
+Storage remains an obligation: day-45 seed 1001 retained **22,541 spent items** (16,534 kernels) among 25,895 items; compressed snapshot 1,165,125 bytes. Three-year seed 7101 retained **185,096 choices: 61,699/year, 251.9 raw bytes/choice, 2,982,223-byte (2.844 MiB) compressed world save**. Repaired diagnostic 7002 retained **242,397: 80,799/year, 251.8 bytes/choice, 5,391,770-byte (5.142 MiB) save**. Neither is a long-game bound. Proposed M4/M10 work combines spent-item compaction with retaining history-linked/current/recent reasons and compacting older unlinked choices while preserving identities and equivalent state; no retention policy was changed here.
+
+Focused repair tests pass ([counts/timings](dist/M3-CHECKS.md)). Serial three-year 7101 took **104.516 s /210.4 MiB** (1.72 game years/minute); completed fire seeds ranged **0.58–2.20 years/minute**, spread **0.69–3.77**. Five-process pool took **1,102.990 s**, plus the first serial seed; completed judged scenes alone represent **2.03 game years/minute overall** across that elapsed time, including the cancelled control's wait. This is cloud evidence, below the owner's tens-of-years/minute target. Indexed diagnostic 7002 preserved its exact digest while improving 102.845→87.357 s, peak 264.2 MiB before indexing. Craft events still settle serially under both worker settings; equal digests do not prove parallel craft speed.
+
+The coordinator deliberately stopped the repair routine before completion; **no repair routine PASS is claimed**. Owner's 15:27 instruction stops calibration, gates, routine and APK work; coordinator runs the routine after this handoff. No repaired APK was exported. Existing check 41305 is pre-review (27.930 MiB); release 41301 remains untouched. Signing remains with the coordinator. The historical audit is not recertification of these repairs; no full audit repeated. Only unchanged-T baseline calibration seed 5001 ran; no calibration change or final 7201/6201 judgement followed.
+
+Still owed: phone/cloud digest comparison, ≥97% on-time frames/no frame >50 ms late, sustained heat/battery, audible quality and unaided owner play evidence; full phone and headless speed acceptance, long-game storage and full-scale dependencies remain open. Builder stops here; M4 planning is next, not started by this repair run.
 
 Task IDs remain for navigation; completed details are not active work:
 
@@ -84,7 +100,7 @@ Task IDs remain for navigation; completed details are not active work:
 | `T3.13b.5` | Sharp-stone/control/skill proofs; population spread failed. |
 | `T3.13c.1` | Fire/timer/thermal storage and strict deadlines. |
 | `T3.13c.2` | Two friction routes and smoke hints. |
-| `T3.13c.3` | Conserved lighting/fuel/banking/carrying; named choice repair owed. |
+| `T3.13c.3` | Conserved lighting/fuel/banking/carrying; generic choice repair completed. |
 | `T3.13c.4` | Felt warmth, rest-near-fire, extra-water remainder. |
 | `T3.13c.5` | Retained cooking/burning, nutrition and incidental noticing. |
 | `T3.13c.6` | Flame/cards and finite cold-hearth variant. |
@@ -95,7 +111,7 @@ Task IDs remain for navigation; completed details are not active work:
 | `T3.13e.1` | Factual History links and restoring Back. |
 | `T3.13e.2` | Portrait/landscape/large text and bounded tap/work/fire cues. |
 | `T3.13e.3` | Fresh frozen closing proofs, routine, milestone audit; phone comparison owed. |
-| `T3.13e.4` | **Next:** independent review with builder stopped, owner phone/play evidence and unresolved acceptance. |
+| `T3.13e.4` | Independent review completed at `6b4fee21` (NOT CLOSE); no fresh re-review. Owner disposition above. |
 | `T3.13e.5` | Early owner-approved chainsaw: obsolete pages/converters/unused APK art removed; approved source art retained. APK 50.074→27.663 MiB. |
 
 Review must preserve accepted M1 proofs, personal unknowns, conservation, interruption/reopen, shared nightly caps, non-stacking dream pull, privacy and factual attribution. Keep fault tests for distance/duplicate credit, negative fuel, repeated cooking, missed deadlines, missing input memory, separate dream caps and duplicated strength. Qualify mechanical low/high trials separately from autonomous gate evidence.

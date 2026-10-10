@@ -18,12 +18,10 @@ The early chainsaw removed obsolete developer pages, converters and unused packa
 
 Follow the latest note's Discovery camp route: useful flake → maker/learner/source/input → Back; inspect fire and cooked food; send an idea from a real memory and follow its actual attempt after reopening. Labelled First flake is inspection evidence only. Pause to read; rotate and try larger text.
 
-[Existing release APK 41301](https://github.com/gunsandsalvi/Project-Nature/raw/ccr-13ab6fef-fspju6/dist/kindling.apk) · [Checksum](kindling.apk.sha256). It remains unchanged. [Current check APK 41305](../build/apk-check/kindling-41305-check.apk) cannot update that release installation.
+[Existing release APK 41301](https://github.com/gunsandsalvi/Project-Nature/raw/ccr-13ab6fef-fspju6/dist/kindling.apk) · [Checksum](kindling.apk.sha256). It remains unchanged. [Existing pre-review check APK 41305](../build/apk-check/kindling-41305-check.apk) cannot update that release installation.
 
 ## What is rough
 
 Not release-signed: built in check mode; release signing waits for the owner's passphrase.
 
-M3 is built, awaiting independent review and owner evidence, not accepted complete. Fireless b spread failed 4/40; full-kit e spread failed 6/20. Discovery/routes/control passed. Old d idea reopens failed; repaired fresh e pairs pass all phase reopens. Named bank/carry fire choices still fail PRN-07. No retuning or relaxed thresholds. Latest notes retain the precise results, spent-item compaction risk, unmet speed target and phone/battery/play evidence still owed.
-
-Earlier c/d routines had failed steps with focused repairs; they are not retroactively claimed as whole passes. Final e routine and the single milestone audit passed, as recorded in M3 Checks. Full populations, geography, winter health and later craft/social clauses remain deferred.
+Current owner disposition, remaining acceptance and storage risks live in [M3 result](../IMPLEMENTATION.md#m3-result). Source repairs and existing pre-review packaging are distinguished in [the latest note](NOTE-3.13e.md); measurements are in [M3 Checks](M3-CHECKS.md).
