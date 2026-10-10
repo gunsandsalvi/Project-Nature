@@ -126,6 +126,7 @@
 #include "kd/look/frame.hpp"
 #include "kd/look/measures.hpp"
 #include "kd/num/digest.hpp"
+#include "kd/proof/idea_cases.hpp"
 #include "kd/proof/learning_cases.hpp"
 #include "kd/proof/proof.hpp"
 #include "kd/run/workers.hpp"
@@ -143,6 +144,8 @@ int usage() {
         stderr,
         "usage: kindling proof [--threads N] [suite...]\n"
         "       kindling suites\n"
+        "       kindling idea-capture <folder> <seed> <build> [data] conditional app test save\n"
+        "       kindling idea-gate <first-seed> <count> conditional paired sleepers\n"
         "       kindling learning-gate <first-seed> <count> [control]  finite multi-year scenes\n"
         "       kindling discovery <seed> <new-folder> [data] [build]  capture an ordinary first flake\n"
         "       kindling catalogue check|schema|fingerprint [data]\n"
@@ -1325,6 +1328,63 @@ int main(int argc, char** argv) {
     }
     const std::string_view command = args.front();
     args.erase(args.begin());
+    if (command == "idea-capture") {
+        if (args.size() < 3 || args.size() > 4) return usage();
+        kd::data::Catalogue catalogue;
+        if (!catalogue.load(kd::data::read_catalogue(args.size() == 4 ? std::string(args[3]) : "data")).empty())
+            return 1;
+        const auto seed = std::strtoull(std::string(args[1]).c_str(), nullptr, 10);
+        auto scene = kd::proof::remembered_wood(catalogue, seed);
+        std::error_code error;
+        std::filesystem::create_directories(std::string(args[0]), error);
+        if (error) return 1;
+        kd::save::DiskFiles files{std::string(args[0])};
+        kd::save::Keeper keeper(files, std::string(args[2]));
+        (void)keeper.begin({}, catalogue);
+        kd::demo::About about;
+        about.name = "Remembered wood — conditional test scene";
+        about.seed = seed;
+        about.camps = 1;
+        about.camp_alpha = about.discovery = true;
+        keeper.about(kd::demo::about_text(about));
+        keeper.snapshot(scene.camp->world());
+        keeper.pause_mark(scene.camp->world().frontier());
+        keeper.flush();
+        if (keeper.failed()) return 1;
+        std::printf("%llu %llu\n", static_cast<unsigned long long>(scene.person.value),
+                    static_cast<unsigned long long>(scene.memory));
+        return 0;
+    }
+    if (command == "idea-gate") {
+        if (args.size() != 2) return usage();
+        kd::data::Catalogue catalogue;
+        if (!catalogue.load(kd::data::read_catalogue("data")).empty()) return 1;
+        const auto seed = std::strtoull(std::string(args[0]).c_str(), nullptr, 10);
+        const auto count = std::strtoull(std::string(args[1]).c_str(), nullptr, 10);
+        if (count == 0 || count > 40) return usage();
+        for (std::uint64_t n = 0; n < count; ++n) {
+            const auto before = std::chrono::steady_clock::now();
+            const auto p = kd::proof::idea_pair(catalogue, seed + n);
+            const auto ms =
+                std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - before)
+                    .count();
+            std::printf(
+                "{\"seed\":%llu,\"status\":%u,\"dream_at\":%lld,\"attempt_at\":%lld,\"control_try_at\":%lld,\"missing_"
+                "attempt_at\":%lld,\"success\":%lld,\"control_success\":%lld,\"missing_success\":%lld,\"removed_mg\":%"
+                "lld,\"pending_reopen\":%s,\"delivered_reopen\":%s,\"final_reopen\":%s,\"absent_conserved\":%s,\"sent_"
+                "digest\":\"%s\",\"control_digest\":\"%s\",\"missing_digest\":\"%s\",\"ms\":%lld}\n",
+                static_cast<unsigned long long>(p.seed), static_cast<unsigned>(p.status),
+                static_cast<long long>(p.dream_at), static_cast<long long>(p.attempt_at),
+                static_cast<long long>(p.control_try_at), static_cast<long long>(p.missing_attempt_at),
+                static_cast<long long>(p.success), static_cast<long long>(p.control_success),
+                static_cast<long long>(p.missing_success), static_cast<long long>(p.removed_mg),
+                p.pending_reopen ? "true" : "false", p.delivered_reopen ? "true" : "false",
+                p.final_reopen ? "true" : "false", p.absent_conserved ? "true" : "false", p.sent_digest.c_str(),
+                p.control_digest.c_str(), p.missing_digest.c_str(), static_cast<long long>(ms));
+            std::fflush(stdout);
+        }
+        return 0;
+    }
     if (command == "learning-gate") {
         if (args.size() < 2 || args.size() > 3) return usage();
         kd::data::Catalogue catalogue;

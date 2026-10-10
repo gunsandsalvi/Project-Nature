@@ -333,3 +333,78 @@ TEST_CASE("idea natural_sent_same_thought uses one constructor and refresh_not_s
     CHECK(natural.thought().decision_pull == 0);
     CHECK(natural.thought().first_attempt_at == -1);
 }
+
+#include "kd/proof/idea_cases.hpp"
+TEST_CASE("idea missing-input control removes actual boards without erasing a conserved hearth") {
+    const auto pair = kd::proof::idea_pair(idea_catalogue(), 201);
+    CHECK(pair.removed_mg > 0);
+    CHECK(pair.pending_reopen);
+    CHECK(pair.delivered_reopen);
+    CHECK(pair.final_reopen);
+    CHECK(pair.absent_conserved);
+    CHECK(pair.missing_attempt_at == -1);
+    CHECK(pair.missing_success == 0);
+    CHECK(pair.status == 2);
+    CHECK(pair.attempt_at >= pair.dream_at);
+    CHECK(pair.attempt_at < pair.dream_at + kd::demo::Living::kDreamLife);
+}
+
+TEST_CASE("idea paired seed 221 keeps interrupted shared practice from abandoning a teacher's drink") {
+    // The former direct Work resume stole the teacher's unfinished drink, leaving 330 ml
+    // allocated while walking; the strict reader correctly refused the final snapshot.
+    const auto pair = kd::proof::idea_pair(idea_catalogue(), 221);
+    CHECK(pair.pending_reopen);
+    CHECK(pair.delivered_reopen);
+    CHECK(pair.final_reopen);
+    CHECK(pair.absent_conserved);
+    CHECK(pair.control_try_at == -1);
+    CHECK(pair.missing_attempt_at == -1);
+    CHECK(pair.missing_success == 0);
+}
+
+#include "kd/demo/kept.hpp"
+TEST_CASE("idea command_cut_recovery replays one durable request and never a torn request") {
+    auto scene = kd::proof::remembered_wood(idea_catalogue(), 201);
+    kd::save::FakeFiles saved;
+    {
+        kd::save::Keeper keeper(saved, "idea-cut-test");
+        (void)keeper.begin({}, idea_catalogue());
+        keeper.snapshot(scene.camp->world());
+        keeper.pause_mark(scene.camp->world().frontier());
+        keeper.flush();
+        REQUIRE_FALSE(keeper.failed());
+    }
+    const auto command =
+        scene.camp->world().command(101, kd::demo::Living::kIdeaDream, scene.person.value, scene.memory);
+    scene.camp->world().run_to(102);
+    const auto sent_digest = scene.camp->world().digests().whole;
+    auto untouched = kd::proof::remembered_wood(idea_catalogue(), 201);
+    untouched.camp->world().run_to(102);
+    const auto untouched_digest = untouched.camp->world().digests().whole;
+    for (std::uint64_t calls = 0; calls <= 4; ++calls) {
+        auto files = saved;
+        {
+            kd::save::Keeper keeper(files, "idea-cut-test");
+            (void)keeper.open();
+            files.stop_after(calls);
+            (void)keeper.command(command);
+        }
+        files.restart();
+        files.power_cut();
+        kd::save::Keeper keeper(files, "idea-cut-test");
+        auto kept = kd::demo::keep_crowd(keeper, idea_catalogue(), 201, 1, true);
+        INFO(calls);
+        INFO(kept.problem);
+        REQUIRE(kept.crowd);
+        auto& w = kept.crowd->world();
+        w.run_to(102);
+        const auto& acts = w.beings().raw().get<kd::world::Dreams>(w.beings().handle(scene.home)).acts;
+        REQUIRE(acts.size() <= 1);
+        CHECK(w.digests().whole == (acts.empty() ? untouched_digest : sent_digest));
+        if (!acts.empty()) {
+            CHECK(acts.front().memory == scene.memory);
+            CHECK(acts.front().status == 1);
+            CHECK(acts.front().first_attempt_at == -1);
+        }
+    }
+}

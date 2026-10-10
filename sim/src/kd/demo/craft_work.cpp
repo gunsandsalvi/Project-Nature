@@ -714,6 +714,14 @@ bool Crafting::continue_work(Living& living, world::Context& c, world::Beings::H
     auto& work = *pending;
     const auto person = w.beings().id_of(h);
     const auto home = raw.get<Home>(h).camp;
+    // Paused shared practice must return through Learning::choose, which revalidates both people.
+    // A learner finishing another activity cannot restart the teacher's unfinished drink or rest.
+    if (work.lesson != 0) {
+        const auto& lessons = raw.get<world::Lessons>(w.beings().handle(home));
+        const auto session = std::find_if(lessons.sessions.begin(), lessons.sessions.end(),
+                                          [&](const auto& s) { return s.id == work.lesson; });
+        if (session == lessons.sessions.end() || session->state == 2) return false;
+    }
     const auto here = raw.get<world::Place>(h).at;
     auto& life = raw.get<world::Life>(h);
     life.portion = 0;

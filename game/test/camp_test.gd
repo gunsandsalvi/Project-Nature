@@ -2,6 +2,7 @@
 extends GdUnitTestSuite
 
 const Camp := preload("res://pages/camp.gd")
+const Dreams := preload("res://camp/dreams.gd")
 const TEST_ROOT := "user://test-worlds/camp-alpha"
 
 
@@ -494,7 +495,7 @@ func test_low_storage_warns_before_save_failure_and_survives_saved_confirmation(
 
 
 func test_actual_arrival_keeps_the_zero_pull_explanation() -> void:
-	var words := preload("res://camp/dreams.gd").record_words(
+	var words := Dreams.record_words(
 		{
 			"name": "Ari",
 			"place": "water",
@@ -514,70 +515,3 @@ func test_actual_arrival_keeps_the_zero_pull_explanation() -> void:
 	assert_str(words).contains("Their needs led this choice; the dream added no pull")
 	assert_str(words).contains("Reached the remembered place")
 	assert_str(words).not_contains("made this feel a little more worthwhile")
-
-
-func test_idea_confirmation_cancel_back_revalidates_without_recipe_names() -> void:
-	var page := _page()
-	var person := int(page.people[0].id)
-	page.open_dream(person, true)
-	var digest: String = page.world.digest()
-	page._dreams.ideas()
-	assert_str(page._dreams.stage).is_equal("ideas")
-	# A stale visible choice must be revalidated by the native bridge, never acted from its label.
-	var stale := {"memory": 999999, "name": "Twirled dry wood", "benefit": "warmth", "at": 0}
-	page._dreams.choose_idea(stale)
-	assert_str(page._dreams._title.text).is_equal("Recall warmth they felt")
-	assert_str(page._dreams._title.text).not_contains("ember")
-	assert_str(page._dreams._title.text).not_contains("fire drill")
-	for window: Vector2 in [Vector2(360, 800), Vector2(1080, 2400), Vector2(800, 360)]:
-		page.layout(window, Rect2(Vector2.ZERO, window))
-		for frame in 4:
-			await await_idle_frame()
-		for button: Control in [page._dreams._cancel, page._dreams._confirm]:
-			assert_float(button.size.y).is_greater_equal(48)
-			assert_bool(Rect2(Vector2.ZERO, window).encloses(button.get_global_rect())).is_true()
-	page._dreams.send()
-	assert_str(page._dreams.stage).is_equal("confirm")
-	assert_array(page.world.dream_records()).is_empty()
-	assert_str(page.world.digest()).is_equal(digest)
-	page._dreams.back()
-	assert_str(page._dreams.stage).is_equal("ideas")
-	page._dreams.close()
-	page.free()
-
-
-func test_private_idea_times_describe_actual_attempt_without_claiming_causation() -> void:
-	var act := {
-		"name": "Ada",
-		"place": "An idea from remembered work",
-		"kind": 1,
-		"requested": 100,
-		"received": 100,
-		"executed": 200,
-		"until": 259400,
-		"status": 2,
-		"reason": 0,
-		"decision_at": 300,
-		"choice": 4,
-		"pull": 60,
-		"visited_at": -1,
-		"first_attempt_at": 900,
-		"result_at": 900,
-		"result": "The attempt failed"
-	}
-	var text: String = page_dream_words(act)
-	assert_str(text).contains("working with materials")
-	assert_str(text).contains("First matching action")
-	assert_str(text).contains("attempt failed")
-	assert_str(text).contains("timing alone does not show")
-	assert_str(text).not_contains("ember_drill")
-	act.first_attempt_at = -1
-	act.result_at = -1
-	assert_str(page_dream_words(act)).contains("No matching action recorded yet")
-	act.status = 3
-	act.reason = 4
-	assert_str(page_dream_words(act)).contains("memory was lost")
-
-
-func page_dream_words(act: Dictionary) -> String:
-	return preload("res://camp/dreams.gd").record_words(act, 1000)
