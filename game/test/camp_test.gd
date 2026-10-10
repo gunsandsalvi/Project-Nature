@@ -240,7 +240,7 @@ func test_living_card_uses_saved_choice_and_needs_at_the_displayed_action() -> v
 	page._refresh_records()
 	assert_str(page._card.text).contains("Needs met:")
 	assert_str(page._card.text).contains("Remembered supplies")
-	assert_str(page._card.text).contains("Didn't")
+	assert_str(page._card.text).contains("Rejected")
 	var digest: String = page.world.digest()
 	page._more.pressed.emit()
 	assert_str(page.world.digest()).is_equal(digest)
@@ -314,7 +314,7 @@ func test_dream_cancel_and_saved_pending_times() -> void:
 	page._refresh_records()
 	assert_str(page._card.text).not_contains("Your")
 	assert_str(page._card.text).not_contains("player")
-	assert_str(page._card.text).contains("Chose this at")
+	assert_str(page._card.text).contains("Kept choice at")
 	page.free()
 
 
@@ -400,12 +400,21 @@ func test_holding_a_drawn_person_opens_the_power_ring_once() -> void:
 
 func test_sent_dream_is_readable_during_the_same_uninterrupted_sleep() -> void:
 	var page := _page()
-	page.world.run_until(36000)
-	await _settled(page)
-	var sleeping: Array = page.world.people().filter(
-		func(p: Dictionary) -> bool: return int(p.action_code) == 2 and int(p.action_end) > 36060
-	)
+	# Observe a real sleep interval; common choices no longer promise sleep at a fixed second.
+	var sleeping: Array = []
+	for moment in range(36000, 3 * 86400, 3600):
+		page.world.run_until(moment)
+		await _settled(page)
+		sleeping = page.world.people().filter(
+			func(p: Dictionary) -> bool:
+				return int(p.action_code) == 2 and int(p.action_end) > moment + 60
+		)
+		if not sleeping.is_empty():
+			break
 	assert_array(sleeping).is_not_empty()
+	if sleeping.is_empty():
+		page.free()
+		return
 	var person: Dictionary = sleeping[0]
 	var at: int = page.world.frontier()
 	page.open_dream(int(person.id))

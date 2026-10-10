@@ -31,7 +31,7 @@ static func person(p: Dictionary, details: bool, now: int) -> String:
 			"Feels %.1f °C · warmth %d/100.\n" % [float(p.felt_milli_c) / 1000, int(p.warmth_need)]
 		)
 	if not p.get("reasons", []).is_empty():
-		return words + kept_reasons(p.reasons)
+		return words + kept_reasons(p.reasons) + _person_facts(p, now)
 	if choice < 3:
 		words += (
 			"Why: %s was %d/100. Expected +%d.\nAbout %d min for travel and work."
@@ -114,6 +114,12 @@ static func person(p: Dictionary, details: bool, now: int) -> String:
 					]
 				)
 		words += "\n\nDidn't %s: %s." % [actions[option], reason]
+	return words + _person_facts(p, now)
+
+
+static func _person_facts(p: Dictionary, now: int) -> String:
+	var words := ""
+	var goals := ["food", "water", "rest"]
 	words += "\n\nRemembered supplies\nThey may have changed since then."
 	for i in 3:
 		if int(p.sources[i]) == 0:
