@@ -50,7 +50,7 @@ struct RoutineHistory {
         if (day != row.day) {
             for (auto& old : current) {
                 old.id = next++;
-                days.push_back(std::move(old));
+                days.push_back(old);
             }
             current.clear();
             day = row.day;
@@ -58,7 +58,7 @@ struct RoutineHistory {
         const auto at = std::lower_bound(current.begin(), current.end(), row.key(),
                                          [](const auto& old, const auto& key) { return old.key() < key; });
         if (at == current.end() || at->key() != row.key()) {
-            current.insert(at, std::move(row));
+            current.insert(at, row);
         } else {
             at->tries += row.tries;
             at->successes += row.successes;

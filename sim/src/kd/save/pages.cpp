@@ -51,6 +51,7 @@ std::optional<std::vector<std::string>> page_paths(std::span<const Chunk> chunks
     std::vector<Reference> references;
     if (!read_manifest(chunks, total, references)) return {};
     std::vector<std::string> paths;
+    paths.reserve(references.size());
     for (const auto& ref : references) paths.push_back(path(ref.hash));
     return paths;
 }

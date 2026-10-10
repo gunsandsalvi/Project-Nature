@@ -477,7 +477,7 @@ const World::PhysicalItems& World::physical_items(ecs::Id camp) const {
                     }
                 physical_address_.erase(at);
             }
-            if (h && desired) insert(id, *h, *desired);
+            if (h && desired) insert(id, h.value_or(Things::Handle{}), desired.value_or(PhysicalAddress{}));
         }
     }
     physical_dirty_.clear();

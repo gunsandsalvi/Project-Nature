@@ -493,7 +493,10 @@ TEST_CASE("after a power cut the folder opens and the world made again matches t
     // frames are represented by the recoverable snapshots.
     {
         kd::save::Keeper keeper(cut);
-        const auto held = kd::save::read_year(*cut.read(kd::save::year_file(1)));
+        const auto bytes = cut.read(kd::save::year_file(1));
+        REQUIRE(bytes.has_value());
+        if (!bytes) return;
+        const auto held = kd::save::read_year(*bytes);
         std::vector<kd::world::Record> want;
         for (const auto& record : made.records)
             if (record.key.second >= held.compacted_before || kept.crowd->world().keeps(record)) want.push_back(record);

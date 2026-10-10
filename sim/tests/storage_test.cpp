@@ -32,7 +32,7 @@ struct StorageCamp {
             h, w.beings().raw().get<kd::world::Camp>(w.beings().handle(home)).stone_at);
         auto& item = w.things().raw().emplace<kd::world::Item>(h);
         item.home = home;
-        item.kind = item.material = *storage_catalogue().find("item", "base:flint");
+        item.kind = item.material = storage_catalogue().find("item", "base:flint").value_or(UINT32_MAX);
         item.length = 100;
         item.state = 4;
         return w.things().id_of(h);
@@ -175,7 +175,7 @@ TEST_CASE("two day diagnostic expiry preserves sparse linked and current reasons
     result.choice = 1;
     result.actor = person;
     result.place = raw.get<kd::world::Place>(ph).at;
-    result.recipe = *storage_catalogue().find("blueprint", "base:butcher");
+    result.recipe = storage_catalogue().find("blueprint", "base:butcher").value_or(UINT32_MAX);
     result.inputs.push_back({input});
     history.events.push_back(result);
     kd::world::Memory remembered;
@@ -232,7 +232,7 @@ TEST_CASE("exhausted exposure facts stay identical after archive and later camp 
     const auto id = fixture.spent();
     const auto h = w.things().handle(id);
     auto& item = w.things().raw().get<kd::world::Item>(h);
-    item.kind = item.material = *storage_catalogue().find("item", "base:roots");
+    item.kind = item.material = storage_catalogue().find("item", "base:roots").value_or(UINT32_MAX);
     auto& timer = w.things().raw().emplace<kd::world::HeatTimer>(h);
     timer.item = timer.chance_source = id;
     std::string why;
@@ -375,6 +375,7 @@ TEST_CASE("page publication survives each power cut and damaged pages fall back 
         kd::save::Keeper keeper(files, "storage-test");
         const auto found = keeper.open();
         REQUIRE(found.snapshot);
+        if (!found.snapshot) return;
         CHECK(found.damaged.size() == 1);
         std::string why;
         const auto reopened = kd::demo::CrowdWorld::open(storage_catalogue(), *found.snapshot, why);
@@ -569,7 +570,10 @@ TEST_CASE("a corrected public prefix lowers the compacted replay floor without h
         CHECK_FALSE(keeper.failed());
         CHECK(keeper.mismatches() == 1);
     }
-    const auto held = kd::save::read_year(*files.read(kd::save::year_file(1)));
+    const auto journal_bytes = files.read(kd::save::year_file(1));
+    REQUIRE(journal_bytes.has_value());
+    if (!journal_bytes) return;
+    const auto held = kd::save::read_year(*journal_bytes);
     CHECK_FALSE(held.cut);
     CHECK(held.compacted_before == 50);
     REQUIRE(held.records.size() == 2);
