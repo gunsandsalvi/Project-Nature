@@ -76,6 +76,8 @@ Twenty years/minute means three wall-seconds/year: at 7,000 people and four core
 **Tests:** Corrupt/retyped/dead targets, hidden-property invariance, renamed materials, competing categories, forged reasons; unrelated fires cannot pass a chain.
 **On the phone:** Inspect body choice, teaching refusal and old fire event after reopen; collect owed M3 digest/frame evidence on a repaired APK.
 
+**α4.1a evidence:** `dist/M4-1A-DIAGNOSIS.json` reproduces all seven failed M3 end digests with output-only counters. Inclusive choosing dominates; old reachable-input indexes already exclude spent items. Offers/replies do not prove attendance. Fire 7101 exposes one ember but zero tending candidates; its 180-second unblown chance narrows the nominal lifetime. α4.1b targets storage/scans; α4.1c repairs prerequisite value/reach and attendance. Heat ancestry now requires the same physical friction ember, recorded tending and actual cooking exposure. No acceptance retune or new gate here. Phone evidence remains owed.
+
 ### α4.1b An old camp stays fast
 
 **Goal:** Remove history growth from live work.

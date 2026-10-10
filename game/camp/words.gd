@@ -414,5 +414,12 @@ static func history(event: Dictionary, people: Array, now: int) -> String:
 	if not str(event.word).is_empty():
 		words += "\nWord: " + str(event.word) + "."
 	words += "\nEvent %d · %d inputs." % [int(event.id), event.inputs.size()]
+	for source in event.get("heat_sources", []):
+		words += (
+			"\nHeat: fire %d, ember %d, %d seconds."
+			% [int(source.fire), int(source.origin), int(source.seconds)]
+		)
+		if int(source.tended_at) >= 0:
+			words += " Tended at %s." % when(int(source.tended_at), now)
 	words += kept_reasons(event.get("reasons", []))
 	return words

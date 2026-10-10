@@ -51,7 +51,7 @@ Same library in play/headless: make/open, advance, commands, snapshots/events, s
 ### A3.2 Entities and components
 
 EnTT is behind the entity layer. Never-reused 64-bit IDs encode family in four top bits; transient registry handles are unsaved. References/history/commands use IDs; ended entities leave historical records. Shared descriptors define stable names/versions/fields/units/ranges/links/effects for load/save/digest/inspection; catalogue composition replaces kind class hierarchies.
-Person/Place/Home/Activity/Schedule hold names, starting age, appearance, bounds, ml/mg supplies and actual sites. All 25 adults choose/move through Life. CAMP4/LIFE2 extend canonical registry storage; foundation fields remain unchanged. Person worlds require complete valid linked records/activities. Foundation worlds retain bytes/digests inside format 6.
+Person/Place/Home/Activity/Schedule hold names, starting age, appearance, bounds, ml/mg supplies and actual sites. All 25 adults choose/move through Life. CAMP4/LIFE2 extend canonical registry storage; foundation fields remain unchanged. Person worlds require complete valid linked records/activities. Foundation worlds retain bytes/digests inside format 7.
 Decisions follow event keys/IDs and explicit ties, never pool order. Create pools in name order; signals maintain indexes, not rules; order fuzzing preserves digests.
 
 ### A3.3 Time and events
@@ -79,7 +79,7 @@ Camp-only packaging excludes unused art and developer pages. Approved sources re
 Folder: metadata, two recent snapshots, journal, yearly history. Append/sync commands before action. One I/O thread owns writes; copy state between events, compress off-thread. Canonical versioned zstd chunks have whole-file checksums before unpacking; logs stop at damaged framing/checksums. Temporary write/sync/rename/directory-sync; write failure stops writes/world, never masks an unsaved gap.
 Save every 30 real seconds and on background/switch/export/quit; background pause mark/snapshot within Android's 10 seconds. Recover newest valid snapshot, set damaged ones aside, deterministically replay to recorded moment. Permanent history survives thinning.
 **No older-save conversion** (owner, 9 October 2026; `PLT-09` paused): reject earlier format plainly before parsing/decompression/replay/recovery writes. No upgrades, migration seals, old fixtures/corpus; delete broken obsolete tests. Chunk/component versions are strict; VERS1 reserved field is zero.
-Current snapshot/archive/folder metadata format=6. CAMP4 u32 mask: craft=1, learning=2, fire=4, ideas=8. Craft requires CRFT2/KNOW3/HIST3 and LIFE2/DRMS3; learning/fire/ideas require their exact extensions (A10–A12). Refuse unsupported/duplicate/missing chunks, orphan links, invalid bounds/quantities/progress/events and overlapping reservations. Legacy proofs retain rules.
+Current snapshot/archive/folder metadata format=7. CAMP4 u32 mask: craft=1, learning=2, fire=4, ideas=8. Craft requires CRFT2/KNOW3/HIST4 and LIFE2/DRMS3; learning/fire/ideas require their exact extensions (A10–A12). Refuse unsupported/duplicate/missing chunks, orphan links, invalid bounds/quantities/progress/events and overlapping reservations. Legacy proofs retain rules.
 Warn below configured free space (currently 1 GB); delete nothing without user. Archives validate paths/checksums and remove refused partial imports. `ArchiveWriter::next` still synchronously reads/hashes a constituent file before chunk output; tiny exports do not prove smooth large exports. Large immutable copy/compression overlap remains unmeasured.
 
 ### A3.8 Talking to Godot
@@ -289,12 +289,14 @@ M2 needs real scoped supplies and bounded renewal, consumed exactly once. Later 
 
 Current Life: food/water/rest with integer remainders; 4 kg berries/3 L daily, eight-hour sleep restores sixteen awake hours. Saved gather/carry/eat/drink/rest phases conserve partial work; cumulative intake/depletion settles before clamping. Need<20 interrupts, 36 awake hours forces rest. Body score tags 100–140 retain needs/benefits/costs/exclusions; universal kept reasons remain incomplete (A19.1).
 Metre-grid/cm positions, saved rock and deterministic four-neighbour routes/sight. Choices use remembered supplies, refreshed on arrival; notice ≤3/hour, day 50 m/night 5 m, with source/time. Founders scatter by stable keys. Upstream/root-water/crop budgets are finite; absent stands never regrow. No midnight refill or unknown container. LIFE2/DRMS3 require matching people/activities/events. DRMS3 keeps typed ended-person identities and original founder facts per camp; pending place/idea targets must be live people or recorded former people of that camp. Retyped shared serials fail; prior DRMS2 is refused without conversion.
-FIRE2/THER2 require all camp/person records, including zero-person camps; validated identities/mass/links/deadlines. Slots: 0 renewal, 2 ambient/fire, 3 food. Fuel→ash, water→vapour, quenched fuel→charcoal; reserved portions conserve mass, banking never extends indefinitely.
+FIRE3/THER2 require all camp/person records, including zero-person camps; validated identities/mass/links/deadlines. Slots: 0 renewal, 2 ambient/fire, 3 food. Fuel→ash, water→vapour, quenched fuel→charcoal; reserved portions conserve mass, banking never extends indefinitely.
 Heat2+ adds 15 °C within 2 m once across overlaps; settle warmth/water remainders before changes. Cooking exposure survives moves/splits: first-hour chance, failure stays raw, burnt after two hours or one at heat4. Physical change precedes noticing. Cold-hearth setup consumes 5 kg, grants no knowledge. M4 bodies/renewal: A19.4; full catalogues remain M8.
+
+Fire retains original friction ember, parent fire, ignition and successful timed tending. HeatTimer and cooking Result retain actual source IDs/times/durations for the first heated hour. Equal heat sources use lowest ID; movement wakes on exact source changes. The chain observer requires recorded friction and tending in the cooking ancestry. HIST4/FIRE3, format 7 refuse older layouts. Evidence never enters scoring.
 
 ## A11. Minds
 
-Choices use personally known facts at activity ends/interruptions. Current serial category precedence is incomplete common scoring; A19.1 replaces it. Minds retain evidence sources/dates, never player provenance.
+Choices use personally known facts at activity ends/interruptions in the common bounded beam (A19.1). Minds retain evidence sources/dates, never player provenance.
 Observation settles before changes/finish: torus range inclusive 500 cm, rock sight, 06:00–20:00 daylight or heat2+ light within 2 m of both. Weights deliberate4/busy1/asleep0; stable ties. Duration-normalised millionth-quarter credit: 20 quarters teaches skill1/source/route, first watch gives hunch. Saved work/try cursors prevent duplicates; cancelled strikes give none, interrupted gradual work persists.
 Teachers use visible evidence/replies, learners their own state. Telling gives hunch; kindness≥60 T offers, comfortable learners reserve/walk, ≤30 minutes/daylight/sight/2 m. First supervised success teaches skill1; practice effort4×(1+teacher level/10), success2×failure. KNOW3/LEARN1 validate participants/work/events. Caps: 200 memories,5 hunches; expire hunch at10 failures/year unused. Practice T: levels1→5 180 hours,5→10 780; unused half-life5 years, floor half-best, retain fractional fading. Founder curiosity/kindness independently20–80.
 Place dreams: three remembered sites, natural draw1/60/night, weakest need/newest/stable ties. Pull60, three days, no stacking; urgency/exhaustion wins. Private DRMS3 caps3 queued,1/person/night,3/night, reset06:00. Revalidate at sleep. Frontier confirmation, durable receipt≤1 game second; cancel restores pause, sleep interval preserved. Record actual later choice/pull/arrival, never infer causation.
@@ -313,9 +315,9 @@ M5 proves knowledge/relationships between two camps; M8 finishes culture. Names 
 
 ## A14. Story, the book of ages and the writer
 
-HIST3 keeps immutable body/fire/warming/craft/teaching reasons, actor/second, winner/two supplied alternatives, scores/needs/effort/certainty. KNOW3/work/thermal/results link choices through interruption. Readers reject mismatched actors/forged IDs/current reasons. A common stable score beam (≤30 candidates, ≤8 distinct known blueprints) compares body, finite meals, warming, tending, making and shared practice before the winner reserves resources. Reasons include three additive score terms (need, inclination/plan, effort) and the winner’s differences from its best rejected candidate.
+HIST4 keeps immutable body/fire/warming/craft/teaching reasons, actor/second, winner/two supplied alternatives, scores/needs/effort/certainty. KNOW3/work/thermal/results link choices through interruption. Readers reject mismatched actors/forged IDs/current reasons. A common stable score beam (≤30 candidates, ≤8 distinct known blueprints) compares body, finite meals, warming, tending, making and shared practice before the winner reserves resources. Reasons include three additive score terms (need, inclination/plan, effort) and the winner’s differences from its best rejected candidate.
 
-The view reads retained HIST3 events through factual templates and links actual actors, sources, inputs and results. Missing sources say “no source recorded”; spent inputs remain inspectable without being drawn as usable stock. Public History omits unnoticed uses and private player attribution; Your dreams owns the private ledger. Back restores the prior selection. M6 finishes the small book with pattern text. Director changes speed/moments only, never outcomes. Optional later writer only rewords verified records (`PRE-37`); no provider/API is selected here.
+The view reads retained HIST4 events through factual templates and links actual actors, sources, inputs and results. Missing sources say “no source recorded”; spent inputs remain inspectable without being drawn as usable stock. Public History omits unnoticed uses and private player attribution; Your dreams owns the private ledger. Back restores the prior selection. M6 finishes the small book with pattern text. Director changes speed/moments only, never outcomes. Optional later writer only rewords verified records (`PRE-37`); no provider/API is selected here.
 
 ## A15. The interface
 
@@ -416,7 +418,7 @@ Freeze hard gates before tuning; report rare qualification instead of repairing 
 Storage measurements/owner disposition: [M3 result](IMPLEMENTATION.md#m3-result). Bounded live storage: A19.2 (PLT-10 amended 10 October 2026). Terrain expansion retains cross-chunk ordering/shadow tests.
 Outstanding biology, ecology and historical-trace checks remain open until actual consumers prove them; a partial stage never certifies the full item.
 
-## A19. M4 design (approved 10 October 2026, not built)
+## A19. M4 design (approved 10 October 2026; α4.1a built, rest planned)
 
 ### A19.1 Choices and evidence
 

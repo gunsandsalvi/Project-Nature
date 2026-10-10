@@ -32,14 +32,15 @@ void save_fire(const World& w, std::vector<save::Chunk>& out) {
             ecs::write_component(*t, thermal);
         }
     });
-    out.push_back({save::tag("FIRE"), 2, true, fires.take()});
+    out.push_back({save::tag("FIRE"), 3, true, fires.take()});
     out.push_back({save::tag("THER"), 2, true, thermal.take()});
 }
 bool fire_headers(std::span<const save::Chunk> chunks, std::uint32_t features, std::string& why) {
     for (const auto tag : {save::tag("FIRE"), save::tag("THER")}) {
         const auto count = std::count_if(chunks.begin(), chunks.end(), [&](const auto& c) { return c.tag == tag; });
         const auto* c = save::find_chunk(chunks, tag);
-        if (count > 1 || bool(c) != bool(features & kFire) || (c && (!c->critical || c->version != 2))) {
+        if (count > 1 || bool(c) != bool(features & kFire) ||
+            (c && (!c->critical || c->version != (tag == save::tag("FIRE") ? 3U : 2U)))) {
             why = "fire extension is missing, duplicated or mismatched";
             return false;
         }
@@ -84,6 +85,7 @@ bool load_fire(World& w, std::span<const save::Chunk> chunks, const ecs::EntryMa
                     f.damp_remainder < 0 || f.damp_remainder >= 1000000 || f.evaporated_mg < 0 || f.fuel_mg < 0 ||
                     f.ash_mg < 0 || f.fuel_mg > item.mass || f.ash_mg != item.mass - f.fuel_mg ||
                     f.burn_remainder < 0 || f.burn_remainder >= time::kHour || f.settled_at < 0 || f.settled_at > now ||
+                    f.ignited_at < 0 || f.ignited_at > f.settled_at || f.tended_at < -1 || f.tended_at > now ||
                     !deadline(f.next) || f.embers_until < 0 || f.banked_until < 0 || f.air_until < 0 ||
                     (f.heat >= 2 && f.fuel_mg == 0) || f.next != f.deadline())
                     return fail("invalid conserved fire state");
@@ -101,6 +103,17 @@ bool load_fire(World& w, std::span<const save::Chunk> chunks, const ecs::EntryMa
                     t.hot_elapsed > t.elapsed || t.settled_at < 0 || t.settled_at > now || !deadline(t.next) ||
                     (t.completed && (t.next != 0 || (item.state != 2 && !(item.state == 4 && !item.mass)))))
                     return fail("invalid retained heat exposure");
+                std::int64_t credited = 0;
+                for (const auto& source : t.heat_sources) {
+                    if (source.from < 0 || source.from > t.settled_at || source.seconds <= 0 ||
+                        source.seconds > time::kHour || source.seconds > t.settled_at - source.from ||
+                        source.tended_at < -1 || source.tended_at > source.from)
+                        return fail("invalid retained heating source");
+                    credited += source.seconds;
+                }
+                if (credited > std::min(t.elapsed, time::kHour) || t.exposure_tended_at < -1 ||
+                    t.exposure_tended_at > t.settled_at)
+                    return fail("heating ancestry disagrees with exposure");
                 if (t.maker.value) {
                     const auto maker = w.beings().find(t.maker);
                     if (!maker || !beings.all_of<Person>(*maker)) return fail("missing cooking placer");
@@ -144,6 +157,50 @@ bool load_fire(World& w, std::span<const save::Chunk> chunks, const ecs::EntryMa
         }
         if (!r.finished()) return fail("trailing fire records");
     }
+    const auto fire_of = [&](ecs::Id id) -> const Fire* {
+        const auto h = w.things().find(id);
+        return h ? things.try_get<Fire>(*h) : nullptr;
+    };
+    for (const auto h : things.view<Fire>()) {
+        const auto id = w.things().id_of(h);
+        const auto& f = things.get<Fire>(h);
+        if (f.origin.value) {
+            const auto* root = fire_of(f.origin);
+            if (!root || root->origin != f.origin || root->source.value || root->hearth != f.hearth)
+                return fail("invalid original ember identity");
+        }
+        if (f.origin.value && f.origin != id && !f.source.value) return fail("derived fire has no physical source");
+        std::set<ecs::Id> chain{id};
+        auto source = f.source;
+        auto lit = f.ignited_at;
+        while (source.value) {
+            const auto* parent = fire_of(source);
+            if (!parent || !chain.insert(source).second || parent->origin != f.origin || parent->hearth != f.hearth ||
+                parent->ignited_at > lit)
+                return fail("invalid fire ancestry");
+            lit = parent->ignited_at;
+            source = parent->source;
+        }
+    }
+    const auto credit_valid = [&](const HeatCredit& x) {
+        const auto* fire = fire_of(x.fire);
+        return fire && fire->origin == x.origin && x.from >= fire->ignited_at;
+    };
+    for (const auto h : things.view<HeatTimer>()) {
+        const auto& t = things.get<HeatTimer>(h);
+        if (t.exposure_fire.value) {
+            const auto* fire = fire_of(t.exposure_fire);
+            if (!fire || fire->origin != t.exposure_origin || t.settled_at < fire->ignited_at)
+                return fail("invalid current heating source");
+        } else if (t.exposure_origin.value || t.exposure_tended_at != -1)
+            return fail("heat origin has no source fire");
+        for (const auto& credit : t.heat_sources)
+            if (!credit_valid(credit)) return fail("invalid retained fire identity");
+    }
+    for (const auto h : beings.view<CraftHistory>())
+        for (const auto& event : beings.get<CraftHistory>(h).events)
+            for (const auto& credit : event.heat_sources)
+                if (!credit_valid(credit)) return fail("invalid historical fire identity");
     {
         ByteReader r(save::find_chunk(chunks, save::tag("THER"))->data);
         std::uint64_t count = 0;

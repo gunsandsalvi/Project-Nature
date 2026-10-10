@@ -8,15 +8,65 @@ void FireRun::observe_result(const world::World& w, const world::Result& event) 
     if ((recipe.action == 6 || recipe.action == 11) &&
         w.things().raw().all_of<world::Fire>(w.things().handle(event.result))) {
         ++friction_results;
+        const auto& fire = w.things().raw().get<world::Fire>(w.things().handle(event.result));
+        if (fire.origin == event.result && !fire.source.value) embers.try_emplace(event.result, event.at);
         if (ember_at < 0) ember_at = event.at;
     }
     if (recipe.action == 12 && recipe.heat >= 2) {
         ++cooked;
         if (cooked_at < 0) cooked_at = event.at;
-        if (ember_at >= 0 && tend_at >= ember_at && flame_at >= ember_at && event.at >= flame_at &&
-            event.at >= tend_at && completed_at < 0)
-            completed_at = event.at;
+        pending_cooking.push_back(event);
     }
+}
+void FireRun::observe_record(const world::World& w, const world::Record& record) {
+    if (record.what == 218) {
+        const ecs::Id id{record.a};
+        const auto h = w.things().find(id);
+        if (!h || !w.things().raw().all_of<world::Fire>(*h)) return;
+        ++tended;
+        tending.emplace(id, record.key.second);
+        if (tend_at < 0) tend_at = record.key.second;
+    }
+    if (record.what == 219 && record.b >= 2) {
+        flames.emplace(ecs::Id{record.a}, record.key.second);
+        if (flame_at < 0) flame_at = record.key.second;
+    }
+}
+void FireRun::finish_interval(const world::World& w) {
+    for (const auto& event : pending_cooking)
+        for (const auto& credit : event.heat_sources) {
+            const auto ember = embers.find(credit.origin);
+            if (ember == embers.end() || credit.seconds <= 0 || credit.tended_at < ember->second ||
+                credit.from < credit.tended_at || event.at < credit.from + credit.seconds)
+                continue;
+            auto id = credit.fire;
+            std::set<ecs::Id> seen;
+            bool linked = false;
+            time::Seconds actual_flame = -1;
+            while (id.value && seen.insert(id).second) {
+                const auto h = w.things().find(id);
+                const auto* fire = h ? w.things().raw().try_get<world::Fire>(*h) : nullptr;
+                if (!fire || fire->origin != credit.origin) break;
+                const auto lit = flames.lower_bound({id, credit.tended_at});
+                if (lit != flames.end() && lit->first == id && lit->second <= credit.from)
+                    actual_flame = actual_flame < 0 ? lit->second : std::min(actual_flame, lit->second);
+                if (tending.contains({id, credit.tended_at})) {
+                    tended_fire = id;
+                    linked = true;
+                }
+                id = fire->source;
+            }
+            if (!linked || actual_flame < 0 || completed_at >= 0) continue;
+            completed_at = event.at;
+            completed_origin = credit.origin;
+            cooked_item = event.result;
+            ember_at = ember->second;
+            tend_at = credit.tended_at;
+            flame_at = actual_flame;
+            cooked_at = event.at;
+            complete = true;
+        }
+    pending_cooking.clear();
 }
 
 FireRun fire_chain(const data::Catalogue& catalogue, std::uint64_t seed, bool wet_control, time::Seconds duration,
@@ -66,14 +116,9 @@ FireRun fire_chain(const data::Catalogue& catalogue, std::uint64_t seed, bool we
         w.run_to(std::min(duration, w.frontier() + time::kHour));
         out.peak_trace_records = std::max(out.peak_trace_records, trace.size());
         const auto& history = w.beings().raw().get<world::CraftHistory>(w.beings().handle(home));
-        for (const auto& record : trace) {
-            if (record.what == 218) {
-                ++out.tended;
-                if (out.tend_at < 0) out.tend_at = record.key.second;
-            }
-            if (record.what == 219 && record.b >= 2 && out.flame_at < 0) out.flame_at = record.key.second;
-        }
         for (; cursor < history.events.size(); ++cursor) out.observe_result(w, history.events[cursor]);
+        for (const auto& record : trace) out.observe_record(w, record);
+        out.finish_interval(w);
         // Keep at most one hour of trace, never the world's accumulated routine history.
         trace.clear();
         out.complete = out.completed_at >= 0;

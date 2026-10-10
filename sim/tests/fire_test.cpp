@@ -1462,3 +1462,103 @@ TEST_CASE("making and teaching share eight blueprint slots with stable equal-sco
     CHECK(options.reasons().front().recipe == 0);
     CHECK(options.reasons().back().recipe == 8);
 }
+TEST_CASE("fire chain evidence rejects unrelated tending and follows actual carried descendants") {
+    // Labelled evidence fixture: it tests the observer, never autonomous success rates.
+    FireFixture fixture;
+    auto& w = fixture.camp.world();
+    const auto original = fixture.hearth;
+    fixture.fire().origin = original;
+    const auto other = fixture.add(fire_entry("base:dry_stick"), 1000, fixture.fire().at);
+    auto unrelated = fixture.fire();
+    unrelated.origin = other;
+    w.things().raw().emplace<kd::world::Fire>(w.things().handle(other), unrelated);
+    const auto carried = fixture.add(fire_entry("base:dry_stick"), 1000, fixture.fire().at);
+    auto child = fixture.fire();
+    child.source = original;
+    child.ignited_at = 30;
+    w.things().raw().emplace<kd::world::Fire>(w.things().handle(carried), child);
+    const auto friction = required_entry(fire_catalogue(), "blueprint", "base:ember_drill");
+    const auto roast = required_entry(fire_catalogue(), "blueprint", "base:roast_food");
+    for (int variant = 0; variant < 5; ++variant) {
+        kd::proof::FireRun run;
+        kd::world::Result ember;
+        ember.recipe = friction;
+        ember.kind = 1;
+        ember.result = original;
+        ember.at = 10;
+        run.observe_result(w, ember);
+        kd::world::Record tending;
+        tending.what = 218;
+        tending.a = variant == 0 ? other.value : original.value;
+        tending.key.second = variant == 3 ? 5 : 20;
+        run.observe_record(w, tending);
+        kd::world::Record flame;
+        flame.what = 219;
+        flame.a = variant == 4 ? other.value : original.value;
+        flame.b = 2;
+        flame.key.second = 25;
+        run.observe_record(w, flame);
+        kd::world::Result cooked;
+        cooked.recipe = roast;
+        cooked.kind = 1;
+        cooked.result = fixture.food;
+        cooked.at = 3630;
+        cooked.heat_sources = {{carried, variant == 2 ? other : original, 20, 30, 3600}};
+        run.observe_result(w, cooked);
+        run.finish_interval(w);
+        CHECK(run.complete == (variant == 1));
+        if (run.complete) {
+            CHECK(run.completed_origin == original);
+            CHECK(run.tended_fire == original);
+            CHECK(run.cooked_item == fixture.food);
+            CHECK(run.flame_at == 25);
+        }
+    }
+}
+TEST_CASE("first heated hour retains factual source through split and reopen") {
+    CookingOperations ops;
+    auto& w = ops.fires.fixture.camp.world();
+    const auto fire = ops.fires.fixture.hearth;
+    ops.fires.fixture.fire().origin = fire;
+    ops.fires.fixture.fire().tended_at = 0;
+    // This fixture starts with an ordinary hot hearth as well. Isolate the labelled source.
+    for (const auto h : w.things().raw().view<kd::world::Fire>()) {
+        if (w.things().id_of(h) == fire) continue;
+        auto& other = w.things().raw().get<kd::world::Fire>(h);
+        other.heat = 0;
+        other.next = 0;
+    }
+    ops.request(0, 921);
+    ops.request(1800, 926);
+    REQUIRE(ops.timer().heat_sources.size() == 1);
+    CHECK(ops.timer().heat_sources.front().fire == fire);
+    CHECK(ops.timer().heat_sources.front().origin == fire);
+    CHECK(ops.timer().heat_sources.front().tended_at == 0);
+    CHECK(ops.timer().heat_sources.front().seconds == 1800);
+    std::string why;
+    auto opened = reopen_fire(w, why);
+    INFO(why);
+    REQUIRE(opened);
+    w.run_to(3601);
+    opened->world().run_to(3601);
+    CHECK(w.digests().whole == opened->world().digests().whole);
+    REQUIRE(ops.timer().heat_sources.size() == 1);
+    CHECK(ops.timer().heat_sources.front().seconds == 3600);
+}
+TEST_CASE("heat ancestry readers reject forged root cycle and duration") {
+    for (int fault = 0; fault < 5; ++fault) {
+        CookingOperations ops;
+        auto& w = ops.fires.fixture.camp.world();
+        ops.fires.fixture.fire().origin = ops.fires.fixture.hearth;
+        ops.request(0, 921);
+        ops.request(100, 921);
+        if (fault == 0) ops.fires.fixture.fire().origin = ops.portion;
+        if (fault == 1) ops.fires.fixture.fire().source = ops.fires.fixture.hearth;
+        if (fault == 2) ops.timer().heat_sources.front().seconds = 3601;
+        if (fault == 3) ops.timer().heat_sources.front().origin = ops.portion;
+        if (fault == 4) ops.timer().heat_sources.front().tended_at = 101;
+        std::string why;
+        CHECK_FALSE(reopen_fire(w, why));
+        CHECK_FALSE(why.empty());
+    }
+}

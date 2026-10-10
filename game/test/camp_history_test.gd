@@ -30,6 +30,9 @@ func _link(page: Control, key: String, id: int) -> Button:
 
 func test_history_actor_and_input_links_restore_the_original_card_and_digest() -> void:
 	var page := _page()
+	# Capture the visible card after deferred drawing has grouped nearby portions.
+	await get_tree().process_frame
+	page._refresh_records()
 	var original_person: int = page.selected_id
 	var original_item: int = page.selected_item_id
 	var original_card: String = page._card.text
@@ -171,3 +174,25 @@ func test_kept_choices_show_the_winner_two_rejections_and_recorded_uncertainty()
 	assert_str(words).contains("Rejected Water · priority 30")
 	assert_str(words).contains("Rejected Rest · priority 0")
 	assert_str(words).not_contains("familiar craft seemed useful")
+
+
+func test_heat_history_keeps_recorded_fire_origin_and_actual_tending_time() -> void:
+	var event := {
+		"actor": 7,
+		"source": 0,
+		"kind": 1,
+		"name": "Roast food",
+		"at": 4000,
+		"route": 2,
+		"east_cm": 0,
+		"north_cm": 0,
+		"word": "",
+		"id": 12,
+		"inputs": [],
+		"heat_sources": [{"fire": 51, "origin": 42, "tended_at": 200, "from": 400, "seconds": 3600}]
+	}
+	var words := Words.history(event, [{"id": 7, "name": "Ari"}], 4000)
+	assert_str(words).contains("Heat: fire 51, ember 42, 3600 seconds.")
+	assert_str(words).contains("Tended at")
+	event.heat_sources[0].tended_at = -1
+	assert_str(Words.history(event, [], 4000)).not_contains("Tended at")

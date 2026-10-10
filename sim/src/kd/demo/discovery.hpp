@@ -15,7 +15,8 @@ public:
                                                  std::span<const ecs::Id> inputs);
     static std::uint64_t result(world::Context& c, world::Beings::Handle h, std::uint32_t recipe,
                                 std::span<const ecs::Id> inputs, std::vector<world::Familiar> perceived, ecs::Id result,
-                                bool success, bool unknown, std::uint8_t route);
+                                bool success, bool unknown, std::uint8_t route,
+                                std::span<const world::HeatCredit> heat_sources = {});
     static void memory(world::Context& c, world::Beings::Handle h, std::uint8_t action,
                        std::vector<world::Familiar> inputs, std::uint8_t sign, ecs::Id result = {},
                        std::uint64_t event = 0, std::uint8_t strength = 30);

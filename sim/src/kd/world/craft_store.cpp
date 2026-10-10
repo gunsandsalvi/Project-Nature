@@ -50,7 +50,7 @@ void save_craft(const World& w, std::vector<save::Chunk>& out) {
     });
     out.push_back({save::tag("CRFT"), 2, true, craft.take()});
     out.push_back({save::tag("KNOW"), 3, true, know.take()});
-    out.push_back({save::tag("HIST"), 3, true, history.take()});
+    out.push_back({save::tag("HIST"), 4, true, history.take()});
     // LEARN1 retains the foundation's four-letter wire tags.
     out.push_back({save::tag("LEAR"), 1, true, learning.take()});
 }
@@ -78,12 +78,11 @@ bool craft_headers(std::span<const save::Chunk> chunks, std::uint32_t& features,
             return fail("required craft extension is missing or mismatched");
         if (c && tag == save::tag("DRMS") && c->version != 3)
             return fail("Unsupported dream format. Start a new camp.");
-        if (c &&
-            (!c->critical ||
-             c->version != (tag == save::tag("LEAR")                                                           ? 1U
-                            : tag == save::tag("DRMS") || tag == save::tag("KNOW") || tag == save::tag("HIST") ? 3U
-                                                                                                               : 2U)))
-            return fail("unsupported camp extension version");
+        const auto version = tag == save::tag("LEAR")                                                           ? 1U
+                             : tag == save::tag("HIST")                                                         ? 4U
+                             : tag == save::tag("DRMS") || tag == save::tag("KNOW") || tag == save::tag("FIRE") ? 3U
+                                                                                                                : 2U;
+        if (c && (!c->critical || c->version != version)) return fail("unsupported camp extension version");
     }
     return true;
 }
@@ -305,6 +304,17 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
                     !person(w, e.actor) || !person(w, e.source, true) || !item(w, e.result, true) || e.route > 5 ||
                     e.kind > 5 || e.noticed > 1 || e.inputs.empty() || (e.noticed && e.word.empty()))
                     return fail("invalid craft result history");
+                std::int64_t heat_seconds = 0;
+                if (!e.heat_sources.empty() && w.catalogue().kind<data::Blueprint>()[e.recipe].action != 12)
+                    return fail("non-cooking result has heat sources");
+                for (const auto& source : e.heat_sources) {
+                    if (!item(w, source.fire) || !item(w, source.origin, true) || source.from < 0 ||
+                        source.from > e.at || source.seconds <= 0 || source.seconds > time::kHour ||
+                        source.seconds > e.at - source.from || source.tended_at < -1 || source.tended_at > source.from)
+                        return fail("invalid historical heat source");
+                    heat_seconds += source.seconds;
+                }
+                if (heat_seconds > time::kHour) return fail("cooking history credits more than one heated hour");
                 previous = e.id;
                 for (const auto& input : e.inputs)
                     if (!item(w, input.id)) return fail("orphan history input");

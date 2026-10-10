@@ -1257,6 +1257,17 @@ godot::Array KdWorld::craft_history() const {
             godot::PackedInt64Array inputs;
             for (const auto& r : e.inputs) inputs.push_back(static_cast<int64_t>(r.id.value));
             row["inputs"] = inputs;
+            godot::Array heat_sources;
+            for (const auto& source : e.heat_sources) {
+                godot::Dictionary heat;
+                heat["fire"] = static_cast<int64_t>(source.fire.value);
+                heat["origin"] = static_cast<int64_t>(source.origin.value);
+                heat["tended_at"] = source.tended_at;
+                heat["from"] = source.from;
+                heat["seconds"] = source.seconds;
+                heat_sources.push_back(heat);
+            }
+            row["heat_sources"] = heat_sources;
             row["east_cm"] = e.place.x;
             row["north_cm"] = e.place.y;
             row["reasons"] = godot::Array{};

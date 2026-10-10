@@ -74,6 +74,10 @@ func open() -> void:
 			_link("Inspect result", int(event.result), true, int(event.actor))
 		for id: int in event.inputs:
 			_link("Inspect input", id, true, int(event.actor))
+		for source in event.get("heat_sources", []):
+			_link("Inspect heating fire", int(source.fire), true, int(event.actor))
+			if int(source.origin) != 0 and int(source.origin) != int(source.fire):
+				_link("Inspect original ember", int(source.origin), true, int(event.actor))
 	if count == 0:
 		var empty := Label.new()
 		empty.text = "No discovery or learning has been recorded yet."

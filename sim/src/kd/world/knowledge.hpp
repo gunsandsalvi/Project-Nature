@@ -274,7 +274,7 @@ struct Knowledge {
 };
 struct Result {
     static constexpr std::string_view name = "craft-result";
-    static constexpr std::uint32_t version = 2;
+    static constexpr std::uint32_t version = 3;
     std::uint64_t id = 0, choice = 0;
     std::int64_t at = 0;
     num::Point place{};
@@ -283,6 +283,7 @@ struct Result {
     std::uint8_t route = 0, noticed = 0, kind = 0;
     std::vector<Link> inputs;
     std::string word;
+    std::vector<HeatCredit> heat_sources;
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
         v.u64({"id", "actual result event identity"}, c.id);
@@ -298,6 +299,7 @@ struct Result {
         v.u8({"kind", "making, discovery, learning, loss, return or failure"}, c.kind);
         v.records({"inputs", "actual input identities"}, c.inputs, 8);
         v.text({"word", "stored coined word"}, c.word, 64);
+        v.records({"heat_sources", "actual sources of cooked heat"}, c.heat_sources, 3600, 40);
     }
 };
 struct Choice {

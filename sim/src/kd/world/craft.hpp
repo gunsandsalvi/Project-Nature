@@ -16,6 +16,21 @@ struct Link {
         v.id({"id", "source entity"}, c.id);
     }
 };
+// Actual heated seconds, kept independently of what any person knows about the fire.
+struct HeatCredit {
+    static constexpr std::string_view name = "heat_credit";
+    static constexpr std::uint32_t version = 1;
+    ecs::Id fire{}, origin{};
+    std::int64_t tended_at = -1, from = 0, seconds = 0;
+    template <typename V, typename Self>
+    static void visit(V& v, Self& c) {
+        v.id({"fire", "actual source fire"}, c.fire);
+        v.id({"origin", "original friction ember, or zero"}, c.origin);
+        v.i64({"tended_at", "actual tending in this source ancestry, or minus one"}, c.tended_at);
+        v.i64({"from", "first contributed second"}, c.from);
+        v.i64({"seconds", "actual contributed heating seconds"}, c.seconds);
+    }
+};
 struct Item {
     static constexpr std::string_view name = "item";
     static constexpr std::uint32_t version = 1;

@@ -1,5 +1,7 @@
 // An autonomous cold-hearth chain: setup changes physical reserves, never minds or actions.
 #pragma once
+#include <map>
+#include <set>
 #include "kd/proof/learning_cases.hpp"
 namespace kd::proof {
 struct FireRun {
@@ -10,6 +12,12 @@ struct FireRun {
     std::uint32_t reopen_failures = 0;
     std::size_t peak_trace_records = 0;
     std::string digest;
+    ecs::Id completed_origin{}, cooked_item{}, tended_fire{};
+    std::map<ecs::Id, time::Seconds> embers;
+    std::set<std::pair<ecs::Id, time::Seconds>> tending, flames;
+    std::vector<world::Result> pending_cooking;
+    void observe_record(const world::World& w, const world::Record& record);
+    void finish_interval(const world::World& w);
     void observe_result(const world::World& w, const world::Result& event);
 };
 // Same 25 adults and finite full-kit food/water reserves as the sharp-stone scene.

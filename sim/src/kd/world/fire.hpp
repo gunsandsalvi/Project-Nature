@@ -6,8 +6,9 @@
 namespace kd::world {
 struct Fire {
     static constexpr std::string_view name = "fire";
-    static constexpr std::uint32_t version = 1;
-    ecs::Id hearth{}, owner{};
+    static constexpr std::uint32_t version = 2;
+    ecs::Id hearth{}, owner{}, origin{}, source{};
+    std::int64_t ignited_at = 0, tended_at = -1;
     num::Point at{};
     std::uint8_t heat = 0, ring = 1, unblown_checked = 1;
     std::int64_t fuel_mg = 0, ash_mg = 0, burn_remainder = 0, settled_at = 0;
@@ -26,6 +27,10 @@ struct Fire {
     }
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
+        v.id({"origin", "original friction ember, or zero"}, c.origin);
+        v.id({"source", "actual parent fire, or zero for an original hearth/ember"}, c.source);
+        v.i64({"ignited_at", "actual ignition second"}, c.ignited_at);
+        v.i64({"tended_at", "latest successful timed tending in this ancestry, or minus one"}, c.tended_at);
         v.id({"hearth", "camp containing the hearth"}, c.hearth);
         v.id({"owner", "carrier, or zero for an open hearth"}, c.owner);
         v.point({"at", "actual hearth position"}, c.at);
@@ -46,8 +51,10 @@ struct Fire {
 };
 struct HeatTimer {
     static constexpr std::string_view name = "heat_timer";
-    static constexpr std::uint32_t version = 2;
-    ecs::Id item{}, maker{}, chance_source{};
+    static constexpr std::uint32_t version = 3;
+    ecs::Id item{}, maker{}, chance_source{}, exposure_fire{}, exposure_origin{};
+    std::int64_t exposure_tended_at = -1;
+    std::vector<HeatCredit> heat_sources;
     std::uint64_t placement_choice = 0;
     std::uint8_t exposure_heat = 0;
     std::vector<Link> notices;
@@ -55,6 +62,10 @@ struct HeatTimer {
     std::int64_t elapsed = 0, hot_elapsed = 0, settled_at = 0, next = 0;
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
+        v.id({"exposure_fire", "source during the retained exposure interval"}, c.exposure_fire);
+        v.id({"exposure_origin", "source ember ancestry during that interval"}, c.exposure_origin);
+        v.i64({"exposure_tended_at", "actual ancestral tending during that interval"}, c.exposure_tended_at);
+        v.records({"heat_sources", "actual sources of the first heated hour"}, c.heat_sources, 3600, 40);
         v.id({"chance_source", "original physical portion keeps its first chance across splitting"}, c.chance_source);
         v.u8({"exposure_heat", "actual heat during the retained interval"}, c.exposure_heat);
         v.records({"notices", "people whose actual sight already tried noticing"}, c.notices, 128);

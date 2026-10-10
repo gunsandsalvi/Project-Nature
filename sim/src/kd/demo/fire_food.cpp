@@ -15,18 +15,28 @@ num::Point position(const world::World& w, ecs::Id id, time::Seconds at) {
     return i.owner.value ? w.beings().raw().get<world::Activity>(w.beings().handle(i.owner)).at(w.torus(), at)
                          : w.things().raw().get<world::Place>(h).at;
 }
-std::uint8_t heat(const world::World& w, ecs::Id id, time::Seconds now) {
+struct HeatSource {
+    std::uint8_t heat = 0;
+    ecs::Id fire{}, origin{};
+    std::int64_t tended_at = -1;
+};
+HeatSource source(const world::World& w, ecs::Id id, time::Seconds now) {
     const auto& i = w.things().raw().get<Item>(w.things().handle(id));
-    std::uint8_t out = 0;
+    HeatSource out;
     const auto here = position(w, id, now);
     for (const auto fh : w.things().raw().view<world::Fire>()) {
         const auto& f = w.things().raw().get<world::Fire>(fh);
-        if (f.hearth == i.home && w.torus().squared_distance(here, position(w, w.things().id_of(fh), now)) <= 10000)
-            out = std::max(out, f.heat);
+        const auto fire = w.things().id_of(fh);
+        if (f.hearth != i.home || w.torus().squared_distance(here, position(w, fire, now)) > 10000) continue;
+        if (f.heat > out.heat || (f.heat && f.heat == out.heat && fire < out.fire))
+            out = {f.heat, fire, f.origin, f.tended_at};
     }
     return out;
 }
-time::Seconds boundary(const world::World& w, ecs::Id id, time::Seconds now, std::uint8_t band) {
+std::uint8_t heat(const world::World& w, ecs::Id id, time::Seconds now) {
+    return source(w, id, now).heat;
+}
+time::Seconds boundary(const world::World& w, ecs::Id id, time::Seconds now, HeatSource band) {
     const auto& i = w.things().raw().get<Item>(w.things().handle(id));
     auto end = now;
     if (i.owner.value) {
@@ -40,7 +50,8 @@ time::Seconds boundary(const world::World& w, ecs::Id id, time::Seconds now, std
         if (a.from != a.to) end = std::max(end, a.end);
     }
     for (auto second = now + 1; second <= end; ++second)
-        if (heat(w, id, second) != band) return second;
+        if (const auto current = source(w, id, second); current.heat != band.heat || current.fire != band.fire)
+            return second;
     return 0;
 }
 void settle(world::Context& c, ecs::Id id) {
@@ -50,7 +61,20 @@ void settle(world::Context& c, ecs::Id id) {
     auto& i = w.things().raw().get<Item>(h);
     const auto old_heat = t.exposure_heat;
     const auto old_next = t.next;
+    const auto old_source = t.exposure_fire;
+    const auto old_tending = t.exposure_tended_at;
     const auto duration = c.now() - t.settled_at;
+    if (t.exposure_heat >= 2 && duration > 0 && t.elapsed < time::kHour && t.exposure_fire.value) {
+        const auto credited = std::min<time::Seconds>(duration, time::kHour - t.elapsed);
+        const auto old = std::find_if(t.heat_sources.begin(), t.heat_sources.end(), [&](const auto& x) {
+            return x.fire == t.exposure_fire && x.origin == t.exposure_origin && x.tended_at == t.exposure_tended_at;
+        });
+        if (old == t.heat_sources.end())
+            t.heat_sources.push_back(
+                {t.exposure_fire, t.exposure_origin, t.exposure_tended_at, t.settled_at, credited});
+        else
+            old->seconds += credited;
+    }
     if (!t.completed && t.exposure_heat >= 2) {
         t.elapsed = std::min(2 * time::kHour, t.elapsed + duration);
         if (t.exposure_heat >= 4) t.hot_elapsed = std::min(time::kHour, t.hot_elapsed + duration);
@@ -97,8 +121,8 @@ void settle(world::Context& c, ecs::Id id) {
             const auto demonstrating = work.state == 2 && work.intended && work.recipe == roast;
             if (demonstrating) Learning::observe_maker(c, person);
             auto perceived = Discovery::handling(c, person, 12, roles);
-            const auto event =
-                Discovery::result(c, person, roast, roles, std::move(perceived), id, i.state == 1, false, 0);
+            const auto event = Discovery::result(c, person, roast, roles, std::move(perceived), id, i.state == 1, false,
+                                                 0, t.heat_sources);
             auto& know = w.beings().raw().get<world::Knowledge>(person);
             if (demonstrating) {
                 Learning::worked(c, person, event, i.state == 1);
@@ -113,7 +137,11 @@ void settle(world::Context& c, ecs::Id id) {
             c.moved(t.maker);
         }
     }
-    t.exposure_heat = i.mass && !t.completed ? heat(w, id, c.now()) : 0;
+    const auto present = i.mass && !t.completed ? source(w, id, c.now()) : HeatSource{};
+    t.exposure_heat = present.heat;
+    t.exposure_fire = present.fire;
+    t.exposure_origin = present.origin;
+    t.exposure_tended_at = present.tended_at;
     t.next = 0;
     const auto take = [&](time::Seconds at) {
         if (at > c.now()) t.next = t.next ? std::min(t.next, at) : at;
@@ -124,9 +152,11 @@ void settle(world::Context& c, ecs::Id id) {
             take(c.now() + 2 * time::kHour - t.elapsed);
             if (t.exposure_heat >= 4) take(c.now() + time::kHour - t.hot_elapsed);
         }
-        take(boundary(w, id, c.now(), t.exposure_heat));
+        take(boundary(w, id, c.now(), present));
     }
-    if (old_heat != t.exposure_heat || old_next != t.next) c.item_changed(id);
+    if (old_heat != t.exposure_heat || old_next != t.next || old_source != t.exposure_fire ||
+        old_tending != t.exposure_tended_at)
+        c.item_changed(id);
 }
 }  // namespace
 std::optional<std::uint32_t> FireRules::cooking_recipe(const data::Catalogue& catalogue, const Item& item) {
@@ -159,7 +189,7 @@ void FireRules::food_changed(world::Context& c, ecs::Id id) {
         }
     }
     const auto present_heat = !t && i.state == 0 ? heat(w, id, c.now()) : 0;
-    const auto approaching = !t && i.state == 0 && i.mass ? boundary(w, id, c.now(), present_heat) : 0;
+    const auto approaching = !t && i.state == 0 && i.mass ? boundary(w, id, c.now(), source(w, id, c.now())) : 0;
     if (!t && i.mass && (inherited || (i.state == 0 && (present_heat >= 2 || approaching)))) {
         const auto retained = inherited ? *inherited : HeatTimer{};
         t = &w.things().raw().emplace<HeatTimer>(h, retained);
@@ -256,8 +286,9 @@ void FireRules::notice_food(world::Context& c, world::Beings::Handle person) {
         const std::array inputs{id};
         auto& history = w.beings().raw().get<world::CraftHistory>(w.beings().handle(home));
         const auto before = history.events.size();
-        Discovery::result(c, person, roast, inputs, {*familiar}, id, true, !Learning::knows(know, roast), 1);
         const auto& timer = w.things().raw().get<HeatTimer>(w.things().handle(id));
+        Discovery::result(c, person, roast, inputs, {*familiar}, id, true, !Learning::knows(know, roast), 1,
+                          timer.heat_sources);
         if (timer.placement_choice)
             for (auto n = before; n < history.events.size(); ++n) {
                 history.events[n].choice = timer.placement_choice;

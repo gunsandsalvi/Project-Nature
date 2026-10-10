@@ -184,6 +184,8 @@ void FireRules::ember(world::Context& c, ecs::Id id) {
     f.hearth = i.home;
     f.owner = i.owner;
     f.at = w.things().raw().get<world::Place>(h).at;
+    f.origin = id;
+    f.ignited_at = c.now();
     f.heat = 1;
     f.ring = 0;
     f.unblown_checked = 0;
@@ -363,6 +365,8 @@ ecs::Id FireRules::carry(world::Context& c, ecs::Id hearth, ecs::Id input, ecs::
     const auto id = w.things().id_of(h);
     w.things().raw().emplace<Item>(h, result);
     w.things().raw().emplace<world::Place>(h, at(w, hearth, c.now()));
+    f.source = hearth;
+    f.ignited_at = c.now();
     f.owner = person;
     f.at = at(w, hearth, c.now());
     f.heat = 1;
@@ -419,7 +423,7 @@ void FireRules::handle(world::Context& c, ecs::Id camp, std::uint32_t slot) {
         if (f && f->hearth == camp && f->next && f->next <= c.now()) due.push_back(id);
     });
     for (const auto id : due) settle_fire(c, id);
-    std::vector<ecs::Id> ignite;
+    std::vector<std::pair<ecs::Id, ecs::Id>> ignite;
     w.things().each([&](ecs::Id id, auto h) {
         const auto& source = w.things().raw().get<Item>(h);
         if (source.home != camp || source.mass == 0 || w.things().raw().any_of<Fire, world::HeatTimer>(h)) return;
@@ -428,15 +432,19 @@ void FireRules::handle(world::Context& c, ecs::Id camp, std::uint32_t slot) {
         for (const auto flame : due) {
             if (fire(w, flame).heat >= 2 &&
                 w.torus().squared_distance(at(w, id, c.now()), at(w, flame, c.now())) <= 10000) {
-                ignite.push_back(id);
+                ignite.emplace_back(id, flame);
                 break;
             }
         }
     });
-    for (const auto id : ignite) {
+    for (const auto& [id, source] : ignite) {
         const auto i = item(w, id);
         auto& f = w.things().raw().emplace<Fire>(w.things().handle(id));
         f.hearth = camp;
+        f.origin = fire(w, source).origin;
+        f.source = source;
+        f.ignited_at = c.now();
+        f.tended_at = fire(w, source).tended_at;
         f.owner = i.owner;
         f.at = w.things().raw().get<world::Place>(w.things().handle(id)).at;
         f.heat = 2;
@@ -625,8 +633,10 @@ bool FireRules::continue_tending(Living& living, world::Context& c, world::Being
         if (t->tending <= 2) {
             if (feed(c, target, input, t->tending_mass, person)) {
                 if (t->tending == 2) (void)blow(c, target);
+                fire(w, target).tended_at = c.now();
+                c.item_changed(target);
                 c.record(
-                    218, t->tending_choice,
+                    218, target.value,
                     static_cast<std::uint64_t>(t->tending) | (static_cast<std::uint64_t>(fire(w, target).heat) << 8U));
             }
             t->tending_mass = 0;
