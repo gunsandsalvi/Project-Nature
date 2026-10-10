@@ -73,6 +73,8 @@ public:
     void save_now();
     godot::Dictionary prepare_dream();
     godot::Array dream_subjects(int64_t person);
+    godot::Array idea_memories(int64_t person);
+    godot::Dictionary send_idea_dream(int64_t person, int64_t memory);
     godot::Dictionary send_place_dream(int64_t person, int64_t subject);
     godot::Array dream_records();
     /// Where a camp is, by its number: east and north in world centimetres; empty if there is no such camp.
@@ -149,6 +151,7 @@ protected:
     static void _bind_methods();
 
 private:
+    godot::Dictionary send_dream(int64_t person, int64_t subject, bool idea);
     godot::Dictionary open_saved(const godot::String& folder, int64_t seed, int64_t camps, const godot::String& build,
                                  bool camp_alpha);
     DisplaySnapshot display_;

@@ -15,7 +15,7 @@ static func person(p: Dictionary, details: bool, now: int) -> String:
 	var action := str(p.activity)
 	if int(p.action_code) == 1:
 		action += " to " + goals[choice]
-	if int(p.get("dream_pull", 0)) > 0 and choice == 3:
+	if int(p.get("dream_pull", 0)) > 0 and choice == 3 and int(p.get("dream_kind", 0)) == 0:
 		action = (
 			("Watching " if int(p.action_code) == 0 else "Visiting ")
 			+ ["food plants", "water", "shelter"][int(p.dream_decision_subject)]
@@ -45,7 +45,11 @@ static func person(p: Dictionary, details: bool, now: int) -> String:
 			]
 		)
 	elif int(p.get("dream_pull", 0)) > 0:
-		words += "Why: a remembered dream draws a visit.\nTheir needs can wait for this short walk."
+		words += (
+			"Why: an idea makes a familiar try feel worthwhile."
+			if int(p.get("dream_kind", 0)) == 1
+			else "Why: a remembered dream draws a visit.\nTheir needs can wait for this short walk."
+		)
 	else:
 		words += "Why: their known supplies weren't worth a trip yet.\nLooking around, then watching."
 	if int(p.get("work_state", 0)) != 0:
@@ -130,17 +134,22 @@ static func person(p: Dictionary, details: bool, now: int) -> String:
 				% [goals[i].capitalize(), amount, source, when(int(p.seen_at[i]), now)]
 			)
 	if int(p.get("dream_at", -1)) >= 0:
-		words += (
-			"\n\nDreamt of %s at %s."
-			% [
-				["food plants", "water", "shelter"][int(p.dream_subject)],
-				when(int(p.dream_at), now)
-			]
-		)
+		if int(p.get("dream_kind", 0)) == 1:
+			words += (
+				"\n\nWoke with an idea about familiar materials at %s." % when(int(p.dream_at), now)
+			)
+		else:
+			words += (
+				"\n\nDreamt of %s at %s."
+				% [
+					["food plants", "water", "shelter"][int(p.dream_subject)],
+					when(int(p.dream_at), now)
+				]
+			)
 		words += (
 			"\nThe pull has faded."
 			if int(p.dream_until) <= now
-			else "\nThe place still draws a visit."
+			else "\nThe thought still gives a mild pull."
 		)
 	words += (
 		"\n\nAge at start: %d. Gathering skill: %d.\nCarrying %.2f kg food."
@@ -298,6 +307,8 @@ static func knowledge(k: Dictionary, people: Array, now: int) -> String:
 			"\nHunch: try %s with %s · hint at %s."
 			% [actions[int(hunch.action)], ", ".join(hunch.inputs), when(int(hunch.last_use), now)]
 		)
+		if int(hunch.get("origin", 0)) == 2:
+			words += " From a dream."
 		if int(hunch.source) != 0:
 			words += " From " + name_of(int(hunch.source), people) + "."
 	for reason: Dictionary in k.reasons:

@@ -3,6 +3,7 @@
 #include "kd/demo/crafting.hpp"
 #include "kd/demo/discovery.hpp"
 #include "kd/demo/fire.hpp"
+#include "kd/demo/idea_dreams.hpp"
 #include "kd/demo/learning.hpp"
 
 #include <godot_cpp/classes/file_access.hpp>
@@ -63,6 +64,8 @@ void KdWorld::_bind_methods() {
     ClassDB::bind_method(D_METHOD("digest"), &KdWorld::digest);
     ClassDB::bind_method(D_METHOD("prepare_dream"), &KdWorld::prepare_dream);
     ClassDB::bind_method(D_METHOD("dream_subjects", "person"), &KdWorld::dream_subjects);
+    ClassDB::bind_method(D_METHOD("idea_memories", "person"), &KdWorld::idea_memories);
+    ClassDB::bind_method(D_METHOD("send_idea_dream", "person", "memory"), &KdWorld::send_idea_dream);
     ClassDB::bind_method(D_METHOD("send_place_dream", "person", "subject"), &KdWorld::send_place_dream);
     ClassDB::bind_method(D_METHOD("dream_records"), &KdWorld::dream_records);
     ClassDB::bind_static_method("KdWorld", D_METHOD("moment_text", "second"), &KdWorld::moment_text);
@@ -368,7 +371,44 @@ godot::Array KdWorld::dream_subjects(int64_t person) {
     });
     return out;
 }
+godot::Array KdWorld::idea_memories(int64_t person) {
+    godot::Array out;
+    if (!runner_ || !crowd_ || !crowd_->living() || !is_paused()) return out;
+    runner_->call_and_wait([this, person, &out] {
+        const auto& w = crowd_->world();
+        const ecs::Id id{static_cast<std::uint64_t>(person)};
+        const auto h = w.beings().find(id);
+        if (!h) return;
+        const auto* know = w.beings().raw().try_get<world::Knowledge>(*h);
+        if (!know) return;
+        for (auto it = know->memories.rbegin(); it != know->memories.rend(); ++it) {
+            if (it->inputs.empty() || !(know->performed & (1U << it->action))) continue;
+            godot::Dictionary row;
+            row["memory"] = static_cast<int64_t>(it->id);
+            row["at"] = it->at;
+            row["action"] = it->action;
+            row["name"] = it->action == 11  ? "Twirled dry wood"
+                          : it->action == 6 ? "Rubbed materials"
+                                            : "Handled familiar materials";
+            row["problem"] = demo::IdeaDreams::problem(w, id, it->id).c_str();
+            const auto fit = demo::IdeaDreams::fit(w, *h, it->id);
+            constexpr std::array<const char*, 18> benefit{
+                "resistance", "a sharp edge", "strength", "breaking", "flexibility", "weight",
+                "burning",    "fuel",         "food",     "water",    "harm",        "care",
+                "warmth",     "fibres",       "sticking", "shaping",  "keeping dry", "colour"};
+            row["benefit"] = fit ? benefit[fit->desired_property] : "an experienced benefit";
+            out.push_back(row);
+        }
+    });
+    return out;
+}
 godot::Dictionary KdWorld::send_place_dream(int64_t person, int64_t subject) {
+    return send_dream(person, subject, false);
+}
+godot::Dictionary KdWorld::send_idea_dream(int64_t person, int64_t memory) {
+    return send_dream(person, memory, true);
+}
+godot::Dictionary KdWorld::send_dream(int64_t person, int64_t subject, bool idea) {
     godot::Dictionary out;
     if (!runner_ || !crowd_ || !crowd_->living() || !is_paused() ||
         screen_time() != static_cast<double>(runner_->frontier())) {
@@ -378,16 +418,18 @@ godot::Dictionary KdWorld::send_place_dream(int64_t person, int64_t subject) {
     time::Seconds asked = static_cast<time::Seconds>(screen_time());
     std::string problem;
     std::uint64_t number = 0;
-    runner_->call_and_wait([this, person, subject, asked, &problem, &number] {
+    runner_->call_and_wait([this, person, subject, idea, asked, &problem, &number] {
         auto& w = crowd_->world();
         const ecs::Id id{static_cast<std::uint64_t>(person)};
         if (w.frontier() != asked) {
             problem = "The camp moved; choose again";
             return;
         }
-        problem = demo::Living::dream_problem(w, id, subject);
+        problem = idea ? demo::IdeaDreams::problem(w, id, static_cast<std::uint64_t>(subject))
+                       : demo::Living::dream_problem(w, id, subject);
         if (!problem.empty()) return;
-        const auto cmd = w.command(asked, demo::Living::kPlaceDream, id.value, static_cast<std::uint64_t>(subject));
+        const auto cmd = w.command(asked, idea ? demo::Living::kIdeaDream : demo::Living::kPlaceDream, id.value,
+                                   static_cast<std::uint64_t>(subject));
         if (keeper_) {
             keeper_->command(cmd);
             if (keeper_->failed()) {
@@ -431,7 +473,27 @@ godot::Array KdWorld::dream_records() {
                     row["name"] = godot::String::utf8(world::kPersonNames[p.name_index].data());
                 }
                 row["subject"] = a.subject;
-                row["place"] = names[static_cast<std::size_t>(a.subject)];
+                row["kind"] = a.kind;
+                row["memory"] = static_cast<int64_t>(a.memory);
+                row["place"] =
+                    a.kind == 1 ? "An idea from remembered work" : names[static_cast<std::size_t>(a.subject)];
+                row["first_attempt_at"] = a.first_attempt_at;
+                row["result_at"] = -1;
+                row["result"] = "No matching later result recorded";
+                if (a.kind == 1 && a.first_attempt_at >= 0) {
+                    const auto& history = w.beings().raw().get<world::CraftHistory>(w.beings().handle(camp));
+                    for (const auto& result : history.events) {
+                        if (result.actor.value != a.person || result.at < a.first_attempt_at ||
+                            result.recipe != a.recipe)
+                            continue;
+                        row["result_at"] = result.at;
+                        row["result"] = result.kind == 5  ? godot::String("The attempt failed")
+                                        : !result.noticed ? godot::String("A result was not noticed")
+                                                          : godot::String("Noticed a result: ") +
+                                                                godot::String::utf8(result.word.c_str());
+                        break;
+                    }
+                }
                 row["requested"] = a.requested;
                 row["received"] = a.received;
                 row["executed"] = a.executed;
@@ -823,6 +885,8 @@ godot::Array KdWorld::people() const {
         if (k < snapshot.dreams.size()) {
             const auto& thought = snapshot.dreams[k];
             if (thought) {
+                row["dream_kind"] = thought->kind;
+                row["dream_action"] = thought->action;
                 row["dream_at"] = thought->at;
                 row["dream_until"] = thought->until;
                 row["dream_subject"] = thought->subject;
@@ -1088,6 +1152,7 @@ godot::Dictionary KdWorld::knowledge(int64_t person) const {
         row["action"] = h.action;
         row["source_memory"] = static_cast<int64_t>(h.source_memory);
         row["source"] = static_cast<int64_t>(h.source.value);
+        row["origin"] = h.origin;
         row["failures"] = h.failures;
         row["last_use"] = h.last_use;
         godot::Array inputs;
