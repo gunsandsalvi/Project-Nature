@@ -97,7 +97,8 @@ bool item(const World& w, ecs::Id id, bool optional = false) {
 }
 bool reason_valid(const World& w, const CraftReason& reason) {
     if ((reason.kind == 2 && reason.need > 3) ||
-        (reason.kind == 3 && (reason.action < 1 || reason.action > 4 || reason.need != 4 || reason.intended)) ||
+        (reason.kind == 3 &&
+         (reason.action < 1 || reason.action > 4 || (reason.need != 4 && reason.need != 3) || reason.intended)) ||
         (reason.kind == 4 && (reason.action != 11 || reason.need != 4 || reason.intended)) || reason.kind > 5 ||
         reason.intended > 1 || reason.action > 20 || reason.need > 4 ||
         (!reason.intended && reason.recipe != kNoRecipe) || reason.score < -1000000 || reason.score > 1000000 ||

@@ -1104,6 +1104,25 @@ struct GenericFuelOperation : GenericFoodOperation {
             w.beings().raw().get<kd::world::Activity>(h) = {0, c.now(), c.now() + 300, fixture.fire().at,
                                                             fixture.fire().at};
         }
+        if (cmd.what == 935) {
+            auto& fire = fixture.fire();
+            fire.heat = 2;
+            fire.fuel_mg = 1000000;
+            fire.ash_mg = 4000000;
+            fire.settled_at = c.now();
+            fire.air_until = 0;
+            fire.next = fire.deadline();
+            w.things().raw().get<kd::world::Item>(w.things().handle(fixture.hearth)).mass = 5000000;
+            auto& activity = w.beings().raw().get<kd::world::Activity>(h);
+            activity = {0, c.now(), c.now() + 300, fixture.fire().at, fixture.fire().at};
+            life.food = 4000000;
+            life.water = 3000;
+            life.awake = life.portion = life.applied = life.allocated_water = 0;
+            life.settled = c.now();
+            w.beings().raw().get<kd::world::Place>(h).at = fixture.fire().at;
+            w.beings().raw().get<kd::world::Thermal>(h) = {};
+            kd::demo::FireRules::deadlines(c, fixture.home);
+        }
         auto& living = *const_cast<kd::demo::Living*>(fixture.camp.living());
         if (cmd.what == 934) {
             auto& thermal = w.beings().raw().get<kd::world::Thermal>(h);
@@ -1124,10 +1143,13 @@ TEST_CASE("identical renamed fuel receives the same autonomous tending choice an
         w.run_to(1);
         CHECK(op.chosen);
         CHECK(w.beings().raw().get<kd::world::Thermal>(w.beings().handle(op.person)).tending == 1);
+        CHECK(op.fixture.fire().fuel_mg == 1000000);  // Selected plan has not read hidden physical results.
+        w.run_to(61);
         fuel[variant] = op.fixture.fire().fuel_mg;
+        CHECK(op.fixture.fire().fuel_mg + op.fixture.fire().ash_mg == 6000000);
     }
     CHECK(fuel[0] == fuel[1]);
-    CHECK(fuel[0] == 2000000);
+    CHECK(fuel[0] == 1983334);
     CHECK_FALSE(renamed_fire_catalogue().find("blueprint", "base:bank_fire"));
     CHECK_FALSE(renamed_fire_catalogue().find("blueprint", "base:carry_ember"));
     CHECK_FALSE(renamed_fire_catalogue().find("blueprint", "base:roast_food"));
@@ -1273,4 +1295,47 @@ TEST_CASE("kept choices and resumed plans match serial and four-worker islands")
     std::string why;
     CHECK(reopen_fire(serial.world(), why));
     CHECK(reopen_fire(parallel.world(), why));
+}
+
+TEST_CASE("tentative fire trials use the same visible evidence regardless of hidden burn and resolve after work") {
+    std::array<bool, 2> selected{};
+    for (int variant = 0; variant < 2; ++variant) {
+        GenericFuelOperation op(false);
+        op.learned = false;
+        auto& w = op.fixture.camp.world();
+        auto& raw = w.beings().raw();
+        auto& mind = raw.get<kd::world::Knowledge>(w.beings().handle(op.person));
+        mind.curiosity = 80;
+        std::uint64_t hour = 1;
+        for (; hour < 1000; ++hour) {
+            const kd::chance::Draws draws(w.seed(), kd::chance::name("curious hour"), op.person.value,
+                                          static_cast<std::int64_t>(hour),
+                                          kd::chance::name("attempt and familiar action"));
+            if (draws.below(0, 24) == 0) break;
+        }
+        REQUIRE(hour < 1000);
+        w.beings().each([&](kd::ecs::Id id, auto h) {
+            if (!raw.all_of<kd::world::Person>(h)) return;
+            for (std::uint32_t slot = 0; slot < 4; ++slot) w.cancel(id, slot);
+        });
+        auto& fuel = w.things().raw().get<kd::world::Item>(w.things().handle(op.fuel));
+        fuel.changed_mask |= 1U << 6U;
+        fuel.changed[6] = variant == 0 ? 0 : 3;
+        const auto seen_fuel = fuel;
+        const auto at = static_cast<std::int64_t>(hour - 1) * kd::time::kHour;
+        (void)w.command(at, 935, 0, 0);
+        w.run_to(at + 1);
+        selected[variant] = op.chosen;
+        REQUIRE(op.chosen);
+        REQUIRE(mind.reasons.size() == 3);
+        CHECK(mind.reasons[0].confidence == 0);
+        CHECK(mind.reasons[0].need == 3);
+        CHECK(op.fixture.fire().fuel_mg == 1000000);
+        const auto* evidence = kd::demo::Discovery::familiar(mind, seen_fuel);
+        REQUIRE(evidence);
+        CHECK((evidence->mask & (1U << 6U)) == 0);
+        w.run_to(at + 61);
+        CHECK(op.fixture.fire().fuel_mg + op.fixture.fire().ash_mg == (variant == 0 ? 5000000 : 6000000));
+    }
+    CHECK(selected[0] == selected[1]);
 }
