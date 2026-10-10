@@ -34,6 +34,63 @@ const kd::data::Catalogue& fixture() {
 
 }  // namespace
 
+TEST_CASE("display publications share immutable history and spent pages while preserving older serial lookups") {
+    kd::data::Catalogue cat;
+    REQUIRE(cat.load(kd::data::read_catalogue(KD_REPO "/data")).empty());
+    kd::demo::CrowdWorld camp(333, cat, 1, true, true);
+    auto& w = camp.world();
+    const auto home = camp.camp_ids().front();
+    w.retain_records(0);
+    const auto original_archive = w.item_archive().size();
+    const auto spent = [&] {
+        const auto h = w.make_thing();
+        const auto id = w.things().id_of(h);
+        w.things().raw().emplace<kd::world::Place>(h);
+        auto& item = w.things().raw().emplace<kd::world::Item>(h);
+        item.home = home;
+        item.kind = item.material = *cat.find("item", "base:flint");
+        item.state = 4;
+        item.length = 100;
+        return id;
+    };
+    for (int n = 0; n < 513; ++n) (void)spent();
+    w.retain_records(0);
+    auto& history = w.beings().raw().get<kd::world::CraftHistory>(w.beings().handle(home));
+    // Labelled publication load; these records never enter an acceptance observer.
+    for (std::uint64_t n = 1; n <= 100001; ++n) {
+        kd::world::Result event;
+        event.id = n;
+        event.kind = 2;
+        history.events.push_back(event);
+    }
+    history.next = 100002;
+    kd::view::CrowdStepper stepper(camp);
+    REQUIRE(stepper.snapshots().take());
+    const auto before = stepper.snapshots().front();
+    REQUIRE(before.craft_history.size() == 1);
+    CHECK(before.craft_history.front().events.pages()[0] == history.events.pages()[0]);
+    CHECK(before.item_archive.pages()[0] == w.item_archive().pages()[0]);
+    const auto next = spent();
+    w.retain_records(0);
+    kd::world::Result added;
+    added.id = history.next++;
+    added.kind = 2;
+    history.events.push_back(added);
+    stepper.refresh();
+    REQUIRE(stepper.snapshots().take());
+    const auto& after = stepper.snapshots().front();
+    CHECK(before.craft_history.front().events.size() == 100001);
+    CHECK(after.craft_history.front().events.size() == 100002);
+    CHECK(after.craft_history.front().events.pages()[0] == before.craft_history.front().events.pages()[0]);
+    CHECK(after.craft_history.front().public_index().size() == 100002);
+    const auto serial = next.value & ((std::uint64_t{1} << 60U) - 1);
+    CHECK(before.archive_index.get(serial) == kd::RecordIndex::kMissing);
+    CHECK(after.archive_index.get(serial) == original_archive + 513);
+    CHECK(before.item_archive.size() == original_archive + 513);
+    CHECK(after.item_archive.size() == original_archive + 514);
+    CHECK(&before.items.front() == &after.items.front());
+}
+
 TEST_CASE("marker trails retain no living state while living trails follow each activity") {
     kd::demo::CrowdWorld markers(3, fixture(), 1);
     kd::view::CrowdStepper marker_stepper(markers);

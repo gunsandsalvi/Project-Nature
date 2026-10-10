@@ -293,7 +293,8 @@ TEST_CASE("one wet kilogram damps one level and conserves its vapour ledger") {
     CHECK(ops.fixture.fire().heat == 2);
     CHECK(ops.fixture.fire().damp_remainder == 0);
     CHECK(ops.fixture.fire().evaporated_mg == 1000000);
-    CHECK(w.things().raw().get<kd::world::Item>(w.things().handle(ops.input)).mass == 0);
+    REQUIRE(w.archived_item(ops.input));
+    CHECK(w.archived_item(ops.input)->item.mass == 0);
     std::string why;
     auto opened = reopen_fire(w, why);
     INFO(why);
@@ -464,7 +465,8 @@ TEST_CASE("heat two consumes one kg per hour and finite feeding cannot debit a s
     CHECK(ops.applied);
     ops.request(3603, 910, 100000);
     CHECK_FALSE(ops.applied);
-    CHECK(w.things().raw().get<kd::world::Item>(w.things().handle(ops.input)).mass == 0);
+    REQUIRE(w.archived_item(ops.input));
+    CHECK(w.archived_item(ops.input)->item.mass == 0);
 }
 
 TEST_CASE("rebanking the same ember cannot extend its saved lifetime") {
@@ -1289,16 +1291,26 @@ TEST_CASE("ordinary timed fire and craft choices retain three reasons and reject
     CHECK(linked);
     std::string why;
     REQUIRE(reopen_fire(w, why));
+    // Forge a new immutable fixture page rather than modifying a published page.
+    const auto forge = [&](auto change) {
+        kd::Pages<kd::world::Choice> forged;
+        for (std::size_t i = 0; i < history.choices.size(); ++i) {
+            auto choice = history.choices[i];
+            if (i == 0) change(choice);
+            forged.push_back(std::move(choice));
+        }
+        history.choices = std::move(forged);
+    };
     const auto original = history.choices.front().actor;
-    history.choices.front().actor = home;
+    forge([&](auto& choice) { choice.actor = home; });
     CHECK_FALSE(reopen_fire(w, why));
-    history.choices.front().actor = original;
+    forge([&](auto& choice) { choice.actor = original; });
     REQUIRE(reopen_fire(w, why));
-    history.choices.front().reasons.front().confidence = 101;
+    forge([](auto& choice) { choice.reasons.front().confidence = 101; });
     CHECK_FALSE(reopen_fire(w, why));
-    history.choices.front().reasons.front().confidence = 100;
+    forge([](auto& choice) { choice.reasons.front().confidence = 100; });
     REQUIRE(reopen_fire(w, why));
-    ++history.choices.front().reasons.front().parts[0];
+    forge([](auto& choice) { ++choice.reasons.front().parts[0]; });
     CHECK_FALSE(reopen_fire(w, why));
 }
 

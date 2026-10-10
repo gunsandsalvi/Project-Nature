@@ -1,4 +1,5 @@
 #include "kd/save/archive.hpp"
+#include "kd/save/pages.hpp"
 #include "kd/save/snapshot.hpp"
 
 #include <algorithm>
@@ -35,7 +36,10 @@ bool ends_with(const std::string& s, const std::string& end) {
 
 bool archive_part(const std::string& path) {
     return path == "world.toml" || path == "journal.log" || starts_ends(path, "snapshots/", ".kds") ||
-           starts_ends(path, "history/", ".log");
+           starts_ends(path, "history/", ".log") ||
+           (path.size() == 26 && path.starts_with("pages/") && path.ends_with(".kdp") &&
+            std::all_of(path.begin() + 6, path.begin() + 22,
+                        [](char c) { return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'); }));
 }
 
 // --- writing
@@ -49,6 +53,16 @@ ArchiveWriter::ArchiveWriter(Files& folder) : folder_(folder) {
     std::erase_if(snapshots, [](const std::string& n) { return !ends_with(n, ".kds"); });
     if (!snapshots.empty()) {
         paths_.push_back("snapshots/" + snapshots.back());
+        if (const auto bytes = folder_.read(paths_.back())) {
+            std::string why;
+            if (const auto chunks = read_snapshot(*bytes, why))
+                if (const auto pages = page_paths(*chunks)) {
+                    auto unique = *pages;
+                    std::stable_sort(unique.begin(), unique.end());
+                    unique.erase(std::unique(unique.begin(), unique.end()), unique.end());
+                    paths_.insert(paths_.end(), unique.begin(), unique.end());
+                }
+        }
     }
     if (folder_.read("journal.log")) {
         paths_.emplace_back("journal.log");

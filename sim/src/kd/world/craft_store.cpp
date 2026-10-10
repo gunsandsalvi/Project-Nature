@@ -41,7 +41,25 @@ void save_craft(const World& w, std::vector<save::Chunk>& out) {
         }
         if (const auto* x = beings.raw().try_get<CraftHistory>(h)) {
             history.u64(id.value);
-            ecs::write_component(*x, history);
+            history.u64(x->next);
+            history.u64(x->next_choice);
+            const auto pages = [&](const auto& records, std::uint32_t tag) {
+                history.u64(records.pages().size());
+                for (std::size_t n = 0; n < records.pages().size(); ++n) {
+                    const auto bytes = records.encoded(n, [&](const auto& page) {
+                        ByteWriter wire;
+                        wire.u64(id.value);
+                        ecs::PartWriter writer(wire);
+                        writer.records({"page", "immutable historical records"}, page, Pages<Result>::kPage);
+                        return wire.take();
+                    });
+                    out.push_back({tag, 1, true, {}, bytes});
+                }
+                ecs::PartWriter writer(history);
+                writer.records({"tail", "recent historical records"}, records.tail(), Pages<Result>::kPage);
+            };
+            pages(x->events, save::tag("EVPG"));
+            pages(x->choices, save::tag("CHPG"));
         }
         if (const auto* x = beings.raw().try_get<Lessons>(h)) {
             learning.u64(id.value);
@@ -50,7 +68,7 @@ void save_craft(const World& w, std::vector<save::Chunk>& out) {
     });
     out.push_back({save::tag("CRFT"), 2, true, craft.take()});
     out.push_back({save::tag("KNOW"), 3, true, know.take()});
-    out.push_back({save::tag("HIST"), 4, true, history.take()});
+    out.push_back({save::tag("HIST"), 5, true, history.take()});
     // LEARN1 retains the foundation's four-letter wire tags.
     out.push_back({save::tag("LEAR"), 1, true, learning.take()});
 }
@@ -79,10 +97,18 @@ bool craft_headers(std::span<const save::Chunk> chunks, std::uint32_t& features,
         if (c && tag == save::tag("DRMS") && c->version != 3)
             return fail("Unsupported dream format. Start a new camp.");
         const auto version = tag == save::tag("LEAR")                                                           ? 1U
-                             : tag == save::tag("HIST")                                                         ? 4U
+                             : tag == save::tag("HIST")                                                         ? 5U
                              : tag == save::tag("DRMS") || tag == save::tag("KNOW") || tag == save::tag("FIRE") ? 3U
                                                                                                                 : 2U;
         if (c && (!c->critical || c->version != version)) return fail("unsupported camp extension version");
+    }
+    const auto archive_count =
+        std::count_if(chunks.begin(), chunks.end(), [](const auto& c) { return c.tag == save::tag("ARCV"); });
+    if (archive_count != (features ? 1 : 0)) return fail("mismatched spent archive extension");
+    for (const auto& chunk : chunks) {
+        if (chunk.tag != save::tag("EVPG") && chunk.tag != save::tag("CHPG") && chunk.tag != save::tag("ARPG"))
+            continue;
+        if (!features || !chunk.critical || chunk.version != 1) return fail("unsupported historical page");
     }
     return true;
 }
@@ -98,7 +124,23 @@ bool person(const World& w, ecs::Id id, bool optional = false) {
 bool item(const World& w, ecs::Id id, bool optional = false) {
     if (id.value == 0) return optional;
     const auto h = w.things().find(id);
-    return h && w.things().raw().all_of<Item>(*h);
+    return (h && w.things().raw().all_of<Item>(*h)) || w.archived_item(id);
+}
+bool valid_item(const World& w, const Item& value, const Place& place) {
+    if (value.changed_mask >= (1U << 18U)) return false;
+    for (std::size_t c = 0; c < 18; ++c) {
+        if (value.changed[c] > 5 || ((value.changed_mask & (1U << c)) == 0 && value.changed[c] != 0)) return false;
+    }
+    const auto home = w.beings().find(value.home);
+    if (!home || !w.beings().raw().all_of<Camp>(*home) || !person(w, value.owner, true) ||
+        !person(w, value.maker, true) || value.mass < 0 || value.mass > 1000000000 || value.length < 1 ||
+        value.length > 100000 || value.state > 4 || (value.mass == 0) != (value.state == 4) || value.quality > 5 ||
+        value.wear < 0 || value.wear > 5000000 || value.wear_remainder < 0 || value.wear_remainder >= 4000000 ||
+        value.made_at < -1 || value.made_at > w.frontier() ||
+        (value.made_at == -1 && (value.maker.value != 0 || !value.parents.empty())) ||
+        !w.beings().raw().all_of<Place>(*home) || !point(w, place.at))
+        return false;
+    return true;
 }
 bool reason_valid(const World& w, const CraftReason& reason) {
     if ((reason.kind == 2 && reason.need > 3) ||
@@ -164,19 +206,7 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
                 Item value;
                 if (!h || id.family() != ecs::Family::thing || !ecs::read_component(value, r, entries))
                     return fail("invalid item record");
-                if (value.changed_mask >= (1U << 18U)) return fail("invalid result characteristic mask");
-                for (std::size_t c = 0; c < 18; ++c) {
-                    if (value.changed[c] > 5 || ((value.changed_mask & (1U << c)) == 0 && value.changed[c] != 0))
-                        return fail("invalid result characteristic value");
-                }
-                const auto home = w.beings().find(value.home);
-                if (!home || !raw.all_of<Camp>(*home) || !person(w, value.owner, true) ||
-                    !person(w, value.maker, true) || value.mass < 0 || value.mass > 1000000000 || value.length < 1 ||
-                    value.length > 100000 || value.state > 4 || (value.mass == 0) != (value.state == 4) ||
-                    value.quality > 5 || value.wear < 0 || value.wear > 5000000 || value.wear_remainder < 0 ||
-                    value.wear_remainder >= 4000000 || value.made_at < -1 || value.made_at > w.frontier() ||
-                    (value.made_at == -1 && (value.maker.value != 0 || !value.parents.empty())) ||
-                    !raw.all_of<Place>(*home) || !things.all_of<Place>(*h) || !point(w, things.get<Place>(*h).at))
+                if (!things.all_of<Place>(*h) || !valid_item(w, value, things.get<Place>(*h)))
                     return fail("invalid item quantity or ownership");
                 things.emplace<Item>(*h, std::move(value));
             } else if (kind == 2) {
@@ -294,8 +324,33 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
                 if (!r.u64(id.value)) return std::optional<Beings::Handle>{};
                 return w.beings().find(id);
             }();
-            if (!h || !(last < id) || !raw.all_of<Camp>(*h) || !ecs::read_component(value, r, entries) ||
-                value.next == 0)
+            const auto pages = [&](auto& records, std::uint32_t tag, std::size_t least_bytes) {
+                std::uint64_t expected = 0, count = 0;
+                if (!r.u64(expected) || expected > chunks.size()) return false;
+                for (const auto& chunk : chunks) {
+                    if (chunk.tag != tag) continue;
+                    ByteReader wire(chunk.bytes());
+                    ecs::Id camp{};
+                    if (chunk.version != 1 || !chunk.critical || !wire.u64(camp.value)) return false;
+                    if (camp != id) continue;
+                    using T = typename std::remove_reference_t<decltype(records)>::value_type;
+                    std::vector<T> page;
+                    ecs::PartReader reader(wire, entries);
+                    reader.records({"page", "immutable historical records"}, page, Pages<T>::kPage, least_bytes);
+                    if (!reader.ok() || !wire.finished() || page.empty()) return false;
+                    records.append_page(std::make_shared<const std::vector<T>>(std::move(page)));
+                    ++count;
+                }
+                using T = typename std::remove_reference_t<decltype(records)>::value_type;
+                std::vector<T> tail;
+                ecs::PartReader reader(r, entries);
+                reader.records({"tail", "recent historical records"}, tail, Pages<T>::kPage, least_bytes);
+                for (auto& entry : tail) records.push_back(std::move(entry));
+                return count == expected && reader.ok();
+            };
+            if (!h || !(last < id) || !raw.all_of<Camp>(*h) || !r.u64(value.next) || !r.u64(value.next_choice) ||
+                value.next == 0 || value.next_choice == 0 || !pages(value.events, save::tag("EVPG"), 76) ||
+                !pages(value.choices, save::tag("CHPG"), 204))
                 return fail("invalid craft history record");
             last = id;
             std::uint64_t previous = 0;
@@ -321,7 +376,7 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
             }
             std::uint64_t last_choice = 0;
             for (const auto& choice : value.choices) {
-                if (choice.id != last_choice + 1 || choice.id >= value.next_choice || choice.at < 0 ||
+                if (choice.id <= last_choice || choice.id >= value.next_choice || choice.at < 0 ||
                     choice.at > w.frontier() || !person(w, choice.actor) ||
                     raw.get<demo::Home>(w.beings().handle(choice.actor)).camp != id || choice.reasons.size() != 3 ||
                     !std::all_of(choice.reasons.begin(), choice.reasons.end(),
@@ -329,17 +384,24 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
                     return fail("invalid kept choice");
                 last_choice = choice.id;
             }
-            if (value.next_choice != value.choices.size() + 1) return fail("invalid next choice identity");
+            if (value.next_choice <= last_choice) return fail("invalid next choice identity");
             for (const auto& event : value.events)
                 if (event.choice) {
-                    if (event.choice > value.choices.size()) return fail("result choice identity disagrees");
-                    const auto& choice = value.choices[event.choice - 1];
-                    if ((choice.actor != event.actor && choice.actor != event.source) || choice.at > event.at)
+                    const auto* choice = value.choices.find(event.choice);
+                    if (!choice || (choice->actor != event.actor && choice->actor != event.source) ||
+                        choice->at > event.at)
                         return fail("result choice identity disagrees");
                 }
             raw.emplace<CraftHistory>(*h, std::move(value));
         }
         if (!r.finished()) return fail("trailing craft history records");
+        for (const auto& chunk : chunks) {
+            if (chunk.tag != save::tag("EVPG") && chunk.tag != save::tag("CHPG")) continue;
+            ByteReader wire(chunk.bytes());
+            ecs::Id owner{};
+            const auto h = wire.u64(owner.value) ? w.beings().find(owner) : std::nullopt;
+            if (!h || !raw.all_of<Camp>(*h)) return fail("orphan historical page");
+        }
     }
     // Cross references below may only dereference complete extension owners.
     bool complete = true;
@@ -419,11 +481,9 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
                     return fail("shared practice participants are separated");
                 if (session.last_try != 0) {
                     const auto& history = raw.get<CraftHistory>(*h);
-                    if (std::none_of(history.events.begin(), history.events.end(), [&](const auto& e) {
-                            return e.id == session.last_try && e.actor == session.learner &&
-                                   e.recipe == session.recipe && e.route == 5 && e.at >= session.begun &&
-                                   e.at <= session.settled;
-                        }))
+                    const auto* event = history.events.find(session.last_try);
+                    if (!event || event->actor != session.learner || event->recipe != session.recipe ||
+                        event->route != 5 || event->at < session.begun || event->at > session.settled)
                         return fail("shared practice has no actual credited try");
                 }
             }
@@ -434,20 +494,28 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
     bool valid = true;
     std::map<ecs::Id, std::int64_t> reserved;
     std::set<ecs::Id> tools;
+    const auto validate_physical = [&](ecs::Id id, const Item& value, const Place& place) {
+        if (!valid_item(w, value, place)) {
+            valid = false;
+            return;
+        }
+        std::set<ecs::Id> parents;
+        for (const auto& p : value.parents)
+            if (!(p.id < id) || !item(w, p.id) || !parents.insert(p.id).second) valid = false;
+        const auto home = w.beings().handle(value.home);
+        const auto& camp = raw.get<Camp>(home);
+        const auto offset = w.torus().offset(raw.get<Place>(home).at, place.at);
+        if (std::abs(offset.dx) > camp.half_width_cm || std::abs(offset.dy) > camp.half_height_cm) valid = false;
+    };
     w.things().each([&](ecs::Id id, Things::Handle h) {
         const auto* x = things.try_get<Item>(h);
         if (!x) {
             valid = false;
             return;
         }
-        std::set<ecs::Id> parents;
-        for (const auto& p : x->parents)
-            if (!(p.id < id) || !item(w, p.id) || !parents.insert(p.id).second) valid = false;
-        const auto home = w.beings().handle(x->home);
-        const auto& camp = raw.get<Camp>(home);
-        const auto offset = w.torus().offset(raw.get<Place>(home).at, things.get<Place>(h).at);
-        if (std::abs(offset.dx) > camp.half_width_cm || std::abs(offset.dy) > camp.half_height_cm) valid = false;
+        validate_physical(id, *x, things.get<Place>(h));
     });
+    for (const auto& archived : w.item_archive()) validate_physical(archived.id, archived.item, archived.place);
     const auto events = w.queue().live_in_order([&](const auto& e) { return w.live(e); });
     w.beings().each([&](ecs::Id id, Beings::Handle h) {
         if (raw.all_of<Camp>(h) && !raw.all_of<CraftHistory, Lessons>(h)) valid = false;
@@ -479,8 +547,9 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
         std::set<ecs::Id> inputs;
         std::set<std::uint8_t> roles;
         for (const auto& r : work.inputs) {
-            if (!item(w, r.item) || !inputs.insert(r.item).second || !roles.insert(r.role).second || r.role >= 8 ||
-                r.retained > 1 || r.picked > 1 || r.return_shared > 1 || r.mass <= 0 || r.mass > 1000000000) {
+            if (!w.things().find(r.item) || !item(w, r.item) || !inputs.insert(r.item).second ||
+                !roles.insert(r.role).second || r.role >= 8 || r.retained > 1 || r.picked > 1 || r.return_shared > 1 ||
+                r.mass <= 0 || r.mass > 1000000000) {
                 valid = false;
                 continue;
             }
@@ -493,8 +562,9 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
                 reserved[r.item] += r.mass;
         }
         if (life.meal_item.value != 0) {
-            if (!item(w, life.meal_item) || life.carried_food <= 0 || inputs.contains(life.meal_item) ||
-                (act.what != 5 && act.what != 1 && act.what != 7) || work.state == 1 || work.state == 2) {
+            if (!w.things().find(life.meal_item) || !item(w, life.meal_item) || life.carried_food <= 0 ||
+                inputs.contains(life.meal_item) || (act.what != 5 && act.what != 1 && act.what != 7) ||
+                work.state == 1 || work.state == 2) {
                 valid = false;
             } else {
                 const auto& meal = things.get<Item>(w.things().handle(life.meal_item));
@@ -506,15 +576,14 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
         const auto camp = raw.get<demo::Home>(h).camp;
         const auto& history = raw.get<CraftHistory>(w.beings().handle(camp));
         const auto choice_exists = [&](std::uint64_t n) {
-            return n == 0 || std::any_of(history.choices.begin(), history.choices.end(),
-                                         [&](const auto& choice) { return choice.id == n && choice.actor == id; });
+            const auto* choice = history.choices.find(n);
+            return n == 0 || (choice && choice->actor == id);
         };
         if (!choice_exists(work.choice) || !choice_exists(know.choice) || (!know.choice && !know.reasons.empty()))
             valid = false;
         if (know.choice) {
-            const auto chosen = std::find_if(history.choices.begin(), history.choices.end(),
-                                             [&](const auto& choice) { return choice.id == know.choice; });
-            if (chosen != history.choices.end()) {
+            const auto* chosen = history.choices.find(know.choice);
+            if (chosen) {
                 ByteWriter current, kept;
                 for (const auto& reason : know.reasons) ecs::write_component(reason, current);
                 for (const auto& reason : chosen->reasons) ecs::write_component(reason, kept);
@@ -523,16 +592,11 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
                 if (current_bytes != kept_bytes) valid = false;
             }
         }
-        const auto event_exists = [&](std::uint64_t n) {
-            return n == 0 ||
-                   std::any_of(history.events.begin(), history.events.end(), [&](const auto& e) { return e.id == n; });
-        };
+        const auto event_exists = [&](std::uint64_t n) { return n == 0 || history.events.find(n); };
         for (const auto& s : know.skills) {
             if (!event_exists(s.source_event)) valid = false;
-            if (s.source_event != 0 && std::none_of(history.events.begin(), history.events.end(), [&](const auto& e) {
-                    return e.id == s.source_event && e.recipe == s.recipe;
-                }))
-                valid = false;
+            const auto* event = history.events.find(s.source_event);
+            if (s.source_event != 0 && (!event || event->recipe != s.recipe)) valid = false;
         }
         const auto& sessions = raw.get<Lessons>(w.beings().handle(camp)).sessions;
         const auto session = std::find_if(sessions.begin(), sessions.end(), [&](const auto& x) {
@@ -551,10 +615,10 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
                 valid = false;
             // The evidence record checks the route, never another person's private skill table.
             if ((peer.route == 1 && !peer.knows) || (peer.route == 2 && peer.knows)) valid = false;
-            if (peer.event != 0 && std::none_of(history.events.begin(), history.events.end(), [&](const auto& e) {
-                    return e.id == peer.event && e.actor == peer.person && e.recipe == peer.recipe && e.at == peer.at &&
-                           (peer.route == 2 ? e.kind == 5 : e.kind == 0 || e.kind == 1);
-                }))
+            const auto* event = history.events.find(peer.event);
+            if (peer.event != 0 &&
+                (!event || event->actor != peer.person || event->recipe != peer.recipe || event->at != peer.at ||
+                 (peer.route == 2 ? event->kind != 5 : event->kind != 0 && event->kind != 1)))
                 valid = false;
         }
         for (const auto& observation : know.observations) {

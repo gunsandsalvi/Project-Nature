@@ -178,7 +178,7 @@ void Discovery::memory(world::Context& c, world::Beings::Handle h, std::uint8_t 
 std::uint64_t Discovery::result(world::Context& c, world::Beings::Handle h, std::uint32_t recipe,
                                 std::span<const ecs::Id> inputs, std::vector<world::Familiar> perceived, ecs::Id result,
                                 bool success, bool unknown, std::uint8_t route,
-                                std::span<const world::HeatCredit> heat_sources) {
+                                std::span<const world::HeatCredit> heat_sources, std::uint64_t choice, ecs::Id source) {
     auto& raw = c.world().beings().raw();
     const auto person = c.world().beings().id_of(h);
     auto& know = raw.get<world::Knowledge>(h);
@@ -192,7 +192,8 @@ std::uint64_t Discovery::result(world::Context& c, world::Beings::Handle h, std:
     const auto noticed = !unknown || draws.below(0, 1000000) < static_cast<std::uint64_t>(noticing);
     world::Result e;
     e.id = history.next++;
-    e.choice = raw.get<world::Work>(h).choice;
+    e.choice = choice ? choice : raw.get<world::Work>(h).choice;
+    if (choice) e.source = source;
     e.at = c.now();
     e.place = raw.get<world::Place>(h).at;
     e.actor = person;

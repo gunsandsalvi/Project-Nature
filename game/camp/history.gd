@@ -5,6 +5,10 @@ const Words := preload("res://camp/words.gd")
 const Sizing := preload("res://ui/sizing.gd")
 var camp: Control
 var _body: VBoxContainer
+var _cursors: Array[int] = [0]
+var _next := 0
+var _older: Button
+var _newer: Button
 var _was_paused := true
 var _previous_person := 0
 var _previous_item := 0
@@ -31,6 +35,24 @@ func _ready() -> void:
 	_body = VBoxContainer.new()
 	_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(_body)
+	var navigation := HBoxContainer.new()
+	column.add_child(navigation)
+	_newer = Button.new()
+	_newer.text = "Newer"
+	_newer.pressed.connect(
+		func() -> void:
+			_cursors.pop_back()
+			_show_page()
+	)
+	navigation.add_child(_newer)
+	_older = Button.new()
+	_older.text = "Older"
+	_older.pressed.connect(
+		func() -> void:
+			_cursors.append(_next)
+			_show_page()
+	)
+	navigation.add_child(_older)
 	var back := Button.new()
 	back.text = "Back to camp"
 	back.pressed.connect(close)
@@ -45,14 +67,25 @@ func open() -> void:
 		_previous_item = camp.selected_item_id
 		_previous_details = camp._details
 		_previous_record = camp._historical_item
+		_cursors = [0]
 	_inspecting = false
 	camp.world.pause()
+	_show_page()
+	show()
+	layout(_window, _safe)
+
+
+func _show_page() -> void:
 	for child: Node in _body.get_children():
 		_body.remove_child(child)
 		child.queue_free()
 	var count := 0
-	var events: Array = camp.world.craft_history()
-	events.reverse()
+	var events: Array = camp.world.craft_history_page(_cursors.back(), 33)
+	_next = int(events[31].id) if events.size() > 32 else 0
+	_older.disabled = _next == 0
+	_newer.disabled = _cursors.size() == 1
+	if events.size() > 32:
+		events.resize(32)
 	for event: Dictionary in events:
 		if int(event.kind) == 0 or int(event.kind) == 5:
 			continue
@@ -83,8 +116,6 @@ func open() -> void:
 		empty.text = "No discovery or learning has been recorded yet."
 		empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		_body.add_child(empty)
-	show()
-	layout(_window, _safe)
 
 
 func _link(words: String, id: int, item: bool, observer: int = 0) -> void:

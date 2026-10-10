@@ -349,11 +349,7 @@ func selected_item() -> Dictionary:
 func _inspect_history_item(id: int, observer: int) -> void:
 	select_person(observer)
 	selected_item_id = id
-	_historical_item = {}
-	for item: Dictionary in world.items(observer, true):
-		if int(item.id) == id:
-			_historical_item = item
-			break
+	_historical_item = world.item_record(id, observer)
 	_details = true
 	_refresh_records()
 

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <optional>
 #include <span>
 #include <string>
@@ -30,10 +31,15 @@ struct Chunk {
     /// Whether a reader that does not know it must refuse the snapshot, rather than skip it.
     bool critical = true;
     Bytes data;
+    // Sealed pages can be handed to I/O without copying their payload.
+    std::shared_ptr<const Bytes> immutable{};
+    [[nodiscard]] std::span<const std::byte> bytes() const {
+        return immutable ? std::span(*immutable) : std::span(data);
+    }
 };
 
 /// The snapshot format's own version, in its header.
-inline constexpr std::uint32_t kSnapshotVersion = 7;
+inline constexpr std::uint32_t kSnapshotVersion = 8;
 
 [[nodiscard]] inline std::string metadata_format() {
     return "format = " + std::to_string(kSnapshotVersion) + "\n";

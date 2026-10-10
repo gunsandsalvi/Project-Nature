@@ -4,9 +4,11 @@
 #include <cstdio>
 #include <utility>
 
+#include <set>
 #include "kd/core/bytes.hpp"
 #include "kd/num/whole.hpp"
 #include "kd/save/log.hpp"
+#include "kd/save/pages.hpp"
 #include "kd/save/snapshot.hpp"
 
 namespace kd::save {
@@ -142,7 +144,7 @@ Found Keeper::open() {
             std::string why = "it cannot be read";
             if (bytes) {
                 std::optional<std::vector<Chunk>> chunks = read_snapshot(*bytes, why);
-                if (chunks) {
+                if (chunks && resolve_pages(f, *chunks, why)) {
                     if (const Chunk* v = find_chunk(*chunks, kVersionsTag)) {
                         found.versions = read_versions(*v);
                     }
@@ -430,7 +432,7 @@ void Keeper::snapshot(const world::World& w) {
     v.played = played_.load(std::memory_order_relaxed);
     chunks.push_back(versions_chunk(v));
     const time::Seconds frontier = w.frontier();
-    io_.post([this, chunks = std::move(chunks), frontier](Files& f) {
+    io_.post([this, chunks = std::move(chunks), frontier](Files& f) mutable {
         // never a snapshot after a failed write: the world opens at the one before, and makes again what was lost
         if (failed()) {
             return;
@@ -443,6 +445,10 @@ void Keeper::snapshot(const world::World& w) {
             }
         }
         unsynced_.clear();
+        if (!publish_pages(f, chunks)) {
+            fail();
+            return;
+        }
         const Bytes bytes = write_snapshot(chunks);
         const std::string name = snapshot_file(frontier);
         if (!f.write_whole(name, bytes)) {
@@ -455,6 +461,24 @@ void Keeper::snapshot(const world::World& w) {
         for (std::size_t i = 0; i + 2 < names.size(); ++i) {
             f.remove("snapshots/" + names[i]);
         }
+        // Only constituents absent from both recoverable snapshots may expire.
+        std::set<std::string> pinned;
+        bool complete = true;
+        for (const auto& kept : f.list("snapshots")) {
+            if (!ends_with(kept, ".kds")) continue;
+            const auto data = f.read("snapshots/" + kept);
+            std::string why;
+            const auto decoded = data ? read_snapshot(*data, why) : std::nullopt;
+            const auto refs = decoded ? page_paths(*decoded) : std::nullopt;
+            if (!refs) {
+                complete = false;
+                break;
+            }
+            pinned.insert(refs->begin(), refs->end());
+        }
+        if (complete)
+            for (const auto& page : f.list("pages"))
+                if (ends_with(page, ".kdp") && !pinned.contains("pages/" + page)) f.remove("pages/" + page);
         snapshots_.fetch_add(1, std::memory_order_relaxed);
         last_snapshot_.store(frontier, std::memory_order_relaxed);
         last_bytes_.store(bytes.size(), std::memory_order_relaxed);

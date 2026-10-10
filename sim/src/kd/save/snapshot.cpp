@@ -35,16 +35,17 @@ Bytes write_snapshot(std::span<const Chunk> chunks) {
     w.u32(static_cast<std::uint32_t>(chunks.size()));
     Bytes out = w.take();
     for (const Chunk& c : chunks) {
-        Bytes packed(ZSTD_compressBound(c.data.size()));
-        const std::size_t n = ZSTD_compress(packed.data(), packed.size(), c.data.data(), c.data.size(), kLevel);
+        const auto payload = c.bytes();
+        Bytes packed(ZSTD_compressBound(payload.size()));
+        const std::size_t n = ZSTD_compress(packed.data(), packed.size(), payload.data(), payload.size(), kLevel);
         KD_CHECK(ZSTD_isError(n) == 0U, "save::write_snapshot: zstd could not compress a chunk");
         packed.resize(n);
-        const std::uint64_t hash = hash_of(c.data);
+        const std::uint64_t hash = hash_of(payload);
         ByteWriter h;
         h.u32(c.tag);
         h.u32(c.version);
         h.u8(c.critical ? 1 : 0);
-        h.u64(c.data.size());
+        h.u64(payload.size());
         h.u64(hash);
         h.u64(packed.size());
         const Bytes head = h.take();

@@ -26,6 +26,12 @@ const kd::data::Catalogue& catalogue() {
     }();
     return c;
 }
+const kd::world::Item& recorded_item(const kd::world::World& w, kd::ecs::Id id) {
+    if (const auto h = w.things().find(id)) return w.things().raw().get<kd::world::Item>(*h);
+    const auto* archived = w.archived_item(id);
+    KD_CHECK(archived, "test inspection requires a retained physical identity");
+    return archived->item;
+}
 struct StoredCraft {
     kd::demo::CrowdWorld camp{17, catalogue(), 1, true};
     kd::ecs::Id person{}, thing{}, home{};
@@ -453,7 +459,7 @@ TEST_CASE("personal learning evidence must refer to the actual recipe") {
     skill.route = 2;
     std::string why;
     REQUIRE(accepted(w, why));
-    history.events.front().recipe = entry(catalogue(), "blueprint", "base:butcher");
+    history.events.writable(0).recipe = entry(catalogue(), "blueprint", "base:butcher");
     CHECK_FALSE(accepted(w, why));
 }
 TEST_CASE("peer beliefs and unfinished observation have bounded unique actual sources") {
@@ -504,7 +510,7 @@ TEST_CASE("peer beliefs and unfinished observation have bounded unique actual so
     k.peers.front().knows = 1;
     CHECK_FALSE(accepted(w, why));
     k.peers.front().knows = 0;
-    history.events.front().kind = 0;
+    history.events.writable(0).kind = 0;
     CHECK_FALSE(accepted(w, why));
 }
 TEST_CASE("generic_fit and granite_control depend on characteristics and sizes rather than material names") {
@@ -883,7 +889,13 @@ TEST_CASE("Discovery work keeps the same history and state across step sizes poo
     for (kd::time::Seconds at = 300; at <= 90000; at += 300) w.run_to(at);
     copy->world().run_islands(90000, workers, 600);
     CHECK(copy->world().digests().whole == w.digests().whole);
-    CHECK(kd::save::write_snapshot(copy->world().save()) == kd::save::write_snapshot(w.save()));
+    // Page boundaries and archival publication seconds may differ; facts and continuation must not.
+    auto reopened = kd::demo::CrowdWorld::open(catalogue(), w.save(), why);
+    REQUIRE_MESSAGE(reopened, why);
+    if (!reopened) return;
+    reopened->world().run_to(100000);
+    copy->world().run_to(100000);
+    CHECK(reopened->world().digests().whole == copy->world().digests().whole);
     const auto valid = accepted(w, why);
     INFO(why);
     CHECK(valid);
@@ -1019,7 +1031,7 @@ struct WorkFixture final : kd::world::System {
         if (std::none_of(b.inputs.begin(), b.inputs.end(), [](const auto& r) { return r.optional; })) tool = true;
         std::int64_t edge = 0;
         for (std::size_t i = 1; i < inputs.size(); ++i) {
-            const auto& item = w.things().raw().get<kd::world::Item>(w.things().handle(inputs[i]));
+            const auto& item = recorded_item(w, inputs[i]);
             edge = std::max(edge, kd::demo::Crafting::characteristics(catalogue(), item)[1]);
         }
         seconds = kd::demo::Crafting::time_cost(w, h, kd::demo::Crafting::duration(b, edge, tool));
@@ -1049,7 +1061,7 @@ struct WorkFixture final : kd::world::System {
         work.target = raw.get<kd::world::Place>(h).at;
         const auto& b = catalogue().kind<kd::data::Blueprint>()[recipe];
         for (std::size_t i = 0; i < inputs.size(); ++i) {
-            const auto& item = w.things().raw().get<kd::world::Item>(w.things().handle(inputs[i]));
+            const auto& item = recorded_item(w, inputs[i]);
             work.inputs.push_back({inputs[i], item.mass, static_cast<std::uint8_t>(i),
                                    static_cast<std::uint8_t>(b.inputs[i].retained), 0, 1});
         }
@@ -1139,22 +1151,23 @@ TEST_CASE("quality_wear applies toughness and quality once conserves breakage an
     item.changed[2] = 1;
     (void)trial.w.command(0, 901, trial.person.value, 20000000);
     trial.w.run_to(1);
-    CHECK(item.wear == 1000000);  // one usable-meat deer removes one edge step at ordinary quality
-    CHECK(kd::demo::Crafting::characteristics(catalogue(), item)[1] == 4);
+    CHECK(recorded_item(trial.w, trial.inputs[0]).wear == 1000000);  // one usable-meat deer removes one edge step
+    CHECK(kd::demo::Crafting::characteristics(catalogue(), recorded_item(trial.w, trial.inputs[0]))[1] == 4);
     std::string why;
     CHECK(accepted(trial.w, why));
-    item.quality = 4;
-    item.wear = 0;
-    item.wear_remainder = 0;
+    auto& next = trial.w.things().raw().get<kd::world::Item>(trial.w.things().handle(trial.inputs[0]));
+    next.quality = 4;
+    next.wear = 0;
+    next.wear_remainder = 0;
     (void)trial.w.command(2, 901, trial.person.value, 1);
     trial.w.run_to(3);
-    CHECK(item.wear == 0);
-    CHECK(item.wear_remainder == 100000);
+    CHECK(recorded_item(trial.w, trial.inputs[0]).wear == 0);
+    CHECK(recorded_item(trial.w, trial.inputs[0]).wear_remainder == 100000);
     CHECK(accepted(trial.w, why));
     const auto before = kd::demo::Crafting::total(trial.w, trial.home, "stone");
     (void)trial.w.command(4, 901, trial.person.value, 200000000);
     trial.w.run_to(5);
-    CHECK(trial.w.things().raw().get<kd::world::Item>(trial.w.things().handle(trial.inputs[0])).mass == 0);
+    CHECK(recorded_item(trial.w, trial.inputs[0]).mass == 0);
     CHECK(kd::demo::Crafting::total(trial.w, trial.home, "stone") == before);
     CHECK(accepted(trial.w, why));
 }
@@ -1423,6 +1436,6 @@ TEST_CASE("large kept choice and result histories reopen beyond the former elaps
     kept.next_choice = kept.next = count + 1;
     std::string why;
     REQUIRE_MESSAGE(accepted(w, why), why);
-    kept.events.back().choice = count + 1;
+    kept.events.writable(kept.events.size() - 1).choice = count + 1;
     CHECK_FALSE(accepted(w, why));
 }

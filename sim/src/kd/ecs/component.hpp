@@ -45,9 +45,9 @@ public:
     void u64(const Part& /*p*/, const std::uint64_t& v) { d_.u64(v); }
     void i64(const Part& /*p*/, const std::int64_t& v) { d_.i64(v); }
     void text(const Part& /*p*/, const std::string& v, std::size_t /*most*/ = 128) { d_.text(v); }
-    template <typename C>
-    void records(const Part& /*p*/, const std::vector<C>& values, std::size_t /*most*/,
-                 std::size_t /*least_bytes*/ = 4) {
+    template <typename Range>
+    void records(const Part& /*p*/, const Range& values, std::size_t /*most*/, std::size_t /*least_bytes*/ = 4) {
+        using C = typename Range::value_type;
         d_.u64(values.size());
         for (const auto& value : values) {
             d_.text(C::name);
@@ -86,9 +86,9 @@ public:
     void u64(const Part& /*p*/, const std::uint64_t& v) { w_.u64(v); }
     void i64(const Part& /*p*/, const std::int64_t& v) { w_.i64(v); }
     void text(const Part& /*p*/, const std::string& v, std::size_t /*most*/ = 128) { w_.text(v); }
-    template <typename C>
-    void records(const Part& /*p*/, const std::vector<C>& values, std::size_t /*most*/,
-                 std::size_t /*least_bytes*/ = 4) {
+    template <typename Range>
+    void records(const Part& /*p*/, const Range& values, std::size_t /*most*/, std::size_t /*least_bytes*/ = 4) {
+        using C = typename Range::value_type;
         w_.u64(values.size());
         for (const auto& value : values) {
             w_.u32(C::version);
@@ -129,15 +129,18 @@ public:
     void u64(const Part& /*p*/, std::uint64_t& v) { r_.u64(v); }
     void i64(const Part& /*p*/, std::int64_t& v) { r_.i64(v); }
     void text(const Part& /*p*/, std::string& v, std::size_t most = 128) { ok_ = ok_ && r_.text(v, most); }
-    template <typename C>
-    void records(const Part& /*p*/, std::vector<C>& values, std::size_t most, std::size_t least_bytes = 4) {
+    template <typename Range>
+    void records(const Part& /*p*/, Range& values, std::size_t most, std::size_t least_bytes = 4) {
         std::uint64_t count = 0;
         if (!ok_ || !r_.u64(count) || count > most || least_bytes < 4 || count > r_.remaining() / least_bytes) {
             ok_ = false;
             return;
         }
-        values.resize(static_cast<std::size_t>(count));
-        for (auto& value : values) {
+        using C = typename Range::value_type;
+        values.clear();
+        values.reserve(static_cast<std::size_t>(count));
+        for (std::uint64_t n = 0; n < count; ++n) {
+            C value;
             std::uint32_t version = 0;
             if (!r_.u32(version) || version != C::version) {
                 ok_ = false;
@@ -145,6 +148,7 @@ public:
             }
             C::visit(*this, value);
             if (!ok()) return;
+            values.push_back(std::move(value));
         }
     }
     void point(const Part& /*p*/, num::Point& v) {

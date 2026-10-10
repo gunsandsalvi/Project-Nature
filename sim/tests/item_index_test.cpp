@@ -8,6 +8,9 @@ TEST_CASE("owned item index skips inert spent stock and follows timed food trans
     REQUIRE(cat.load(kd::data::read_catalogue(KD_REPO "/data")).empty());
     kd::demo::CrowdWorld camp(333, cat, 1, true, true);
     auto& w = camp.world();
+    // This scalar index fixture deliberately mutates spent entries later. Archive
+    // conservation/publication is tested separately with packing enabled.
+    w.set_archive_enabled(false);
     std::vector<kd::ecs::Id> people;
     w.beings().each([&](kd::ecs::Id id, auto h) {
         if (w.beings().raw().all_of<kd::world::Person>(h)) people.push_back(id);
@@ -61,7 +64,7 @@ TEST_CASE("owned item index skips inert spent stock and follows timed food trans
             item.state = 4;
             c.item_changed(id);
             CHECK(view.items_owned(second, meat).empty());
-            // A retained timer still settles its cursor exactly, even after its food is spent.
+            // The reference index still carries a spent entry's retained timer.
             auto& timer = w.things().raw().emplace<kd::world::HeatTimer>(w.things().handle(id));
             timer.item = timer.chance_source = id;
             timer.completed = 1;

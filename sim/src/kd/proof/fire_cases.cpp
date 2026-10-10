@@ -95,7 +95,7 @@ FireRun fire_chain(const data::Catalogue& catalogue, std::uint64_t seed, bool we
     });
     std::vector<world::Record> trace;
     w.keep_history(&trace);
-    std::size_t cursor = 0;
+    std::uint64_t cursor = 0;
     const auto reopen = [&] {
         std::string why;
         const auto encoded = save::write_snapshot(w.save());
@@ -116,7 +116,12 @@ FireRun fire_chain(const data::Catalogue& catalogue, std::uint64_t seed, bool we
         w.run_to(std::min(duration, w.frontier() + time::kHour));
         out.peak_trace_records = std::max(out.peak_trace_records, trace.size());
         const auto& history = w.beings().raw().get<world::CraftHistory>(w.beings().handle(home));
-        for (; cursor < history.events.size(); ++cursor) out.observe_result(w, history.events[cursor]);
+        auto unseen = std::upper_bound(history.events.begin(), history.events.end(), cursor,
+                                       [](auto id, const auto& event) { return id < event.id; });
+        for (; unseen != history.events.end(); ++unseen) {
+            cursor = unseen->id;
+            out.observe_result(w, *unseen);
+        }
         for (const auto& record : trace) out.observe_record(w, record);
         out.finish_interval(w);
         // Keep at most one hour of trace, never the world's accumulated routine history.

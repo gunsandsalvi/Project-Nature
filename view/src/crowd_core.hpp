@@ -24,6 +24,34 @@ struct Walker {
     std::optional<world::Person> person = std::nullopt;
 };
 
+// Changed item trails are copied by the producer; unchanged trails are shared
+// across publications. The screen owns const rows independently of slot reuse.
+class ItemRows {
+public:
+    void clear() {
+        pages_.clear();
+        ends_.clear();
+    }
+    void append(std::shared_ptr<const std::vector<world::ItemWay>> page) {
+        if (page->empty()) return;
+        const auto total = size() + page->size();
+        pages_.push_back(std::move(page));
+        ends_.push_back(total);
+    }
+    [[nodiscard]] std::size_t size() const { return ends_.empty() ? 0 : ends_.back(); }
+    [[nodiscard]] bool empty() const { return size() == 0; }
+    [[nodiscard]] const world::ItemWay& operator[](std::size_t n) const {
+        const auto p = static_cast<std::size_t>(std::upper_bound(ends_.begin(), ends_.end(), n) - ends_.begin());
+        KD_CHECK(p < pages_.size(), "display item index outside published rows");
+        return (*pages_[p])[n - (p ? ends_[p - 1] : 0)];
+    }
+    [[nodiscard]] const world::ItemWay& front() const { return (*this)[0]; }
+
+private:
+    std::vector<std::shared_ptr<const std::vector<world::ItemWay>>> pages_;
+    std::vector<std::size_t> ends_;
+};
+
 /// Where a walker is along a way at a moment with its fraction of a second, in centimetres east and north of a point:
 /// at the whole seconds either side, the world's own place (Activity::at), and between them the screen's straight
 /// line, so it moves smoothly and is exactly where the world has it at each whole second.
@@ -47,9 +75,11 @@ struct Snapshot {
     std::vector<std::optional<world::Ambient>> ambients{};
     std::vector<ecs::Id> camp_ids{};
     [[nodiscard]] std::optional<world::Thermal> thermal_at(std::size_t walker, double t, std::int64_t water_day) const;
-    std::vector<world::ItemWay> items{};
+    ItemRows items{};
     std::vector<std::uint32_t> item_first{};
     std::vector<world::CraftHistory> craft_history{};
+    Pages<world::ArchivedItem> item_archive{};
+    RecordIndex archive_index{};
     [[nodiscard]] const world::ItemWay* item_at(std::size_t i, double t) const;
     // Living thought updates become visible at their event, even within an unchanged activity.
     std::vector<time::Seconds> changed_at{};
@@ -131,7 +161,8 @@ private:
     std::vector<std::vector<std::shared_ptr<const world::Knowledge>>> knowledge_trails_;
     std::vector<std::vector<std::optional<world::Thermal>>> thermal_trails_;
     std::vector<std::vector<std::optional<world::Ambient>>> ambient_trails_;
-    std::map<ecs::Id, std::vector<world::ItemWay>> item_trails_;
+    std::map<ecs::Id, std::shared_ptr<std::vector<world::ItemWay>>> item_trails_;
+    std::vector<world::ItemWay>& mutable_item_trail(ecs::Id id);
     std::vector<world::ItemWay> item_ways_;
     TripleBuffer<Snapshot> snapshots_;
     std::vector<world::Record> history_;

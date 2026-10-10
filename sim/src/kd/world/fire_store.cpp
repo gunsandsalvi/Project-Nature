@@ -62,6 +62,59 @@ bool load_fire(World& w, std::span<const save::Chunk> chunks, const ecs::EntryMa
         const auto h = w.beings().find(id);
         return h && beings.all_of<Camp>(*h);
     };
+    const auto valid_timer = [&](const HeatTimer& t, ecs::Id id, const Item& item) {
+        if (t.item != id || t.target_state != 1 || t.low != 2 || t.high != 3 || t.exposure_heat > 5 ||
+            t.completed > 1 || t.tried > 1 || t.intended > 1 || t.elapsed < 0 || t.elapsed > 2 * time::kHour ||
+            t.hot_elapsed < 0 || t.hot_elapsed > time::kHour || t.hot_elapsed > t.elapsed || t.settled_at < 0 ||
+            t.settled_at > now || !deadline(t.next) ||
+            (t.completed && (t.next != 0 || (item.state != 2 && !(item.state == 4 && !item.mass)))))
+            return fail("invalid retained heat exposure");
+        std::int64_t credited = 0;
+        for (const auto& source : t.heat_sources) {
+            if (source.from < 0 || source.from > t.settled_at || source.seconds <= 0 || source.seconds > time::kHour ||
+                source.seconds > t.settled_at - source.from || source.tended_at < -1 || source.tended_at > source.from)
+                return fail("invalid retained heating source");
+            credited += source.seconds;
+        }
+        if (credited > std::min(t.elapsed, time::kHour) || t.exposure_tended_at < -1 ||
+            t.exposure_tended_at > t.settled_at)
+            return fail("heating ancestry disagrees with exposure");
+        if (t.maker.value) {
+            const auto maker = w.beings().find(t.maker);
+            if (!maker || !beings.all_of<Person>(*maker)) return fail("missing cooking placer");
+        } else if (t.intended)
+            return fail("intentional cooking has no placer");
+        if (t.placement_choice) {
+            const auto& choices = beings.get<CraftHistory>(w.beings().handle(item.home)).choices;
+            const auto* choice = choices.find(t.placement_choice);
+            if (!choice || choice->actor != t.maker || choice->reasons.front().action != 12)
+                return fail("cooking placement choice disagrees");
+        }
+        if (t.chance_source.value && !w.things().find(t.chance_source) && !w.archived_item(t.chance_source))
+            return fail("missing cooking chance source");
+        if (!t.tried && t.elapsed >= time::kHour && t.exposure_heat >= 2 && t.exposure_heat <= 3)
+            return fail("missed first cooking transition");
+        if (item.state == 1 && !t.tried) return fail("cooked food has no first-hour attempt");
+        if (!t.completed && t.elapsed == 2 * time::kHour) return fail("missed total burn transition");
+        if (!t.completed && t.hot_elapsed == time::kHour) return fail("missed hot burn transition");
+        if (!t.completed && item.mass && t.exposure_heat >= 2 && !t.next) return fail("heated food lost its deadline");
+        if (!t.completed && item.mass && t.exposure_heat >= 2) {
+            auto latest = t.settled_at + 2 * time::kHour - t.elapsed;
+            if (!t.tried && t.exposure_heat <= 3) latest = std::min(latest, t.settled_at + time::kHour - t.elapsed);
+            if (t.exposure_heat >= 4) latest = std::min(latest, t.settled_at + time::kHour - t.hot_elapsed);
+            if (t.next > latest) return fail("food deadline misses a physical transition");
+        }
+        if (!item.mass && t.next) return fail("spent food has an active exposure deadline");
+        std::vector<ecs::Id> noticed;
+        for (const auto link : t.notices) {
+            const auto person = w.beings().find(link.id);
+            if (!person || !beings.all_of<Person>(*person) ||
+                std::find(noticed.begin(), noticed.end(), link.id) != noticed.end())
+                return fail("invalid cooking noticer");
+            noticed.push_back(link.id);
+        }
+        return true;
+    };
     {
         ByteReader r(save::find_chunk(chunks, save::tag("FIRE"))->data);
         std::uint64_t count = 0;
@@ -97,60 +150,7 @@ bool load_fire(World& w, std::span<const save::Chunk> chunks, const ecs::EntryMa
                 things.emplace<Fire>(handle, f);
             } else if (kind == 2) {
                 HeatTimer t;
-                if (!ecs::read_component(t, r, entries) || t.item != id || t.target_state != 1 || t.low != 2 ||
-                    t.high != 3 || t.exposure_heat > 5 || t.completed > 1 || t.tried > 1 || t.intended > 1 ||
-                    t.elapsed < 0 || t.elapsed > 2 * time::kHour || t.hot_elapsed < 0 || t.hot_elapsed > time::kHour ||
-                    t.hot_elapsed > t.elapsed || t.settled_at < 0 || t.settled_at > now || !deadline(t.next) ||
-                    (t.completed && (t.next != 0 || (item.state != 2 && !(item.state == 4 && !item.mass)))))
-                    return fail("invalid retained heat exposure");
-                std::int64_t credited = 0;
-                for (const auto& source : t.heat_sources) {
-                    if (source.from < 0 || source.from > t.settled_at || source.seconds <= 0 ||
-                        source.seconds > time::kHour || source.seconds > t.settled_at - source.from ||
-                        source.tended_at < -1 || source.tended_at > source.from)
-                        return fail("invalid retained heating source");
-                    credited += source.seconds;
-                }
-                if (credited > std::min(t.elapsed, time::kHour) || t.exposure_tended_at < -1 ||
-                    t.exposure_tended_at > t.settled_at)
-                    return fail("heating ancestry disagrees with exposure");
-                if (t.maker.value) {
-                    const auto maker = w.beings().find(t.maker);
-                    if (!maker || !beings.all_of<Person>(*maker)) return fail("missing cooking placer");
-                } else if (t.intended)
-                    return fail("intentional cooking has no placer");
-                if (t.placement_choice) {
-                    const auto& choices = beings.get<CraftHistory>(w.beings().handle(item.home)).choices;
-                    if (std::none_of(choices.begin(), choices.end(), [&](const auto& x) {
-                            return x.id == t.placement_choice && x.actor == t.maker && x.reasons.front().action == 12;
-                        }))
-                        return fail("cooking placement choice disagrees");
-                }
-                if (t.chance_source.value && !w.things().find(t.chance_source))
-                    return fail("missing cooking chance source");
-                if (!t.tried && t.elapsed >= time::kHour && t.exposure_heat >= 2 && t.exposure_heat <= 3)
-                    return fail("missed first cooking transition");
-                if (item.state == 1 && !t.tried) return fail("cooked food has no first-hour attempt");
-                if (!t.completed && t.elapsed == 2 * time::kHour) return fail("missed total burn transition");
-                if (!t.completed && t.hot_elapsed == time::kHour) return fail("missed hot burn transition");
-                if (!t.completed && item.mass && t.exposure_heat >= 2 && !t.next)
-                    return fail("heated food lost its deadline");
-                if (!t.completed && item.mass && t.exposure_heat >= 2) {
-                    auto latest = t.settled_at + 2 * time::kHour - t.elapsed;
-                    if (!t.tried && t.exposure_heat <= 3)
-                        latest = std::min(latest, t.settled_at + time::kHour - t.elapsed);
-                    if (t.exposure_heat >= 4) latest = std::min(latest, t.settled_at + time::kHour - t.hot_elapsed);
-                    if (t.next > latest) return fail("food deadline misses a physical transition");
-                }
-                if (!item.mass && t.next) return fail("spent food has an active exposure deadline");
-                std::vector<ecs::Id> noticed;
-                for (const auto link : t.notices) {
-                    const auto person = w.beings().find(link.id);
-                    if (!person || !beings.all_of<Person>(*person) ||
-                        std::find(noticed.begin(), noticed.end(), link.id) != noticed.end())
-                        return fail("invalid cooking noticer");
-                    noticed.push_back(link.id);
-                }
+                if (!ecs::read_component(t, r, entries) || !valid_timer(t, id, item)) return false;
                 things.emplace<HeatTimer>(handle, t);
             } else
                 return fail("unknown fire record kind");
@@ -186,8 +186,7 @@ bool load_fire(World& w, std::span<const save::Chunk> chunks, const ecs::EntryMa
         const auto* fire = fire_of(x.fire);
         return fire && fire->origin == x.origin && x.from >= fire->ignited_at;
     };
-    for (const auto h : things.view<HeatTimer>()) {
-        const auto& t = things.get<HeatTimer>(h);
+    const auto valid_credits = [&](const HeatTimer& t) {
         if (t.exposure_fire.value) {
             const auto* fire = fire_of(t.exposure_fire);
             if (!fire || fire->origin != t.exposure_origin || t.settled_at < fire->ignited_at)
@@ -196,7 +195,14 @@ bool load_fire(World& w, std::span<const save::Chunk> chunks, const ecs::EntryMa
             return fail("heat origin has no source fire");
         for (const auto& credit : t.heat_sources)
             if (!credit_valid(credit)) return fail("invalid retained fire identity");
-    }
+        return true;
+    };
+    for (const auto h : things.view<HeatTimer>())
+        if (!valid_credits(things.get<HeatTimer>(h))) return false;
+    for (const auto& archived : w.item_archive())
+        if (archived.timer &&
+            (!valid_timer(*archived.timer, archived.id, archived.item) || !valid_credits(*archived.timer)))
+            return false;
     for (const auto h : beings.view<CraftHistory>())
         for (const auto& event : beings.get<CraftHistory>(h).events)
             for (const auto& credit : event.heat_sources)
@@ -260,9 +266,8 @@ bool load_fire(World& w, std::span<const save::Chunk> chunks, const ecs::EntryMa
                 const auto& choices =
                     beings.get<CraftHistory>(w.beings().handle(beings.get<demo::Home>(*h).camp)).choices;
                 const auto valid_choice = [&](std::uint64_t choice, std::uint8_t kind) {
-                    return choice == 0 || std::any_of(choices.begin(), choices.end(), [&](const auto& x) {
-                               return x.id == choice && x.actor == id && x.reasons.front().kind == kind;
-                           });
+                    const auto* saved = choices.find(choice);
+                    return choice == 0 || (saved && saved->actor == id && saved->reasons.front().kind == kind);
                 };
                 if (!valid_choice(t.warm_choice, 4) || !valid_choice(t.tending_choice, 3) ||
                     (!t.warm_phase && t.warm_choice) || (!t.tending && t.tending_choice))

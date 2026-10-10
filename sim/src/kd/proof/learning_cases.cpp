@@ -47,7 +47,7 @@ LearningRun sharp_stone(const data::Catalogue& catalogue, std::uint64_t seed, bo
     const auto& recipes = catalogue.kind<data::Blueprint>();
     LearningRun out;
     out.seed = seed;
-    std::size_t cursor = 0;
+    std::uint64_t cursor = 0;
     // Only the current snapshot is kept: proving a phase never retains the display's historical trail.
     const auto reopen = [&] {
         ++out.reopens;
@@ -72,8 +72,11 @@ LearningRun sharp_stone(const data::Catalogue& catalogue, std::uint64_t seed, bo
         if (progress && (w.frontier() == time::kDay || w.frontier() % (5 * time::kDay) == 0)) progress(w, end);
         const auto& history = w.beings().raw().get<world::CraftHistory>(h);
         bool phase = false;
-        for (; cursor < history.events.size(); ++cursor) {
-            const auto& event = history.events[cursor];
+        auto unseen = std::upper_bound(history.events.begin(), history.events.end(), cursor,
+                                       [](auto id, const auto& event) { return id < event.id; });
+        for (; unseen != history.events.end(); ++unseen) {
+            const auto& event = *unseen;
+            cursor = event.id;
             if (event.kind == 0 || event.kind == 1 || event.kind == 5) ++out.fitting_tries;
             if (recipes[event.recipe].edge_from < 0 || event.result.value == 0 || event.kind == 5) continue;
             if (event.kind == 2 && event.route == 4 && out.first_watch < 0) {

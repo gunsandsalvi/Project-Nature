@@ -91,6 +91,31 @@ func test_spent_records_are_inspectable_and_never_drawn_as_live_stock() -> void:
 	page.free()
 
 
+func test_history_pages_use_stable_cursors_and_direct_item_lookup_without_teaching() -> void:
+	var page := _page()
+	var digest: String = page.world.digest()
+	var all_events: Array = page.world.craft_history()
+	all_events.reverse()
+	var collected: Array[int] = []
+	var before := 0
+	for ignored in all_events.size() + 1:
+		var records: Array = page.world.craft_history_page(before, 1)
+		assert_int(records.size()).is_less_equal(1)
+		if records.is_empty():
+			break
+		collected.append(int(records[0].id))
+		before = int(records[0].id)
+	var expected: Array[int] = []
+	for event: Dictionary in all_events:
+		expected.append(int(event.id))
+	assert_array(collected).is_equal(expected)
+	for record: Dictionary in page.world.items(page.selected_id, true):
+		assert_dict(page.world.item_record(int(record.id), page.selected_id)).is_equal(record)
+	assert_dict(page.world.item_record(-1, page.selected_id)).is_empty()
+	assert_str(page.world.digest()).is_equal(digest)
+	page.free()
+
+
 func test_history_names_only_recorded_sources_and_public_words_omit_sender() -> void:
 	var people := [{"id": 7, "name": "Ari"}, {"id": 8, "name": "Bo"}]
 	var event := {

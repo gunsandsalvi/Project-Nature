@@ -15,6 +15,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <set>
 #include <span>
 #include <string_view>
 #include <tuple>
@@ -201,6 +202,38 @@ struct ItemWay {
     std::optional<HeatTimer> timer = std::nullopt;
 };
 
+// A spent physical identity leaves active ECS but retains its exact provenance,
+// inspection facts and settled exposure. It can never be reserved or resurrected.
+struct ArchivedItem {
+    static constexpr std::string_view name = "archived-item";
+    static constexpr std::uint32_t version = 1;
+    ecs::Id id{};
+    time::Seconds archived_at = 0;
+    Place place{};
+    Item item{};
+    std::shared_ptr<const HeatTimer> timer{};
+    std::uint8_t has_timer = 0;
+    template <typename V, typename Self>
+    static void visit(V& v, Self& c) {
+        v.id({"id", "stable spent item identity"}, c.id);
+        v.i64({"archived_at", "publication boundary of archival"}, c.archived_at);
+        Place::visit(v, c.place);
+        Item::visit(v, c.item);
+        std::uint8_t has = c.timer ? 1 : 0;
+        v.u8({"timer", "settled exposure retained for inspection"}, has);
+        if constexpr (!std::is_const_v<Self>) {
+            c.has_timer = has;
+            c.timer.reset();
+            if (has) {
+                auto timer = std::make_shared<HeatTimer>();
+                HeatTimer::visit(v, *timer);
+                c.timer = std::move(timer);
+            }
+        } else if (c.timer)
+            HeatTimer::visit(v, *c.timer);
+    }
+};
+
 /// One island of a window (A3.3): its events, run in key order on one worker, those it makes at or after the
 /// window's end, its history and ways, and the owners whose place changed.
 struct Island {
@@ -318,6 +351,27 @@ public:
     // Owned live items of a kind, plus retained timers requiring identical settlement; no inert spent stock.
     [[nodiscard]] std::span<const ItemSite::Entry> items_owned(ecs::Id owner, std::uint32_t kind) const;
     [[nodiscard]] const Things& things() const { return things_; }
+    [[nodiscard]] const ArchivedItem* archived_item(ecs::Id id) const;
+    [[nodiscard]] const Pages<ArchivedItem>& item_archive() const { return item_archive_; }
+    [[nodiscard]] const RecordIndex& archive_index() const { return archive_index_; }
+    // Retention is semantic and identical in the reference representation. Packing
+    // only changes storage, never events, chance keys or the logical digest.
+    void retain_records(time::Seconds now);
+    void set_archive_enabled(bool enabled) { archive_enabled_ = enabled; }
+    struct ItemVisits {
+        std::uint64_t reachable = 0, reachable_spent = 0, thermal = 0, thermal_spent = 0;
+    };
+    [[nodiscard]] ItemVisits item_visits() const { return item_visits_; }
+    void clear_item_visits() const { item_visits_ = {}; }
+    void visited_item(bool thermal, const Item& item) const {
+        if (thermal) {
+            ++item_visits_.thermal;
+            if (item.mass == 0) ++item_visits_.thermal_spent;
+        } else {
+            ++item_visits_.reachable;
+            if (item.mass == 0) ++item_visits_.reachable_spent;
+        }
+    }
 
     /// A new being of a family, with its id and its schedule; never inside an island.
     Beings::Handle make_being(ecs::Family f);
@@ -434,6 +488,12 @@ private:
     ecs::IdMaker ids_;
     Beings beings_;
     Things things_;
+    Pages<ArchivedItem> item_archive_;
+    RecordIndex archive_index_;
+    std::map<ecs::Id, std::size_t> archived_ids_;
+    std::map<ecs::Id, std::set<std::uint64_t>> archived_choice_pins_;
+    bool archive_enabled_ = true;
+    mutable ItemVisits item_visits_{};  // output only; never save, hash or use to choose
     mutable bool item_sites_valid_ = false;
     mutable std::vector<ItemSite> item_sites_;
     mutable std::map<std::tuple<std::uint64_t, std::int32_t, std::int32_t>, std::size_t> item_site_at_;

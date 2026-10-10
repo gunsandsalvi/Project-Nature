@@ -59,6 +59,9 @@ void settle(world::Context& c, ecs::Id id) {
     const auto h = w.things().handle(id);
     auto& t = w.things().raw().get<HeatTimer>(h);
     auto& i = w.things().raw().get<Item>(h);
+    // Consumption already settled the last real interval and cleared exposure.
+    // Later refreshes cannot advance a spent identity's frozen facts.
+    if (!i.mass && !t.exposure_heat && !t.next) return;
     const auto old_heat = t.exposure_heat;
     const auto old_next = t.next;
     const auto old_source = t.exposure_fire;
@@ -186,6 +189,10 @@ void FireRules::food_changed(world::Context& c, ecs::Id id) {
             const auto& parent = w.things().raw().get<Item>(*source);
             if (parent.kind == i.kind && parent.material == i.material && parent.state == i.state)
                 inherited = w.things().raw().try_get<HeatTimer>(*source);
+        } else if (const auto* archived = w.archived_item(i.parents[0].id)) {
+            const auto& parent = archived->item;
+            if (parent.kind == i.kind && parent.material == i.material && parent.state == i.state && archived->timer)
+                inherited = &*archived->timer;
         }
     }
     const auto present_heat = !t && i.state == 0 ? heat(w, id, c.now()) : 0;
@@ -213,6 +220,8 @@ void FireRules::food_refresh(world::Context& c, ecs::Id camp) {
     std::vector<ecs::Id> foods;
     c.world().things().each([&](ecs::Id id, auto h) {
         const auto& i = c.world().things().raw().get<Item>(h);
+        c.world().visited_item(true, i);
+        if (!i.mass) return;
         if (i.home == camp &&
             (c.world().things().raw().all_of<HeatTimer>(h) || cooking_recipe(c.world().catalogue(), i)))
             foods.push_back(id);
@@ -224,7 +233,8 @@ void FireRules::carried_food(world::Context& c, ecs::Id person) {
     const auto& w = std::as_const(c.world());
     std::vector<ecs::Id> carried;
     for (std::uint32_t kind = 0; kind < w.catalogue().kind<data::ItemKind>().size(); ++kind)
-        for (const auto& entry : w.items_owned(person, kind)) carried.push_back(entry.id);
+        for (const auto& entry : w.items_owned(person, kind))
+            if (w.things().raw().get<Item>(entry.handle).mass) carried.push_back(entry.id);
     // Preserve whole-world ID order before callbacks mutate the live carried-item index.
     num::sort_strict(carried.begin(), carried.end(), [](auto a, auto b) { return a < b; });
     for (const auto id : carried) food_changed(c, id);
@@ -284,16 +294,9 @@ void FireRules::notice_food(world::Context& c, world::Beings::Handle person) {
         const auto roast = *recipe;
         const auto* familiar = Discovery::familiar(know, i);
         const std::array inputs{id};
-        auto& history = w.beings().raw().get<world::CraftHistory>(w.beings().handle(home));
-        const auto before = history.events.size();
         const auto& timer = w.things().raw().get<HeatTimer>(w.things().handle(id));
         Discovery::result(c, person, roast, inputs, {*familiar}, id, true, !Learning::knows(know, roast), 1,
-                          timer.heat_sources);
-        if (timer.placement_choice)
-            for (auto n = before; n < history.events.size(); ++n) {
-                history.events[n].choice = timer.placement_choice;
-                history.events[n].source = timer.maker;
-            }
+                          timer.heat_sources, timer.placement_choice, timer.maker);
         c.moved(viewer);
     }
 }

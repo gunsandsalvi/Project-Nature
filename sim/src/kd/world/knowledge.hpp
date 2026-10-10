@@ -1,6 +1,7 @@
 // Personal evidence and durable skill records. No global recipe unlocks or mind sentences.
 #pragma once
 #include <array>
+#include "kd/core/pages.hpp"
 #include "kd/world/craft.hpp"
 namespace kd::world {
 struct Familiar {
@@ -317,12 +318,27 @@ struct Choice {
         v.records({"reasons", "winner and two actual rejected options"}, c.reasons, 3);
     }
 };
+struct PublicResult {
+    std::uint64_t id = 0;
+    time::Seconds at = 0;
+};
 struct CraftHistory {
     static constexpr std::string_view name = "craft-history";
     static constexpr std::uint32_t version = 2;
     std::uint64_t next = 1, next_choice = 1;
-    std::vector<Result> events;
-    std::vector<Choice> choices;
+    Pages<Result> events;
+    Pages<Choice> choices;
+    mutable Pages<PublicResult> public_results;
+    mutable std::uint64_t public_indexed = 0;
+    [[nodiscard]] const Pages<PublicResult>& public_index() const {
+        const auto first = std::upper_bound(events.begin(), events.end(), public_indexed,
+                                            [](std::uint64_t id, const Result& event) { return id < event.id; });
+        for (auto at = first; at != events.end(); ++at) {
+            if (at->kind != 0 && at->kind != 5) public_results.push_back({at->id, at->at});
+            public_indexed = at->id;
+        }
+        return public_results;
+    }
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
         v.u64({"next", "next actual result event"}, c.next);

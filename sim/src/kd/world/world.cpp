@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <limits>
 #include <map>
+#include <set>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -521,6 +522,101 @@ void World::died() {
     queue_.died([this](const event::Event& e) { return live(e); });
 }
 
+const ArchivedItem* World::archived_item(ecs::Id id) const {
+    const auto at = archived_ids_.find(id);
+    return at == archived_ids_.end() ? nullptr : &item_archive_[at->second];
+}
+
+void World::retain_records(time::Seconds now) {
+    std::set<ecs::Id> physical;
+    const auto pin = [&](ecs::Id id) {
+        if (id.value) physical.insert(id);
+    };
+    for (const auto h : beings_.raw().view<Work>())
+        for (const auto& input : beings_.raw().get<Work>(h).inputs) pin(input.item);
+    for (const auto h : beings_.raw().view<Life>()) pin(beings_.raw().get<Life>(h).meal_item);
+    for (const auto h : beings_.raw().view<Thermal>()) {
+        const auto& thermal = beings_.raw().get<Thermal>(h);
+        pin(thermal.tending_input);
+    }
+    for (const auto h : things_.raw().view<HeatTimer, Item>()) {
+        const auto& timer = things_.raw().get<HeatTimer>(h);
+        if (things_.raw().get<Item>(h).mass > 0) pin(timer.chance_source);
+    }
+    for (const auto ch : beings_.raw().view<CraftHistory>()) {
+        const auto camp = beings_.id_of(ch);
+        auto& history = beings_.raw().get<CraftHistory>(ch);
+        std::set<std::uint64_t> choices, events;
+        const auto keep_event = [&](std::uint64_t id) {
+            if (id) events.insert(id);
+        };
+        beings_.each([&](ecs::Id, Beings::Handle h) {
+            const auto* home = beings_.raw().try_get<demo::Home>(h);
+            if (!home || home->camp != camp) return;
+            if (const auto* knowledge = beings_.raw().try_get<Knowledge>(h)) {
+                if (knowledge->choice) choices.insert(knowledge->choice);
+                for (const auto& skill : knowledge->skills) keep_event(skill.source_event);
+                for (const auto& familiar : knowledge->familiar)
+                    for (const auto event : familiar.source_events) keep_event(event);
+                for (const auto& memory : knowledge->memories) keep_event(memory.event);
+                for (const auto& peer : knowledge->peers) keep_event(peer.event);
+                keep_event(knowledge->last_observed_event);
+            }
+            if (const auto* work = beings_.raw().try_get<Work>(h); work && work->choice) choices.insert(work->choice);
+            if (const auto* thermal = beings_.raw().try_get<Thermal>(h)) {
+                if (thermal->warm_choice) choices.insert(thermal->warm_choice);
+                if (thermal->tending_choice) choices.insert(thermal->tending_choice);
+            }
+        });
+        things_.each([&](ecs::Id, Things::Handle h) {
+            if (const auto* timer = things_.raw().try_get<HeatTimer>(h);
+                timer && things_.raw().get<Item>(h).home == camp && timer->placement_choice)
+                choices.insert(timer->placement_choice);
+        });
+        if (const auto* lessons = beings_.raw().try_get<Lessons>(ch))
+            for (const auto& lesson : lessons->sessions) keep_event(lesson.last_try);
+        // Public first discoveries and first transmission routes remain permanent.
+        if (now > 25 * time::kYear) {
+            std::set<std::pair<std::uint32_t, std::uint8_t>> firsts;
+            std::set<std::uint64_t> permanent;
+            for (const auto& event : history.events)
+                if (event.noticed && firsts.insert({event.recipe, event.route}).second) permanent.insert(event.id);
+            const auto previous_size = history.events.size();
+            history.events.retain([&](const Result& event) {
+                return permanent.contains(event.id) || events.contains(event.id) || event.at >= now - 25 * time::kYear;
+            });
+            if (history.events.size() != previous_size) {
+                history.public_results.clear();
+                history.public_indexed = 0;
+            }
+        }
+        for (const auto& event : history.events)
+            if (event.choice) choices.insert(event.choice);
+        if (const auto at = archived_choice_pins_.find(camp); at != archived_choice_pins_.end())
+            choices.insert(at->second.begin(), at->second.end());
+        history.choices.retain(
+            [&](const Choice& choice) { return choice.at >= now - 2 * time::kDay || choices.contains(choice.id); });
+    }
+    if (!archive_enabled_) return;
+    std::vector<ecs::Id> spent;
+    things_.each([&](ecs::Id id, Things::Handle h) {
+        const auto* item = things_.raw().try_get<Item>(h);
+        const auto* timer = things_.raw().try_get<HeatTimer>(h);
+        if (!item || item->mass != 0 || item->state != 4 || physical.contains(id) || things_.raw().all_of<Fire>(h) ||
+            (timer && timer->next != 0))
+            return;
+        archived_ids_.emplace(id, item_archive_.size());
+        if (timer && timer->placement_choice) archived_choice_pins_[item->home].insert(timer->placement_choice);
+        archive_index_.add(id.value & ((std::uint64_t{1} << 60U) - 1), item_archive_.size());
+        item_archive_.push_back(
+            {id, now, things_.raw().get<Place>(h), *item,
+             timer ? std::make_shared<const HeatTimer>(*timer) : std::shared_ptr<const HeatTimer>{}});
+        spent.push_back(id);
+    });
+    for (const auto id : spent) things_.end(id);
+    if (!spent.empty()) item_sites_valid_ = false;
+}
+
 void World::run_to(time::Seconds goal) {
     item_sites_valid_ = false;
     KD_CHECK(goal >= frontier_, "world::World: the goal is behind the frontier");
@@ -535,6 +631,7 @@ void World::run_to(time::Seconds goal) {
     }
     frontier_ = goal;
     context_.now_ = goal;
+    retain_records(goal);
 }
 
 void World::run_islands(time::Seconds goal, run::Workers& workers, time::Seconds window) {
@@ -927,6 +1024,21 @@ std::vector<save::Chunk> World::save() const {
         things_.write(w);
         out.push_back(part("THNG", w.take()));
     }
+    if (craft_features(*this) != 0) {
+        ByteWriter manifest;
+        manifest.u64(item_archive_.size());
+        manifest.u64(item_archive_.pages().size());
+        out.push_back({save::tag("ARCV"), 1, true, manifest.take()});
+        const auto encode = [&](const auto& page) {
+            ByteWriter wire;
+            ecs::PartWriter writer(wire);
+            writer.records({"items", "immutable spent identities"}, page, Pages<ArchivedItem>::kPage, 120);
+            return wire.take();
+        };
+        for (std::size_t n = 0; n < item_archive_.pages().size(); ++n)
+            out.push_back({save::tag("ARPG"), 1, true, {}, item_archive_.encoded(n, encode)});
+        if (!item_archive_.tail().empty()) out.push_back({save::tag("ARPG"), 1, true, encode(item_archive_.tail())});
+    }
     {
         ByteWriter w;
         queue_.write(w, [this](const event::Event& e) { return live(e); });
@@ -1042,7 +1154,9 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
     for (const save::Chunk& c : chunks) {
         if (c.critical && c.tag != save::tag("CAMP") && c.tag != save::tag("LIFE") && c.tag != save::tag("DRMS") &&
             c.tag != save::tag("CRFT") && c.tag != save::tag("KNOW") && c.tag != save::tag("HIST") &&
-            c.tag != save::tag("LEAR") && c.tag != save::tag("FIRE") && c.tag != save::tag("THER") &&
+            c.tag != save::tag("EVPG") && c.tag != save::tag("CHPG") && c.tag != save::tag("ARPG") &&
+            c.tag != save::tag("ARCV") && c.tag != save::tag("LEAR") && c.tag != save::tag("FIRE") &&
+            c.tag != save::tag("THER") &&
             std::none_of(kParts.begin(), kParts.end(), [&](const auto& p) { return p.first == c.tag; })) {
             why = "it holds a part this version cannot read";
             return false;
@@ -1679,6 +1793,60 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                 }
             }
         }
+        if (features != 0) {
+            const auto* manifest = save::find_chunk(chunks, save::tag("ARCV"));
+            std::uint64_t total = 0, pages = 0, count = 0;
+            if (!manifest || manifest->version != 1 || !manifest->critical) {
+                why = "missing or unsupported spent archive";
+                return false;
+            }
+            ByteReader header(manifest->bytes());
+            if (!header.u64(total) || !header.u64(pages) || !header.finished() || pages > chunks.size()) {
+                why = "damaged spent archive manifest";
+                return false;
+            }
+            for (const auto& chunk : chunks) {
+                if (chunk.tag != save::tag("ARPG")) continue;
+                ByteReader wire(chunk.bytes());
+                ecs::PartReader reader(wire, entries);
+                std::vector<ArchivedItem> page;
+                reader.records({"items", "immutable spent identities"}, page, Pages<ArchivedItem>::kPage, 120);
+                if (chunk.version != 1 || !chunk.critical || !reader.ok() || !wire.finished() || page.empty()) {
+                    why = "damaged spent archive page";
+                    return false;
+                }
+                for (const auto& archived : page) {
+                    const auto serial = archived.id.value & ((std::uint64_t{1} << 60U) - 1);
+                    if (archived.archived_at < 0 || archived.archived_at > frontier_ ||
+                        archived.id.family() != ecs::Family::thing || serial == 0 || serial >= ids_.next() ||
+                        archived.item.mass != 0 || archived.item.state != 4 || things_.find(archived.id) ||
+                        !archived_ids_.emplace(archived.id, item_archive_.size() + (&archived - page.data())).second ||
+                        archived.has_timer > 1 || (archived.timer && archived.timer->next != 0)) {
+                        why = "invalid spent archive identity or active quantity";
+                        return false;
+                    }
+                    archive_index_.add(serial,
+                                       item_archive_.size() + static_cast<std::size_t>(&archived - page.data()));
+                    if (archived.timer && archived.timer->placement_choice)
+                        archived_choice_pins_[archived.item.home].insert(archived.timer->placement_choice);
+                }
+                if (count < pages && page.size() != Pages<ArchivedItem>::kPage) {
+                    why = "incomplete sealed spent page";
+                    return false;
+                }
+                if (count++ < pages)
+                    item_archive_.append_page(std::make_shared<const std::vector<ArchivedItem>>(std::move(page)));
+                else
+                    for (auto& archived : page) item_archive_.push_back(std::move(archived));
+            }
+            const auto tail =
+                total >= pages * Pages<ArchivedItem>::kPage ? total - pages * Pages<ArchivedItem>::kPage : 0;
+            if (item_archive_.size() != total || tail > Pages<ArchivedItem>::kPage ||
+                count != pages + (tail ? 1U : 0U)) {
+                why = "missing spent archive page";
+                return false;
+            }
+        }
         if (!load_craft(*this, chunks, entries, features, why) || !load_fire(*this, chunks, entries, features, why))
             return false;
         for (const auto ph : beings_.raw().view<Dream, Knowledge>()) {
@@ -1691,6 +1859,11 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
         std::map<std::uint64_t, ecs::Id> allocated;
         beings_.each([&](ecs::Id id, auto) { allocated.emplace(id.value & ((std::uint64_t{1} << 60U) - 1), id); });
         things_.each([&](ecs::Id id, auto) { allocated.emplace(id.value & ((std::uint64_t{1} << 60U) - 1), id); });
+        for (const auto& archived : item_archive_)
+            if (!allocated.emplace(archived.id.value & ((std::uint64_t{1} << 60U) - 1), archived.id).second) {
+                why = "spent serial already identifies another record";
+                return false;
+            }
         for (const auto ch : beings_.raw().view<Dreams>()) {
             const auto& ledger = beings_.raw().get<Dreams>(ch);
             for (const auto& ended : ledger.ended) {
@@ -1804,14 +1977,40 @@ Digests World::digests() const {
     }
     {
         num::Digest d;
-        things_.digest(d);
-        things_.each([&](ecs::Id id, Things::Handle h) {
-            if (const auto* item = things_.raw().try_get<Item>(h)) {
+        const auto each = [&](auto fn) {
+            auto archived = archived_ids_.begin();
+            things_.each([&](ecs::Id id, Things::Handle h) {
+                while (archived != archived_ids_.end() && archived->first < id) {
+                    fn(archived->first, std::optional<Things::Handle>{}, &item_archive_[archived->second]);
+                    ++archived;
+                }
+                fn(id, std::optional<Things::Handle>{h}, static_cast<const ArchivedItem*>(nullptr));
+            });
+            while (archived != archived_ids_.end()) {
+                fn(archived->first, std::optional<Things::Handle>{}, &item_archive_[archived->second]);
+                ++archived;
+            }
+        };
+        d.u64(things_.size() + item_archive_.size());
+        each([&](ecs::Id id, auto h, const ArchivedItem* archived) {
+            d.u64(id.value);
+            d.u8(1);
+            ecs::digest_component(ecs::Ident{id}, d);
+            const auto* place = archived ? &archived->place : things_.raw().try_get<Place>(*h);
+            d.u8(place ? 1 : 0);
+            if (place) ecs::digest_component(*place, d);
+        });
+        each([&](ecs::Id id, auto h, const ArchivedItem* archived) {
+            const auto* item = archived ? &archived->item : things_.raw().try_get<Item>(*h);
+            if (item) {
                 d.u64(id.value);
                 ecs::digest_component(*item, d);
             }
-            if (const auto* fire = things_.raw().try_get<Fire>(h)) ecs::digest_component(*fire, d);
-            if (const auto* timer = things_.raw().try_get<HeatTimer>(h)) ecs::digest_component(*timer, d);
+            if (h)
+                if (const auto* fire = things_.raw().try_get<Fire>(*h)) ecs::digest_component(*fire, d);
+            const auto* timer =
+                archived ? (archived->timer ? &*archived->timer : nullptr) : things_.raw().try_get<HeatTimer>(*h);
+            if (timer) ecs::digest_component(*timer, d);
         });
         out.things = d.value();
     }

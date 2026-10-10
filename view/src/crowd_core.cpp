@@ -108,13 +108,13 @@ CrowdStepper::CrowdStepper(demo::CrowdWorld& crowd) : crowd_(crowd), camp_ids_(c
         if (!item) return;
         const auto* fire = w.things().raw().try_get<world::Fire>(h);
         const auto* timer = w.things().raw().try_get<world::HeatTimer>(h);
-        item_trails_[id].push_back({{w.frontier(), id.value, 0},
-                                    0,
-                                    id,
-                                    w.things().raw().get<world::Place>(h),
-                                    *item,
-                                    fire ? std::optional<world::Fire>(*fire) : std::nullopt,
-                                    timer ? std::optional<world::HeatTimer>(*timer) : std::nullopt});
+        mutable_item_trail(id).push_back({{w.frontier(), id.value, 0},
+                                          0,
+                                          id,
+                                          w.things().raw().get<world::Place>(h),
+                                          *item,
+                                          fire ? std::optional<world::Fire>(*fire) : std::nullopt,
+                                          timer ? std::optional<world::HeatTimer>(*timer) : std::nullopt});
     });
     crowd_.world().keep_item_ways(&item_ways_);
     crowd_.world().keep_history(&history_);
@@ -122,6 +122,15 @@ CrowdStepper::CrowdStepper(demo::CrowdWorld& crowd) : crowd_(crowd), camp_ids_(c
     // the first snapshot, so the screen has something to draw before the first batch
     fill(snapshots_.back());
     snapshots_.publish();
+}
+
+std::vector<world::ItemWay>& CrowdStepper::mutable_item_trail(ecs::Id id) {
+    auto& trail = item_trails_[id];
+    if (!trail)
+        trail = std::make_shared<std::vector<world::ItemWay>>();
+    else if (!trail.unique())
+        trail = std::make_shared<std::vector<world::ItemWay>>(*trail);
+    return *trail;
 }
 
 void CrowdStepper::fill(Snapshot& s) const {
@@ -140,10 +149,12 @@ void CrowdStepper::fill(Snapshot& s) const {
     s.items.clear();
     s.item_first.clear();
     s.craft_history.clear();
+    s.item_archive = crowd_.world().item_archive();
+    s.archive_index = crowd_.world().archive_index();
     for (const auto& [id, trail] : item_trails_) {
         (void)id;
         s.item_first.push_back(static_cast<std::uint32_t>(s.items.size()));
-        s.items.insert(s.items.end(), trail.begin(), trail.end());
+        s.items.append(trail);
     }
     s.item_first.push_back(static_cast<std::uint32_t>(s.items.size()));
     for (const ecs::Id id : camp_ids_) {
@@ -153,7 +164,10 @@ void CrowdStepper::fill(Snapshot& s) const {
         if (habitat != nullptr) s.habitats.push_back(*habitat);
         const auto* history =
             crowd_.world().beings().raw().try_get<world::CraftHistory>(crowd_.world().beings().handle(id));
-        if (history) s.craft_history.push_back(*history);
+        if (history) {
+            (void)history->public_index();
+            s.craft_history.push_back(*history);
+        }
     }
     s.ways.clear();
     s.first.clear();
@@ -227,7 +241,7 @@ time::Seconds CrowdStepper::advance(time::Seconds frontier, time::Seconds goal) 
         if (!ambient_trails_.empty()) ambient_trails_[i].push_back(way.ambient);
     }
     ways_.clear();
-    for (const auto& way : item_ways_) item_trails_[way.id].push_back(way);
+    for (const auto& way : item_ways_) mutable_item_trail(way.id).push_back(way);
     item_ways_.clear();
     const double screen = screen_.load(std::memory_order_relaxed);
     for (std::size_t i = 0; i < trails_.size(); ++i) {
@@ -257,11 +271,17 @@ time::Seconds CrowdStepper::advance(time::Seconds frontier, time::Seconds goal) 
         }
     }
     for (auto& [id, trail] : item_trails_) {
-        (void)id;
         std::size_t gone = 0;
-        while (gone + 1 < trail.size() && static_cast<double>(trail[gone + 1].key.second) <= screen) ++gone;
-        trail.erase(trail.begin(), trail.begin() + static_cast<std::ptrdiff_t>(gone));
+        while (gone + 1 < trail->size() && static_cast<double>((*trail)[gone + 1].key.second) <= screen) ++gone;
+        if (gone) {
+            auto& rows = mutable_item_trail(id);
+            rows.erase(rows.begin(), rows.begin() + static_cast<std::ptrdiff_t>(gone));
+        }
     }
+    std::erase_if(item_trails_, [&](const auto& entry) {
+        const auto* archived = crowd_.world().archived_item(entry.first);
+        return archived && static_cast<double>(archived->archived_at) <= screen;
+    });
     fill(snapshots_.back());
     snapshots_.publish();
 

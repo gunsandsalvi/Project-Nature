@@ -101,6 +101,7 @@ add_library(kd_sim STATIC
     src/kd/save/files.cpp
     src/kd/save/keeper.cpp
     src/kd/save/log.cpp
+    src/kd/save/pages.cpp
     src/kd/save/snapshot.cpp
     src/kd/save/versions.cpp
     src/kd/scene/report.cpp
@@ -154,6 +155,7 @@ if(KD_SIM_TESTS)
         tests/world_test.cpp
         tests/craft_test.cpp
         tests/item_index_test.cpp
+        tests/storage_test.cpp
         tests/learning_test.cpp
         tests/fire_test.cpp
         tests/camp_test.cpp

@@ -155,6 +155,7 @@ Inputs reachable(world::Context& c, world::Beings::Handle h, const Supplies& sup
             for (const auto& entry : group->second) {
                 const auto id = entry.id;
                 const auto& item = w.things().raw().get<Item>(entry.handle);
+                w.visited_item(false, item);
                 const auto* familiar = Discovery::familiar(know, item);
                 const auto available = supply.available(id, item);
                 if (available == 0 || !familiar || w.things().raw().all_of<world::Fire>(entry.handle)) continue;

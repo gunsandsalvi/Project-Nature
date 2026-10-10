@@ -55,6 +55,9 @@ void KdWorld::_bind_methods() {
     ClassDB::bind_method(D_METHOD("items", "person", "include_spent"), &KdWorld::items, DEFVAL(0), DEFVAL(false));
     ClassDB::bind_method(D_METHOD("knowledge", "person"), &KdWorld::knowledge);
     ClassDB::bind_method(D_METHOD("craft_history"), &KdWorld::craft_history);
+    ClassDB::bind_method(D_METHOD("craft_history_page", "before", "limit"), &KdWorld::craft_history_page, DEFVAL(0),
+                         DEFVAL(32));
+    ClassDB::bind_method(D_METHOD("item_record", "id", "person"), &KdWorld::item_record, DEFVAL(0));
     ClassDB::bind_method(D_METHOD("people"), &KdWorld::people);
     ClassDB::bind_method(D_METHOD("camp_alpha"), &KdWorld::camp_alpha);
     ClassDB::bind_method(D_METHOD("save"), &KdWorld::save);
@@ -1098,76 +1101,109 @@ godot::Array KdWorld::items(int64_t person, bool include_spent) const {
     for (std::size_t i = 0; i + 1 < s.item_first.size(); ++i) {
         const auto* saved = s.item_at(i, screen_time());
         if (!saved || (!include_spent && saved->item.mass == 0)) continue;
-        const auto& item = saved->item;
-        godot::Dictionary row;
-        row["id"] = static_cast<int64_t>(saved->id.value);
-        row["kind"] = text_of(catalogue_->kind<data::ItemKind>().name(item.kind));
-        row["name"] = craft_label(catalogue_->kind<data::ItemKind>().name(item.kind));
-        row["form"] = text_of(catalogue_->kind<data::ItemKind>()[item.kind].form);
-        row["material"] = craft_label(catalogue_->kind<data::ItemKind>().name(item.material));
-        row["mass_mg"] = item.mass;
-        row["length_mm"] = item.length;
-        row["quality"] = item.quality;
-        row["wear"] = item.wear;
-        row["state"] = item.state;
-        row["owner"] = static_cast<int64_t>(item.owner.value);
-        row["maker"] = static_cast<int64_t>(item.maker.value);
-        row["made_at"] = item.made_at;
-        row["east_cm"] = saved->place.at.x;
-        row["north_cm"] = saved->place.at.y;
-        // A held tool follows the holder's immutable sampled way, never their later live position.
-        for (std::size_t walker = 0; walker < s.walkers.size(); ++walker) {
-            if (s.walkers[walker].id != item.owner.value) continue;
-            const auto at =
-                s.way_at(walker, screen_time()).at(world::World::kTorus, static_cast<time::Seconds>(screen_time()));
-            row["east_cm"] = at.x;
-            row["north_cm"] = at.y;
-        }
-        const auto observer = person > 0 ? static_cast<std::uint64_t>(person) : item.owner.value;
-        row["observer"] = static_cast<int64_t>(observer);
-        if (saved->fire) {
-            const auto& fire = *saved->fire;
-            const auto rate = fire.heat >= 3 ? 5000000 : fire.heat == 2 ? 1000000 : 0;
-            const auto elapsed =
-                std::max<time::Seconds>(0, static_cast<time::Seconds>(screen_time()) - fire.settled_at);
-            const auto fuel =
-                std::max<std::int64_t>(0, fire.fuel_mg - (elapsed * rate + fire.burn_remainder) / time::kHour);
-            row["fire_heat"] = fire.heat;
-            row["fuel_mg"] = fuel;
-            row["ash_mg"] = fire.ash_mg + fire.fuel_mg - fuel;
-            row["fuel_seconds"] =
-                rate ? (fuel * time::kHour - (elapsed * rate + fire.burn_remainder) % time::kHour + rate - 1) / rate
-                     : 0;
-            row["name"] = fire.heat >= 2 ? "Campfire" : fire.heat == 1 ? "Embers" : "Cold hearth";
-        }
-        if (saved->timer) {
-            const auto& timer = *saved->timer;
-            const auto elapsed =
-                timer.exposure_heat >= 2 && !timer.completed
-                    ? std::max<time::Seconds>(0, static_cast<time::Seconds>(screen_time()) - timer.settled_at)
-                    : 0;
-            row["heat_exposure_seconds"] = std::min(2 * time::kHour, timer.elapsed + elapsed);
-            row["cooking_paused"] = timer.exposure_heat < 2;
-            row["cooking_tried"] = timer.tried != 0;
-            row["cooking_next"] = timer.next;
-        }
-        if ((catalogue_->find("item", "base:roots") == item.kind ||
-             catalogue_->find("item", "base:meat") == item.kind) &&
-            item.state > 0 && item.state < 3)
-            row["name"] = godot::String(item.state == 1 ? "Cooked " : "Burnt ") +
-                          craft_label(catalogue_->kind<data::ItemKind>().name(item.kind));
-        row["facts"] = godot::Dictionary();
-        if (const auto* know = recorded_knowledge(s, observer, screen_time())) {
-            if (const auto* f = demo::Discovery::familiar(*know, item)) {
-                row["facts"] = evidence(*f);
-                if (catalogue_->kind<data::ItemKind>()[item.kind].form == "flake" && (f->mask & (1U << 1U)) &&
-                    f->values[1] >= 3)
-                    row["name"] = "Sharp flake";
-            }
-        }
-        out.push_back(row);
+        out.push_back(describe_item(saved, person));
     }
+    if (include_spent)
+        for (const auto& record : s.item_archive) {
+            if (static_cast<double>(record.archived_at) > screen_time()) continue;
+            const auto row = item_record(static_cast<int64_t>(record.id.value), person);
+            if (!row.is_empty()) out.push_back(row);
+        }
     return out;
+}
+godot::Dictionary KdWorld::describe_item(const world::ItemWay* saved, int64_t person) const {
+    const auto& s = display_.snapshot();
+    const auto& item = saved->item;
+    godot::Dictionary row;
+    row["id"] = static_cast<int64_t>(saved->id.value);
+    row["kind"] = text_of(catalogue_->kind<data::ItemKind>().name(item.kind));
+    row["name"] = craft_label(catalogue_->kind<data::ItemKind>().name(item.kind));
+    row["form"] = text_of(catalogue_->kind<data::ItemKind>()[item.kind].form);
+    row["material"] = craft_label(catalogue_->kind<data::ItemKind>().name(item.material));
+    row["mass_mg"] = item.mass;
+    row["length_mm"] = item.length;
+    row["quality"] = item.quality;
+    row["wear"] = item.wear;
+    row["state"] = item.state;
+    row["owner"] = static_cast<int64_t>(item.owner.value);
+    row["maker"] = static_cast<int64_t>(item.maker.value);
+    row["made_at"] = item.made_at;
+    row["east_cm"] = saved->place.at.x;
+    row["north_cm"] = saved->place.at.y;
+    // A held tool follows the holder's immutable sampled way, never their later live position.
+    for (std::size_t walker = 0; walker < s.walkers.size(); ++walker) {
+        if (s.walkers[walker].id != item.owner.value) continue;
+        const auto at =
+            s.way_at(walker, screen_time()).at(world::World::kTorus, static_cast<time::Seconds>(screen_time()));
+        row["east_cm"] = at.x;
+        row["north_cm"] = at.y;
+    }
+    const auto observer = person > 0 ? static_cast<std::uint64_t>(person) : item.owner.value;
+    row["observer"] = static_cast<int64_t>(observer);
+    if (saved->fire) {
+        const auto& fire = *saved->fire;
+        const auto rate = fire.heat >= 3 ? 5000000 : fire.heat == 2 ? 1000000 : 0;
+        const auto elapsed = std::max<time::Seconds>(0, static_cast<time::Seconds>(screen_time()) - fire.settled_at);
+        const auto fuel =
+            std::max<std::int64_t>(0, fire.fuel_mg - (elapsed * rate + fire.burn_remainder) / time::kHour);
+        row["fire_heat"] = fire.heat;
+        row["fuel_mg"] = fuel;
+        row["ash_mg"] = fire.ash_mg + fire.fuel_mg - fuel;
+        row["fuel_seconds"] =
+            rate ? (fuel * time::kHour - (elapsed * rate + fire.burn_remainder) % time::kHour + rate - 1) / rate : 0;
+        row["name"] = fire.heat >= 2 ? "Campfire" : fire.heat == 1 ? "Embers" : "Cold hearth";
+    }
+    if (saved->timer) {
+        const auto& timer = *saved->timer;
+        const auto elapsed =
+            timer.exposure_heat >= 2 && !timer.completed
+                ? std::max<time::Seconds>(0, static_cast<time::Seconds>(screen_time()) - timer.settled_at)
+                : 0;
+        row["heat_exposure_seconds"] = std::min(2 * time::kHour, timer.elapsed + elapsed);
+        row["cooking_paused"] = timer.exposure_heat < 2;
+        row["cooking_tried"] = timer.tried != 0;
+        row["cooking_next"] = timer.next;
+    }
+    if ((catalogue_->find("item", "base:roots") == item.kind || catalogue_->find("item", "base:meat") == item.kind) &&
+        item.state > 0 && item.state < 3)
+        row["name"] = godot::String(item.state == 1 ? "Cooked " : "Burnt ") +
+                      craft_label(catalogue_->kind<data::ItemKind>().name(item.kind));
+    row["facts"] = godot::Dictionary();
+    if (const auto* know = recorded_knowledge(s, observer, screen_time())) {
+        if (const auto* f = demo::Discovery::familiar(*know, item)) {
+            row["facts"] = evidence(*f);
+            if (catalogue_->kind<data::ItemKind>()[item.kind].form == "flake" && (f->mask & (1U << 1U)) &&
+                f->values[1] >= 3)
+                row["name"] = "Sharp flake";
+        }
+    }
+    return row;
+}
+godot::Dictionary KdWorld::item_record(int64_t id, int64_t person) const {
+    const auto& s = display_.snapshot();
+    const auto wanted = ecs::Id{static_cast<std::uint64_t>(id)};
+    const auto serial = wanted.value & ((std::uint64_t{1} << 60U) - 1);
+    const auto archived = s.archive_index.get(serial);
+    if (archived != RecordIndex::kMissing && archived < s.item_archive.size()) {
+        const auto& record = s.item_archive[archived];
+        if (record.id == wanted && static_cast<double>(record.archived_at) <= screen_time()) {
+            const world::ItemWay saved{{record.archived_at, wanted.value, 0},
+                                       0,
+                                       wanted,
+                                       record.place,
+                                       record.item,
+                                       {},
+                                       record.timer ? std::optional<world::HeatTimer>(*record.timer) : std::nullopt};
+            return describe_item(&saved, person);
+        }
+    }
+    if (s.item_first.size() < 2) return {};
+    const auto end = s.item_first.end() - 1;
+    const auto at = std::lower_bound(s.item_first.begin(), end, wanted,
+                                     [&](std::uint32_t first, ecs::Id target) { return s.items[first].id < target; });
+    if (at == end || s.items[*at].id != wanted) return {};
+    const auto* saved = s.item_at(static_cast<std::size_t>(at - s.item_first.begin()), screen_time());
+    return saved ? describe_item(saved, person) : godot::Dictionary{};
 }
 godot::Dictionary KdWorld::knowledge(int64_t person) const {
     godot::Dictionary out;
@@ -1242,42 +1278,61 @@ godot::Array KdWorld::craft_history() const {
     for (const auto& history : display_.snapshot().craft_history) {
         for (const auto& e : history.events) {
             if (static_cast<double>(e.at) > screen_time() || e.kind == 0 || e.kind == 5) continue;
-            godot::Dictionary row;
-            row["id"] = static_cast<int64_t>(e.id);
-            row["at"] = e.at;
-            row["actor"] = static_cast<int64_t>(e.actor.value);
-            row["source"] = static_cast<int64_t>(e.source.value);
-            row["result"] = static_cast<int64_t>(e.result.value);
-            row["recipe"] = text_of(catalogue_->kind<data::Blueprint>().name(e.recipe));
-            row["name"] = craft_label(catalogue_->kind<data::Blueprint>().name(e.recipe));
-            row["kind"] = e.kind;
-            row["noticed"] = bool(e.noticed);
-            row["route"] = e.route;
-            row["word"] = text_of(e.word);
-            godot::PackedInt64Array inputs;
-            for (const auto& r : e.inputs) inputs.push_back(static_cast<int64_t>(r.id.value));
-            row["inputs"] = inputs;
-            godot::Array heat_sources;
-            for (const auto& source : e.heat_sources) {
-                godot::Dictionary heat;
-                heat["fire"] = static_cast<int64_t>(source.fire.value);
-                heat["origin"] = static_cast<int64_t>(source.origin.value);
-                heat["tended_at"] = source.tended_at;
-                heat["from"] = source.from;
-                heat["seconds"] = source.seconds;
-                heat_sources.push_back(heat);
-            }
-            row["heat_sources"] = heat_sources;
-            row["east_cm"] = e.place.x;
-            row["north_cm"] = e.place.y;
-            row["reasons"] = godot::Array{};
-            if (e.choice) {
-                const auto choice = std::find_if(history.choices.begin(), history.choices.end(),
-                                                 [&](const auto& x) { return x.id == e.choice; });
-                if (choice != history.choices.end())
-                    row["reasons"] = reason_rows(choice->reasons, *catalogue_, nullptr);
-            }
-            out.push_back(row);
+            out.push_back(describe_result(history, e));
+        }
+    }
+    return out;
+}
+godot::Dictionary KdWorld::describe_result(const world::CraftHistory& history, const world::Result& e) const {
+    godot::Dictionary row;
+    row["id"] = static_cast<int64_t>(e.id);
+    row["at"] = e.at;
+    row["actor"] = static_cast<int64_t>(e.actor.value);
+    row["source"] = static_cast<int64_t>(e.source.value);
+    row["result"] = static_cast<int64_t>(e.result.value);
+    row["recipe"] = text_of(catalogue_->kind<data::Blueprint>().name(e.recipe));
+    row["name"] = craft_label(catalogue_->kind<data::Blueprint>().name(e.recipe));
+    row["kind"] = e.kind;
+    row["noticed"] = bool(e.noticed);
+    row["route"] = e.route;
+    row["word"] = text_of(e.word);
+    godot::PackedInt64Array inputs;
+    for (const auto& r : e.inputs) inputs.push_back(static_cast<int64_t>(r.id.value));
+    row["inputs"] = inputs;
+    godot::Array heat_sources;
+    for (const auto& source : e.heat_sources) {
+        godot::Dictionary heat;
+        heat["fire"] = static_cast<int64_t>(source.fire.value);
+        heat["origin"] = static_cast<int64_t>(source.origin.value);
+        heat["tended_at"] = source.tended_at;
+        heat["from"] = source.from;
+        heat["seconds"] = source.seconds;
+        heat_sources.push_back(heat);
+    }
+    row["heat_sources"] = heat_sources;
+    row["east_cm"] = e.place.x;
+    row["north_cm"] = e.place.y;
+    row["reasons"] = godot::Array{};
+    if (e.choice) {
+        const auto* choice = history.choices.find(e.choice);
+        if (choice) row["reasons"] = reason_rows(choice->reasons, *catalogue_, nullptr);
+    }
+    return row;
+}
+godot::Array KdWorld::craft_history_page(int64_t before, int64_t limit) const {
+    godot::Array out;
+    limit = std::clamp<int64_t>(limit, 1, 64);
+    for (const auto& history : display_.snapshot().craft_history) {
+        const auto& index = history.public_index();
+        auto end = std::upper_bound(
+            index.begin(), index.end(), screen_time(),
+            [](double t, const world::PublicResult& event) { return t < static_cast<double>(event.at); });
+        if (before > 0)
+            end = std::min(end, std::lower_bound(index.begin(), index.end(), static_cast<std::uint64_t>(before),
+                                                 [](const auto& event, std::uint64_t id) { return event.id < id; }));
+        while (end != index.begin() && out.size() < limit) {
+            const auto* event = history.events.find((--end)->id);
+            if (event) out.push_back(describe_result(history, *event));
         }
     }
     return out;

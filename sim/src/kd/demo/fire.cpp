@@ -275,7 +275,8 @@ void FireRules::settle_fire(world::Context& c, ecs::Id id) {
 }
 bool FireRules::feed(world::Context& c, ecs::Id hearth, ecs::Id input, std::int64_t mass, ecs::Id person) {
     auto& w = c.world();
-    if (input == hearth || mass <= 0 || w.things().raw().all_of<Fire>(w.things().handle(input)) ||
+    const auto live_input = w.things().find(input);
+    if (!live_input || input == hearth || mass <= 0 || w.things().raw().all_of<Fire>(*live_input) ||
         Crafting::available(w, input, person) < mass)
         return false;
     const auto source = item(w, input);

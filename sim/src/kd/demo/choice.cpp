@@ -106,10 +106,9 @@ void Choices::restore(world::World& w, world::Beings::Handle h, std::uint64_t ch
     mind.choice = 0;
     if (!choice) return;
     const auto& history = raw.get<world::CraftHistory>(w.beings().handle(raw.get<Home>(h).camp));
-    KD_CHECK(choice <= history.choices.size() && history.choices[choice - 1].id == choice &&
-                 history.choices[choice - 1].actor == w.beings().id_of(h),
-             "A resumed plan retains its own choice");
+    const auto* kept = history.choices.find(choice);
+    KD_CHECK(kept && kept->actor == w.beings().id_of(h), "choice does not identify this person's retained decision");
     mind.choice = choice;
-    mind.reasons = history.choices[choice - 1].reasons;
+    mind.reasons = kept->reasons;
 }
 }  // namespace kd::demo

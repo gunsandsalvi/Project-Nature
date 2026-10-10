@@ -66,6 +66,10 @@ public:
     godot::Array items(int64_t person = 0, bool include_spent = false) const;
     godot::Dictionary knowledge(int64_t person) const;
     godot::Array craft_history() const;
+    godot::Array craft_history_page(int64_t before = 0, int64_t limit = 32) const;
+    godot::Dictionary item_record(int64_t id, int64_t person = 0) const;
+    godot::Dictionary describe_item(const world::ItemWay* saved, int64_t person) const;
+    godot::Dictionary describe_result(const world::CraftHistory& history, const world::Result& event) const;
     godot::Dictionary camp_alpha() const;
     void save();
     /// Saves the world at once, as the app leaves the screen: it stops after the batch it is in, a pause mark is
