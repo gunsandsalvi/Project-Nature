@@ -408,3 +408,20 @@ TEST_CASE("idea command_cut_recovery replays one durable request and never a tor
         }
     }
 }
+
+TEST_CASE("DRMS2 rejects never allocated targets and attempts fabricated at dream delivery") {
+    for (const bool delivered : {false, true}) {
+        StoredIdea fixture(delivered);
+        auto& w = fixture.camp.world();
+        std::string why;
+        REQUIRE(open_idea(w, why));
+        fixture.act().person = (std::uint64_t{3} << 60U) | 999999999ULL;
+        CHECK_FALSE(open_idea(w, why));
+        CHECK_FALSE(why.empty());
+    }
+    StoredIdea fixture(true);
+    fixture.act().first_attempt_at = fixture.act().executed;
+    std::string why;
+    CHECK_FALSE(open_idea(fixture.camp.world(), why));
+    CHECK_FALSE(why.empty());
+}

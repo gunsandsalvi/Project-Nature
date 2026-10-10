@@ -951,3 +951,26 @@ TEST_CASE("an active cooking demonstration credits nearby observers through the 
     CHECK_FALSE(skill->known);
     CHECK(mind.last_observed_event > 0);
 }
+
+TEST_CASE("fire readers reject disagreement with physical item ownership including an unowned fire") {
+    for (const int fault : {0, 1, 2}) {
+        FireFixture f;
+        auto& w = f.camp.world();
+        std::vector<kd::ecs::Id> people;
+        w.beings().each([&](kd::ecs::Id id, auto h) {
+            if (w.beings().raw().all_of<kd::world::Person>(h)) people.push_back(id);
+        });
+        REQUIRE(people.size() >= 2);
+        auto& item = w.things().raw().get<kd::world::Item>(w.things().handle(f.hearth));
+        item.owner = people[0];
+        f.fire().owner = people[0];
+        std::string why;
+        REQUIRE(reopen_fire(w, why));
+        if (fault == 0) f.fire().owner = {};
+        if (fault == 1) item.owner = {};
+        if (fault == 2) f.fire().owner = people[1];
+        INFO(fault);
+        CHECK_FALSE(reopen_fire(w, why));
+        CHECK(why == "fire carrier disagrees with physical item owner");
+    }
+}

@@ -87,9 +87,10 @@ bool load_fire(World& w, std::span<const save::Chunk> chunks, const ecs::EntryMa
                     !deadline(f.next) || f.embers_until < 0 || f.banked_until < 0 || f.air_until < 0 ||
                     (f.heat >= 2 && f.fuel_mg == 0) || f.next != f.deadline())
                     return fail("invalid conserved fire state");
+                if (item.owner != f.owner) return fail("fire carrier disagrees with physical item owner");
                 if (f.owner.value) {
                     const auto p = w.beings().find(f.owner);
-                    if (!p || !beings.all_of<Person>(*p) || item.owner != f.owner) return fail("invalid fire carrier");
+                    if (!p || !beings.all_of<Person>(*p)) return fail("invalid fire carrier");
                 }
                 things.emplace<Fire>(handle, f);
             } else if (kind == 2) {

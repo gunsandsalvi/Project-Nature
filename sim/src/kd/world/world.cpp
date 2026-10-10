@@ -1468,7 +1468,7 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                 if (!(features & kIdeas) || idea.memory == 0 || idea.inputs.empty() || idea.inputs.size() > 2 ||
                     (pending && (idea.hunch_id != 0 || idea.first_attempt_at != -1 || idea.recipe == kNoRecipe)) ||
                     (!pending && delivered >= 0 && idea.hunch_id != idea.memory) ||
-                    (idea.first_attempt_at >= 0 && (delivered < 0 || idea.first_attempt_at < delivered)))
+                    (idea.first_attempt_at >= 0 && (delivered < 0 || idea.first_attempt_at <= delivered)))
                     return false;
                 const auto& recipes = catalogue_.kind<data::Blueprint>();
                 if (idea.recipe != kNoRecipe &&
@@ -1514,6 +1514,8 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                     DreamAct act;
                     if (!ecs::read_component(act, r, entries) || act.number <= previous ||
                         ecs::Id{act.person}.family() != ecs::Family::person ||
+                        (act.person & ((std::uint64_t{1} << 60U) - 1)) == 0 ||
+                        (act.person & ((std::uint64_t{1} << 60U) - 1)) >= ids_.next() ||
                         (act.kind == 0 ? (act.subject < 0 || act.subject > 2) : act.subject != -1) ||
                         !idea_valid(act, act.status == 2 ? act.executed : -1, act.status == 1) || !inside(act.place) ||
                         act.requested < 0 || act.requested > frontier_ || act.received != act.requested ||
@@ -1647,6 +1649,11 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
         for (const auto ch : beings_.raw().view<Dreams>()) {
             for (const auto& act : beings_.raw().get<Dreams>(ch).acts) {
                 const auto target = beings_.find(ecs::Id{act.person});
+                if (target && (!beings_.raw().all_of<Person, demo::Home>(*target) ||
+                               beings_.raw().get<demo::Home>(*target).camp != beings_.id_of(ch))) {
+                    why = "private dream target is not a person of its camp";
+                    return false;
+                }
                 if (act.kind == 1 && target && beings_.raw().all_of<Knowledge>(*target) &&
                     act.memory >= beings_.raw().get<Knowledge>(*target).next_memory) {
                     why = "private idea has an invented memory identity";
