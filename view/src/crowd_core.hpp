@@ -134,7 +134,10 @@ public:
     [[nodiscard]] const std::vector<num::Point>& camps() const { return camp_places_; }
     [[nodiscard]] const std::vector<ecs::Id>& camp_ids() const { return camp_ids_; }
     /// The keeper the world's history goes to after each batch, if the world is kept in a folder (A3.7).
-    void keep(save::Keeper* keeper) { keeper_ = keeper; }
+    void keep(save::Keeper* keeper) {
+        keeper_ = keeper;
+        checkpoint_requested_ = crowd_.world().frontier();
+    }
     [[nodiscard]] std::size_t walker_count() const { return ids_.size(); }
 
     /// Pins the runner's thread to these cores from its next batch, or unpins it when empty (A3.9, for the
@@ -159,6 +162,7 @@ private:
     std::vector<num::Point> camp_places_;
     std::vector<ecs::Id> camp_ids_;
     save::Keeper* keeper_ = nullptr;
+    time::Seconds checkpoint_requested_ = 0;
     // each walker's ways from the screen's time on, oldest first, and the world's new ones since the last batch
     std::vector<Pages<world::Activity>> trails_;
     std::vector<Pages<std::optional<world::Life>>> life_trails_;

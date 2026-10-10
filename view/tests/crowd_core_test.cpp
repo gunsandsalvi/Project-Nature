@@ -11,6 +11,7 @@
 #include "heat.hpp"
 #include "kd/data/folder.hpp"
 #include "kd/demo/fire.hpp"
+#include "kd/demo/kept.hpp"
 #include "kd/ecs/component.hpp"
 #include "kd/proof/camp_cases.hpp"
 #include "kd/proof/fixture.hpp"
@@ -78,6 +79,81 @@ TEST_CASE("shared display knowledge reconstructs every scalar and immutable evid
         CHECK(held == old.take());
         previous = captured;
     }
+}
+
+TEST_CASE("concurrent lazy knowledge readers publish one immutable component with retained ownership") {
+    kd::world::Knowledge source;
+    source.choice = 812;
+    source.settled = -19;
+    source.familiar.resize(5);
+    source.memories.resize(3);
+    for (auto& memory : source.memories) memory.inputs = source.familiar;
+    const auto captured = kd::world::KnowledgeView::capture(source);
+    std::atomic<bool> begin{false};
+    std::array<const kd::world::Knowledge*, 4> pointers{};
+    std::array<kd::save::Bytes, 4> bytes{};
+    std::array<bool, 4> stable{};
+    std::vector<std::thread> readers;
+    for (std::size_t n = 0; n < pointers.size(); ++n)
+        readers.emplace_back([&, captured, n] {
+            while (!begin.load(std::memory_order_acquire)) std::this_thread::yield();
+            pointers[n] = captured.get();
+            stable[n] = true;
+            for (unsigned count = 0; count < 1000; ++count)
+                if (captured.get() != pointers[n]) stable[n] = false;
+            kd::ByteWriter writer;
+            kd::ecs::write_component(*pointers[n], writer);
+            bytes[n] = writer.take();
+        });
+    begin.store(true, std::memory_order_release);
+    for (auto& reader : readers) reader.join();
+    kd::ByteWriter expected;
+    kd::ecs::write_component(source, expected);
+    for (std::size_t n = 0; n < pointers.size(); ++n) {
+        CHECK(stable[n]);
+        CHECK(pointers[n] == pointers[0]);
+        CHECK(bytes[n] == expected.bytes());
+    }
+}
+
+// checks: PLT-10 PLT-07 TIM-05
+TEST_CASE("game time checkpoints advance the fallback frontier and recover the exact older snapshot") {
+    kd::save::FakeFiles files;
+    kd::save::Keeper keeper(files);
+    auto kept = kd::demo::keep_crowd(keeper, fixture(), 17, 1);
+    REQUIRE(kept.crowd);
+    auto& world = kept.crowd->world();
+    kd::view::CrowdStepper stepper(*kept.crowd);
+    stepper.keep(&keeper);
+    const auto goal = 3 * kd::time::kYear + kd::time::kHour;
+    stepper.set_screen(static_cast<double>(goal));
+    auto frontier = world.frontier();
+    while (frontier < goal) {
+        frontier = stepper.advance(frontier, goal);
+        stepper.snapshots().take();
+    }
+    keeper.flush();
+    auto saves = files.list("snapshots");
+    REQUIRE(saves.size() == 2);
+    CHECK(saves.front() > "00000000000000000000.kds");
+    CHECK(keeper.last_snapshot() >= 2 * kd::time::kYear);
+    kd::demo::CrowdWorld reference(17, fixture(), 1);
+    reference.world().run_to(goal);
+    CHECK(world.digests().whole == reference.world().digests().whole);
+    auto damaged = files;
+    damaged.raw("snapshots/" + saves.back()).resize(30);
+    kd::save::Keeper reopened(damaged);
+    auto again = kd::demo::keep_crowd(reopened, fixture(), 17, 1);
+    REQUIRE_MESSAGE(again.crowd, again.problem);
+    CHECK(again.snapshot == saves.front());
+    std::vector<kd::world::Record> records;
+    again.crowd->world().keep_history(&records);
+    again.crowd->world().run_to(goal);
+    reopened.history(records);
+    reopened.flush();
+    CHECK(reopened.mismatches() == 0);
+    CHECK(again.crowd->world().digests().whole == reference.world().digests().whole);
+    again.crowd->world().keep_history(nullptr);
 }
 
 TEST_CASE("unchanged personal knowledge shares notifications while changed evidence preserves older views") {

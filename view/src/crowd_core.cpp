@@ -127,7 +127,7 @@ std::vector<world::ItemWay>& CrowdStepper::mutable_item_trail(ecs::Id id) {
     auto& trail = item_trails_[id];
     if (!trail)
         trail = std::make_shared<std::vector<world::ItemWay>>();
-    else if (!trail.unique())
+    else if (trail.use_count() != 1)
         trail = std::make_shared<std::vector<world::ItemWay>>(*trail);
     return *trail;
 }
@@ -290,6 +290,14 @@ time::Seconds CrowdStepper::advance(time::Seconds frontier, time::Seconds goal) 
     last_batch_ms_.store(seconds * 1000.0, std::memory_order_relaxed);
     if (keeper_ != nullptr) {
         keeper_->history(history_);
+        // At high speed thirty wall seconds can cover many years. Keep the
+        // fallback replay interval bounded in game time too, as the cost harness
+        // does. Track requests so slow I/O cannot queue duplicate checkpoints.
+        const auto saved = std::max(checkpoint_requested_, keeper_->last_snapshot());
+        if (reached - saved >= time::kYear && !keeper_->failed()) {
+            checkpoint_requested_ = reached;
+            keeper_->snapshot(crowd_.world());
+        }
     }
     if (!history_.empty()) {
         std::lock_guard lock(greetings_mutex_);

@@ -35,7 +35,7 @@ public:
         if (at == blocks_.end() || at->first != block) {
             at = blocks_.insert(at, {block, std::make_shared<Block>()});
             at->second->fill(kMissing);
-        } else if (!at->second.unique())
+        } else if (at->second.use_count() != 1)
             at->second = std::make_shared<Block>(*at->second);
         KD_CHECK((*at->second)[serial % kBlock] == kMissing, "an archived serial cannot be reused");
         (*at->second)[serial % kBlock] = record;

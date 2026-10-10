@@ -112,7 +112,8 @@ class KnowledgeView {
         knowledge_view_detail::Records<PeerBelief> peers;
         knowledge_view_detail::Records<Observation> observations;
         mutable std::once_flag inspected;
-        mutable std::atomic<std::shared_ptr<const Knowledge>> component;
+        mutable std::shared_ptr<const Knowledge> component_owner;
+        mutable std::atomic<const Knowledge*> component{nullptr};
     };
 
 public:
@@ -157,9 +158,10 @@ public:
             knowledge_view_detail::restore_records(value.reasons, data_->reasons);
             knowledge_view_detail::restore_records(value.peers, data_->peers);
             knowledge_view_detail::restore_records(value.observations, data_->observations);
-            data_->component.store(std::make_shared<const Knowledge>(std::move(value)), std::memory_order_release);
+            data_->component_owner = std::make_shared<const Knowledge>(std::move(value));
+            data_->component.store(data_->component_owner.get(), std::memory_order_release);
         });
-        return data_->component.load(std::memory_order_acquire).get();
+        return data_->component.load(std::memory_order_acquire);
     }
     [[nodiscard]] const void* identity() const { return data_.get(); }
     friend bool operator==(const KnowledgeView&, const KnowledgeView&) = default;
