@@ -1,10 +1,6 @@
 # Kindling: the build plan
 
-PROJECT.md owns decisions; ARCHITECTURE.md owns contracts. This plan records M3's result and the next destinations, not permission to start later expansions. Finished implementation detail lives in code, catalogues and Git history. Keep stable IDs; “Serves” identifies a subset, never complete acceptance.
-
-## Where M3 stands (10 October 2026)
-
-Current owner disposition and remaining acceptance are recorded once in [M3 result](#m3-result). M1 is accepted; M2's play answers remain open. Do not start another foundation or renderer. [Delivery note](dist/NOTE-3.13e.md) distinguishes existing APKs from source repairs; [checks](dist/M3-CHECKS.md) retain technical evidence. Superseded storage drafts must not be reapplied.
+PROJECT.md owns decisions; ARCHITECTURE.md owns contracts. M4 and its amended rules were approved by the owner on 10 October 2026. “Serves” names partial scope, never full acceptance.
 
 ## Rules every alpha keeps
 
@@ -12,207 +8,194 @@ Principles: `PRN-01`, `PRN-02`, `PRN-03`, `PRN-04`, `PRN-05`, `PRN-06`, `PRN-07`
 Scope: `SCP-02`, `SCP-03`, `SCP-04`, `SCP-05`, `SCP-06`, `SCP-07`, `SCP-08`, `SCP-09`, `SCP-10`, `SCP-11`, `SCP-12`, `SCP-15`, `SCP-17`, `SCP-18`, `SCP-19`, `SCP-20`, `SCP-21`.
 Process: `PRC-02`, `PRC-03`, `PRC-04`, `PRC-06`, `PRC-07`, `PRC-09`, `PRC-10`, `PRC-11`, `PRC-12`, `RES-01`, `RES-09`, `RES-13`, `RES-18`, `RES-19`, `RES-22`.
 
-Touched checks during work; one routine check before each alpha's delivery. M3 has one integrated self-review per delivery and one independent review at its end, with the builder stopped (owner, 9 October 2026). Follow current session git limits. Reproduce bugs; preserve deterministic proofs and current-save recovery. The milestone-end audit adds cross-compiler digests, TSan, shuffled ties and kill/scene/repeat recovery only, with exact fingerprint reuse; no repeated routine, emulated full suites, long benchmark or second export (owner, 10 October 2026; A17).
+One builder/active agent; reviewer works with builder stopped. Touched tests per task; one routine and integrated self-review per alpha; playable APK under 50 MiB with What is new/try/rough. Independent review precedes joining risky storage/threading changes. Milestone audit adds only A17's distinct compiler/thread/tie/recovery checks, reusing exact fingerprints. Refuse older save formats, never convert. Follow session Git limits.
 
-Older saves are refused plainly before reading their contents, never converted (owner, 9 October 2026). Add no migration APIs, seals or old-save fixtures; delete obsolete format tests when a format change breaks them. Own-format reopening, journal replay and crash recovery remain required.
-
-Deliver a playable APK under 50 MiB and What is new / What to try / What is rough, with measured times and honest acceptance. Stop on a larger APK, forced discovery, relaxed acceptance, old-save conversion or changed decided meaning. Only the owner changes decisions; scope-cut proposals are not approvals. Preserve distributed version codes and partial IDs.
-
-Outstanding acceptance follows its real consumer:
-
-| Still owed | Destination |
-|---|---|
-| Phone performance/digests (`PLT-04`, `RES-06`), sustained heat/battery, audible quality and unaided play answers (`RES-22`) | Owner evidence remains owed into M4 planning. Run the ten-minute Camp performance test cool, unplugged, in flight mode; a short report does not prove an hour's battery target. ≥97% on-time frames; no frame >50 ms late. |
-| Spread/fire-chain outcomes and repaired principle boundaries | Owner-carried M4 work under unchanged acceptance. No passing retune or rejudging failed seeds. |
-| Full starting kit/map/renewal, bodies, minds, materials, social clauses | Physical generation/weather M7; complete living settling and biological starts M8. The bounded camp proves neither. |
-| Care (`BIO-23`), winter fire (`MOM-01`) | M4 scoped care/cold consequences; M8 completes health/body dependencies. Mild-camp fire is not winter acceptance. |
-| Fever loss, buried tools, cultural transmission (`MOM-02`, `MOM-09`, `CUL-01`, `CUL-03`, `CUL-16`) | M5/M8; `RES-17` follows actual dependencies. |
-| Tanning, fermentation, heat treatment, transformations, joined-part properties (`RCK-06`, `RCK-07`, `RCK-10`, `RCK-11`, `RCK-12`, `RCK-13`, `RCK-25`) | M8/M10; flake/fire subsets do not close them. |
-| Remaining art, sound, powers and animal/person/fear dreams | M9; preserve place/idea, UI and save regressions. |
-| Full population, long arc, old-world storage and performance | M10; spent-item compaction proposed for M4/M10, not yet decided. |
-
-Retain pause/speed (`TIM-04`), identity (`BIO-03`), needs/actions/senses (`BIO-09`, `BIO-18`, `BIO-21`, `MND-03`, `MND-07`), places (`MND-28`), equal minds/population policy (`MND-15`), navigation/text (`PRE-32`, `PRE-40`). Their full clauses follow the destinations above. Ending at the small M6 game requires explicit retirement of excluded globe, full catalogues/cultures, copper and optional writer promises.
+Retain accepted M1 foundations and M2 needs/place dreams; M2 play answers remain owed. Partial foundation/early requirements: `TIM-04`, `BIO-03`, `BIO-21`, `MND-15`, `PRE-40`, `PLT-06`. Full bodies/starts/ecology remain M8; geography M7. M8 also retains `CUL-01`, `CUL-03`, `CUL-16`, `MOM-02`, `MOM-09`, `RCK-06`, `RCK-07`, `RCK-10`, `RCK-11`, `RCK-12`, `RCK-13`, `RCK-25`. Ending at M6 requires explicit retirement of excluded promises.
 
 ## M3 A discovery that changes the camp
 
-**Goal:** ordinary action yields a useful flake, another person learns, fire changes food/comfort, and an idea prompts attempts without giving knowledge or success (`MIL-10`).
-
-**Serves:** `PRE-32`, `GOD-05`, `BIO-09`, `BIO-18`, `MND-03`, `MND-07`, `MAT-01`, `MAT-02`, `MAT-03`, `MAT-04`, `MAT-06`, `MAT-09`, `MAT-10`, `MAT-12`, `MAT-13`, `MAT-14`, `MAT-17`, `MAT-20`, `MAT-21`, `MND-04`, `MND-09`, `MND-10`, `MND-11`, `BIO-20`, `RCK-01`, `TIM-17`, `PLT-07`, `PRE-35`, `MND-06`, `MND-13`, `MND-14`, `MND-18`, `MND-23`, `CUL-02`, `PRE-05`, `PRE-14`, `RES-02`, `RES-03`, `RES-10`, `MAT-07`, `MAT-18`, `MAT-19`, `MAT-22`, `BIO-02`, `BIO-11`, `RCK-02`, `RCK-03`, `RES-23`, `RES-24`, `GOD-03`, `GOD-06`, `GOD-07`, `GOD-08`, `GOD-09`, `GOD-10`, `GOD-11`, `MND-12`, `RES-05`, `PRE-08`, `PRE-13`, `PRE-17`, `PRE-31`, `PRE-37`, `PRE-44`, `SND-01`, `SND-12`, `PLT-04`, `RES-06`, `RES-16`, `RES-22`
-
-**You will see:** named makers, useful tools, learning sources, tended fire, cooked food and factual History, with portrait controls.
-
-**Risks:** hidden truth entering minds, duplicated elapsed credit, finite-supply exhaustion, growing historical items and unreconciled acceptance. Individual knowledge, generic fitting and unscripted outcomes cannot be cut.
+**Goal:** Ordinary flake discovery, learning, fire and remembered idea dreams (`MIL-10`).
+**Serves:** `PRE-32`, `GOD-05`, `BIO-09`, `BIO-18`, `MND-03`, `MND-07`, `MAT-01`, `MAT-02`, `MAT-03`, `MAT-04`, `MAT-06`, `MAT-09`, `MAT-10`, `MAT-12`, `MAT-13`, `MAT-14`, `MAT-17`, `MAT-20`, `MAT-21`, `MND-04`, `MND-09`, `MND-10`, `MND-11`, `BIO-20`, `RCK-01`, `TIM-17`, `PLT-07`, `PRE-35`, `MND-06`, `MND-13`, `MND-14`, `MND-18`, `MND-23`, `CUL-02`, `PRE-05`, `PRE-14`, `RES-02`, `RES-03`, `RES-10`, `MAT-07`, `MAT-18`, `MAT-19`, `MAT-22`, `BIO-02`, `BIO-11`, `RCK-02`, `RCK-03`, `RES-23`, `RES-24`, `GOD-03`, `GOD-06`, `GOD-07`, `GOD-08`, `GOD-09`, `GOD-10`, `GOD-11`, `MND-12`, `RES-05`, `PRE-08`, `PRE-13`, `PRE-17`, `PRE-31`, `PRE-37`, `PRE-44`, `SND-01`, `SND-12`, `PLT-04`, `RES-06`, `RES-16`, `RES-22`.
+**You will see:** Named makers/learners, finite tools/fire/food, factual History and private dream attempts.
+**Risks:** Failed acceptance, growing records and missing phone evidence.
 
 ### M3 result
 
-| Increment | Built result |
-|---|---|
-| α3.13a / 41301 | Touch, strict craft saves, finite items/work, private perception, ordinary discovery, item cards and First flake inspection example. Signed release. |
-| α3.13b / 41302 | Personal skills/evidence, range/sight/light observation, telling, autonomous offers/shared practice and learning History. Check build. |
-| α3.13c / 41303 | Physical fuel/embers/ash, friction, finite tending, warmth/task light, retained cooking/burning and fire/food cards. Check build. |
-| α3.13d / 41304 | Handled-memory ideas, shared natural/sent construction, paused-frontier confirmation and private actual-attempt records. Check build. |
-| α3.13e / 41305 | Linked factual History/Back, portrait/large-text/mute flow, bounded actual-action sounds, integrated proofs. Check build. |
+**Owner closed M3 partially on 10 October 2026.** This static independent re-review completes the review assignment, not runtime recertification. [Original review](dist/M3-REVIEW.md), [checks](dist/M3-CHECKS.md), [frozen records](dist/M3-REPAIR-GATES.json) and [delivery note](dist/NOTE-3.13e.md) retain evidence.
 
-Storage is format 6 with strict CAMP4/LIFE2/CRFT2/KNOW2/HIST2/LEARN1/FIRE2/THER2/DRMS2 requirements selected by feature bits (A3.7, A10–A12). Torus centimetres, mm/mg/ml/milli-°C and integer seconds; a year is 60 days. Stable IDs, NAME remapping, keyed chance, canonical digests and immutable display copies remain authoritative. Rules-only additions leave the world-making fingerprint unchanged. No global recipe unlock, camera-based learning, scripted outcome, replenishment or second simulation. Tunable values remain labelled T in catalogues; collapsed finished-task text grants no new calibration authority.
+Spread: original joint **5/20**; fresh 6101–6120 stopped **1/6**, best possible **15/20**. Fire: 7101–7120 stopped **0/11**, best possible **9/20**, all zero tending/cooking. These failed first batches; spread control was incomplete, wet control passed. Observer repair subsequently counts both friction routes. No repaired routine PASS/APK is claimed; check 41305 predates review, release 41301 remains signed. Phone digests/frames/heat/battery/sound/play remain owed.
 
-**CLOSED by the owner, 10 October 2026** (“if bug fixes are done, close M3”). This is an explicit partial closure, not passing acceptance: the independent review remains **NOT CLOSE**, and no fresh independent re-review has occurred. Failed acceptance and owed evidence carry to M4 planning. PROJECT.md's numbers remain unchanged; questionable rules or numbers should be raised with the owner, never worked around.
-
-| Review finding / repair | Commits and regression evidence |
-|---|---|
-| 4: strict saves | `a8f1e4aa`, `f3ae3029`: exact hearth Item/Fire ownership including zero; pending ideas require a real allocated person, not merely a plausible global serial. Rejection probes and cross-record tests pass. |
-| 3: generic rules | `34b949af`: food thermal processing and craft/bank/carry selection use characteristic fits; identically renamed food/fuel behave the same. |
-| 2: perceived facts | `6e376fd5`, `35745523`: personal uncertain fire evidence; hidden-property choice invariance; teacher uses visible evidence/recorded reply and learner decides from its own state. Unknown-fuel trials retain uncertainty. |
-| 5: kept reasons | `ea26fa44`: immutable winning and two rejected craft/fire/warming options, saved and shown in Details; current reasons cleared/replaced correctly. |
-| New own-save bug | `ea8b424c`: reopen large choice histories with encoded-byte bounds and linear link validation; 100,001 choices/Results round-trip and orphan rejection. |
-| 6: fire-chain scene | `758b4fb2`, `bc6e3189`, `9d961601`: autonomous frozen scene/control, storage measurements, both friction routes observed; actual-action regressions pass. Scene exists; its acceptance fails below. |
-| Performance | `43da3f87`: fire/deadline indexes skip spent stock; exact retained-seed digest and shuffled/distractor regressions pass. |
-
-Fresh build/source `bc6e3189` was frozen before judging untouched seeds; [retained freeze and per-seed records](dist/M3-REPAIR-GATES.json) identify binary, settings, timings and excluded runs. No installed actions or forced memories/discoveries. T values did not change.
-
-- **Spread FAILED:** range 6101–6120 stopped after six completed runs, **1/6 joint** timely discovery and ≥19/25 holders; five misses make the best possible final result **15/20 <16**. All six discovered in time; routes 1 and 3 occurred. Control 6141 was stopped incomplete (last progress day 140/240); no four-year control pass is claimed. Earlier 1001–1020 joint count is corrected to **5/20**, not the standalone holder count 6/20; even 20 fresh successes could give only **25/40 <32**.
-- **Fire chain RES-23 FAILED:** range 7101–7120 stopped after eleven completed three-year runs, **0/11**, so at best **9/20 <10**. All eleven recorded zero successful tending and zero cooked food. Wet control 7141 completed with no ember/flame/cooking. Drill embers were recorded in **7101, 7104 and 7109**; 7101's was at day 55. These original ember counts omitted plough results; `9d961601` repairs the observer. Zero tending/cooking independently establishes failure, so a rerun cannot change this verdict. Cancelled seeds are excluded.
-- **VOID earlier repair build:** SHA `59916f95…`, range 7001–7020: completed scenes hit the now-fixed 100,000-choice reopen cap. No gate verdict is drawn from that build; spread never started.
-
-Storage remains an obligation: day-45 seed 1001 retained **22,541 spent items** (16,534 kernels) among 25,895 items; compressed snapshot 1,165,125 bytes. Three-year seed 7101 retained **185,096 choices: 61,699/year, 251.9 raw bytes/choice, 2,982,223-byte (2.844 MiB) compressed world save**. Repaired diagnostic 7002 retained **242,397: 80,799/year, 251.8 bytes/choice, 5,391,770-byte (5.142 MiB) save**. Neither is a long-game bound. Proposed M4/M10 work combines spent-item compaction with retaining history-linked/current/recent reasons and compacting older unlinked choices while preserving identities and equivalent state; no retention policy was changed here.
-
-Focused repair tests pass ([counts/timings](dist/M3-CHECKS.md)). Serial three-year 7101 took **104.516 s /210.4 MiB** (1.72 game years/minute); completed fire seeds ranged **0.58–2.20 years/minute**, spread **0.69–3.77**. Five-process pool took **1,102.990 s**, plus the first serial seed; completed judged scenes alone represent **2.03 game years/minute overall** across that elapsed time, including the cancelled control's wait. This is cloud evidence, below the owner's tens-of-years/minute target. Indexed diagnostic 7002 preserved its exact digest while improving 102.845→87.357 s, peak 264.2 MiB before indexing. Craft events still settle serially under both worker settings; equal digests do not prove parallel craft speed.
-
-The coordinator deliberately stopped the repair routine before completion; **no repair routine PASS is claimed**. Owner's 15:27 instruction stops calibration, gates, routine and APK work; coordinator runs the routine after this handoff. No repaired APK was exported. Existing check 41305 is pre-review (27.930 MiB); release 41301 remains untouched. Signing remains with the coordinator. The historical audit is not recertification of these repairs; no full audit repeated. Only unchanged-T baseline calibration seed 5001 ran; no calibration change or final 7201/6201 judgement followed.
-
-Still owed: phone/cloud digest comparison, ≥97% on-time frames/no frame >50 ms late, sustained heat/battery, audible quality and unaided owner play evidence; full phone and headless speed acceptance, long-game storage and full-scale dependencies remain open. Builder stops here; M4 planning is next, not started by this repair run.
-
-Task IDs remain for navigation; completed details are not active work:
-
-| Task | Result / remaining obligation |
-|---|---|
-| `T3.13a.1` | Real viewport tap/hold repair; owner confirmed touch on 31305. |
-| `T3.13a.2` | Strict own-format save chunks; refuse earlier saves. |
-| `T3.13a.3` | Catalogue schemas and characteristic/fit validation. |
-| `T3.13a.4` | Physical finite items and reservations. |
-| `T3.13a.5` | Generic known uses, finite meals, atomic settlement/interruption. |
-| `T3.13a.6` | Personal perception, experiments, surprise/hunch evidence. |
-| `T3.13a.7` | Discovery camp, item cards, recorded First flake. |
-| `T3.13a.8` | Real-button camp measurement route, wake lock, progress/interruption. |
-| `T3.13b.1` | Durable skills/evidence and shared-session validation. |
-| `T3.13b.2` | Elapsed range/sight/light observation; duplicate-credit fault sensitivity. |
-| `T3.13b.3` | Autonomous offers, telling, shared practice and resumed credit. |
-| `T3.13b.4` | Actual acquisition/loss/return History and stored word. |
-| `T3.13b.5` | Sharp-stone/control/skill proofs; population spread failed. |
-| `T3.13c.1` | Fire/timer/thermal storage and strict deadlines. |
-| `T3.13c.2` | Two friction routes and smoke hints. |
-| `T3.13c.3` | Conserved lighting/fuel/banking/carrying; generic choice repair completed. |
-| `T3.13c.4` | Felt warmth, rest-near-fire, extra-water remainder. |
-| `T3.13c.5` | Retained cooking/burning, nutrition and incidental noticing. |
-| `T3.13c.6` | Flame/cards and finite cold-hearth variant. |
-| `T3.13d.1` | Strict DRMS2/format 5 ledger. |
-| `T3.13d.2` | Memory-fit command/shared construction/attempt attribution. |
-| `T3.13d.3` | Memory chooser, confirmation/revalidation and private timeline. |
-| `T3.13d.4` | Paired scenes, missing-input control and phase-reopen regressions. |
-| `T3.13e.1` | Factual History links and restoring Back. |
-| `T3.13e.2` | Portrait/landscape/large text and bounded tap/work/fire cues. |
-| `T3.13e.3` | Fresh frozen closing proofs, routine, milestone audit; phone comparison owed. |
-| `T3.13e.4` | Independent review completed at `6b4fee21` (NOT CLOSE); no fresh re-review. Owner disposition above. |
-| `T3.13e.5` | Early owner-approved chainsaw: obsolete pages/converters/unused APK art removed; approved source art retained. APK 50.074→27.663 MiB. |
-
-Review must preserve accepted M1 proofs, personal unknowns, conservation, interruption/reopen, shared nightly caps, non-stacking dream pull, privacy and factual attribution. Keep fault tests for distance/duplicate credit, negative fuel, repeated cooking, missed deadlines, missing input memory, separate dream caps and duplicated strength. Qualify mechanical low/high trials separately from autonomous gate evidence.
-
-Owner route: start a new Discovery camp; wait at 1 hour/sec, watch at 1 minute/sec, pause to read. Follow flake → learner/source/input → Back; inspect fuel/warmth/cooking; send an idea from a handled memory, reopen queued and follow the actual attempt in Your dreams. Rotate and try large text. Ask what changed/who learned, what the dream influenced and whether upright play was clear. Record absent discoveries honestly; examples are labelled inspection only. Check-key APKs cannot update a release installation; release signing follows review.
+Day 45: 22,541 spent items. Three-year choices: 242,397 in diagnostic 7002, 438,943 in recorded 7112. Serial 7101: 1.72 years/minute. Parallel seed throughput is not single-world speed. Current format 6; repair details and stable `T3.13a.1`–`T3.13a.8`, `T3.13b.1`–`T3.13b.5`, `T3.13c.1`–`T3.13c.6`, `T3.13d.1`–`T3.13d.4`, `T3.13e.1`–`T3.13e.5` remain in Git. Static residuals start M4.
 
 ## M4 The camp survives change
 
-**Goal:** Add seasonal pressure, care and a family through time, separately (`MIL-11`).
-Also add the flake recipe's cut-hand chance once wounds exist, deferred from M3 (owner, 9 October 2026).
+**Goal:** Repair M3 carry-overs, then make seasonal preparation, care and family life readable (`MIL-11`); establish speed before expanding systems.
+**Serves:** `BIO-04`, `BIO-05`, `BIO-06`, `BIO-08`, `BIO-09`, `BIO-10`, `BIO-11`, `BIO-12`, `BIO-13`, `BIO-14`, `BIO-15`, `BIO-16`, `BIO-17`, `BIO-20`, `BIO-22`, `BIO-23`, `MAT-08`, `MAT-09`, `MAT-10`, `MAT-11`, `MAT-19`, `MAT-20`, `MAT-22`, `MND-09`, `MND-11`, `MND-13`, `MND-14`, `MND-22`, `MND-23`, `MND-24`, `MND-26`, `MND-28`, `MOM-01`, `PRE-05`, `PRE-10`, `PRE-14`, `PRE-30`, `RCK-01`, `RCK-14`, `RCK-22`, `RES-02`, `RES-03`, `RES-05`, `RES-06`, `RES-10`, `RES-14`, `RES-16`, `RES-17`, `RES-23`, `RES-24`, `TIM-07`, `TIM-09`, `TIM-17`, `TIM-18`, `PLT-04`, `PLT-07`, `PLT-10`, `WLD-18`, `WLD-27`, `WLD-28`, `WLD-31`.
+**You will see:** Responsive old camps, spreading knowledge, winter stores, meaningful help, a child learning.
+**Risks:** Mortality masks failed learning; adaptation scripts outcomes; retained history dominates cost.
 
-**Serves:** `BIO-04`, `BIO-05`, `BIO-06`, `BIO-08`, `BIO-10`, `BIO-11`, `BIO-12`, `BIO-13`, `BIO-14`, `BIO-15`, `BIO-16`, `BIO-17`, `BIO-22`, `MAT-08`, `MAT-10`, `MAT-11`, `MAT-19`, `MAT-20`, `MOM-07`, `PRE-30`, `RCK-14`, `RCK-15`, `RCK-21`, `RCK-22`, `RES-14`, `TIM-09`, `WLD-18`, `WLD-27`, `WLD-28`, `WLD-31`.
+Data/rules: A19. Integer seconds/remainders; 60-day years, four 15-day seasons; convert annual hazards once. **T** means tunable estimate. Preserve decided biological values initially; freeze laws/values before evaluation. Local weather/renewal does not complete global climate/ecology.
 
-**You will see:** A lean season changes choices, help matters, and a younger person learns from an older one.
+Research informs mechanisms, not exact game rates. Hadza tubers provide a relatively dependable fallback when preferred foods decline; this supports complementary seasonal resources, not a universal starvation season ([Marlowe/Berbesque, 2009](https://doi.org/10.1002/ajpa.21040)). Predomestication storage existed, so storage need not await agriculture; sophisticated granaries are not starting equipment ([Kuijt/Finlayson, 2009](https://doi.org/10.1073/pnas.0812764106)). Shiwiar disability observations support provisioning during incapacity, not the game's exact fever mortality ([Sugiyama, 2004](https://doi.org/10.1002/ajpa.10325)). Forager adult longevity supports useful elders; it must not be confused with life expectancy at birth ([Gurven/Kaplan, 2007](https://doi.org/10.1111/j.1728-4457.2007.00171.x)). Food kilograms, season length, pregnancy compression and treatment effects remain explicit play estimates T.
 
-**Risks:** Many new rates can hide why a camp fails.
+In-run approaches compared:
 
-Candidate increments: seasonal food/regrowth; one wound/care chain; births, learning, ageing and death.
-Use paired controls and saved traces. Close on a readable season and family story.
-Unbuilt illness, inheritance, ecology and population checks remain open; the next detailed plan names each tested subset.
+| Approach | Replay/save requirements | Emergence and fairness |
+|---|---|---|
+| Deterministic rate controller | Save filtered observations, integral/remainder, bounds and next update; fixed-point arithmetic | Good for opportunity-normalised effort. A global discovery-rate setpoint would steer history and favour worlds with scarce prerequisites. |
+| Seeded online bandit | Save arm/context counts, rewards, discount state and keyed draw counter; stable ties | Learns useful experiments within this run. Nonstationary rewards and early luck can trap poor worlds; no stationary-bandit guarantee applies automatically. Defer until M5 evidence justifies it. |
+| Target success/holder rates | Same persistent controller state; exact replay is possible | Deterministic scripting is still scripting. Reject automatic increases to physical success/yields when a world misses a gate. |
+| Local homeostatic motivation | Save each person's experienced deficits, learning progress, requests and bounded pressure | Recommended M4: unmet needs and answered requests raise effort; relief reduces it. Same law/opportunity gives same response, not equal discoveries. Scarce resources remain scarce. |
+
+Homeostatic reinforcement learning links reward to internal need regulation ([Keramati/Gutkin, 2014](https://elifesciences.org/articles/04811)); learning-progress curiosity seeks learnable situations, avoiding both trivial and unpredictable ones ([Oudeyer et al., 2007](https://www.pyoudeyer.com/ims.pdf)). These motivate a small explicit controller, not a claim that robots model foragers. Bandits offer exploration/exploitation machinery, but classic bounds assume reward conditions this changing simulation may violate ([Auer et al., 2002](https://doi.org/10.1023/A:1013689704352)). No development-time multi-seed calibration is proposed as the solution: adaptation must occur and survive saves inside each play run. Fresh multi-world gates only evaluate it.
+
+Exact original principle wording requiring amendment:
+
+> PRN-12: “Zoom, director and manual speed control time; tuning occurs during development, identically for every world (`PRN-17`). Play never changes rules for speed or drama, or causes an event for its story.”
+
+> PRN-17: “Meet discovery pace targets (`TIM-19`) by tuning chances and amounts identically for all worlds, including experimentation, success chances and food yields. Discoveries are never scripted or date-forced.”
+
+PROJECT's replacements permit experience-dependent motivation under a fixed law; MND-11/RES-16 change with them. The fixed catalogue's physical truth remains independent of pressure. Adaptive law complexity must scale with people and generic action families, not hundreds of discovery-specific controllers.
+
+Performance research: discrete-event simulation skips directly to the next event ([ns-3 manual](https://www.nsnam.org/docs/manual/html/events.html)); Kindling already does this at `world.cpp:511`, so another scheduler engine is unnecessary. Factorio's sleeping entities, spatial subscriptions and read-only parallel work illustrate useful mechanisms; its memory-bandwidth/dependency limits also caution against assuming four workers mean fourfold speed ([developer account, 2024](https://www.factorio.com/blog/post/fff-421)). Kindling needs indexed live sets, fewer wake-ups and archived records first; contiguous batches then reduce allocation/cache cost. Existing keyed chance already avoids a shared RNG bottleneck.
+
+Later parallel work reads a frozen frontier, emits intents, sorts by event/owner/local sequence and assigns birth IDs in canonical order; coupled camps join an island. Floating reductions and thread-order IDs are forbidden. Camera-based cheap people would violate WLD-13. A later coarse routine model must instead enter by saved causal conditions (isolation, no danger or pending interaction), retain individuals and refine before interactions. It is a new model with distribution/rare-event/conservation tests, not bit-equivalence to the old fine model. Never fabricate fine-grained past actions for inspection.
+
+Twenty years/minute means three wall-seconds/year: at 7,000 people and four cores, even assigning all CPU to people allows only about 29 microseconds/person/day, before world/history overhead. Exact optimisation alone may not reach that scale. Staged gates below expose this risk before expansion. Android's thermal APIs provide throttling/headroom evidence, not a guaranteed core budget; measure actual held throughput while rendering ([Android documentation](https://developer.android.com/games/optimize/adpf/thermal)). Phone throttling changes time speed only. M4's interim 10 does not lower the full-project 20 target.
+
+### α4.1a A camp that explains its failures
+
+**Goal:** Diagnose carried failures and keep truthful reasons.
+**Serves:** `MND-09`, `MND-23`, `BIO-20`, `PRE-14`, `PLT-07`, `RES-03`, `RES-23`, `PLT-04`.
+**Architecture:** A3.7, A11, A14, A19.1.
+**Tasks:**
+0. `T4.1a.0` First, fix the two failures from the M3-closing routine check (10 October): `sim/src/kd/world/craft_store.cpp:502` calls two effectful `take()` in one expression (two-effects rule, compiler order); the portrait card lost its "Making" line when work is known (`game/test/camp_portrait_test.gd:76`).
+1. `T4.1a.1` Validate pending place-dream identities, including legal ended-person records; correct founder experience. Preserve fire ownership/perception and learner replies (`PLT-07`, `BIO-20`, `MND-23`).
+2. `T4.1a.2` Replace fire/teaching/craft early-return precedence with bounded common scoring; retain winning contributions and two actual best rejected options, including body choices (`MND-09`, `PRE-14`).
+3. `T4.1a.3` Track actual ember→tending→flame→cooking identities. Diagnose opportunities/refusals/attempts and CPU/storage on failed 6101–6106/7101 before behavioural changes (`RES-03`, `RES-23`, `PLT-04`).
+**Tests:** Corrupt/retyped/dead targets, hidden-property invariance, renamed materials, competing categories, forged reasons; unrelated fires cannot pass a chain.
+**On the phone:** Inspect body choice, teaching refusal and old fire event after reopen; collect owed M3 digest/frame evidence on a repaired APK.
+
+### α4.1b An old camp stays fast
+
+**Goal:** Remove history growth from live work.
+**Serves:** `MAT-09`, `MAT-10`, `PLT-10`, `PLT-07`, `TIM-07`, `TIM-17`, `RES-05`, `PLT-04`.
+**Architecture:** A3.3, A3.7, A12, A14, A19.2.
+**Tasks:**
+1. `T4.1b.1` Archive spent items/unlinked choices with stable tombstones, pinned reasons and immutable pages; page History and publish deltas (`PLT-10`, `MAT-10`).
+2. `T4.1b.2` Index active food/fuel/makers/deadlines; separate physical/perceived cache invalidation. Schedule dependency changes and exact exposure boundaries; retain scalar reference (`TIM-17`, `RES-05`).
+3. `T4.1b.3` Report per-year CPU/storage costs; meet P1 before seasonal additions (`TIM-07`, `PLT-04`).
+**Tests:** Conservation, archived links, interruption and own-format recovery; compacted/uncompacted logical states/continuations equal. One million archived records add zero chooser/thermal visits; live spent count reaches zero after references expire. P1: 8601–8605, three years each, each ≥5 years/minute on one declared desktop core.
+**On the phone:** Old History opens spent inputs/original reasons without freezing; measure sustained speed, save/catch-up latency and RSS.
+
+### α4.1c Learning responds to experience
+
+**Goal:** Repair causal spread/fire bottlenecks; test generic in-run motivation.
+**Serves:** `MND-11`, `MND-13`, `MND-14`, `MND-23`, `MAT-22`, `RES-02`, `RES-03`, `RES-10`, `RES-16`, `RES-23`.
+**Architecture:** A11, A12, A19.3.
+**Tasks:**
+1. `T4.1c.1` Repair diagnosed prerequisite reach, learner attendance and known chain value without granting knowledge (`MAT-22`, `MND-13`).
+2. `T4.1c.2` After amendment review, implement saved homeostatic motivation with visible reasons. Missing materials never raise success; unavailable opportunities cannot accumulate pressure (`MND-11`, `MND-23`, `RES-16`).
+3. `T4.1c.3` Freeze and judge S/F below; disabled-controller comparisons are diagnostic. Failure blocks seasonal scope pending diagnosis/redesign (`RES-03`, `RES-23`).
+**Tests:** One run responds to shortage then relaxes after relief; bounds/saturation/impossible inputs/false beliefs; reopen at updates, 1/4-worker and camera/speed equality. No cross-world learning; original physical trials unchanged.
+**On the phone:** Follow changed inclination→actual attempt→learner or tended fire, with experience-based reasons.
+
+### α4.2a Remembering a lean season
+
+**Goal:** Food changes and spoilage make preparation useful.
+**Serves:** `BIO-09`, `BIO-10`, `BIO-11`, `MAT-08`, `MAT-09`, `MAT-11`, `MAT-19`, `MND-22`, `MND-28`, `RCK-14`, `RCK-22`, `PRE-30`, `WLD-18`, `WLD-27`, `WLD-28`, `WLD-31`, `TIM-18`.
+**Architecture:** A9, A10, A19.4.
+**Tasks:**
+1. `T4.2a.1` Replace fixed renewal with finite seasonal patches, water/soil budgets and fallen fuel; retain fallback food. Add condition/deprivation and local air/wind/wetness exposure (`BIO-09`, `WLD-31`).
+2. `T4.2a.2` Add generic drying/smoking/storage, accumulated spoilage, food-group deficits and scurvy; splitting/reopening never freshens food (`MAT-19`, `RCK-14`, `BIO-10`).
+3. `T4.2a.3` Keep experienced seasonal shortages and short prerequisite plans; future need weight 0.5 T one season ahead, personally known stores (`MND-22`, `MND-28`).
+**Tests:** PROJECT deprivation/food/rot checks; dried life ≥5× matched fresh; 200 low/high trials/new blueprint. W: 8301–8320, two experienced years then third-winter preparation, ≥16/20 store ≥3 adult food-days T; matched never-hungry controls store <1 day T in ≥16/20. Count actual stocks/survival.
+**On the phone:** Read remembered hunger→plan→food age→winter consumption; label local seasons honestly.
+
+### α4.2b A wounded person gets help
+
+**Goal:** One complete injury/care chain changes outcomes.
+**Serves:** `BIO-05`, `BIO-08`, `BIO-11`, `BIO-12`, `BIO-13`, `BIO-14`, `BIO-23`, `MND-26`, `PRE-05`, `RCK-01`, `MOM-01`, `RES-17`, `RES-23`, `RES-24`.
+**Architecture:** A10, A11, A19.4.
+**Tasks:**
+1. `T4.2b.1` Add six-part bodies, cuts/blood/pain/healing, infection/wound fever and attributable deaths; enable deferred knapping cut 1/100 T, size 5 T (`BIO-13`, `RCK-01`).
+2. `T4.2b.2` Add visible requests, pressure/provisioning/warmth care and discoverable washing/dressing; helpers use signs/replies, never remote diagnosis (`BIO-23`, `MND-26`).
+3. `T4.2b.3` Connect cold/huddling/shelter/fire to bodily consequences and the conditional winter-fire scene (`BIO-11`, `MOM-01`).
+**Tests:** C: 8401–8420, ≥10/20 independently complete appropriate care within one day; isolated controls. ≥1,000 matched fever cases test mortality halving under RES-13; bleeding/healing match PROJECT. Winter: 8701–8720, hunch from actual prior handling, ≥2/20 drilling discoveries within one year; this conditional setup never qualifies as F.
+**On the phone:** Follow injury→request→care→recovery/death with cause, reasons and consumed materials.
+
+### α4.3a A family through time
+
+**Goal:** Birth, childhood learning and ageing in the same saved camp.
+**Serves:** `BIO-04`, `BIO-06`, `BIO-08`, `BIO-14`, `BIO-15`, `BIO-16`, `BIO-17`, `BIO-20`, `BIO-22`, `MND-13`, `MND-24`, `PRE-10`, `TIM-09`, `RES-14`, `PLT-04`, `RES-06`.
+**Architecture:** A10, A11, A14, A19.4.
+**Tasks:**
+1. `T4.3a.1` Save parents/birth dates/inherited traits, founder pairs, pregnancy/nursing and child needs; age-appropriate actions, no sex-assigned jobs (`BIO-06`, `BIO-15`, `BIO-17`).
+2. `T4.3a.2` Connect childhood teaching, ageing, bodily death and family/history links; newborns inherit traits, never blueprints (`MND-13`, `BIO-16`, `PRE-10`).
+3. `T4.3a.3` Complete P2, phone evidence, trimmed audit and independent review; report partial IDs (`PLT-04`, `RES-06`, `RES-14`).
+**Tests:** FAM: 8501–8520, 20 years, ≥10/20 show birth and surviving child learning a useful craft from a recorded person; teaching-off diagnostics. ≥1,000 cases for promised reproductive shares; nursing/food conservation, 45-day pregnancy, reopen each transition. No survivor selection. Year-75/250 demographic ranges remain M8/M10.
+**On the phone:** Follow birth, lesson and older relative's decline; reopen family/source/death links; collect unaided play and sound answers.
+
+Gates: S=8101–8120, 25 founders, discovery ≤2 years **and ≥19/25 holders within one year of first discovery in ≥16/20**, two routes overall; no-flaking control 8181 runs four years with zero flakes. F=8201–8220, ordinary cold hearth, ≥10/20 causal friction→tend→flame→cooked chains within three years; wet control 8281 has zero chain. No installed actions/knowledge; deaths do not shrink S's denominator. Final integrated M4 reruns changed dependencies as regressions and evaluates S/F/W/C/winter on fresh ranges obtained by adding 1,000 to their seed/control/repeat numbers; FAM first runs at final integration.
+
+For each chance gate reserve the next 20 seeds for same-build RES-13 repeats: S/W ≥32/40; F/C/FAM ≥20/40; winter ≥4/40. Explicit futility bounds; unfinished runs earn nothing. Freeze law, T values, build/catalogue/controller fingerprints before judging; exposed seeds never become fresh again. Retain every result and M3's earlier verdicts. Budgets including repeats: S/F/W/C ≤1 session-hour each, family/winter ≤2 each, integrated/performance ≤3; checkpoint/report overruns, never reduce samples.
+
+P2: 8601–8605, ages 1/10/30, complete renewal/lives, each ten-year window ≥20 years/minute desktop single core and ≥10 phone held speed; old/new equal-population ratio ≥0.8 using matched diagnostic snapshots. Include scheduled saves/history; report CPU seconds/year by subsystem and bytes/year. Thirty-year camp ≤256 MiB save/≤1 GiB RSS; report actual population, never cull or cap births. Engineering gates, not T; separate processes cannot be pooled.
+
+Phone closure: 20-minute unplugged flight-mode route after ≥3-minute warmup; ≥97% frames on time, none >50 ms late; exact phone/cloud digests, open about 3 seconds. Include portrait/landscape, large text, mute and history navigation. Separately measure one hour against PROJECT battery/heat targets. Missing hardware/evidence stays owed.
+
+Cut line: no globe/full illnesses, poisons, splints, culture, renderer, animal ecology or demographic calibration. Unfinished `BIO-12`, `MAT-20`, `RCK-22`/ecology remain M8; painting/ochre/floating (`MOM-07`, `RCK-15`, `RCK-21`) move there. Full attraction/inheritance remain later. No neural learner or approximate people in M4. Split oversized alphas; never lower acceptance to finish.
 
 ## M5 Meet one neighbouring camp
 
-**Goal:** Add relationships, communication and travel between two camps (`MIL-12`).
+**Goal:** Relationships, travel and knowledge cross camps (`MIL-12`).
+**Serves:** `CUL-07`, `CUL-17`, `CUL-18`, `CUL-21`, `CUL-24`, `CUL-27`, `CUL-30`, `CUL-31`, `MND-05`, `MND-08`, `MND-19`, `MND-20`, `MND-21`, `MND-22`, `MND-24`, `MND-26`, `MND-27`, `MND-29`, `MND-30`, `MND-32`, `MND-33`, `MOM-04`, `PRE-45`, `VIS-17`, `TIM-07`.
+**You will see:** A meeting changes sharing/learning.
+**Risks:** Social labels without consequences.
 
-**Serves:** `CUL-07`, `CUL-17`, `CUL-18`, `CUL-21`, `CUL-24`, `CUL-27`, `CUL-30`, `CUL-31`, `MND-05`, `MND-08`, `MND-19`, `MND-20`, `MND-21`, `MND-22`, `MND-24`, `MND-26`, `MND-27`, `MND-29`, `MND-30`, `MND-32`, `MND-33`, `MOM-04`, `PRE-45`, `VIS-17`.
-
-**You will see:** A skill crosses camps; friendship or disagreement changes meeting, helping or sharing.
-
-**Risks:** Names and labels can suggest society without causal behaviour.
-
-Candidate increments: recognise and remember someone; exchange something useful; carry knowledge to the second camp.
-Test observer access, individual knowledge, competing needs and save/reopen during travel.
-Close on a social consequence the owner can follow. Full personality, belief and culture catalogues remain later work.
+Performance task: deterministic camp islands/canonical intent-and-ID merge; scalar equivalence and ≥20 phone years/minute at 60 people. Consider saved contextual bandits only if homeostasis cannot allocate exploration; never gate rewards.
 
 ## M6 Finish the small game
 
-**Goal:** Finish the agreed valley game from first launch to a satisfying short arc (`MIL-13`).
+**Goal:** Unaided start, history and continuation (`MIL-13`).
+**Serves:** `GOD-04`, `MOM-03`, `PLT-03`, `PRE-06`, `PRE-07`, `PRE-09`, `PRE-10`, `PRE-15`, `PRE-16`, `PRE-18`, `PRE-19`, `PRE-34`, `PRE-39`, `RES-12`, `RES-16`, `SND-06`, `TIM-01`, `TIM-02`, `TIM-03`, `TIM-10`, `TIM-11`, `TIM-15`, `VIS-15`, `TIM-07`.
+**You will see:** A satisfying valley story.
+**Risks:** Unbounded polish.
 
-**Serves:** `GOD-04`, `MOM-03`, `PLT-03`, `PRE-06`, `PRE-07`, `PRE-09`, `PRE-10`, `PRE-15`, `PRE-16`, `PRE-18`, `PRE-19`, `PRE-34`, `PRE-39`, `RES-12`, `RES-16`, `SND-06`, `TIM-01`, `TIM-02`, `TIM-03`, `TIM-10`, `TIM-11`, `TIM-15`, `VIS-15`.
-
-**You will see:** A clear start, useful nature choices, readable moments/history and reliable continuation.
-
-**Risks:** Polish can grow without limit; freeze release content first.
-
-Candidate increments: unaided start/continuation; moments and speed-by-zoom with manual override; final route repairs.
-Upgrade only assets and controls this game uses. Measure sustained load, old-world memory and representative large saves/exports on the owner phone.
-Fix whole-file export blocking before claiming bounded latency. An independent tester must start, learn, intervene, leave and return.
-The owner then chooses to keep this small game or commission an expansion; M7 is not automatic.
+Performance task: batched layouts and bounded export/page loading; ≥20 phone years/minute at 300, including saves. Owner commissions expansion separately.
 
 ## M7 Expansion option: a wider living landscape
 
-**Goal:** Hold outstanding geography and world scope until commissioned (`MIL-14`); split it before scheduling.
+**Goal:** Geography with people present (`MIL-14`).
+**Serves:** `PLT-04`, `PLT-07`, `PLT-08`, `PLT-09`, `PLT-10`, `PRC-09`, `PRC-11`, `PRE-02`, `PRE-03`, `PRE-23`, `PRE-24`, `PRE-25`, `PRE-26`, `PRE-29`, `PRE-30`, `PRE-31`, `PRN-04`, `PRN-10`, `PRN-14`, `PRN-15`, `PRN-16`, `RES-05`, `RES-06`, `RES-09`, `RES-12`, `RES-13`, `RES-18`, `RES-21`, `RES-22`, `SCP-11`, `TIM-14`, `TIM-16`, `TIM-18`, `WLD-01`, `WLD-02`, `WLD-03`, `WLD-06`, `WLD-07`, `WLD-08`, `WLD-09`, `WLD-10`, `WLD-11`, `WLD-12`, `WLD-13`, `WLD-14`, `WLD-15`, `WLD-16`, `WLD-17`, `WLD-22`, `WLD-24`, `WLD-26`, `WLD-27`, `WLD-30`, `TIM-07`.
+**You will see:** People use new land/weather.
+**Risks:** Empty-world prerequisites return.
 
-**Serves:** `PLT-04`, `PLT-07`, `PLT-08`, `PLT-09`, `PLT-10`, `PRC-09`, `PRC-11`, `PRE-02`, `PRE-03`, `PRE-23`, `PRE-24`, `PRE-25`, `PRE-26`, `PRE-29`, `PRE-30`, `PRE-31`, `PRN-04`, `PRN-10`, `PRN-14`, `PRN-15`, `PRN-16`, `RES-05`, `RES-06`, `RES-09`, `RES-12`, `RES-13`, `RES-18`, `RES-21`, `RES-22`, `SCP-11`, `TIM-14`, `TIM-16`, `TIM-18`, `WLD-01`, `WLD-02`, `WLD-03`, `WLD-06`, `WLD-07`, `WLD-08`, `WLD-09`, `WLD-10`, `WLD-11`, `WLD-12`, `WLD-13`, `WLD-14`, `WLD-15`, `WLD-16`, `WLD-17`, `WLD-22`, `WLD-24`, `WLD-26`, `WLD-27`, `WLD-30`.
-
-**You will see:** Existing people use a new valley, cross a river or cope with meaningful weather.
-
-**Risks:** The former empty-world programme must not return as one prerequisite.
-
-Choose one playable addition, integrate it with people and saves, then decide the next.
-A7 and A17.1 retain deferred design/acceptance obligations. Global candidate, water, climate and phone guarantees require their actual scope, not a local scene. Full living settling and biological start/survival acceptance follow their complete M8 consumers.
-The universal eclipse quota is removed by the approved WLD-07 change. Remaining targets cannot be loosened without approval.
+Performance task: sparse next-due cell/area batches, exact catch-up; ≥20 phone years/minute globe alone and globe+100. A7/A17.1 retain generation gates.
 
 ## M8 Expansion option: richer lives and society
 
-**Goal:** Hold remaining bodies, animals, minds, crafts and cultures for separate additions (`MIL-15`).
+**Goal:** Remaining biology, minds, crafts and cultures (`MIL-15`).
+**Serves:** `BIO-19`, `CUL-05`, `CUL-06`, `CUL-08`, `CUL-09`, `CUL-10`, `CUL-11`, `CUL-12`, `CUL-19`, `CUL-20`, `CUL-22`, `CUL-23`, `CUL-26`, `CUL-29`, `CUL-32`, `CUL-34`, `MND-01`, `MND-02`, `MND-16`, `MND-31`, `MOM-06`, `MOM-07`, `MOM-11`, `RCK-15`, `RCK-16`, `RCK-21`, `RCK-23`, `RCK-24`, `RCK-26`, `TIM-07`, `WLD-32`, `WLD-33`.
+**You will see:** One useful chain changes lives.
+**Risks:** Catalogue size hides weak behaviour.
 
-**Serves:** `BIO-19`, `CUL-05`, `CUL-06`, `CUL-08`, `CUL-09`, `CUL-10`, `CUL-11`, `CUL-12`, `CUL-19`, `CUL-20`, `CUL-22`, `CUL-23`, `CUL-26`, `CUL-29`, `CUL-32`, `CUL-34`, `MND-01`, `MND-02`, `MND-16`, `MND-31`, `MOM-06`, `MOM-11`, `RCK-16`, `RCK-23`, `RCK-24`, `RCK-26`, `TIM-07`, `WLD-32`, `WLD-33`.
-
-**You will see:** One chain changes existing lives: clothing helps in cold, an animal becomes tame or a practice spreads.
-
-**Risks:** Catalogue size is not evidence of interesting interactions.
-
-Ship and play one useful chain before choosing the next. Early body/mind/material/social IDs return here for their unfinished clauses, preserving their regressions.
-Full species, illness, emotion, social-action, religion, music and craft-route acceptance stays open until implemented.
+Performance task: review camera-independent statistical routine intervals if exact optimisation misses; preserve named lives/conservation/refinement state. ≥20 phone years/minute at 1,000; exact same-version replay. Proposed model gate: 20 paired fine/coarse scenes, need distributions and food/learning rates within 10% T, at least 1,000 eligible rare-event cases under RES-13, zero conservation/identity violations; stratify shortages and isolated camps rather than hiding errors in pooled means. Freeze tolerances before judging. Owner judges acceptable loss of routine detail before adoption; M4 does not depend on that decision.
 
 ## M9 Expansion option: presentation and powers
 
-**Goal:** Improve an already playable game with remaining visuals, sound, interface and powers (`MIL-16`).
-
+**Goal:** Improve an existing game (`MIL-16`).
 **Serves:** `GOD-02`, `GOD-03`, `GOD-10`, `GOD-11`, `GOD-12`, `GOD-13`, `PRE-20`, `PRE-21`, `PRE-31`, `PRE-37`, `PRE-41`, `PRE-46`, `SND-02`, `SND-03`, `SND-07`, `SND-08`, `SND-11`, `VIS-14`.
+**You will see:** Useful powers/clearer presentation.
+**Risks:** Effects consume simulation budget.
 
-**You will see:** A clearer scene, useful new power, sound layer or history improvement.
-
-**Risks:** Effects and assets can grow without limit.
-
-Choose each addition from a play problem or owner preference. Complete missing power/dream routes, global interfaces and art families in separate releases.
-Bulk art follows stable actions and camera distances. Patterns remain default text; the optional writer needs a device feasibility test and a comparison showing improvement.
-All pictures and words remain grounded in actual state.
+Keep ≥20 phone years/minute at 1,000 plus frames/heat; optional writer must beat factual patterns.
 
 ## M10 Expansion option: settlements to copper
 
-**Goal:** Keep the long arc as a later choice (`MIL-17`), not a condition of the small finish.
-
+**Goal:** One commissioned arc chain at a time (`MIL-17`).
 **Serves:** `CUL-28`, `CUL-33`, `MAT-23`, `MOM-08`, `MOM-12`, `PLT-04`, `RCK-04`, `RCK-08`, `RES-07`, `RES-12`, `RES-16`, `RES-25`, `TIM-07`, `TIM-19`, `VIS-14`, `WLD-33`.
+**You will see:** Pottery, farming, herding, copper.
+**Risks:** Centuries/thousands are a larger product.
 
-**You will see:** Pottery, tending plants, herding, settlement and copper, one useful chain at a time.
-
-**Risks:** Centuries, thousands of people and the full catalogue are a larger product than the valley.
-
-Each chain gets its blueprint, consumer and discovery/pace checks. Full closure requires the promised long-term multi-world and old-world performance gates in RES-07, RES-12, RES-25, TIM-07, TIM-19, CUL-33 and PLT-04.
-Freeze numerical changes before tuning; retain failed seeds and distinguish interventions.
-If the owner chooses to end at the small game, explicitly retire excluded requirements instead of declaring them complete.
+Performance task: compact archives/bounded aggregates/deterministic reductions; ≥20 phone years/minute at 2,000/7,000, Year-250/new ratio ≥0.8, saves ≤4 GB. Future speed gates each freeze five seeds with full consumers; no pooled throughput. Full RES-07/RES-12/RES-25/TIM-19/CUL-33 acceptance remains. Misses require redesign or owner scope decisions, never claimed feasibility.

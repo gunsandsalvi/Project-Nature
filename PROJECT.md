@@ -5,6 +5,9 @@ Read the vision, principles and current milestones for direction; consult system
 Keep one statement per obligation; shortening or retiring scope needs owner approval.
 Implementation belongs in ARCHITECTURE.md and IMPLEMENTATION.md.
 
+**Amended 10 October 2026 (owner OK):** M4 scope, in-run adaptation and long-term speed/storage wording; the owner accepted all fourteen amendments and the interim M4 phone gate of 10 game years per minute (project target 20).
+The amended rules may be implemented from M4 onward.
+
 ## Working brief
 
 Kindling is an offline world you watch and influence indirectly. People choose from their own needs and knowledge; discovery, learning and history arise from actual events. Pictures and generated words describe the world, never decide it.
@@ -325,12 +328,16 @@ Each item's detailed acceptance criteria are written in the plan, and you approv
   - **Check:** catalogue tests pass (`MAT-17`); every milestone-report claim has a test that can fail (`RES-01`).
 
 - `PRN-12` **Speed up time, never bend the rules** *(Decided)*
-  - **What:** Zoom, director and manual speed control time; tuning occurs during development, identically for every world (`PRN-17`).
-    Play never changes rules for speed or drama, or causes an event for its story.
+  - **What:** Zoom, director and manual speed control time, never outcomes.
+    Development fixes the laws and bounds shared by every world; saved local experience may adapt motivation during a run under those laws (`PRN-17`).
+    Adaptation never reads acceptance targets, dates of desired discoveries, camera, speed, machine load or other worlds, and never changes physical success chances or yields to rescue a story.
   - **Check:** no rule-bending play settings; director on/off leaves the same saved-world result (`TIM-03`).
 
 - `PRN-17` **History at a watchable pace** *(Decided)*
-  - **What:** Meet discovery pace targets (`TIM-19`) by tuning chances and amounts identically for all worlds, including experimentation, success chances and food yields.
+  - **What:** Discovery pace targets (`TIM-19`) evaluate worlds; they are never inputs to world rules.
+    Every world shares the same catalogue and bounded adaptation law, but a person's own observed needs, learning progress and answered requests may change their exploration or teaching motivation during play.
+    Adaptation state and its reasons are saved and exactly reproducible; equal experience gives equal response, without promising equal outcomes across different worlds.
+    Physical success chances and food yields remain catalogue rules, not adaptive rewards for being behind a target.
     Discoveries are never scripted or date-forced.
   - **Check:** pace tests meet typical-world windows in varying orders without scripting (`RES-07`).
 
@@ -368,8 +375,9 @@ Each item's detailed acceptance criteria are written in the plan, and you approv
   - **Check:** all past views read saved records and never rerun history.
 
 - `PRN-11` **Time slows, the screen stays smooth** *(Decided)*
-  - **What:** Under load, slow time to prevent stutter; never cut detail.
-    Every person remains a full individual; only planned, camera-independent simplifications apply (`MND-14`, `WLD-12`, `WLD-32`, `MND-16`).
+  - **What:** Under load, slow time to prevent stutter; machine load never changes simulation rules.
+    Every person retains individual identity and state; approved, versioned rules may batch routine activity or use a coarse model according to causal conditions, never whether someone is watched (`MND-14`, `WLD-12`, `WLD-32`, `MND-16`).
+    Exact same-version replay remains mandatory; a coarse model need not reproduce an older fine model, and past views may not invent unrecorded detail.
   - **Check:** no heavy-load stutter (`PLT-04`); saved-world results match at every speed and zoom (`TIM-17`).
 
 ### 2.5 How it's built
@@ -443,6 +451,8 @@ Each item's detailed acceptance criteria are written in the plan, and you approv
 
   - `MIL-11` **M4: A changing camp** *(Decided)*: Seasonal food, a wound/care chain and a family through time, each delivered separately.
     - **Owner OK:** 8 October 2026.
+    First repair M3's carried spread/fire-chain acceptance, growing spent-item/choice storage and outstanding phone evidence; M3 remains closed by the owner's partial-closure decision of 10 October 2026.
+    Establish the M4 speed gate (`TIM-07`) before expanding the camp's systems.
     Full nature and body catalogues remain open for later additions (`MIL-15`).
     *Now possible:* watching seasons, care and family life change the same camp.
 
@@ -710,12 +720,11 @@ Time works one way for everything: activities that start and end on one world cl
   - **Done when:** a test sets each pair of controls at once and finds the stated order.
 
 - `TIM-07` **Speed target** *(To test)*: World-view game years per real minute on your phone:
-  - no people: at least 10;
-  - about 100–300: at least 5;
-  - 1,000: at least 1, aiming for 2–3;
-  - about 2,000: at least half;
-  - beyond: slow time (`MND-15`), retaining at least a sixth at about 7,000, the Year-250 maximum (`BIO-04`);
-  - Year-250 worlds: at least four fifths of a new world's speed at equal population.
+  - The whole-project engineering target is at least 20, including commissioned globe, population and catalogue scope up to about 7,000 people; feasibility is to be measured, not asserted.
+  - M4's complete 25–30-person camp: at least 20 on one declared desktop core and 10 on the phone as an interim gate.
+  - M5: at least 20 on the phone for two camps/about 60 people; M6: 300; M7: globe layers with nobody and with 100; M8: 1,000; M10: 2,000 and 7,000 with the full arc.
+  - Year-250 worlds must meet 20 and at least four fifths of a new world's speed at equal population.
+  - Missing hardware or consumers leave the corresponding gate open; a miss requires a measured redesign or an explicit owner scope/target decision, never a silent reduced population or slower promise.
   - **What counts:** every person and nearby-animal activity and its results, notices and talk topics, on permitted cores (`PLT-01`).
   - **Check:** `PLT-04` benchmarks at held speed.
 
@@ -816,7 +825,8 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
   3. **Things and creatures:** every person, nearby animal and item, in areas or on cell ground where no area exists (`MAT-10`).
   4. **Weather cells:** about 20,000, about 10 km across (`WLD-16`).
   - **Paces:** weather and burning wildfire hourly; water, snow/ice, fuel dryness and herds daily, flood water hourly; cover, small-animal counts, seas and soils every 5 days; creatures and things by activities (`TIM-17`).
-    Budget overruns (`PLT-04`) may justify a uniformly coarser pace in a later version, never during play or reduced detail near people.
+    Budget overruns (`PLT-04`) may justify a later version's approved batching or coarse model, with saved state and causal entry/exit conditions shared by all worlds (`PRN-11`, `MND-14`).
+    Looking, speed and machine load never select the model; approaching interactions must settle before their effects, and conservation and exact same-version replay still hold.
   - **Area creation:** where people stop to act, their target stands (such as stalked deer), or something happens to them; for pictures only, within about 300 m of camera from camp zoom inward, coarse ground beyond (`PRE-03`).
     Simulation areas hold all layer-2 data except metre-scale ground shape, made only for pictures.
     Between areas, cell slope, cover, fords and paths set walking routes/times; walkers notice cell contents.
@@ -1749,12 +1759,13 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
   - **Accident:** any base-action activity.
   - **Experiment:** an ordinary choice (`MND-09`), pulled by curiosity/play, favoured at mood >50 without pressing needs, or when a need <20 has no known answer.
     In that case aim at it using relevant known characteristics: food for hunger, warmth/burn for cold.
-    Curious adults experiment about daily in good times, average adults weekly.
+    Baseline motivation aims at about daily experimentation for curious adults in good times and weekly for average adults; bounded experience-dependent motivation may change the realised frequency (`PRN-17`).
     One activity tries a held hunch; else a known action on a familiar input kind; else any action, often familiar, on one or two reachable things under current conditions.
     Three-plus inputs need accident/hunch; failures still teach characteristics (`MND-04`).
   - **Copy:** unknown made things reveal materials and marked actions (chipped, ground, drilled, sewn, fired), giving weak hunches at experiment chance; watching manufacture gives a full hunch.
   - **Recorded route:** hunch source (accident, natural/sent dream, copying, telling), otherwise experiment.
-  - **Tuning:** three route factors, blueprint factors/difficulties, surprise noticing, experiment frequency and dream-hint chance; identical across worlds (`PRN-17`, `RES-16`).
+  - **Tuning:** development fixes route factors, blueprint factors/difficulties, surprise noticing and dream-hint chance identically across worlds.
+    A bounded, saved motivation law may change experiment frequency from the person's own experience during one run (`PRN-17`, `RES-16`); no per-blueprint discovery quota or success boost.
   - **Done when:** each route discovers in at least 2/20 scenes; sharp-stone test passes (`RES-03`).
 
 - `MND-12` **Dreams** *(Decided)*: Each night a sleeper has one dream, from the last few days' strongest memories by feeling, surprise and need, now and then an older one; those memories then fade more slowly.
@@ -1788,14 +1799,17 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
 
 ### 9.9 Scale
 
-- `MND-14` **Every person has a full mind** *(Decided)*: Everyone has every part of this section always, never a cheaper mind for being far away or unwatched (`WLD-13`).
+- `MND-14` **Every person has an individual mind** *(Decided)*: Everyone retains individual needs, knowledge, memories, relationships and reasons; being far away or unwatched never changes their rules (`WLD-13`).
+  Approved later versions may settle routine intervals in batches or through a coarse statistical model with saved per-person state, bounded errors and causal refinement conditions; no anonymous replacement population or invented past actions.
+  M4 uses exact batching only; introducing approximation requires a separate model review and comparison against the fine model, including rare events and disadvantaged camps.
   - **How it works:** minds stay cheap because every part has a limit: capped choosing (`MND-09`), noticing (`MND-03`) and talk (`MND-33`); slow changes, such as mood, fading and drifting opinions, settled about once a game hour; and at most about 200 memories (`MND-18`), a few hundred places (`MND-28`), 40 cause links (`MND-05`), 5 spirits and 5 of their own dead (`MND-31`, `CUL-19`), 5 hunches (`MND-11`), 5 plans (`MND-22`) and 150 people (`MND-24`).
   - **Check:** no mind passes these caps.
 
 - `MND-15` **Population limit** *(To test)*: How many people a world holds at a watchable speed is measured on the phone (`PLT-04`), aiming at about 2,000 at the speeds of `TIM-07`.
-  - **Nothing caps births:** food, illness and danger set numbers, growth tuned in `BIO-04`; past about 2,000, time slows, no mind is simplified (`PRN-11`), and the game says so.
+  - **Nothing caps births:** food, illness and danger set numbers, growth tuned in `BIO-04`; load slows time with a notice, never silently removes people or changes their rules (`PRN-11`).
   - **Memory limit:** a world nearing it pauses with a notice, to read its history or start a new world, never crashing or simplifying.
-  - **Budget:** a whole person, body, mind and talk, with their share of the animals near people (each about a twentieth of a person or less), uses about a thousandth of a second per game day (`PLT-01`), or less, so 1,000 people take about one core-second per game day, spread over the middle cores.
+  - **Budget:** derive per-person and shared-system budgets from the 3 real seconds per game year target (`TIM-07`), reporting CPU time, parallel efficiency and game-year cost at each population.
+    Four cores allow at most 12 core-seconds per year before overhead; the former 1 ms/person/day allowance cannot meet the full-population target.
   - **Check:** the phone benchmark reports each mind part's share of the time in a camp of 30 and a village of 300, and a villager costs at most about twice a camper.
 
 ### 9.10 Animals
@@ -2394,10 +2408,10 @@ Kindling is built for one phone (`SCP-02`), kept smooth, cool and responsive (`V
     Measure your phone first; schedule a second device only when named and available, and never count missing hardware as a pass.
   - **What:** Reported at every stage (`RES-06`) against these targets:
     - **Speed:** the targets of `TIM-07`.
-    - **Scale budgets:** the 1,000-person gates remain at least 2.5, 2, 1.7, 1.5, 1.5 and 1 game years a real minute as full bodies, minds, crafts, society, presentation and the arc arrive (`MIL-15`, `MIL-16`, `MIL-17`).
-      A partial camp does not close these gates; the expansion plan schedules each with its complete consumers.
-      A stage that misses names its biggest cost and wins it back by the next stage close, or brings it to you.
-    - **Shares:** the world's own layers at most about 0.2 s per game day, so the world alone reaches 10 game years a minute on two cores; animals near people within each person's budget (`MND-15`); making areas at most a tenth of the simulation's time.
+    - **Scale budgets:** use `TIM-07`'s staged 20-years/minute gates with complete consumers; partial camps do not close later scale gates.
+      Freeze benchmark seeds, population, age, build, hardware and run budget before judging; report each world's speed, not aggregate throughput of separate processes.
+    - **Shares:** budget the whole simulation at 3 wall-seconds/game-year for the 20-years/minute target, including scheduled saves and record retention; report world, people, interaction, history and save costs separately (`MND-15`).
+      The interim M4 phone gate allows 6 seconds/year; area preparation retains its one-tenth share.
     - **Smooth:** target 60 frames a second, with a 30-frame mode that keeps the same world pixel size.
       With the world running, at least 97% of frames on time while pinching and panning, at every zoom, and none more than 50 ms late (`PRN-11`).
     - **Memory:** within about 8 GiB (`PLT-01`), with kept areas at most about 1 GiB in a full pace-test world at Year 250 (`WLD-12`).
@@ -2436,7 +2450,9 @@ Kindling is built for one phone (`SCP-02`), kept smooth, cool and responsive (`V
   - **Paused during development (owner, 9 October 2026):** builds do not convert older saves. Each build opens only saves in its own format and refuses older ones with a plain message, and you start a new camp. No time goes on migration code, old-save fixtures or conversion tests until you bring this feature back.
 
 - `PLT-10` **Storage** *(Decided)*: Each world keeps its present state, kept areas and history (`PRN-15`); unchanged areas are remade from the seed (`WLD-13`).
-  History thins with age by a fixed rule: the last 25 years keep every event, and older years keep what the book of ages and views use, such as births, deaths, firsts and events art shows (`PRE-15`).
+  The last 25 years keep every public history event; older years keep what the book of ages and views use, such as births, deaths, firsts and events art shows (`PRE-15`).
+  Routine diagnostics and unlinked superseded choices are not permanent public events: retain current/recent records and every record or reason required by a kept event, active work, dream or view, then compact the rest by a versioned rule.
+  Spent things may leave live item storage once all active references end; stable identities, provenance and facts required by past views remain in compact records, never reconstructed by rerunning history.
   Target: a full pace-test world at Year 250 fits in about 4 GB, history and kept areas together (measured in `PLT-04`).
   When the phone is nearly full, the game warns you and asks which worlds to delete; it never deletes anything by itself.
   - **Done when:** every full pace-test world, saved at Year 250, fits its target, and the warning comes before the phone is full.
@@ -2476,6 +2492,9 @@ How each alpha proves what it adds, within the AI's cloud sessions (`SCP-15`).
 
 - `RES-13` **About 20 runs where chance matters** *(Decided)*: Chance checks use 20 seeds and counted pass rules, such as at least 16/20.
   On failure, rerun 20 fresh seeds before blocking; apply rule to all 40 (at least 32/40).
+  Exact futility bounds may stop a batch once even every remaining success cannot meet its threshold; retain completed counts and distinguish first-batch failure from final 40-run failure.
+  Skip the fresh batch only when even all its successes cannot rescue the combined threshold; cancelled/incomplete seeds are never failures or successes.
+  A changed rule/build begins a new frozen evaluation, retaining the previous verdict separately.
   Down to 10 runs may scale the rule, rounding against passing, and count provisionally, named in stage report (`RES-06`); increase runs only when 20 cannot distinguish pass/fail.
   Full pace uses 10 worlds by design, not provisionally; on failure add 10 and judge all 20 (at least 10 within window, at most 5 early).
   Non-blueprint promised shares use at least 1,000 cases: chances ≥1/20 within a third either way, rarer within half to double; blueprint chance uses `RES-24`.
@@ -2489,12 +2508,11 @@ How each alpha proves what it adds, within the AI's cloud sessions (`SCP-15`).
   Switches exist only in tests (`PRN-12`).
   - **Done when:** every run using a switch says so in its report and its world (`PLT-05`), and the play build has no switches.
 
-- `RES-16` **Tuning the pace** *(Decided)*: Tune only chances/amounts identically across worlds (`PRN-17`, `MND-11`).
-  Tune late steps in scenes where possible; whole worlds confirm.
-  Use 20 fixed seeds shared with long runs; each closing pace test draws fresh never-tuned seeds.
-  Log every tuned value, including discovery factors, with its tuning cases.
-  If tuning fails, report redesign, new window or acceptance options.
-  - **Done when:** log covers every tuned value; no closing seeds occur in it.
+- `RES-16` **Tuning the pace** *(Decided)*: In-run adaptation uses only the current world's permitted observations and saved adaptation state under the same frozen law in every world (`PRN-17`, `MND-11`).
+  Freeze law, bounds, T values and acceptance before evaluating fresh seeds; evaluation across seeds is testing, never training or shared runtime feedback.
+  Check adaptation within one uninterrupted run and across saves, including shortage, recovery and unavailable opportunities; compare a same-seed diagnostic with adaptation disabled (`RES-10`).
+  Log rule changes and actual in-run adjustments with their causes; a failed gate calls for a causal diagnosis or explicit redesign, not hidden per-gate boosts.
+  - **Done when:** same-version replay reproduces every adjustment, no hidden/global pace target enters a choice, and fresh counted acceptance remains satisfied.
 
 ### 14.2 The tests
 
@@ -2617,7 +2635,10 @@ How the project is run.
 - `PRC-10` **The checks** *(Decided)*
   - **Owner OK:** 8 October 2026.
   - **Before any work joins the main version,** run the routine check: formats and language lints, host builds and quick tests (`RES-01`), the accepted simulation proof suites on one and four threads (`RES-05`), catalogue validation (`MAT-17`, `RCK`), Godot import, script and interface tests, tool tests, document structure and ID traceability checks (`PRC-12`). A delivery also checks its note and its already signed APK's checksum, signature, version and packaging, without requiring a second export.
-  - **Separate audit:** the additional compiler and emulated processor builds, sanitizer and randomized-order runs, exhaustive recovery tests, scene and repeat stress, native static analysis and full scenario benchmark run before a milestone closes and when a change to simulation arithmetic, threading, persistence or compiler settings needs them. They do not delay unrelated coding or every delivery. **Owner, 9 October 2026:** the full audit runs only at the end of a milestone, never during its deliveries; until then the routine and delivery checks are the gate. Blueprint trials (`RES-24`) and the scenes for changed physical rules (`RES-23`, `RES-17`) still run with those changes. Known failures are still resolved before work joins.
+  - **Separate audit (owner, 10 October 2026):** once at milestone end, add only cross-compiler digests, thread sanitizer, shuffled ties and kill/scene/repeat recovery to the latest routine result; reuse exact binary/data/checker fingerprints.
+    Do not repeat the routine, emulated full suites, long render benchmarks, instruction scans or a second export.
+    During each alpha run touched tests per task and one routine before delivery; changed blueprint/physical rules still receive `RES-24`, `RES-23` and due `RES-17` scenes.
+    Known regressions are resolved before joining.
   - **When a background run ends:** its results are read before anything else.
     A check that passed before and now fails is fixed, or the change behind it undone, before other work joins.
     A pace target not yet met goes to tuning (`RES-16`) and blocks only the stage close.
