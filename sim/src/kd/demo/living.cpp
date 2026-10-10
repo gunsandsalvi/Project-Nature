@@ -243,7 +243,7 @@ std::string Living::dream_limit(const world::World& w, ecs::Id person, time::Sec
     return {};
 }
 std::string Living::dream_problem(const world::World& w, ecs::Id person, std::int64_t subject, time::Seconds at) {
-    const auto problem = dream_limit(w, person, at);
+    auto problem = dream_limit(w, person, at);
     if (!problem.empty()) return problem;
     const auto h = w.beings().find(person);
     const auto& raw = w.beings().raw();

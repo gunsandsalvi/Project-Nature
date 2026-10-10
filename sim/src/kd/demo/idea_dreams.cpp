@@ -134,7 +134,7 @@ std::optional<world::IdeaFields> IdeaDreams::guess(const world::World& w, world:
     return choices[static_cast<std::size_t>(pick % choices.size())];
 }
 std::string IdeaDreams::problem(const world::World& w, ecs::Id person, std::uint64_t id, time::Seconds at) {
-    const auto limit = Living::dream_limit(w, person, at);
+    auto limit = Living::dream_limit(w, person, at);
     if (!limit.empty()) return limit;
     const auto h = w.beings().handle(person);
     if (!fit(w, h, id)) return "No handled action and experienced benefit fit that memory";

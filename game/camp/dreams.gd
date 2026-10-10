@@ -157,7 +157,12 @@ func choose_idea(memory: Dictionary) -> void:
 	_clear("confirm", "Recall " + str(memory.benefit) + " they felt")
 	_words(
 		(
-			"%s. Recall %s they experienced.\n\nThey may try the remembered action during the next three days. Their needs, materials and their own choices decide; the attempt can fail.\n\nAsked at %s. Cancel leaves no dream."
+			(
+				"%s. Recall %s they experienced.\n\n"
+				+ "They may try the remembered action during the next three days. "
+				+ "Their needs, materials and their own choices decide; the attempt can fail.\n\n"
+				+ "Asked at %s. Cancel leaves no dream."
+			)
 			% [str(memory.name), str(memory.benefit), camp.world.time_text()]
 		)
 	)
