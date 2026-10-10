@@ -315,6 +315,8 @@ public:
     // Derived physical index. Event mutations publish item_changed; outside events mutable access
     // invalidates it. Opening and run boundaries rebuild it. Never saved or hashed.
     [[nodiscard]] const std::vector<ItemSite>& item_sites() const;
+    // Owned live items of a kind, plus retained timers requiring identical settlement; no inert spent stock.
+    [[nodiscard]] std::span<const ItemSite::Entry> items_owned(ecs::Id owner, std::uint32_t kind) const;
     [[nodiscard]] const Things& things() const { return things_; }
 
     /// A new being of a family, with its id and its schedule; never inside an island.
@@ -442,6 +444,8 @@ private:
         ecs::Id owner;
     };
     mutable std::map<std::uint64_t, ItemAddress> item_site_of_;
+    mutable std::map<std::pair<std::uint64_t, std::uint32_t>, std::vector<ItemSite::Entry>> owned_items_;
+    mutable std::map<std::uint64_t, std::pair<std::uint64_t, std::uint32_t>> item_owner_of_;
     mutable std::vector<ecs::Id> item_site_dirty_;
     bool item_event_ = false;
     mutable std::mutex living_paths_mutex_;

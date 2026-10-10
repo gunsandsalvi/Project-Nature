@@ -296,7 +296,30 @@ World::World(std::uint64_t seed, const data::Catalogue& catalogue) : seed_(seed)
 
 const std::vector<World::ItemSite>& World::item_sites() const {
     std::vector<std::size_t> changed;
+    const auto own = [&](ecs::Id id, std::optional<Things::Handle> h) {
+        const auto* item = h ? things_.raw().try_get<Item>(*h) : nullptr;
+        const bool tracked = item && item->owner.value &&
+                             (item->mass > 0 || things_.raw().all_of<HeatTimer>(h.value_or(Things::Handle{})));
+        const auto key =
+            item ? std::pair{item->owner.value, item->kind} : std::pair{std::uint64_t{0}, std::uint32_t{0}};
+        const auto old = item_owner_of_.find(id.value);
+        if (old != item_owner_of_.end()) {
+            if (tracked && key == old->second) return;
+            auto group = owned_items_.find(old->second);
+            KD_CHECK(group != owned_items_.end(), "An indexed owner has its item group");
+            std::erase_if(group->second, [&](const auto& e) { return e.id == id; });
+            if (group->second.empty()) owned_items_.erase(group);
+            item_owner_of_.erase(old);
+        }
+        if (!tracked) return;
+        auto& group = owned_items_[key];
+        const auto at =
+            std::lower_bound(group.begin(), group.end(), id, [](const auto& e, auto wanted) { return e.id < wanted; });
+        group.insert(at, {id, h.value_or(Things::Handle{})});
+        item_owner_of_[id.value] = key;
+    };
     const auto add = [&](ecs::Id id, Things::Handle h) {
+        own(id, h);
         const auto* item = things_.raw().try_get<Item>(h);
         const auto* place = things_.raw().try_get<Place>(h);
         if (!item || !place || item->mass == 0) return;
@@ -311,6 +334,8 @@ const std::vector<World::ItemSite>& World::item_sites() const {
         item_sites_.clear();
         item_site_at_.clear();
         item_site_of_.clear();
+        owned_items_.clear();
+        item_owner_of_.clear();
         things_.each(add);
         item_sites_valid_ = true;
     } else {
@@ -318,6 +343,7 @@ const std::vector<World::ItemSite>& World::item_sites() const {
         for (const auto id : item_site_dirty_) {
             const auto old = item_site_of_.find(id.value);
             const auto h = things_.find(id);
+            own(id, h);
             if (old != item_site_of_.end()) {
                 const auto& address = old->second;
                 const auto& site = item_sites_[address.site];
@@ -365,6 +391,12 @@ Beings::Handle World::make_being(ecs::Family f) {
     const Beings::Handle h = beings_.make(id);
     beings_.raw().emplace<Schedule>(h);
     return h;
+}
+
+std::span<const World::ItemSite::Entry> World::items_owned(ecs::Id owner, std::uint32_t kind) const {
+    (void)item_sites();
+    const auto group = owned_items_.find({owner.value, kind});
+    return group == owned_items_.end() ? std::span<const ItemSite::Entry>{} : group->second;
 }
 
 Things::Handle World::make_thing() {

@@ -4,6 +4,7 @@
 #include "kd/demo/fire.hpp"
 #include "kd/demo/learning.hpp"
 #include "kd/demo/living.hpp"
+#include "kd/num/sort.hpp"
 namespace kd::demo {
 namespace {
 std::uint32_t required_entry(const kd::data::Catalogue& catalogue, std::string_view folder, std::string_view name) {
@@ -185,13 +186,17 @@ void FireRules::food_refresh(world::Context& c, ecs::Id camp) {
     deadlines(c, camp);
 }
 void FireRules::carried_food(world::Context& c, ecs::Id person) {
+    const auto& w = std::as_const(c.world());
     std::vector<ecs::Id> carried;
-    c.world().things().each([&](ecs::Id id, auto h) {
-        const auto& i = c.world().things().raw().get<Item>(h);
-        if (i.owner == person && food(c.world(), i)) carried.push_back(id);
-    });
+    for (const auto kind : {w.catalogue().find("item", "base:roots"), w.catalogue().find("item", "base:meat")}) {
+        if (!kind) continue;
+        for (const auto& entry : w.items_owned(person, *kind)) carried.push_back(entry.id);
+    }
+    // The two kind groups must retain the original whole-world ID order before callbacks mutate indexes.
+    num::sort_strict(carried.begin(), carried.end(), [](auto a, auto b) { return a < b; });
     for (const auto id : carried) food_changed(c, id);
 }
+
 void FireRules::food_intent(world::Context& c, ecs::Id id, ecs::Id maker, bool intended) {
     food_changed(c, id);
     auto* timer = c.world().things().raw().try_get<HeatTimer>(c.world().things().handle(id));

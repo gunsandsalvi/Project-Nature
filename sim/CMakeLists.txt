@@ -151,6 +151,7 @@ if(KD_SIM_TESTS)
         tests/scene_test.cpp
         tests/world_test.cpp
         tests/craft_test.cpp
+        tests/item_index_test.cpp
         tests/learning_test.cpp
         tests/fire_test.cpp
         tests/camp_test.cpp
