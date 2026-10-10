@@ -1423,14 +1423,17 @@ int main(int argc, char** argv) {
                 "{\"seed\":%llu,\"control\":%s,\"first\":%lld,\"route\":%u,\"ended\":%lld,\"holders\":%lld,\"adults\":%"
                 "lld,\"flakes\":%llu,\"work_started\":%llu,\"fitting_tries\":%llu,\"crop_left_mg\":%lld,\"root_water_"
                 "left_ml\":%lld,\"upstream_"
-                "left_ml\":%lld,\"stone_left_mg\":%lld,\"digest\":\"%s\",\"ms\":%lld}\n",
+                "left_ml\":%lld,\"stone_left_mg\":%lld,\"first_watch\":%lld,\"first_taught\":%lld,\"reopens\":%u,"
+                "\"reopen_failures\":%u,\"digest\":\"%s\",\"ms\":%lld}\n",
                 static_cast<unsigned long long>(run.seed), control ? "true" : "false",
                 static_cast<long long>(run.first), static_cast<unsigned>(run.route), static_cast<long long>(run.ended),
                 static_cast<long long>(run.holders), static_cast<long long>(run.adults),
                 static_cast<unsigned long long>(run.flakes), static_cast<unsigned long long>(run.work_started),
                 static_cast<unsigned long long>(run.fitting_tries), static_cast<long long>(run.crop_left),
                 static_cast<long long>(run.root_water_left), static_cast<long long>(run.upstream_left),
-                static_cast<long long>(run.stone_left), run.digest.c_str(), static_cast<long long>(ms));
+                static_cast<long long>(run.stone_left), static_cast<long long>(run.first_watch),
+                static_cast<long long>(run.first_taught), run.reopens, run.reopen_failures, run.digest.c_str(),
+                static_cast<long long>(ms));
             std::fflush(stdout);
         }
         return 0;

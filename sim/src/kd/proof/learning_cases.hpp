@@ -7,6 +7,8 @@ struct LearningRun {
     std::uint64_t seed = 0, work_started = 0, fitting_tries = 0, flakes = 0;
     std::int64_t first = -1, ended = 0, holders = 0, adults = 0;
     std::uint8_t route = 0;
+    std::int64_t first_watch = -1, first_taught = -1;
+    std::uint32_t reopens = 0, reopen_failures = 0;
     std::int64_t crop_left = 0, root_water_left = 0, upstream_left = 0, stone_left = 0;
     std::string digest;
 };

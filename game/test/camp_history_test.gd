@@ -45,6 +45,9 @@ func test_history_actor_and_input_links_restore_the_original_card_and_digest() -
 	assert_array(matches).is_not_empty()
 	var event: Dictionary = matches[0]
 	page._history.open()
+	var panel := page._history.get_theme_stylebox("panel") as StyleBoxFlat
+	assert_object(panel).is_not_null()
+	assert_float(panel.bg_color.a).is_equal(1.0)
 	_link(page, "history_person", int(event.actor)).pressed.emit()
 	assert_int(page.selected_id).is_equal(int(event.actor))
 	assert_int(page.selected_item_id).is_equal(0)

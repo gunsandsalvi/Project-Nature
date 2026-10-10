@@ -4,6 +4,7 @@
 #include "kd/demo/crafting.hpp"
 #include "kd/demo/learning.hpp"
 #include "kd/run/workers.hpp"
+#include "kd/save/snapshot.hpp"
 namespace kd::proof {
 void learning_reserves(demo::CrowdWorld& camp, bool non_flaking) {
     auto& w = camp.world();
@@ -47,6 +48,19 @@ LearningRun sharp_stone(const data::Catalogue& catalogue, std::uint64_t seed, bo
     LearningRun out;
     out.seed = seed;
     std::size_t cursor = 0;
+    // Only the current snapshot is kept: proving a phase never retains the display's historical trail.
+    const auto reopen = [&] {
+        ++out.reopens;
+        std::string why;
+        const auto decoded = save::read_snapshot(save::write_snapshot(w.save()), why);
+        const auto copy = decoded ? demo::CrowdWorld::open(catalogue, *decoded, why) : nullptr;
+        if (!copy || copy->world().digests().whole != w.digests().whole) {
+            ++out.reopen_failures;
+            std::fprintf(stderr, "learning seed %llu frontier %lld reopen: %s\n", static_cast<unsigned long long>(seed),
+                         static_cast<long long>(w.frontier()), copy ? "snapshot digest mismatch" : why.c_str());
+        }
+    };
+    reopen();
     auto end = (non_flaking ? 4 : 3) * time::kYear;
     if (progress) progress(w, end);
     while (w.frontier() < end) {
@@ -57,18 +71,30 @@ LearningRun sharp_stone(const data::Catalogue& catalogue, std::uint64_t seed, bo
             w.run_islands(next, pool, 1);
         if (progress && (w.frontier() == time::kDay || w.frontier() % (5 * time::kDay) == 0)) progress(w, end);
         const auto& history = w.beings().raw().get<world::CraftHistory>(h);
+        bool phase = false;
         for (; cursor < history.events.size(); ++cursor) {
             const auto& event = history.events[cursor];
             if (event.kind == 0 || event.kind == 1 || event.kind == 5) ++out.fitting_tries;
             if (recipes[event.recipe].edge_from < 0 || event.result.value == 0 || event.kind == 5) continue;
+            if (event.kind == 2 && event.route == 4 && out.first_watch < 0) {
+                out.first_watch = event.at;
+                phase = true;
+            }
+            if (event.kind == 2 && event.route == 5 && out.first_taught < 0) {
+                out.first_taught = event.at;
+                phase = true;
+            }
             if (event.kind == 0 || event.kind == 1) ++out.flakes;
             if (out.first < 0 && event.kind == 1 && event.noticed) {
                 out.first = event.at;
+                phase = true;
                 out.route = event.route;
                 if (!non_flaking) end = event.at + time::kYear;
             }
         }
+        if (phase) reopen();
     }
+    reopen();
     out.ended = w.frontier();
     w.beings().each([&](ecs::Id, world::Beings::Handle person) {
         const auto* body = w.beings().raw().try_get<world::Person>(person);

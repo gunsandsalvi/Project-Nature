@@ -16,6 +16,9 @@ var _safe := Rect2()
 
 
 func _ready() -> void:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("203b31")
+	add_theme_stylebox_override("panel", style)
 	var column := VBoxContainer.new()
 	add_child(column)
 	var title := Label.new()

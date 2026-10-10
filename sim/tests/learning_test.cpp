@@ -870,3 +870,31 @@ TEST_CASE("night observation stops exactly when actual task-light fuel runs out"
     CHECK(f.mind(f.watcher).skills.front().observation_remainder == 0);
     f.reopen();
 }
+
+TEST_CASE("all_m3_phases_reopen preserves full-kit pending work and continuation") {
+    kd::data::Catalogue cat;
+    REQUIRE(cat.load(kd::data::read_catalogue(KD_REPO "/data")).empty());
+    kd::demo::CrowdWorld camp(43, cat, 1, true, true);
+    kd::proof::learning_reserves(camp, false);
+    auto& world = camp.world();
+    world.run_to(3 * kd::time::kDay);
+    std::string why;
+    const auto decoded = kd::save::read_snapshot(kd::save::write_snapshot(world.save()), why);
+    REQUIRE(decoded);
+    if (!decoded) return;
+    const auto reopened = kd::demo::CrowdWorld::open(cat, *decoded, why);
+    REQUIRE_MESSAGE(reopened, why);
+    CHECK(reopened->world().digests().whole == world.digests().whole);
+    bool pending = false;
+    world.beings().each([&](kd::ecs::Id, auto h) {
+        const auto* work = world.beings().raw().try_get<kd::world::Work>(h);
+        pending = pending || (work && work->state != 0);
+    });
+    CHECK(pending);
+    world.run_to(3 * kd::time::kDay + kd::time::kHour);
+    kd::run::Workers pool(4);
+    reopened->world().beings().fuzz(15);
+    reopened->world().things().fuzz(16);
+    reopened->world().run_islands(world.frontier(), pool, 1);
+    CHECK(reopened->world().digests().whole == world.digests().whole);
+}
