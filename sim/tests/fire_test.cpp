@@ -1059,7 +1059,7 @@ TEST_CASE("identical renamed food prepares cooking and retains the same thermal 
 namespace {
 struct GenericFuelOperation : GenericFoodOperation {
     kd::ecs::Id fuel{};
-    bool chosen = false;
+    bool chosen = false, learned = true;
     explicit GenericFuelOperation(bool renamed) : GenericFoodOperation(false) {
         auto& w = fixture.camp.world();
         const auto kind = required_entry(w.catalogue(), "item", renamed ? "base:review_fuel" : "base:dry_stick");
@@ -1087,7 +1087,12 @@ struct GenericFuelOperation : GenericFoodOperation {
         life.decision_needs = {100, 100, 100};
         life.scores = {-1000000, -1000000, -1000000, -1000000};
         life.goal = 3;
-        kd::demo::Discovery::learn(c, h, fuel, (1U << 6U) | (1U << 7U) | (1U << 9U), 3);
+        if (learned)
+            kd::demo::Discovery::learn(c, h, fuel, (1U << 6U) | (1U << 7U) | (1U << 9U), 3);
+        else {
+            w.beings().raw().get<kd::world::Knowledge>(h).familiar.clear();
+            kd::demo::Discovery::learn(c, h, fuel, kd::demo::Discovery::kSight, 1);
+        }
         if (cmd.what == 933) {
             fixture.fire().heat = 2;
             fixture.fire().fuel_mg = 1000000;
@@ -1137,4 +1142,27 @@ TEST_CASE("renamed known banking affordance is selected without the original blu
     w.run_to(20 * kd::time::kHour + 1);
     CHECK(op.chosen);
     CHECK(w.beings().raw().get<kd::world::Thermal>(w.beings().handle(op.person)).tending == 3);
+}
+
+TEST_CASE("unlearned hidden burn and fuel properties cannot change the person's tending choice") {
+    for (const std::uint8_t property : {6, 7}) {
+        std::array<bool, 2> chosen{};
+        for (int variant = 0; variant < 2; ++variant) {
+            GenericFuelOperation op(false);
+            op.learned = false;
+            auto& w = op.fixture.camp.world();
+            auto& fuel = w.things().raw().get<kd::world::Item>(w.things().handle(op.fuel));
+            fuel.changed_mask = 1U << property;
+            fuel.changed[property] = variant == 0 ? 0 : 3;
+            (void)w.command(0, 932, 0, 0);
+            w.run_to(1);
+            const auto& know = w.beings().raw().get<kd::world::Knowledge>(w.beings().handle(op.person));
+            const auto* evidence = kd::demo::Discovery::familiar(know, fuel);
+            REQUIRE(evidence);
+            CHECK((evidence->mask & (1U << property)) == 0);
+            chosen[variant] = op.chosen;
+        }
+        CHECK(chosen[0] == chosen[1]);
+        CHECK_FALSE(chosen[0]);
+    }
 }

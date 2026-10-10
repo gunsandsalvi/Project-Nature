@@ -122,6 +122,26 @@ bool Learning::exchange(world::Context& c, world::Beings::Handle speaker, world:
     c.moved(other);
     return true;
 }
+bool Learning::reply_to_lesson(Living& living, world::Context& c, world::Beings::Handle listener, ecs::Id proposer,
+                               bool resume) {
+    auto& w = c.world();
+    const auto& raw = w.beings().raw();
+    const auto self = w.beings().id_of(listener);
+    const auto& activity = raw.get<world::Activity>(listener);
+    const bool own_plan_free =
+        resume ? (activity.end <= c.now() || activity.what == static_cast<std::uint8_t>(LivingAct::watch) ||
+                  activity.what == static_cast<std::uint8_t>(LivingAct::watch_craft))
+               : free_plan(w, listener, c.now());
+    const auto& own_mind = raw.get<world::Knowledge>(listener);
+    const auto& own_work = raw.get<world::Work>(listener);
+    const bool own_work_free =
+        own_work.state == 0 || (resume && own_work.state == 4 && own_work.lesson == own_mind.session);
+    const bool accepted = comfortable(living, w, listener, c.now()) && own_plan_free && own_work_free &&
+                          (resume || own_mind.session == 0);
+    // This is the listener's reply, not the speaker reading needs, meals or private reservations.
+    c.record(accepted ? 213 : 214, self.value, proposer.value);
+    return accepted;
+}
 bool Learning::choose(Living& living, world::Context& c, world::Beings::Handle h) {
     auto& w = c.world();
     auto& raw = w.beings().raw();
@@ -163,12 +183,9 @@ bool Learning::choose(Living& living, world::Context& c, world::Beings::Handle h
     if (auto* s = session(w, h)) {
         if (s->state != 2) return true;
         const auto teacher = w.beings().handle(s->teacher), learner = w.beings().handle(s->learner);
-        if (!comfortable(living, w, teacher, c.now()) || !comfortable(living, w, learner, c.now()) ||
-            !free_plan(w, teacher, c.now()))
-            return false;
-        const auto& a = raw.get<world::Activity>(learner);
-        if (a.end > c.now() && a.what != static_cast<std::uint8_t>(LivingAct::watch) &&
-            a.what != static_cast<std::uint8_t>(LivingAct::watch_craft))
+        // The shared coordinator obtains each participant's own reply; neither mind reads the other.
+        if (!reply_to_lesson(living, c, teacher, s->learner, true) ||
+            !reply_to_lesson(living, c, learner, s->teacher, true))
             return false;
         if (s->work == 0) {
             if (Crafting::prepare_lesson(c, teacher, learner, s->recipe, s->id))
@@ -182,9 +199,7 @@ bool Learning::choose(Living& living, world::Context& c, world::Beings::Handle h
     const auto person = w.beings().id_of(h);
     std::vector<ecs::Id> nearby;
     w.beings().each([&](ecs::Id id, world::Beings::Handle other) {
-        if (id == person || !raw.all_of<world::Knowledge, Home>(other) || raw.get<Home>(other).camp != home ||
-            raw.get<world::Knowledge>(other).session != 0)
-            return;
+        if (id == person || !raw.all_of<world::Knowledge, Home>(other) || raw.get<Home>(other).camp != home) return;
         const auto at = raw.get<world::Activity>(other).at(w.torus(), c.now());
         if (can_watch(w, home, raw.get<world::Place>(h).at, at, c.now())) nearby.push_back(id);
     });
@@ -202,7 +217,8 @@ bool Learning::choose(Living& living, world::Context& c, world::Beings::Handle h
                 continue;
             }
             if (peer->knows) continue;
-            if (!comfortable(living, w, learner, c.now()) || !free_plan(w, learner, c.now())) continue;
+            c.record(211, person.value, other.value);  // Visible offer precedes the learner's private acceptance.
+            if (!reply_to_lesson(living, c, learner, person)) continue;
             auto& list = lessons(w, h);
             if (list.sessions.size() >= 64 || !Crafting::prepare_lesson(c, h, learner, known.recipe, list.next))
                 continue;
@@ -217,7 +233,6 @@ bool Learning::choose(Living& living, world::Context& c, world::Beings::Handle h
             mind->session = s.id;
             raw.get<world::Knowledge>(learner).session = s.id;
             list.sessions.push_back(s);
-            c.record(211, person.value, other.value);
             return begin_meeting(list.sessions.back());
         }
     }
@@ -290,11 +305,17 @@ bool Learning::handle(Living& living, world::Context& c, world::Beings::Handle h
     const auto home = raw.get<Home>(teacher).camp;
     const auto& ta = raw.get<world::Activity>(teacher);
     const auto& la = raw.get<world::Activity>(learner);
-    const auto teacher_body = living.sample(raw.get<world::Life>(teacher), ta, c.now());
-    const auto learner_body = living.sample(raw.get<world::Life>(learner), la, c.now());
-    const auto tn = Living::needs(teacher_body), ln = Living::needs(learner_body);
-    bool stop =
-        interrupted || *std::min_element(tn.begin(), tn.end()) < 20 || *std::min_element(ln.begin(), ln.end()) < 20;
+    // Each participant can leave for their own urgent needs; the shared coordinator sees only that request.
+    const auto requests_stop = [&](world::Beings::Handle self, ecs::Id other) {
+        const auto body = living.sample(raw.get<world::Life>(self), raw.get<world::Activity>(self), c.now());
+        const auto own_needs = Living::needs(body);
+        const bool leave = *std::min_element(own_needs.begin(), own_needs.end()) < 20;
+        if (leave) c.record(216, w.beings().id_of(self).value, other.value);
+        return leave;
+    };
+    const bool teacher_leaves = requests_stop(teacher, s->learner);
+    const bool learner_leaves = requests_stop(learner, s->teacher);
+    bool stop = interrupted || teacher_leaves || learner_leaves;
     if (s->state == 1) {
         // Account each attended second, even if an external call changes attendance between ends.
         for (auto t = s->settled; t < c.now(); ++t) {

@@ -198,6 +198,12 @@ std::optional<Candidate> known(world::Context& c, world::Beings::Handle h, std::
             if (b.heat > 0 && item.state != 0) continue;
             const auto* f = input.familiar;
             if (!f) continue;
+            // A known cooking use requires personal food evidence; missing food is not an edible guess.
+            if (b.action == 12 &&
+                std::any_of(requirement.ranges.begin(), requirement.ranges.end(),
+                            [](const auto& r) { return r.characteristic == 8 && r.minimum > 0; }) &&
+                (!(f->mask & (1U << 8U)) || !f->certainty[8] || f->values[8] == 0))
+                continue;
             const auto& kind = w.catalogue().kind<data::ItemKind>()[item.kind];
             const auto& material = w.catalogue().kind<data::ItemKind>()[item.material];
             data::FitInput dimensions{

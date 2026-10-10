@@ -466,6 +466,7 @@ TEST_CASE("an accidental fit is not an intentional demonstration to observers") 
 namespace {
 struct TeachingFixture : WatchFixture {
     kd::ecs::Id visible_tool{};
+    bool accepted = false;
     explicit TeachingFixture(std::uint64_t seed = 17) : WatchFixture(true, 400, 7 * kd::time::kHour, seed) {
         auto& w = camp->world();
         auto& raw = w.beings().raw();
@@ -496,6 +497,10 @@ struct TeachingFixture : WatchFixture {
             if (visible_tool.value)
                 kd::demo::Discovery::learn(c, teacher, visible_tool, kd::demo::Discovery::kSight, 1);
             CHECK(kd::demo::Learning::exchange(c, teacher, learner, recipe));
+            return;
+        }
+        if (cmd.what == 912) {
+            accepted = kd::demo::Learning::choose(*const_cast<kd::demo::Living*>(camp->living()), c, teacher);
             return;
         }
         if (cmd.what == 911) {
@@ -897,4 +902,30 @@ TEST_CASE("all_m3_phases_reopen preserves full-kit pending work and continuation
     reopened->world().things().fuzz(16);
     reopened->world().run_islands(world.frontier(), pool, 1);
     CHECK(reopened->world().digests().whole == world.digests().whole);
+}
+
+TEST_CASE("teachers make the same visible offer while learners decide from their own private needs") {
+    for (const bool hungry : {false, true}) {
+        TeachingFixture f;
+        auto& w = f.camp->world();
+        const auto now = w.frontier();
+        f.at(now, 910);
+        auto& raw = w.beings().raw();
+        auto& body = raw.get<kd::world::Life>(w.beings().handle(f.watcher));
+        body.food = hungry ? 500000 : 4000000;
+        std::vector<kd::world::Record> replies;
+        w.keep_history(&replies);
+        f.at(w.frontier(), 912);
+        w.keep_history(nullptr);
+        const auto offered = std::count_if(replies.begin(), replies.end(), [&](const auto& r) {
+            return r.what == 211 && r.a == f.maker.value && r.b == f.watcher.value;
+        });
+        const auto answer = std::count_if(replies.begin(), replies.end(), [&](const auto& r) {
+            return r.what == (hungry ? 214 : 213) && r.a == f.watcher.value && r.b == f.maker.value;
+        });
+        CHECK(offered == 1);
+        CHECK(answer == 1);
+        CHECK(f.accepted == !hungry);
+        CHECK(f.sessions().sessions.empty() == hungry);
+    }
 }

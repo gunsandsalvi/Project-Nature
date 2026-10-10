@@ -33,6 +33,27 @@ num::Point at(const world::World& w, ecs::Id id, time::Seconds now) {
     }
     return w.things().raw().get<world::Place>(w.things().handle(id)).at;
 }
+// Dimensions and classes are visible; characteristic estimates come only from personal evidence.
+data::FitInput perceived_input(const data::Catalogue& catalogue, const Item& item, const world::Familiar& memory) {
+    const auto& kind = catalogue.kind<data::ItemKind>()[item.kind];
+    const auto& material = catalogue.kind<data::ItemKind>()[item.material];
+    data::FitInput out{kind.inherit ? std::string_view(material.material_class) : std::string_view(kind.material_class),
+                       kind.form,
+                       {},
+                       item.length,
+                       item.mass};
+    for (std::size_t p = 0; p < out.values.size(); ++p)
+        if ((memory.mask & (1U << p)) && memory.certainty[p]) out.values[p] = memory.values[p];
+    return out;
+}
+std::uint8_t confidence(const world::Familiar& memory, std::initializer_list<std::size_t> properties) {
+    std::uint8_t out = 100;
+    for (const auto p : properties) {
+        if (!(memory.mask & (1U << p))) return 0;
+        out = std::min(out, memory.certainty[p]);
+    }
+    return out;
+}
 // Known maintenance is selected by the action/heat affordance, never a catalogue name.
 std::optional<std::uint32_t> maintenance_recipe(const world::World& w, world::Beings::Handle person,
                                                 std::uint8_t operation, const data::FitInput* input = nullptr) {
@@ -461,9 +482,10 @@ bool FireRules::choose(Living& living, world::Context& c, world::Beings::Handle 
             if (input.value || source.home != camp || (source.owner.value && source.owner != person) ||
                 w.things().raw().all_of<Fire>(th) || Crafting::available(w, id, person) < 100000)
                 return;
-            const auto fit = Crafting::physical(w.catalogue(), source);
             const auto* remembered = Discovery::familiar(know, source);
-            if (!remembered || fit.values[9] > (f.heat == 1 ? 1 : 2) || fit.values[6] < (f.heat == 1 ? 4 : 2) ||
+            if (!remembered || !confidence(*remembered, {6, 9})) return;
+            const auto fit = perceived_input(w.catalogue(), source, *remembered);
+            if (fit.values[9] > (f.heat == 1 ? 1 : 2) || fit.values[6] < (f.heat == 1 ? 4 : 2) ||
                 w.torus().squared_distance(here, at(w, id, c.now())) > 25000000 ||
                 !Living::visible(w, camp, here, at(w, id, c.now())))
                 return;
@@ -472,7 +494,8 @@ bool FireRules::choose(Living& living, world::Context& c, world::Beings::Handle 
         });
         if (input.value) {
             operation = f.heat == 1 ? 2 : 1;
-            score = 150;
+            const auto* evidence = Discovery::familiar(know, item(w, input));
+            score = 150 * confidence(*evidence, {6, 9}) / 100;
         }
     }
     if (!operation && f.heat == 1 && maintenance_recipe(w, h, 4)) {
@@ -481,18 +504,22 @@ bool FireRules::choose(Living& living, world::Context& c, world::Beings::Handle 
         if (draws.below(0, 24) == 0)
             w.things().each([&](ecs::Id id, auto th) {
                 const auto& source = w.things().raw().get<Item>(th);
-                const auto fit = Crafting::physical(w.catalogue(), source);
+                const auto* remembered = Discovery::familiar(know, source);
+                if (!remembered || !confidence(*remembered, {6, 7, 9})) return;
+                const auto fit = perceived_input(w.catalogue(), source, *remembered);
                 if (!input.value && source.home == camp && !w.things().raw().all_of<Fire>(th) &&
-                    (!source.owner.value || source.owner == person) && Discovery::familiar(know, source) &&
-                    maintenance_recipe(w, h, 4, &fit) && fit.values[6] >= 4 && fit.values[7] >= 1 &&
-                    fit.values[7] <= 2 && fit.values[9] <= 1 && Crafting::available(w, id, person) >= 100000 &&
+                    (!source.owner.value || source.owner == person) && maintenance_recipe(w, h, 4, &fit) &&
+                    fit.values[6] >= 4 && fit.values[7] >= 1 && fit.values[7] <= 2 && fit.values[9] <= 1 &&
+                    Crafting::available(w, id, person) >= 100000 &&
+                    w.torus().squared_distance(here, at(w, id, c.now())) <= 25000000 &&
                     Living::visible(w, camp, here, at(w, id, c.now())))
                     input = id;
             });
         if (input.value) {
             operation = 4;
             mass = 100000;
-            score = 80;
+            const auto* evidence = Discovery::familiar(know, item(w, input));
+            score = 80 * confidence(*evidence, {6, 7, 9}) / 100;
         }
     }
     if (!operation || score <= l.scores[l.goal]) return false;

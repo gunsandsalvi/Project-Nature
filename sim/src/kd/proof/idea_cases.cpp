@@ -125,6 +125,45 @@ IdeaPair idea_pair(const data::Catalogue& catalogue, std::uint64_t seed) {
         item.mass = 0;
         item.state = 4;
     });
+    // Removing a required input also releases its reservations in this declared control.
+    // A newly accepted lesson can already hold that wood at second 101; it cannot keep a phantom input.
+    auto& mw_control = missing.camp->world();
+    auto& people = mw_control.beings().raw();
+    auto& sessions = people.get<world::Lessons>(mw_control.beings().handle(missing.home)).sessions;
+    std::vector<ecs::Id> released;
+    mw_control.beings().each([&](ecs::Id id, auto h) {
+        const auto* work = people.try_get<world::Work>(h);
+        if (work && std::any_of(work->inputs.begin(), work->inputs.end(), [&](const auto& input) {
+                return mw_control.things().raw().get<world::Item>(mw_control.things().handle(input.item)).kind == board;
+            }))
+            released.push_back(id);
+    });
+    for (const auto& session : sessions)
+        if (std::find(released.begin(), released.end(), session.learner) != released.end())
+            released.push_back(session.teacher);
+    std::erase_if(sessions, [&](const auto& session) {
+        return std::find(released.begin(), released.end(), session.learner) != released.end();
+    });
+    for (const auto id : released) {
+        const auto h = mw_control.beings().handle(id);
+        people.get<world::Work>(h) = {};
+        auto& mind = people.get<world::Knowledge>(h);
+        mind.session = 0;
+        mind.watching = {};
+        const auto at = people.get<world::Place>(h).at;
+        auto& life = people.get<world::Life>(h);
+        life = missing.camp->living()->sample(life, people.get<world::Activity>(h), 101);
+        life.settled = 101;
+        life.portion = life.applied = 0;
+        people.get<world::Activity>(h) = {0, 101, 161, at, at};
+        mw_control.cancel(id, 2);
+        mw_control.schedule(id, world::kActivitySlot, 161);
+        mw_control.beings().each([&](ecs::Id, auto observer) {
+            if (auto* knowledge = people.try_get<world::Knowledge>(observer))
+                std::erase_if(knowledge->observations,
+                              [&](const auto& observation) { return observation.person == id; });
+        });
+    }
     for (auto* scene : {&sent, &missing}) {
         auto& w = scene->camp->world();
         KD_CHECK(demo::IdeaDreams::problem(w, scene->person, scene->memory).empty(),

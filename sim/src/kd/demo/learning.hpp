@@ -7,6 +7,9 @@ class Living;
 class Learning {
 public:
     static void settle_mind(world::Context& c, world::Beings::Handle h);
+    // A proposal crosses into the learner's own decision; callers receive only a recorded yes/no reply.
+    static bool reply_to_lesson(Living& living, world::Context& c, world::Beings::Handle listener, ecs::Id proposer,
+                                bool resume = false);
     static bool choose(Living& living, world::Context& c, world::Beings::Handle h);
     static bool handle(Living& living, world::Context& c, world::Beings::Handle h, bool interrupted, bool try_event);
     static bool exchange(world::Context& c, world::Beings::Handle speaker, world::Beings::Handle listener,
