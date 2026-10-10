@@ -76,6 +76,7 @@ add_library(kd_sim STATIC
     src/kd/demo/fire_food.cpp
     src/kd/demo/fire.cpp
     src/kd/demo/fire_thermal.cpp
+    src/kd/demo/idea_dreams.cpp
     src/kd/demo/living.cpp
     src/kd/demo/kept.cpp
     src/kd/num/angle.cpp

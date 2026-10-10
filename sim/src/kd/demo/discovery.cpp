@@ -5,6 +5,7 @@
 #include "kd/demo/crafting.hpp"
 #include "kd/demo/discovery_scene.hpp"
 #include "kd/demo/fire.hpp"
+#include "kd/demo/idea_dreams.hpp"
 #include "kd/demo/living.hpp"
 #include "kd/num/sort.hpp"
 namespace kd::demo {
@@ -132,6 +133,7 @@ void Discovery::see(world::Context& c, world::Beings::Handle h) {
 std::vector<world::Familiar> Discovery::handling(world::Context& c, world::Beings::Handle h, std::uint8_t action,
                                                  std::span<const ecs::Id> inputs) {
     auto& know = c.world().beings().raw().get<world::Knowledge>(h);
+    IdeaDreams::attempted(c, h, action, inputs);
     know.performed |= 1U << action;
     std::vector<world::Familiar> out;
     for (const auto id : inputs) {

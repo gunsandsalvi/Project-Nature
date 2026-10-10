@@ -172,6 +172,7 @@ Inputs reachable(world::Context& c, world::Beings::Handle h, const Supplies& sup
     return out;
 }
 struct Candidate {
+    bool dream_hunch = false;
     world::CraftReason reason;
     std::vector<world::Reservation> inputs;
     std::int64_t duration = 0, unit = 0, goal = 0;
@@ -579,6 +580,42 @@ bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h
         auto candidate = known(c, h, skill.recipe, seen);
         if (candidate) options.push_back(std::move(*candidate));
     }
+    auto& thought = raw.get<world::Dream>(h);
+    if (!urgent && thought.kind == 1 && thought.at >= 0 && thought.until > c.now()) {
+        const auto hint = std::find_if(know->hunches.begin(), know->hunches.end(), [&](const auto& hunch) {
+            return hunch.origin == 2 && hunch.id == thought.hunch_id;
+        });
+        if (hint != know->hunches.end()) {
+            Candidate idea;
+            idea.dream_hunch = true;
+            idea.reason.kind = 1;
+            idea.reason.need = 3;
+            idea.reason.action = hint->action;
+            idea.duration = time_cost(c.world(), h, hint->action == 6 || hint->action == 11 ? 300 : 60);
+            idea.reason.seconds = idea.duration;
+            idea.reason.benefit = 0;
+            idea.reason.score = Living::kDreamPull - idea.duration / 60;
+            idea.unit = 20000;
+            idea.goal = 20000;
+            for (const auto& familiar : hint->inputs) {
+                for (const auto& input : seen.all) {
+                    const auto id = input.id;
+                    const auto& item = value(c.world(), id);
+                    if (item.kind != familiar.kind || item.material != familiar.material || !supply.free(id) ||
+                        std::any_of(idea.inputs.begin(), idea.inputs.end(),
+                                    [&](const auto& r) { return r.item == id; }))
+                        continue;
+                    idea.inputs.push_back({id, item.mass, static_cast<std::uint8_t>(idea.inputs.size()), 1, 0,
+                                           static_cast<std::uint8_t>(item.owner.value == 0)});
+                    idea.reason.inputs.push_back({id});
+                    const auto distance = c.world().torus().distance(raw.get<world::Place>(h).at, place(c.world(), id));
+                    idea.reason.score -= (distance * 10 / living.rules().loaded_speed) / 60;
+                    break;
+                }
+            }
+            if (!idea.inputs.empty() && idea.inputs.size() == hint->inputs.size()) options.push_back(std::move(idea));
+        }
+    }
     const auto hour = static_cast<std::uint64_t>(c.now() / 3600 + 1);
     if (!urgent && know->hourly_draw != hour && !seen.all.empty()) {
         know->hourly_draw = hour;
@@ -642,6 +679,11 @@ bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h
         know->reasons.push_back(options[i].reason);
     if (options.empty() || options[0].reason.score <= life.scores[life.goal]) return false;
     auto& chosen = options[0];
+    if (chosen.dream_hunch) {
+        thought.decision_pull = Living::kDreamPull;
+        for (auto& hint : know->hunches)
+            if (hint.origin == 2 && hint.id == thought.hunch_id) hint.last_use = c.now();
+    }
     auto& work = raw.get<Work>(h);
     work.state = 1;
     work.number = know->next_work++;

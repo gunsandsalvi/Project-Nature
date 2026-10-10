@@ -1489,7 +1489,7 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                         act.executed > frontier_ ||
                         act.executed > std::numeric_limits<std::int64_t>::max() - 3 * time::kDay ||
                         act.decision_at < -1 || act.decision_at > frontier_ || act.visited_at < -1 ||
-                        act.visited_at > frontier_ || act.choice < -1 || act.choice > 3 || act.pull < 0 ||
+                        act.visited_at > frontier_ || act.choice < -1 || act.choice > 4 || act.pull < 0 ||
                         (act.pull != 0 && act.pull != 60) || (act.decision_at == -1 && act.pull != 0) ||
                         ((act.decision_at == -1) != (act.choice == -1)) ||
                         (act.status == 1 && (act.executed != -1 || act.until != -1 || act.reason != 0 ||

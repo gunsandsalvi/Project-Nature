@@ -15,6 +15,8 @@ public:
     }
     void start(world::World& w);
     static constexpr std::uint32_t kPlaceDream = 2;
+    static constexpr std::uint32_t kIdeaDream = 3;
+    [[nodiscard]] static std::string dream_limit(const world::World& w, ecs::Id person, time::Seconds at = -1);
     static constexpr std::int64_t kDreamPull = 60;
     static constexpr time::Seconds kDreamLife = 3 * time::kDay;
     [[nodiscard]] static std::int64_t night(time::Seconds t) {
