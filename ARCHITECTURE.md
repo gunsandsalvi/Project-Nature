@@ -6,159 +6,93 @@ Existing A section numbers remain stable because code cites them. Deferred secti
 
 ## Status (10 October 2026)
 
-M1 is accepted. The owner approved the revised route on 8 October: M2 living camp; M3 discovery slice; M4 seasons and lives; M5 neighbours; M6 small finished valley; M7 wider world; M8 remaining life, crafts and society; M9 presentation, powers and sound; M10 optional copper/full arc.
-Earlier prototypes are evidence only; their deleted code is not a production source.
-M2 is delivered; its play answers remain open. M3 has 25 individual adults, needs, personal crafts/learning, finite fire/food and memory-backed ideas. Alpha deliveries and failed acceptance are recorded in IMPLEMENTATION.md and dist/. The bounded camp does not certify full populations, geography or later life systems; simulation markers remain diagnostics.
+M1 accepted; M2 delivered, play answers open. Approved route: M3 discovery, M4 seasons/lives, M5 neighbours, M6 small valley, optional M7 world/M8 richer lives/M9 presentation/powers/M10 copper. M3 built, awaiting independent review and owner evidence; failed acceptance is in IMPLEMENTATION.md and dist/M3-CHECKS.md. Twenty-five adults and bounded supplies do not certify full populations, geography or life systems. Deleted prototypes are evidence, not production sources; markers remain diagnostics.
 
 ## A1. Overview
 
 ### A1.1 What it must deliver
 
-An offline, saved, deterministic simulation of independent people, read through a fixed-camera 2D view.
-M2 starts with about 25 adults in a labelled, bounded seeded valley; full-world and population requirements remain open.
+Offline, saved, deterministic independent people through fixed-camera 2D. The labelled seeded valley starts with about 25 adults; full-world/population acceptance remains open.
 
 ### A1.2 The big picture
 
-`sim/` owns authoritative state and never reads Godot, camera, zoom or requested speed.
-`view/` sends commands and converts owned snapshots into drawing records.
-`game/` presents those records, gestures, UI and sound. `data/` supplies validated catalogues and tuning.
-Rendering, cache contents and view-only chance cannot alter history (`WLD-13`).
+`sim/` owns state, independent of Godot/camera/zoom/speed. `view/` commands and owned snapshots feed `game/` drawing/UI/sound; validated `data/` defines rules. Rendering, caches and view-only chance cannot change history (`WLD-13`).
 
 ### A1.3 Decisions
 
-Keep Godot 4.7.2, stock templates, the C++20 simulation/GDExtension, Compatibility renderer, fixed north-facing 37° camera and existing save approach through M3.
-Change a local implementation only for a measured blocker. A later Mobile comparison uses identical scenes; it is not another renderer restart.
+Keep Godot 4.7.2/stock templates, C++20/GDExtension, Compatibility, north-facing 37° camera and current saves through M3. Change implementation for measured blockers; later Mobile comparisons use identical scenes.
 
 ## A2. Code layout, builds and delivery
 
 ### A2.1 Repository layout
 
-`sim/` is engine-independent rules, tool and tests; `view/` is the native bridge; `game/` is the app and app tests.
-`data/` holds TOML sources, scenes and benchmarks; `art/` holds targets, sources, approvals and derived assets; `tools/` builds/checks; `dist/` holds the delivered APK/note.
-Generated `game/bin/` and `game/data/` are not committed.
+`sim/`: independent rules/tool/tests; `view/`: bridge; `game/`: app/tests; `data/`: TOML/scenes/benchmarks; `art/`: sources/targets/approvals/assets; `tools/`: build/check; `dist/`: delivery. Generated `game/bin/` and `game/data/` are uncommitted.
 
 ### A2.2 Builds
 
-CMake/Ninja/ccache build the host and Android arm64 extension. godot-cpp stays pinned at 4.5 until an actually needed API requires an upgrade; argument structures must be in its reduced binding profile or methods disappear.
-Errors are values, never exceptions. Preserve `-funsigned-char`, `-fno-fast-math`, `-fno-math-errno` and final `-ffp-contract=off` on our C++.
-Android uses API 24, statically linked C++ runtime, guarded newer APIs and 16 KiB alignment.
-
-Export unsigned, then compress, align and sign through the existing tools; only `tools/signing-key.py` reads the signing secret.
-Text catalogues/reports need explicit export inclusion; tests/addons stay excluded; no permissions are requested.
-Lossless native-library deflation requires `extractNativeLibs=true`. Runtime PNG levels may use exact palettes or omit opaque alpha only after verifying every decoded RGBA byte; profiled sources retain their encoding. The shared meadow sheet is packaged once; deleting required catalogue records is not a size fix.
+CMake/Ninja/ccache build host/arm64. godot-cpp stays 4.5 until a needed API; argument structures belong in its reduced profile. Errors are values, not exceptions. Keep `-funsigned-char`, `-fno-fast-math`, `-fno-math-errno`, final `-ffp-contract=off`. Android: API 24, static C++ runtime, guarded APIs, 16 KiB alignment.
+Export unsigned, compress/align/sign; only `tools/signing-key.py` reads secrets. Explicitly include text catalogues/reports; exclude tests/addons, request no permissions. Deflated libraries require `extractNativeLibs=true`. PNG palette/alpha changes require exact decoded RGBA equality; profiled sources keep encoding. Package meadow once; required catalogue deletion is no size fix.
 
 ### A2.3 Delivery of each alpha (`PRC-11`, `PLT-06`)
 
-Package `dev.kindling.app`, same release key, increasing version code:
-`(milestone + 1) × 10000 + alpha × 100 + step`, with a = 1.
-Never reuse a distributed code. The committed APK must fit the repository's 50 MiB file limit; a different distribution route or visible compression needs the owner's decision.
-The measured size, note and checksum in `dist/` identify the actual delivery.
-α2.13a opens the selected Camp alpha directly. A brief once-per-build smoke check compares one/four threads, numerical environment and catalogue fingerprints, and stores device/saved-moment diagnostics; the full report is at Menu → Device check.
-The note has What is new, What to try and What is rough plus the APK link; proved behaviour and remaining checks fit those sections. The installable build follows IMPLEMENTATION.md. First-start checks cover deterministic digests, numerical environment, catalogue fingerprints, saved moment and device diagnostics.
+`dev.kindling.app`, same release key; increasing code `(milestone + 1) × 10000 + alpha × 100 + step`, a=1; never reuse distributed codes. APK ≤50 MiB repository limit; alternative distribution/visible compression needs owner decision. Size/note/checksum identify delivery.
+Camp starts directly. Once-per-build smoke compares one/four workers, numeric environment/catalogue fingerprints and saved-moment/device diagnostics; Menu → Device check holds the report. Note: What is new/try/rough, APK link, proved/remaining checks. Check-key builds are labelled and never replace the release APK.
 
 ### A2.4 A fresh cloud session
 
-Run `tools/setup.sh` if dependencies are missing; source `tools/env.sh` in every independent build/check command.
-It supplies pinned tools, engine/templates and shared caches. Preserve cache reuse; avoid duplicate heavyweight builds and concurrent captures/exports.
+Install missing dependencies with `tools/setup.sh`; source `tools/env.sh` each command. Reuse pinned engine/templates/caches; avoid duplicate heavyweight builds and concurrent captures/exports.
 
 ## A3. The simulation core
 
 ### A3.1 Its boundary
 
-The library makes/opens worlds, advances to a game-time goal, accepts commands, publishes snapshots/events and saves/exports/imports.
-It receives file bytes and a save folder; it never calls Godot. The headless tool uses the same rules as play.
+Same library in play/headless: make/open, advance, commands, snapshots/events, save/export/import. It receives bytes/save folder, never calls Godot.
 
 ### A3.2 Entities and components
 
-EnTT registries sit behind the existing entity layer. Never-reused 64-bit IDs contain a family in the top four bits; registry handles are transient and never saved.
-References, history and commands use persistent IDs. Ended entities leave historical records.
-Component descriptors own stable names, versions, fields, units, ranges, links and effects; loader, save reader/writer, digest and inspection share them.
-Catalogue entries assemble components, without a class hierarchy for kinds.
-
-Camp alpha uses Person (name index, age at scene start, stand-in appearance), Place, Home, Activity and Schedule on person-family IDs. Camp retains rectangular traversable bounds, supply amounts in ml/mg and actual source/shelter positions. All 25 adults choose and move through the saved Life state; no renderer decides actions.
-The existing registry's positional foundation fields stay unchanged. Descriptor-written Camp/Person extensions share its EnTT storage and canonical ID iteration, in CAMP4 and its required LIFE2 chunk. Older formats are refused (A3.7). Worlds with person IDs require complete valid records; the reader refuses broken links, bounds, quantities and unsupported activities. Worlds without camp records keep their foundation registry bytes and digests; the outer save format is version 5.
-
-Decision order is event key or persistent ID, with explicit ties; EnTT pool order is not canonical.
-Pools are created in name order. Signals maintain indexes, never game rules. The order fuzzer must leave digests unchanged.
+EnTT is behind the entity layer. Never-reused 64-bit IDs encode family in four top bits; transient registry handles are unsaved. References/history/commands use IDs; ended entities leave historical records. Shared descriptors define stable names/versions/fields/units/ranges/links/effects for load/save/digest/inspection; catalogue composition replaces kind class hierarchies.
+Person/Place/Home/Activity/Schedule hold names, starting age, appearance, bounds, ml/mg supplies and actual sites. All 25 adults choose/move through Life. CAMP4/LIFE2 extend canonical registry storage; foundation fields remain unchanged. Person worlds require complete valid linked records/activities. Foundation worlds retain bytes/digests inside format 5.
+Decisions follow event keys/IDs and explicit ties, never pool order. Create pools in name order; signals maintain indexes, not rules; order fuzzing preserves digests.
 
 ### A3.3 Time and events
 
-The clock is 64-bit whole game seconds. Events order by `(second, owner ID, owner sequence)`.
-Handlers schedule only later keys; cross-owner effects take at least one second. Cancellation checks live owner sequence slots; saves contain live events only.
-The frontier excludes its own second: all earlier events are complete, none at or after it.
-Activities retain start/end, progress and authoritative position; interruptions apply their kind's partial-work rule exactly once.
-The generic Activity machinery does not yet implement interrupted meals or bodily effects.
-
-One-worker key order is the reference. Parallel islands may neither read nor write another island's owners; owned events/history merge by key.
-World layers run between windows; entity creation follows canonical allocation order.
-Existing proofs cover varied windows, stops, pool orders and one/four workers.
-Crowd uses one worker: islands cost more for its cheap events. Profile actual minds before enabling parallelism; long windows currently make island joining particularly expensive.
+64-bit whole-second clock; event key `(second, owner ID, owner sequence)`. Schedule only later keys; cross-owner effects wait ≥1 second. Cancellation checks live sequence slots; save live events only. Frontier is exclusive: earlier events complete, none at/after it.
+Activities retain start/end/progress/position; interruption applies partial-work rules once. Generic machinery alone does not implement meals/body effects. One-worker order is reference. Parallel islands cannot access other owners; merge events/history by key, layers between windows, births canonically. Window/stop/pool/worker proofs remain. Crowd stays serial: island joining costs exceed cheap-event work; profile minds before parallelising.
 
 ### A3.4 The same bits everywhere (`RES-05`, `TIM-16`)
 
-Working arithmetic is double with pinned correctly rounded functions behind `kd::num`; persisted state uses whole units, never floats/NaNs.
-Positions are centimetres on the exact 200,000,000 × 100,000,000 torus; differences wrap in 64-bit arithmetic. Half-circumference ties produce reversible paths.
-Heights are millimetres, angles 2^32 turn steps, amounts whole base units, probabilities exact thresholds. Checked conversions specify rounding and reject nonfinite/overflow values.
-Each simulation thread resets/asserts its numerical environment.
-
-Keep existing bans/checks for platform maths, unordered decision order, mutable random streams, raw-memory serialization/hashing, ambiguous ties and effectful expression order.
-Canonical digests walk systems, entities and fields in fixed order, little-endian.
-Accepted M1 proof digests remain unchanged across compilers, architectures, worker counts and reopenings; new physical systems get new proof suites.
+Working doubles use pinned correctly rounded `kd::num`; persist whole units, never floats/NaNs. Torus: exactly 200,000,000 × 100,000,000 cm, wrapping 64-bit differences and reversible half-circumference ties. Heights mm, angles 2^32 turn steps, amounts base units, exact probability thresholds. Conversions specify rounding and reject overflow/nonfinite values; every simulation thread resets/asserts numeric environment.
+Ban platform maths, unordered decisions, mutable RNG streams, raw-memory hashing/serialization, ambiguous ties and effectful expression order. Digests walk fixed system/entity/field order, little-endian. Accepted M1 digests stay equal across compilers/architectures/workers/reopens; new systems add proofs.
 
 ### A3.5 Chance
 
-Key every draw by world seed, system, entity, moment, purpose and index through the existing SplitMix64-based API.
-Stable name hashes distinguish systems/purposes. New draw purposes cannot shift another sequence. Pinned draws are world-format commitments.
+SplitMix64 draws key world seed/system/entity/moment/purpose/index; stable name hashes separate purposes. New purposes cannot shift other sequences. Pinned draws commit world format.
 
 ### A3.6 Catalogues and tuning (`MAT-13`, `MAT-14`, `MAT-17`)
 
-TOML entries are complete, without inheritance; source/name is stable identity, sorted load numbers are only array indexes.
-Quantities are exact unit strings, not floats. Base units include mg, mm, mm², ml, mm/s, milli-degrees, seconds and parts per million; `m` means metre.
-Durations retain real-life and game lengths under `TIM-18`; the existing validator interprets “about” as ±10%, not an implementation-specific guess.
-Schemas drive loading, links, fingerprinting and display. Unknown fields, bad ranges/units, duplicates and unresolved links fail with source location.
-
-Rules, world-making and look fingerprints are separate. Placement/size/species changes are world-making changes; cosmetic pages are look changes.
-Saves keep catalogue names and versions. New sources currently add entries only.
-Build manifests hash each exported file; the phone verifies them. Keep one authoritative catalogue, not competing editor metadata.
-
-The α3.13a cleanup removed the old developer menu, marker/time/rendering pages, catalogue and art/terrain inspectors, composed examples and their unused capture tools. Approved art remains in the repository; unused encoded textures and sheets are neither prepared nor packaged. Renderer drawing/stream regressions use excluded `game/test/support/` harnesses; their native bindings build only for host tests. The camp performance test and first-launch self-check remain. `PLT-05`/`RES-06` keep current cloud reports and a plain test-world view; deterministic proofs, cloud scenes, catalogue/provenance and current-save regressions remain required. This is a camp slice, not full renderer/performance acceptance.
+Complete TOML entries, no inheritance; stable source/name identity, sorted numbers only indexes. Exact unit strings, no floats: mg/mm/mm²/ml/mm/s/milli-degrees/seconds/ppm; m=metre. Retain real/game durations (`TIM-18`); “about” means ±10%. Schemas validate/fingerprint/display; unknown fields, ranges/units, duplicates and unresolved links fail at source.
+Separate rules/world-making/look fingerprints; placement/size/species change world-making. Saves retain names/versions; new sources currently only add entries. Export manifests hash every file; phone verifies. One authoritative catalogue.
+Camp-only packaging excludes unused art and developer pages. Approved sources remain; excluded host harnesses retain renderer regressions. Required cloud/provenance/current-save proofs, performance test and first-launch check remain; no full-renderer acceptance is inferred.
 
 ### A3.7 Saves (`TIM-05`, `TIM-08`, `PLT-07`, `PLT-08`, `PLT-09`, `PLT-10`)
 
-A world folder holds metadata, two recent snapshots, command journal and yearly history.
-Commands append and sync before acting. One I/O thread owns writes; authoritative state copies between events, then compresses off-thread.
-Snapshots use versioned chunks, canonical fields, zstd and whole-file checksums validated before unpacking. Logs stop at damaged framing/checksums.
-Writes use temporary file, sync, rename and directory sync. Any write failure stops further writes and the world; no snapshot may hide an unsaved gap.
-
-Save every 30 real seconds and on backgrounding, switching, export and quit. Backgrounding writes a pause mark then a snapshot within Android's 10-second allowance.
-Recovery uses the newest valid snapshot, sets damaged ones aside and deterministically replays journal/history to the recorded moment.
-**Older saves are not converted** (owner, 9 October 2026; `PLT-09` paused during development). A build opens only saves in its own format: it checks the format version before reading anything else and refuses older saves with a plain message, never a half-read world. Write no new upgrades, migration seals, old-save fixtures or corpus tests; delete an old-save test when a format change breaks it. The cleanup removed conversion APIs, migration seals, alternate migration snapshots and old-save fixtures. Current component/chunk versions are strict; VERS1 retains a reserved zero field, with no migration names or conversion path. History thinning never removes records marked permanent.
-The current snapshot and archive envelopes are version 5; a folder's recovery metadata begins with `format = 5`. The format gate runs before decompression, metadata parsing, log replay or recovery writes. CAMP4 appends a feature mask. Its craft bit requires CRFT1 (items/work), KNOW1 (personal evidence) and HIST1 (result history), plus LIFE2 and DRMS2. Extension readers reject unsupported versions, duplicate/missing chunks, orphan links, invalid bounds and overlapping reservations. Discovery camps now use these extensions for autonomous work and immutable display records; the legacy living-camp proofs retain their unchanged rules.
-
-Warn below the configured free-space line (currently 1 GB); delete nothing without the user.
-
-Archives contain all authoritative files, validate paths/checksums and remove refused partial imports.
-**Limit:** archive output yields in chunks, but `ArchiveWriter::next` first reads/hashes a whole constituent file synchronously. A tiny demo's export timing does not prove smooth large exports.
-Full-world snapshots will also need measured immutable-state copying/compression overlap; current code does not stream arbitrary huge terrain state for free.
+Folder: metadata, two recent snapshots, journal, yearly history. Append/sync commands before action. One I/O thread owns writes; copy state between events, compress off-thread. Canonical versioned zstd chunks have whole-file checksums before unpacking; logs stop at damaged framing/checksums. Temporary write/sync/rename/directory-sync; write failure stops writes/world, never masks an unsaved gap.
+Save every 30 real seconds and on background/switch/export/quit; background pause mark/snapshot within Android's 10 seconds. Recover newest valid snapshot, set damaged ones aside, deterministically replay to recorded moment. Permanent history survives thinning.
+**No older-save conversion** (owner, 9 October 2026; `PLT-09` paused): reject earlier format plainly before parsing/decompression/replay/recovery writes. No upgrades, migration seals, old fixtures/corpus; delete broken obsolete tests. Chunk/component versions are strict; VERS1 reserved field is zero.
+Current snapshot/archive/folder metadata format=5. CAMP4 u32 mask: craft=1, learning=2, fire=4, ideas=8. Craft requires CRFT1/KNOW1/HIST1 and LIFE2/DRMS2; learning/fire/ideas require their exact extensions (A10–A12). Refuse unsupported/duplicate/missing chunks, orphan links, invalid bounds/quantities/progress/events and overlapping reservations. Legacy proofs retain rules.
+Warn below configured free space (currently 1 GB); delete nothing without user. Archives validate paths/checksums and remove refused partial imports. `ArchiveWriter::next` still synchronously reads/hashes a constituent file before chunk output; tiny exports do not prove smooth large exports. Large immutable copy/compression overlap remains unmeasured.
 
 ### A3.8 Talking to Godot
 
-Commands are durable plain records. Snapshots use a single-consumer triple buffer; one controller copies the latest publication and all views/jobs use its owned data.
-Never retain a recycled slot. No simulation worker touches Godot objects. Camp identities and supplies are copied into the same owned display snapshot; cards and sprites read that copy. Camp labels/cards use native integer bitmap text; the dock keeps 48 dp controls in either orientation. World panes retain the full window’s 1×/2× raster scale; a 320 ms camera settle keeps existing powers and anchored picking. Camp handles each finger once, ignoring its emulated mouse events; a 550 ms hold opens the ring, and dragging, pinching, cancellation or a changed pane clears that hold. Viewport tests include safe-area offsets and paired finger/mouse events.
-Sample the saved activity way at displayed time, including interruptions and torus seams, rather than interpolating arbitrary recent positions.
-Lossless events/commands are separate from disposable picture updates. Recovery and blocking run_until publish their endpoint to the screen consumer before advancing, so unseen intervals retain no deep knowledge trail. Ordinary frame lookahead remains a quarter real-second. A two-day regression bounds endpoint knowledge copies at 25 and preserves the direct-run digest.
-
-Power preparation pauses/drains to a definite frontier and refreshes the selected person there. Memory/place choices are revalidated before a journaled send; the private ledger retains request, receipt, sleep and actual-attempt times. A failed durable append never appears as sent.
+Durable plain commands; single-consumer triple-buffer snapshots. One controller owns a copied publication for views/jobs; never retain recycled slots or touch Godot from simulation workers. Camp sprites/cards sample saved activity ways at displayed time, including interruptions/torus seams, not arbitrary recent positions.
+Native integer text, 48 dp dock, full-window 1×/2× raster and 320 ms camera settle retain anchored picking. Process each finger once, ignore emulated mouse; 550 ms hold opens ring, drag/pinch/cancel/pane change clears it. Test safe offsets and paired events.
+Lossless events/commands are separate from disposable pictures. Blocking seeks/recovery set screen endpoint before advancing; ordinary lookahead remains .25 real seconds. Two-day regression bounds endpoint knowledge copies at 25 with exact digest.
+Power preparation drains/pauses at frontier; revalidate selected memories/sites before durable send. Private ledger keeps request/receipt/sleep/attempt times; failed append cannot appear sent.
 
 ### A3.9 Threads, speed and budgets
 
-The runner rereads goals between batches. Screen time advances by steady-clock time but never beyond the frontier; overload slows time without dropping detail.
-The pace controller normally targets up to a quarter real-second ahead. Pausing settles at the frontier; power preparation uses A3.8’s explicit paused-frontier validation.
-Workers have explicit 8 MiB stacks. M1's phone benchmark favoured unpinned workers (4.3 versus 4.1 game days/second); keep them unpinned.
-
-The heat guard uses the light threshold minus 0.05 where available, with a 10-second forecast; missing readings never mean cool. Camp play and the isolated camp measurement feed the same governor at the catalogue reading interval; measurement reports reuse those readings.
-Telemetry records frame distribution, CPU/GPU timings, memory, clocks, thermal status and battery estimates. Whole-viewport GPU timings require disabled-pass comparisons; they are not per-pass timers.
-Power-rail callbacks remain unimplemented. Cloud software-renderer times are not phone performance.
+Reread goals between batches. Steady-clock screen time never exceeds frontier; overload slows time without detail loss. Pause settles at frontier; ordinary lookahead ≤.25 real seconds. Workers: explicit 8 MiB stacks, unpinned after measured M1 comparison.
+Heat guard: light threshold−0.05, ten-second forecast, missing readings never cool. Play/isolated measurement share governor/poll interval. Report frames, CPU/GPU, memory, clocks, heat/battery; viewport GPU costs need disabled-pass comparisons. Power-rail callbacks remain unimplemented; cloud software times are not phone evidence.
 
 ## A4. Drawing
 
@@ -167,123 +101,87 @@ The stopped 2D work includes projection, terrain/light fixtures, streaming and U
 
 ### A4.1 The picture (`PRE-01`, `PLT-02`)
 
-At reference portrait size draw a 540 × 1200 world viewport, nearest-scaled 2× to 1080 × 2400; reverse dimensions in landscape. UI remains native-resolution.
-Other sizes reveal/crop whole world pixels and honour safe insets, never fractionally stretch at rest.
-Only live pinch resamples; settle to a resting density with aligned anchors. Continuous camera movement ends in whole-pixel raster offsets, also undone by picking.
+Reference world: 540×1200 portrait, nearest 2× to 1080×2400; reversed landscape, native UI. Other sizes crop/reveal whole pixels with safe insets; only live pinch resamples. Resting anchors/raster offsets align and picking undoes them.
 
 ### A4.2 Pixels and animation (`PRE-22`, `PRE-44`)
 
-One projected grid serves terrain, objects and effects. Project shared edges before rounding; never accumulate rounded tile pitches or squash already-projected sprites again.
-Foot/attachment pivots survive frames and families. Walk animation follows sampled distance; work follows Activity phase; cosmetic idle uses separate stable look keys.
+One grid for terrain/objects/effects; project shared edges before rounding, never accumulate rounded pitches or squash projected art. Preserve attachment pivots. Walk follows distance, work Activity phase, idle separate look keys.
 
 ### A4.3 Light (`PRE-20`, `PRE-21`, `PRE-30`)
 
-Aligned neutral albedo, categorical material and mild normal pages feed:
-`albedo × (sky × sky_visibility + sun × normal_response × sun_visibility) + fire + emission`.
-Contact affects indirect light only; overlapping shadows do not multiply into black. Normal basis must be explicit across east/south/up art and simulation coordinates.
-Compatibility currently needs explicit sRGB decode/encode around lighting; `source_color` alone did not fix it.
-Hour/weather fixtures are labelled until real sky exists. Fast-time steady relief light is presentation only.
+Aligned albedo/material/normal pages: `albedo × (sky × sky_visibility + sun × normal_response × sun_visibility) + fire + emission`. Contact affects indirect light only; overlapping shadows never multiply black. Explicit east/south/up normal basis; Compatibility needs sRGB decode/encode. Hour/weather fixtures are labelled; fast-time relief light is presentation.
 
 ### A4.4 Shadows, overlap and reveal (`PRE-21`, `PRE-24`, `PRE-28`, `PRE-30`)
 
-Receiver-aware masks use actual surface heights and separate roofs/floors. Include off-screen casters and angle-dependent reach; 14 m is not a universal shadow halo.
-Current proxies use cylinder/cone/dome intersections, five sun rays and 24 sky rays; birch's six sparse sprays and 2 m spray depth remain provisional interpretation.
-Contact scale is 0.025–0.12 m. Reveal selected people by fading covering crowns/roofs and quiet obscured-band silhouettes, without changing obstruction or shelter rules.
+Height-aware receivers separate roofs/floors; include off-screen casters/angle reach, no universal 14 m halo. Proxies: cylinder/cone/dome, five sun/24 sky rays; birch six sprays/2 m depth provisional. Contact .025–.12 m. Faded covering crowns/roofs and obscured silhouettes reveal selection without changing obstruction/shelter.
 
 ### A4.5 Water, fire and weather (`PRE-26`, `PRE-30`)
 
-Water, bed, feet, clipping and picking use the same surface/footprint. Refraction reads the prepared bed, not foreground people. Reflection, depth and shore readability remain incomplete.
-Fire's visible base touches sampled ground; its emitter may be elevated. Walls block firelight.
-GPU rain/smoke never wet cells or decide outcomes.
+Water/bed/feet/clipping/picking share surface/footprint. Refraction reads bed, not foreground people; reflection/depth/shores incomplete. Fire base touches ground, emitter may rise; walls block light. GPU rain/smoke never changes rules.
 
 ### A4.6 The bridge, jobs and caches (`WLD-13`, `TIM-17`, `PLT-09`)
 
-Jobs own immutable inputs and carry full world/data/look/renderer/format/epoch/revision/dependency identity.
-Skipped publications require revision resynchronisation; workers never consult live state.
-Current Place/Activity coordinates are 2D; fixture up-fields are centimetres, future physical heights millimetres. Add explicit units and surface references.
-
-Keep coarse parents until replacements are fully prepared/uploaded; publish colour/material/normal channels atomically.
-Allocation tickets include old/new overlap and remain charged until worker acknowledgement and actual detachment/disposal.
-Bound queued work, staging and every cache; count reductions, gutters and all channels. Deleting render caches must leave saves/digests unchanged.
-The current adapter has one decoder, one channel upload/frame, retry/backoff and two-frame delayed disposal; quotas still need frame-headroom evidence.
+Immutable jobs carry world/data/look/renderer/format/epoch/revision/dependency identity; missed publications resynchronise. No live-state reads. Place/Activity is 2D; fixture up is cm, future physical heights mm: declare units/surfaces.
+Keep coarse parents until replacements ready/uploaded; publish colour/material/normal atomically. Tickets charge old/new overlap until acknowledgement and detachment/disposal. Bound all queues/staging/caches, counting reductions/gutters/channels; eviction leaves saves/digests unchanged. Adapter: one decoder/upload channel per frame, retry/backoff, two-frame disposal; frame-headroom proof open.
 
 ### A4.7 Godot and phones (`PLT-04`)
 
-Record actual renderer/driver; fallback is not a Mobile result. Measure the owner's phone first; a second device is evidence only once named and available.
-Use cheaper passes and the same-grid 30 fps mode before proposing visible changes. Missing timers/counters are reported as unavailable.
+Record renderer/driver; fallback is not Mobile evidence. Owner phone first; name/obtain second device before claiming evidence. Cheaper passes/same-grid 30 fps precede visible-change proposals. Report unavailable counters.
 
 ### A4.8 Tests (`PRE-31`, `RES-05`)
 
-Frozen cloud captures prove rendering regressions, not phone feel. Check changed scenes through normal navigation and direct entry, both orientations, slow motion and pinch release.
-Picking must undo every transform and return persistent IDs; GPU IDs map through a CPU table, never 64-bit IDs packed into floats.
-Compare outcomes at equal game seconds across views, workers, save/reopen and cache eviction.
+Cloud captures are regressions, not phone feel. Test normal/direct entry, both orientations, slow motion/pinch release. Picking undoes all transforms; CPU table maps GPU IDs, never 64-bit IDs through floats. Equal-second outcomes match across views/workers/reopen/eviction.
 
 ## A5. The look
 
 ### A5.1 The pictures
 
-`art/targets/` supplies owner-chosen light, colour, density and composition. Targets are neither shipped nor traced; flagged anachronisms are not approved content.
+Owner targets in `art/targets/` define light/colour/density/composition, neither shipped nor traced; flagged anachronisms are unapproved.
 
 ### A5.2 Guidance about the feeling
 
-Quiet pixel texture, muted varied greens, small strong-colour accents, truthful hour/season light, dark nights with small warm pools and people readable through real motion/light/reveal.
-Ordinary near figures have no heavy outlines. Archaeological truth and `SCP-20` constrain objects, clothing and motifs.
+Quiet pixels, muted varied greens, small strong accents, true hour/season light, dark nights/warm pools; readable motion/light/reveal. No heavy ordinary figure outlines. Archaeology/`SCP-20` constrain dress/objects/motifs.
 
 ### A5.3 Three art families (`PRE-22`)
 
-Author at 64/16/4 internal pixels/metre; review 32/8/2 and farther reductions. At 2× these are twice the physical densities.
-Colour/material/normal pages share alpha, trim, pivots and gutters. Never interpolate categorical material IDs; renormalise normals.
-Pack complete halving chains separately for each authored family: 64→16→4 is not a valid consecutive mip chain. Lossless file size does not measure GPU residency.
+Author 64/16/4 internal px/m; review 32/8/2 and farther reductions, doubled physically at 2×. Pages share alpha/trim/pivots/gutters; categorical IDs never interpolate, normals renormalise. Each authored family needs consecutive halvings (64→16→4 is not a mip chain). Encoded size is not GPU residency.
 
 ### A5.4 Art production (`PRE-20`, `PRE-42`, `PRE-46`)
 
-Build the next scene's needed pieces. Preserve signed sheets, exact source images/prompts, provenance and approval records.
-Sheet, runtime-page and engine approval are distinct; readable early stand-ins are allowed by the approved `PRE-31` change.
-Physical catalogue rules stay in the validated data pipeline. Do not infer heights/materials from colour.
-
-**Retained asset state:** 129 of 373 catalogue designs are signed. Meadow, boulder, both birch seasons and covered tent passed static production review; engine approval is separate. Hazel 8.1 is signed after its tall-sheet correction.
-Person/deer proposal sheets passed critic review but await owner sign-off; they are not production walk loops. First-people and full-age art, tent interior/back/frame/floor remain missing.
-The tent is the signed 16.4 cone, not the old 16.5 dome: ring 4.2 m, opaque cover 3.8 m across × 2.6 m high, crossing 2.7 m, tips 3.1 m; exclude ring/tips from opaque shadow volume.
-Birch dimensions remain 20 m high, 7 m spread, shaft 0.25 m, collar 0.38 m; preserve one trunk across seasons.
-
-Ground 1.3 earth, 1.4 bank gravel and 1.5 river-bed states are accepted exports: six packs, three variants/families, 1,458 aligned pages, 4/16/64 m family spans. Runtime batch visual review is pending.
-Ground 1.6 hearth fresh/old and 1.7 mud wet/drying are partial WIP. Inspect their source-index/pack-contract before use; no complete export/review is claimed.
-Their optional binary water coverage is separate; soil stays material 2, charcoal/wood 5. Puddle sizes drifted across families; wet ≤1.25 m/drying ≤1 m fixes and joins exceeding 2 m still need whole-chain review.
-No blanket unsigned-to-production approval exists; use the approved early stand-in scope without marking designs signed.
+Build needed pieces with signed sheets, sources/prompts/provenance/approvals; sheet/runtime/engine approval differs. Early stand-ins do not sign designs. Physical properties come from validated catalogues, never colour.
+129/373 designs signed. Meadow/boulder/birch seasons/covered tent pass static review, not engine approval; hazel 8.1 signed. Person/deer critic sheets await owner, not walk loops. First/full-age people and tent interior/back/frame/floor missing.
+Tent 16.4 cone: ring 4.2 m, cover 3.8×2.6 m, crossing 2.7 m, tips 3.1 m; ring/tips outside opaque shadow. Birch: 20 m height/7 m spread/.25 m shaft/.38 m collar, one trunk across seasons.
+Ground 1.3/1.4/1.5 accepted exports: six packs, three variants/families, 1,458 aligned pages, 4/16/64 m spans; runtime batch review pending. Hearth 1.6/mud 1.7 WIP: inspect pack contracts, no full approval. Separate optional binary water; soil material 2/charcoal-wood 5. Wet≤1.25 m/drying≤1 m puddle fixes and >2 m joins need whole-chain review.
 
 ### A5.5 Targets and the loop
 
-Compare changed engine views with approved targets; visual statistics warn, never approve.
-Keep existing data-driven target-card definitions rather than copying their thresholds into prose.
-A visible saving requires the owner's blind phone comparison: ten random pairs, eight correct means visible. A heat-driven visual step must be planned, logged and already accepted as invisible.
+Compare changed views to approved targets; data-driven statistics warn, not approve. Visible-saving phone blind test: ten random pairs, eight correct means visible. Heat-driven visual steps must be planned/logged/accepted invisible.
 
 ### A5.6 Truth in pictures (`PRE-42`, `SCP-20`)
 
-Inspect made things, species and dress against their evidence. Check doubtful content before runtime production; no borrowed cultural motifs, metal before copper or invented equipment.
-Keep rejected studies as provenance, never silently promote them to approved sources.
+Check doubtful dress/species/things before runtime; no borrowed motifs, pre-copper metal or invented equipment. Rejected studies remain provenance, never approved sources.
 
 ## A6. The art kit and animation
 
 ### A6.1 The kit (`PRE-46`)
 
-Compose bodies, garments, tools and condition overlays from records; optional offline rigs are tools, not runtime requirements. Full catalogue breadth remains deferred under PROJECT.md.
+Records compose bodies/garments/tools/conditions; offline rigs optional. Full breadth deferred to PROJECT.
 
 ### A6.2 Appearance (`PRE-42`, `PRE-43`)
 
-Stable look keys choose approved variation; actual inputs, equipment, age and condition determine appearance. Attachments share pivots/facings/trim.
+Look keys vary approved art; actual equipment/inputs/age/condition determine appearance. Shared pivots/facings/trim.
 
 ### A6.3 Movement (`PRE-27`, `PRE-44`)
 
-Initial production baseline: four facings, six-frame walk, idle/carry/cut/tend-fire poses and a small clothing set. Compare eight facings on one animal before expanding it. Full motion requirements remain open.
+Baseline four facings/six-frame walk/idle-carry-cut-tend poses/small clothing set. Compare eight facings on one animal first; full motion open.
 
 ### A6.4 Surfaces and picking (`PRE-24`, `PRE-33`)
 
-Pick visible surface order, object bounds and alpha after undoing presentation transforms. Flat inverse projection cannot pick slopes or floors below roofs.
-Deep caves have separate surfaces/views; arbitrary stacked overhangs remain outside the scoped terrain.
+Undo presentation transforms; pick surface order/bounds/alpha, not flat inverse slopes/roof floors. Deep caves use separate views; arbitrary stacked overhangs out of scope.
 
 ### A6.5 Sheets and review (`PRE-31`)
 
-Review true-size and enlarged pages, frames, masks/normals and the changed running scene. Stand-in readability permits early delivery; it does not confer final art approval.
+Review true/enlarged sheets, frames/masks/normals/running scene. Readable early stand-ins do not confer final approval.
 
 ## A7. The world
 
@@ -291,114 +189,97 @@ The following contracts are deferred to M7 unless needed earlier by a scoped cam
 
 ### A7.1 What this milestone supplies (`MIL-14`, `PRN-02`, `WLD-08`)
 
-M7 owns physical geography/weather and available ecological inputs. M8 owns full ecology/living settling, remaining individual/herd animals and biological start/survival acceptance. Each full check awaits its real consumers.
-Reuse the existing simulator, not a second world engine. No planet formation or live tectonic solver.
+M7 supplies geography/weather/habitat; M8 full ecology, living settling, animals and biological starts. Checks await consumers. Reuse simulator; no planet formation/live tectonics.
 
 ### A7.2 Coordinates, cells and the polar barrier (`WLD-01`, `WLD-02`, `WLD-03`, `WLD-12`)
 
-Retain exact torus coordinates; cells are 1 km, weather cells 10 km and areas exactly 250 m (251 shared metre-grid vertices).
-Coordinate wrapping does not permit transport across the middle of the polar ice. One edge policy must cover diagonal/swept water, weather and animal/person movement. Globe distortion is display only.
+Exact torus: 1 km cells, 10 km weather, 250 m areas/251 shared metre-grid vertices. One polar-ice transport barrier covers diagonal/swept water/weather/lives. Globe distortion is presentation.
 
 ### A7.3 Ownership and stored fields (`WLD-12`, `PRN-14`)
 
-Use compact canonical arrays for regular fields and flat sparse feature tables, not an entity/allocation per cell.
-Separate immutable ground, changing physical stores, authoritative area deltas and disposable picture products. Biome potential is not actual species population.
+Canonical regular arrays/sparse feature tables, no entity/allocation per cell. Separate immutable ground, physical stores, saved area deltas and disposable pictures. Biome potential is not population.
 
 ### A7.4 A reproducible generation job (`TIM-16`, `WLD-08`, `RES-05`)
 
-Versioned inputs determine work counts; wall time never chooses iterations/candidates. Publish stage digests and resume identically. Fixed chunks gather by stable cell/feature order using existing numeric/chance APIs.
+Versioned inputs fix work counts/candidates, never wall time. Resume stage digests exactly; canonical chunks use existing maths/chance.
 
 ### A7.5 Plates and rock (`WLD-06`, `WLD-09`, `WLD-30`)
 
-PROJECT.md defines causal generation and geological obligations. Keep provenance for rocks/resources; visual colour is not a physical property.
+PROJECT owns causal geology; rocks/resources retain provenance. Colour is not a physical property.
 
 ### A7.6 Rough climate, erosion, basins and fixed waterways (`WLD-08`, `WLD-09`, `WLD-17`)
 
-Separate physical bed, routing/spill metadata and water levels; filling drainage depressions must not erase lakes.
-Shared reach geometry owns river joins across boundaries. Cave certificates refer to finished terrain/water, never caves inserted to rescue a scored start.
+Separate bed, spill/routing and water levels; drainage filling preserves lakes. Shared reaches join across boundaries. Cave certificates use finished terrain/water, never candidate-rescue insertions.
 
 ### A7.7 Final climate, seas, soils and life potential (`WLD-16`, `WLD-26`, `WLD-27`, `WLD-09`)
 
-Retain PROJECT's approved climate comparison, short-year units, species and soil/deposit rules. Initial habitat estimates cannot pass ecology acceptance. Freeze external reference definitions before tuning.
+Keep approved climate/short-year/species/soil rules; freeze external references before tuning. Habitat estimates cannot certify ecology.
 
 ### A7.8 Candidates and the start region (`WLD-10`, `WLD-24`)
 
-Versioned ranking never edits a candidate. Keep root seed, candidate seed/index and making digest distinct.
-Retain at most one full working candidate plus checked temporary artifacts. Cancellation leaves the saved world untouched. Explicit seeds face the same hard gates.
+Ranking never edits candidates. Distinguish root/candidate/index/making digest. Keep one full working candidate plus checked artifacts; cancellation preserves saved world. Explicit seeds face identical gates.
 
 ### A7.9 Settling and the beginning of history (`WLD-08`, `TIM-14`, `WLD-11`)
 
-Full settling is exactly 600 days under play rules, then bands/history. Water-only settling is labelled incomplete.
-Current World starts at frontier zero; negative calendar dates do not mean negative events are supported. Introduce a versioned prehistory origin/offset without resetting hazard state or changing demo proofs.
+Settle exactly 600 days under play rules before bands/history; water-only is incomplete. Frontier starts zero: negative dates do not support negative events. Version prehistory offset without resetting hazards/demo proofs.
 
 ### A7.10 Sky and weather (`WLD-07`, `WLD-16`, `WLD-22`, `WLD-30`)
 
-The owner removed universal eclipse-count certification on 8 October; coherent sky and a reviewed plausible distribution remain.
-Hourly storms must integrate swept footprints, respecting the polar boundary. Real wind/travel speeds do not receive seasonal compression; natural-rate tests exclude forced events.
+Universal eclipse quota removed (owner, 8 October); coherent sky/reviewed plausible distribution remains. Integrate hourly swept storms/polar barrier. Wind/travel is not seasonally compressed; natural-rate tests exclude forcing.
 
 ### A7.11 Water and soil in play (`WLD-17`, `WLD-26`, `WLD-27`)
 
-Keep fixed cadences, explicit stores/residuals/in-transit water and deterministic reductions. Daily→flood-hour promotion cannot duplicate or lose water.
-The upstream test's “about a day” is 21.6–26.4 hours. Local cultivated fertility belongs to the field, not every field in its world cell.
+Fixed cadences/stores/residuals/in-transit water and canonical reductions. Flood-hour promotion conserves water. “About a day” upstream: 21.6–26.4 hours. Cultivated fertility is field-local.
 
 ### A7.12 Quakes and eruptions (`WLD-15`, `WLD-22`)
 
-Hazards use saved warning/cooldown state and fixed game-time opportunities, never camera loads.
-Dated disturbances needed for area catch-up survive public-history thinning; compact only to proven equivalent state.
+Saved hazard warnings/cooldowns, game-time opportunities, never camera loads. Keep catch-up disturbances through history thinning; compact only equivalent state.
 
 ### A7.13 Detail on demand and kept areas (`WLD-12`, `WLD-13`, `PRE-03`)
 
-Separate canonical rule facts, pure picture detail and saved changes. Absolute-coordinate samples and shared halos prevent seams/load-order dependence.
-View catch-up runs on a copy and saves nothing. Later activation must equal no viewing. Count global depletion once; inactive-area usual-weather rules need not equal active hourly-weather rules.
+Separate canonical facts/picture detail/saved changes; absolute samples/shared halos avoid seams/order effects. View catch-up copies/saves nothing; activation equals no viewing. Count depletion once; inactive usual weather need not equal active hourly weather.
 
 ### A7.14 Events, saves and revisions (`PLT-07`, `PLT-08`, `PLT-09`, `RES-05`)
 
-Append layer-owner IDs, preserving old owners/order. Changing the owner-count encoding makes earlier saves unreadable; refuse them (A3.7). Old demos attach no new systems.
-Current SYST holds system payloads; rich disturbances exceed history's small type/two-integer payload. Add bounded versioned payloads deliberately.
-Publish immutable bases and revision manifests sampled at displayed time; caches are never authoritative archive dependencies.
+Append layer owners preserving order; owner-count encoding changes require older-save refusal (A3.7). Old demos attach no systems. SYST holds payloads; rich disturbances need bounded versioned records beyond history's two integers. Publish screen-time immutable bases/revisions; caches never archive dependencies.
 
 ## A8. From a person to the globe
 
 ### A8.1 Ground, height and order (`PRE-03`, `PRE-23`, `PRE-24`)
 
-Render pieces are disposable, separate from 250 m simulation areas. Split trunks/crowns, cliff caps/faces and shelter layers; order overlaps across chunks with persistent-ID ties. Ordinary Y-sort cannot solve raised shelves/roofs.
-Quiet base variants, edges, broad stamps and ecology detail draw actual records. Resource inspection cannot rely on decorative guesses.
+Disposable render chunks differ from 250 m areas. Split trunk/crown, cliff cap/face, shelter layers; cross-chunk order uses ID ties, not plain Y-sort for roofs/shelves. Variants/stamps/ecology reflect records, never decorative resource guesses.
 
 ### A8.2 A nearby origin
 
-Subtract an exact nearby origin before drawing floats; negate simulation north into drawing south. Current camera rebases exactly every 4096 m and preserves both absolute and raster origin. Saves/rules never depend on rendering arithmetic.
+Subtract exact nearby origin before floats; north becomes drawing south. Rebase every 4096 m, retaining absolute/raster origins; no rule/save dependency.
 
 ### A8.3 Zoom steps and forms (`PRE-03`, `PRE-28`)
 
-Current WIP has 19 internal density stops, 2^-12 through 64, with 160 ms anchored logarithmic settling. Owner found snapping too obvious; no phone acceptance.
-Wide records preserve actual IDs, sorted membership, sampled time/epoch/revision and truthful truncation; limits are 512 rows/8192 members. This does not prove wide art/navigation.
+WIP: 19 stops, 2^-12–64, 160 ms anchored logarithmic settle; owner dislikes snapping, phone acceptance open. Wide records retain IDs/sorted members/time/epoch/revision/truncation; limits 512 rows/8192 members, no wide-art proof.
 
 ### A8.4 One projection (`PRE-02`, `PRE-33`)
 
-Camera faces north at 37°, never rotates. For local east X, south Y, height Z and internal density s:
-`x = centre_x + sX`; `y = centre_y + s(sin(37°)Y − cos(37°)Z)`, subtracting projected focus.
-One native helper owns projection/inverse/bounds; art tools follow it. UI hits precede world gestures.
+Fixed north-facing 37°; local east X/south Y/height Z/density s: `x=centre_x+sX`, `y=centre_y+s(sin(37°)Y−cos(37°)Z)`, subtract projected focus. Native projection/inverse/bounds shared with art; UI hits first.
 
 ### A8.5 World map and globe (`PRE-29`, `WLD-01`, `WLD-02`, `WLD-03`)
 
-Deferred M7 geography/M9 presentation: one 2:1 overview feeds map and 2D globe disc. Repeat longitude, clamp latitude; never blend opposite polar rows. Inverse taps return true torus coordinates; no sphere routing or save migration.
+M7/M9 deferred: shared 2:1 map/globe-disc overview; repeat longitude, clamp latitude, never blend polar rows. Inverse taps return torus coordinates; no sphere routing/migration.
 
 ### A8.6 Time by zoom (`TIM-01`, `TIM-04`, `TIM-15`)
 
-Keep existing pace data and request precedence: pause, skip, manual/lock, director, zoom as consumers arrive. Zoom changes requested speed only. The first power is M2; the director remains later.
+Pace precedence: pause/skip/manual-lock/director/zoom. Zoom requests speed only. Existing M2 power remains; director awaits consumer.
 
 ### A8.7 Budget
 
-A18.1 owns graphics lines. Measure real busy camps, not only six-object fixtures; broad comparisons wait for their consumer and available device.
+A18.1 owns graphics limits; measure busy camps, not six-object fixtures. Comparisons await consumers/devices.
 
 ### A8.8 Replacing the M2 fixtures (`PRE-03`, `PRE-29`, `PRE-30`)
 
-M2 connects real camp records to existing providers. M7 adds generated land behind that interface; preserve fixtures for regressions and one snapshot consumer.
-Full detail within 300 m/coarse ground to about 10 km/overview beyond remains deferred. Parents stay visible; no generation in gestures.
+Real camp providers precede M7 land; preserve regression fixtures/single consumer. Deferred detail ≤300 m, coarse to about 10 km, overview beyond; retain parents, no generation in gestures.
 
 ### A8.9 Cliffs, caves and the geological slice (`PRE-23`, `PRE-24`, `PRE-25`)
 
-Deferred M7: one surface provider feeds drawing, feet, water, picking and shadows. Sections sample actual rock/soil/water/cave/dated records with declared scales/width; a synthetic buried object cannot prove a 200-year historical camp.
+Deferred shared surface feeds feet/water/drawing/picking/shadows. Sections sample actual rock/soil/water/cave/dated facts with declared scales/width; synthetic burial cannot certify 200-year history.
 
 ## A9. Living things
 
@@ -406,48 +287,30 @@ M2 needs real scoped supplies and bounded renewal, consumed exactly once. Later 
 
 ## A10. People: bodies and lives
 
-M2 adds stable people, hunger/thirst/fatigue, senses and eating/drinking/resting through Activity events. M4 adds scoped care, generations and consequences; M8 finishes the remaining body catalogue.
-Use PROJECT's demographic and birth-spacing targets; old architecture estimates are not alternate tuning targets.
-
-**α2.13b contract (before code):** the bounded adult camp uses whole remaining food/water units and awake seconds, with retained division remainders. Catalogue daily rates are 4 kg raw berries and 3 L water, with eight hours of sleep restoring sixteen awake hours. These are scoped estimates, not complete health, diet or ecology. Short activities keep real-life duration. Need scores use expected benefit and urgency minus travel/work time; stable option order breaks ties. Idle watching is a timed fallback, never a food source.
-
-Actions have saved goals and phases: walk each reachable route segment to a keyed position in the catalogue's small interaction area, gather berries into hands, carry them to shelter, eat; walk to water and drink there; walk to shelter and rest. No container or unknown craft is granted. Eating/drinking/rest give elapsed shares, tracked cumulatively so interruption cannot apply a share twice. Intake and bodily depletion combine before clamping the elapsed interval. Gathering removes only available material at settlement; an interrupted gather keeps its earned handful. Walking keeps its sampled position. A need crossing below 20 wakes an interruption timer; an independent hard-limit timer interrupts at thirty-six awake hours and forces rest at the current reachable position. Decisions and their two best alternatives retain actual need values, benefits, time costs, exclusions and scores. History tags 100–103 carry the chosen need and packed need values, 110–113 the scores, 120–122 benefits, 130–132 time costs, and 140 packed exclusion reasons.
-
-Camp paths use a bounded one-metre grid with centimetre coordinates and a saved rock rectangle, with deterministic four-neighbour routing and blocked sight lines. Choices read remembered locations/amounts, not remote stock; arrival updates stale knowledge. At most three supplies are noticed per game hour, by day within 50 m and by night within 5 m. Each remembered fact keeps its source and observation second; own-task observations are immediate. Starting adults know the shelter and gathering skill 3, with no invented craft. New positions are keyed scatter beside shelter.
-
-Renewal is physical and bounded: the spring transfers a catalogue flow from a saved finite upstream water budget into its capped pool. A living berry stand grows at a catalogue rate only while saved root water and a saved seasonal production budget remain, capped at its initial standing crop; picked-out fruit can regrow, an absent stand cannot. Both budgets and all transferred/consumed quantities are saved. No midnight refill. Their hourly events and person actions share one camp island, preserving key order on one/four workers. CAMP4 requires critical LIFE2 and DRMS2 extensions without changing foundation registry layouts. Readers validate bodies, pending activities and matching live events. Older formats are refused; current-format corruption recovery still uses the newest whole snapshot and journal replay.
-
-**T3.13c.1 storage:** format 4 refuses earlier camps. Craft camps require critical FIRE1/THER1 with the CAMP fire bit. Fire and food exposure stay on physical item identities; mass, references, bounds, ordering and live camp deadlines are validated before opening. THER1 covers every person and camp. Slot 2 owns the earliest ambient/fire transition and slot 3 the earliest food deadline; hourly renewal keeps slot 0. Fire/thermal state survives a labelled zero-person setup because feature detection follows camp records, not the last mind. T3.13c.3 settles fuel into conserved ash, wet inputs into a vapour ledger and quenched fuel into physical charcoal. Saved deadlines cover ignition, heating, exhaustion and ember expiry. Finite tending reserves and splits only its portion; banking cannot extend the same ember repeatedly. Felt temperature adds 15 °C within two metres of heat 2+, once regardless of overlapping fires. Fixed-point thermal sampling settles before activity/heat changes and retains extra-water remainders. Actual awake warmth becomes handling evidence. Roots/meat retain elapsed heat through moves and splits: one first-hour chance, raw failure, and burnt state after two hours or one hour at heat 4. Physical change precedes any noticing; history credits actual noticers. Copied fire/timer/thermal ways supply display-time quantities without reading producer registries. A fresh cold-hearth variant burns the same initial five kilograms into ash and adds no knowledge.
+Whole remaining food/water/awake units retain remainders. Scoped catalogue: 4 kg raw berries/3 L water daily; eight-hour sleep restores sixteen awake hours. Short activities keep real duration; benefit/urgency minus travel/work chooses in stable order. Timed watching is no food source. M4 adds care/generations; M8 completes bodies and PROJECT demographics/birth spacing.
+Saved goals/phases route to keyed positions, gather into hands, carry/eat at shelter, drink at water and rest. No unknown craft/container granted. Cumulative intake/depletion settles together before clamping; interrupted gathering retains earned handful, walking sampled position. Need<20 interrupts; thirty-six awake hours forces reachable rest. Record need/benefit/time/exclusions, winner/two alternatives. History tags: 100–103 need values, 110–113 scores, 120–122 benefits, 130–132 costs, 140 exclusions.
+Bounded metre grid/cm positions, saved rock, deterministic four-neighbour routes/sight. Decisions use remembered sites/amounts, refresh on arrival. Notice ≤3 supplies/hour: day 50 m/night 5 m; source/time kept, own observations immediate. Founders know shelter/gathering 3, scatter by stable keys; no invented craft.
+Spring transfers finite upstream water to capped pool; berries need saved root water/season budget, capped initial crop, absent stand cannot regrow. Save all transfers/budgets, no midnight refill. Hourly/person events share canonical camp island. LIFE2/DRMS2 require matching body/activity/live events; foundation layout unchanged.
+FIRE1/THER1 follow CAMP fire bit, including zero-person camps. Physical fire/food identities retain validated mass/links/order/deadlines; THER1 covers all people/camps. Slot 0 renewal, slot 2 earliest ambient/fire, slot 3 earliest food transition. Fuel→ash, wet mass→vapour ledger, quenched fuel→charcoal. Save ignition/heating/exhaustion/ember deadlines; reserve/split finite tending portions; banking cannot indefinitely extend embers.
+Heat 2+ adds 15 °C within 2 m once despite overlap. Settle fixed-point warmth before activity/heat changes, retain extra-water remainders; actual awake warmth becomes evidence. Cooking retains exposure through movement/splits: one first-hour chance, raw failure, burnt after two hours or one hour at heat 4. Physical change precedes noticing/credits. Copied ways provide screen-time quantities. Cold-hearth setup burns initial 5 kg to ash, grants no knowledge.
 
 ## A11. Minds
 
-M2 chooses among known reachable actions from data-defined needs/affordances and retains actual reasons for inspection. Per-person knowledge has source/date; choices cannot read unknown world truth.
-Decide at action ends/interruptions, not frames. Save memory, pending actions and dream influence. Add planning/social depth only with the M3–M5 consumer; M8 closes remaining obligations.
-
-**T3.13b.2 observation:** `demo/learning.cpp` settles exposure before the observer changes activity and before the maker resolves an intentional try or interrupts. It uses torus positions along saved activities, the camp rock sight test, a 500-cm inclusive limit and the existing 06:00–20:00 daylight window, or actual heat-2+ task light within two metres of both people with wall sight checks. Each visible whole-second interval weighs four for that person’s deliberate `watch_craft` target, one while busy, zero while asleep. Ordinary watch choices can select a visible working person, with stable-ID ties. At the demonstrated end, accumulated exposure becomes millionths of a quarter, divided by the full use’s duration; twenty quarters teach skill 1 with the maker/event and watched route. The first partly or fully observed use gives a separate hunch. A saved per-work/try cursor prevents counting exposure twice; completed records are removed, and the saved result marker rejects repeat application. Cancelled strikes give no demonstration; paused gradual work retains its pending exposure until completion. Accidental fits retain their existing personal discovery route; observation learning follows intentional demonstrated uses. No camera or hourly site survey grants credits, and no global history index unlocks a mind.
-
-**T3.13b.3 teaching:** kind adults ask nearby awake peers about personally known crafts; a truthful answer supplies absence evidence and telling supplies only a hunch. Offers consult that evidence. Comfortable learners with no unfinished plan collect reserved inputs and walk the ordinary route to the teacher. Shared attendance is capped at thirty minutes within two metres and daylight/sight; urgent needs or calls settle both bodies and credit each elapsed second once. Gradual work keeps its progress across interruption/reopen; cancelled strikes keep no result. First supervised success teaches the recipe at full maker chance, with its actual source. Shared effort uses the fourfold/teacher multiplier; ordinary successful effort counts twice failure. Choices settle saved curiosity decline, hunch expiry and skill/sector fading. The existing generic scrape recipe remains the hide consumer; no new craft names enter choice rules.
-
-**α2.13c contract:** a place dream uses only one of a person's three remembered supply/shelter sites. At sleep it replaces that night's ordinary place dream through the same thought/choice function. At the first rest in each night, a keyed 1-in-60 natural place dream keeps the weakest known need’s site (newest observation, then stable subject order breaks ties); other place dreams are unkept. Ordinary strong place dreams can occur naturally; a kept thought has a fixed mild score pull (60), expires after three days, and refreshes without adding strength. It can favour a known use or an ordinary visit/watch choice; urgent need below 20 and exhaustion always override it. It never interrupts work, teleports, grants knowledge or starts a requested activity.
-
-Critical DRMS2 and CAMP4 preserve personal ordinary dream thoughts plus a private camp ledger: requested/received/executed moments, subject position, status and observed choice/arrival. The ledger alone owns queued requests (at most three worldwide in this one-camp slice), one sent dream per sleeper/night and three per night. Nights turn over at 06:00; queued work is checked again at the next sleep and cancels for a vanished subject or exhausted cap. Minds contain no sender, request number or player provenance. Older CAMP formats are refused before loading. The cleanup removed the unused migration-seal APIs and old-format snapshots.
-
-Opening a power chooser pauses the runner between batches and explicitly settles the display to its final frontier before presenting subjects. Confirmation records that displayed whole second, durably journals one command, and drains that command within one game second; sleep delay is separately shown. Power requests are synchronous and cannot accumulate runner jobs. Cancel restores the previous pause state without issuing a command. The only supported camp rates remain 1, 60 and 3600 game seconds/real second. The private record observes the first later choice, its ordinary dream contribution and actual arrival; it does not claim a changed outcome from correlation. Personal cards date recorded choices and remembered dreams in plain clock words. A dream delivered during sleep publishes its thought at the delivery event while preserving the original sleep interval; earlier display times retain the previous thought. Arrival must lie within the remembered site’s use area, so bringing gathered food home never counts as reaching the food site again. It is observed even when urgent needs give the dream zero pull; the record still says needs led the choice.
-
-**α3.13d idea dreams:** format 5 refuses earlier builds. DRMS2 stores remembered action/input kinds, experienced benefit, internal fit, ordinary hunch ID and actual first attempt, beside place dreams in the same ledger. Command 3 carries only person and stable memory ID; execution and sleep revalidate handled evidence and unknown compatibility. Internal fits never grant knowledge or appear as recipe names. The one natural nightly draw and sent thoughts share construction; refresh preserves failures and adds no strength. Unknown action choice requires actual available familiar inputs and can lose to needs or existing work. Only real elapsed handling attributes an attempt; the private timeline reports later results without inferring causation. Paused shared practice returns through both participants’ availability checks, so another person’s unfinished drink/rest is preserved. Conditional proof scenes record a real short twirl and actual warmth, compare the same seed without a sent dream, and remove needed input without erasing the hearth. Headless proofs retain live state rather than every knowledge snapshot.
-
-The separate Camp performance test runs a fresh isolated camp for ten real minutes (200 seconds at each supported rate), with five seconds of frame warm-up per phase. It keeps frames, clocks, CPU thread time, memory, battery, heat and dream reception latency in a copyable report, distinct from the short owner play route. Accelerated smoke results carry their time scale and platform and cannot stand in for a sustained phone result.
+Choices use personally known reachable actions/reasons, never hidden truth; decide at ends/interruptions, not frames. Save source/date, memory/pending work/dreams. Planning/social depth follows M3–M5 consumers; M8 closes remaining minds.
+Observation settles before observer activity changes/maker finish/interruption. Saved torus activities, rock sight, inclusive 500 cm, 06:00–20:00 daylight or heat2+ task light within 2 m of both with wall checks. Whole-second weight 4 deliberate target/1 busy/0 asleep, stable-ID watch ties. At intentional demonstrated end, duration-normalised millionth-quarter credit: 20 quarters teaches skill 1/source/event/route; first partial/full watch gives hunch. Saved work/try cursors and result markers prevent doubles; completed exposure removed. Cancelled strikes give none; paused gradual work keeps credit. Accidental personal discovery remains separate; camera/hourly survey/global History never unlock minds.
+Teaching consults truthful absence evidence from nearby awake peers, never their hidden skill table. Telling gives hunch. Kind teachers (≥60 T) offer; comfortable learners without unfinished plans reserve inputs/walk, attendance ≤30 minutes within 2 m/daylight/sight. Needs/calls/separation settle elapsed credit once. Gradual progress survives interruption/reopen; cancelled strikes yield none. First supervised success teaches skill 1/full maker chance; effort 4× ordinary ×(1+teacher level/10), success 2× failure. Settle curiosity/hunch expiry/skill-sector fading. Generic scrape consumes hide.
+KNOW1 retains recipe/sector practice/source, fractional credits, beliefs, memories and hunches; LEARN1 sessions agree with participants/work/events. Memory cap 200 (weakest/oldest/ID), hunch cap 5 (ten failures/unused year). T practice 1→5 = 180 effective hours,5→10 = 780; five-year unused half-life, never below half-best; sub-thousandth fading cannot round into repeated loss. Actual founder curiosity/kindness 20–80 keyed independently, no selected teaching traits; full inheritance later.
+Dreams influence choice, never interrupt/teleport/grant knowledge/command work. Place subjects are three remembered sites; natural kept place draw 1/60/night picks weakest need site, ties newest then stable subject; other place thoughts unkept. Pull 60 expires after three days, refreshes without stacking; need<20/exhaustion wins.
+DRMS2 private ledger owns ≤3 queued worldwide, one/person/night, three/night, reset 06:00. Revalidate at sleep; vanished subject/exhausted cap cancels. Minds contain no player/request provenance. Chooser drains/pauses at frontier; confirm displayed second, durable command drained≤1 game second, sleep delay separate. Synchronous requests cannot queue runner jobs; cancel restores pause. Camp rates 1/60/3600. Record first later choice/contribution/actual arrival in remembered use area, even if needs win; correlation is not causation. Delivery during sleep preserves its interval; earlier display retains prior thought.
+Idea command 3 contains person/stable memory only. Execution/sleep require handled action/input, experienced benefit and unknown compatible fit; internal recipe identity stays private. Natural/sent share construction/one nightly draw; refresh preserves failures/no extra strength. Actual familiar inputs and ordinary needs/work govern attempts; only elapsed matching handling counts. Reopen preserves other participants' unfinished plans. Paired proofs use real twirl/warmth, same-seed no-send control, remove needed input without erasing hearth; retain live state, not every snapshot.
+Camp measurement: fresh isolated ten-minute run, 200 s/rate, 5 s frame warmup each; copyable frames/clocks/CPU/memory/battery/heat/dream latency. Accelerated cloud smoke is labelled, not sustained phone evidence.
 
 ## A12. Crafts and discovery
 
-M3 implements characteristic-based crafting, flaking then fire, with material conservation, actual discovery/observation and learning. Blueprint names cannot replace predicates. Remaining `PRN-07` failure: fire maintenance choices still select named bank/carry blueprints in `FireRules::choose`; generic selection needs repair before M3 acceptance.
-Keep `RCK` evidence and `MAT-17` valid/invalid fits; no scripted discovery dates. Later chains/catalogue and full pace acceptance remain M8/M10.
-
-The α3.13a Discovery scene records finite additions and materialises aggregate stone/wood once into existing things. Portion reservations and retained tools exclude competing work and meals. Actual fits use physical predicates; choices use only personal evidence. Known tries settle at saved events, unknown fits roll once per whole activity, cancelled strikes produce nothing, and paused gradual work retains elapsed progress. Nutrition and tool wear keep division remainders; inputs, leftovers and broken pieces conserve mass. Result history records actual maker, inputs, time and discovery route; only noticed surprises grant knowledge.
-
-World events publish copied item, work and knowledge changes. Display queries select records at screen time, hide unborn results and never consult mutable producer registries. Craft camps currently use serial event order even with four workers configured because thing births share global IDs; equal continuation is proved, parallel craft speed is not. First flake is recaptured from an ordinary declared seed in each build's own format, with no switches, and establishes neither frequency nor the full M3 gate. Observation/shared practice and physical fire/cooking are built; injury remains M4.
-
-The learning path batches reservation reads once per decision and indexes active items by position and owner. Event mutations publish `Context::item_changed`; raw edits outside events invalidate the derived index, and run/open boundaries rebuild it. Sight groups preserve the first insertion and last physical evidence in canonical ID order. Blocked routes use a bounded, mutex-protected cache keyed by all geometry and endpoints. Stationary observation counts the same daylight seconds in one interval; moving sight keeps whole-second checks. None of these caches enters saves or digests.
+M3 matches characteristics, not blueprint names, conserving material and personal discovery/learning. **Remaining `PRN-07` failure:** `FireRules::choose` selects named bank/carry recipes; repair generic choice before acceptance. Keep `RCK`/`MAT-17` valid/invalid evidence, no scripted dates; remaining crafts/pace M8/M10, injury M4.
+Discovery scene records finite additions and materialises aggregate stock once. Reservations/tools exclude competing work/meals. Physical predicates determine fits, personal evidence choices. Saved known tries/one roll per unknown activity; cancelled strikes yield none, gradual work resumes. Nutrition/wear retain remainders; inputs/leftovers/breakage conserve mass. History records actual maker/inputs/time/route; only noticed surprise teaches.
+Copied item/work/knowledge changes sample screen time, hide unborn results, never read producer state. Craft remains serial under four workers because births share IDs; equal continuation is not parallel speed. Ordinary-seed First flake in own format proves no frequency.
+Batch reservations; index active items by position/owner. Events publish `Context::item_changed`; raw edits invalidate, run/open rebuild. Sight groups keep first insertion/last physical evidence in ID order. Bounded mutex route cache keys geometry/endpoints. Stationary exposure batches exact daylight seconds; moving sight checks each second. Caches never enter saves/digests.
 
 ## A13. Culture
 
@@ -538,8 +401,7 @@ History's current 68-byte records threaten the full 4 GB target; measure actual 
 **Repair before relying on stopped WIP:** `_background_plane`'s hidden/empty return and `_receivers`' null-texture branch retain old colour/normal/material references. Detach before retiring allocation tickets; hiding a node does not release its textures.
 The first streaming benchmark sampled preceding frames and its readiness timings are invalid. Rerun after aligning below-2-density ground-slot readiness and frame completion; receiver skipping below that density has no final timing proof.
 
-Whole α2.9a review remains open, including committed changes after accepted α2.8a; native 57/57 alone does not accept the step.
-The reviewed routine baseline fails formatting/lint, two app cases (fixture orientation and terrain selection). IMPLEMENTATION.md begins with repair; no passing check is claimed here.
+Legacy renderer review does not certify the camp; the current routine passed, without full visual acceptance.
 
 Wide data exist, but tiny figures/group/camp art, transitions, ecology details and named wide navigation are unfinished. `wide_study.gd` is only a study.
 Explore can overflow landscape; the source viewer overlays the scene. Recent screen fixes need fresh captures. Owner reported tiny/busy UI, grass stripes, questionable birch/boulder/tent shadows and duplicated Camp title; no all-screen approval exists.

@@ -1,33 +1,29 @@
-# Kindling α3.13a: Someone notices a sharp flake
+# Kindling α3.13e: M3 record
 
 ## What is new
 
-People work with finite things using their own knowledge. An ordinary strike can leave a sharp flake; noticing it gives that person knowledge. A known sharp tool can improve later work. Item Details show perceived properties and their actual evidence. Unknown properties stay unknown.
+M3 builds ordinary discovery, personal learning/shared practice, finite fire/cooking and memory-backed ideas, followed through factual History. Current delivery and measurements: [α3.13e note](NOTE-3.13e.md). Acceptance evidence: [M3 Checks](M3-CHECKS.md).
 
-The cleanup removed the Developer tools menu, old marker/time/rendering pages, catalogue/art/terrain inspectors, old examples and save converters, unused probes/capture tools and procedural texture exporters. Unused textures and sheets are no longer prepared or packaged. Approved source art stays in the repository. Current saves, deterministic proofs, meaningful renderer regressions, first-launch self-check, camp measurement and required cloud reports stay.
+| Build | Main addition | APK MiB / signing |
+|---|---|---|
+| 41301 / a | Finite craft work, personal noticing, item cards and First flake | 27.663 / release |
+| 41302 / b | Observation, teaching/telling, skills and learning History | 27.773 / check |
+| 41303 / c | Fuel/embers, friction, warmth, cooking/burning | 27.894 / check |
+| 41304 / d | Handled-memory ideas and private actual attempts | 27.918 / check |
+| 41305 / e | Linked History, portrait/large text/mute, actual-action sounds | 27.930 / check |
 
-The measured APK went from 52,506,299 bytes (50.074 MiB) to 29,006,950 bytes (27.663 MiB) in both diagnostic and signed builds: 23,499,349 bytes removed.
+The early chainsaw removed obsolete developer pages, converters and unused packaged art: 50.074→27.663 MiB. Approved source art remains. Detailed earlier delivery records remain in Git history; this record replaces their duplicate notes.
 
 ## What to try
 
-Install **41301**. Camps from earlier builds will not open: start a new camp. Menu → Saved camps → New Discovery camp, then Play at one minute/sec. Tap a worker, open Details, then inspect a noticed result and the task it improves. Pause midway through work, save/reopen and check the result and stock.
+Follow the latest note's Discovery camp route: useful flake → maker/learner/source/input → Back; inspect fire and cooked food; send an idea from a real memory and follow its actual attempt after reopening. Labelled First flake is inspection evidence only. Pause to read; rotate and try larger text.
 
-Discovery may take time or never occur in that run. Menu → Examples → First flake opens a labelled snapshot captured from an ordinary run. It contains Yara’s actual sharp-flake discovery; it was not edited into success and proves no discovery frequency. Compare the item’s Details with the maker’s Knowledge.
-
-Menu → Camp performance test → Run camp test runs an isolated camp. Time left and speed appear in large text; the screen stays awake, and leaving the foreground marks the report interrupted. For the phone measurement, start cool, unplugged and in flight mode, run all ten minutes, then Copy report.
-
-[Download the APK](https://github.com/gunsandsalvi/Project-Nature/raw/ccr-13ab6fef-fspju6/dist/kindling.apk) · [Checksum](https://github.com/gunsandsalvi/Project-Nature/blob/ccr-13ab6fef-fspju6/dist/kindling.apk.sha256)
+[Existing release APK 41301](https://github.com/gunsandsalvi/Project-Nature/raw/ccr-13ab6fef-fspju6/dist/kindling.apk) · [Checksum](kindling.apk.sha256). It remains unchanged. [Current check APK 41305](../build/apk-check/kindling-41305-check.apk) cannot update that release installation.
 
 ## What is rough
 
-Teaching, fire and craft dreams follow in later M3 deliveries. The camp has finite supplies and simple poses; full population/renderer acceptance remains open. The First flake came from seed 12 in a preserved 20-seed, three-day search: only two seeds captured a noticed flake. This short example search is not the full sharp-stone acceptance gate.
+Not release-signed: built in check mode; release signing waits for the owner's passphrase.
 
-The owner confirmed tap/hold on 31305. Physical ten-minute performance and sustained battery/heat acceptance still need phone evidence. The reported 31305 performance-button failure did not reproduce here; the actual portrait menu/button touch route now has a regression, with screen-awake, visible progress and interruption checks.
+M3 is built, awaiting independent review and owner evidence, not accepted complete. Fireless b spread failed 4/40; full-kit e spread failed 6/20. Discovery/routes/control passed. Old d idea reopens failed; repaired fresh e pairs pass all phase reopens. Named bank/carry fire choices still fail PRN-07. No retuning or relaxed thresholds. Latest notes retain the precise results, spent-item compaction risk, unmet speed target and phone/battery/play evidence still owed.
 
-Validation: current-format save/reopen, corruption/recovery, mass/reservations, interrupted work, private perception, wear and low/high blueprint trials pass. One/four-worker proof digests match; the original ten proofs are unchanged. Craft work currently uses canonical serial settlement under both worker settings. Portrait and landscape touch routes/captures were inspected. Full audit waits until the end of M3 under the owner’s policy. Independent review is also at M3’s end.
-
-Committed cleanup routine PASS on 88636c0: 79 app cases, 163 tool tests, native/view tests, ten proof suites, catalogue, lint/source rules and documents. The delivery gate passed on this signed APK; it repeats after the artifact/note commit. A final display-backed portrait check presses Menu → Camp performance test → Run camp test and shows “9:59 left · real time” while the isolated world runs.
-
-**Signed release:** 41301, 29,006,950 bytes (27.663 MiB), with the registered release key. SHA-256: `17063426ce89276a21a95c7ef33d6fea692878ec1f0a8b03f6a6ea39938ecc36`.
-
-Measured cleanup time through packaging: about 64 minutes, including cuts, regressions, lint and captures. Final working-tree routine: three minutes; committed routine: 68 seconds; signed build: 48 seconds. The extended native lint took about thirteen minutes on the changed headers.
+Earlier c/d routines had failed steps with focused repairs; they are not retroactively claimed as whole passes. Final e routine and the single milestone audit passed, as recorded in M3 Checks. Full populations, geography, winter health and later craft/social clauses remain deferred.
