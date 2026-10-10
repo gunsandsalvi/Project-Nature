@@ -1359,3 +1359,25 @@ TEST_CASE("tentative fire trials use the same visible evidence regardless of hid
     }
     CHECK(selected[0] == selected[1]);
 }
+
+TEST_CASE("fire selection ignores spent distractions and keeps the lowest eligible ID after pool shuffling") {
+    std::array<std::string, 2> digests;
+    for (int variant = 0; variant < 2; ++variant) {
+        GenericFuelOperation op(false);
+        auto& w = op.fixture.camp.world();
+        const auto copy = op.fixture.fire();
+        const auto second = op.fixture.add(fire_entry("base:dry_stick"), 5000000, copy.at);
+        w.things().raw().emplace<kd::world::Fire>(w.things().handle(second), copy);
+        for (int n = 0; n < 10000; ++n) {
+            const auto spent = op.fixture.add(fire_entry("base:crumb"), 0, copy.at);
+            w.things().raw().get<kd::world::Item>(w.things().handle(spent)).state = 4;
+        }
+        if (variant) w.things().fuzz(94);
+        (void)w.command(0, 932, 0, 0);
+        w.run_to(1);
+        REQUIRE(op.chosen);
+        CHECK(w.beings().raw().get<kd::world::Thermal>(w.beings().handle(op.person)).tending_fire == op.fixture.hearth);
+        digests[variant] = kd::num::to_hex(w.digests().whole);
+    }
+    CHECK(digests[0] == digests[1]);
+}

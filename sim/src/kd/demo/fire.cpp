@@ -391,13 +391,14 @@ void FireRules::deadlines(world::Context& c, ecs::Id camp) {
     if (!ambient) return;
     auto heat = ambient->next;
     time::Seconds timer = 0;
-    w.things().each([&](ecs::Id, world::Things::Handle h) {
-        if (const auto* f = w.things().raw().try_get<Fire>(h); f && f->hearth == camp && f->next)
-            heat = std::min(heat, f->next);
-        if (const auto* t = w.things().raw().try_get<world::HeatTimer>(h);
-            t && item(w, t->item).home == camp && t->next)
-            timer = timer ? std::min(timer, t->next) : t->next;
-    });
+    for (const auto h : w.things().raw().view<Fire>()) {
+        const auto& f = w.things().raw().get<Fire>(h);
+        if (f.hearth == camp && f.next) heat = std::min(heat, f.next);
+    }
+    for (const auto h : w.things().raw().view<world::HeatTimer>()) {
+        const auto& t = w.things().raw().get<world::HeatTimer>(h);
+        if (item(w, t.item).home == camp && t.next) timer = timer ? std::min(timer, t.next) : t.next;
+    }
     c.schedule(camp, 2, std::max(c.now() + 1, heat));
     if (timer)
         c.schedule(camp, 3, std::max(c.now() + 1, timer));
@@ -461,14 +462,15 @@ bool FireRules::choose(Living& living, world::Context& c, world::Beings::Handle 
     const auto sight_clock = c.now() % time::kDay;
     const std::int64_t sight_range = sight_clock >= 6 * time::kHour && sight_clock < 20 * time::kHour ? 3000 : 500;
     ecs::Id target{};
-    w.things().each([&](ecs::Id id, auto th) {
-        const auto* f = w.things().raw().try_get<Fire>(th);
-        if (!f || !f->heat || f->hearth != camp || (f->owner.value && f->owner != person) || target.value ||
+    for (const auto th : w.things().raw().view<Fire>()) {
+        const auto& f = w.things().raw().get<Fire>(th);
+        const auto id = w.things().id_of(th);
+        if (!f.heat || f.hearth != camp || (f.owner.value && f.owner != person) || (target.value && target < id) ||
             w.torus().squared_distance(here, at(w, id, c.now())) > sight_range * sight_range ||
             !Living::visible(w, camp, here, at(w, id, c.now())))
-            return;
+            continue;
         target = id;
-    });
+    }
     if (!target.value) return false;
     const auto f = fire(w, target);
     std::uint8_t operation = 0;
