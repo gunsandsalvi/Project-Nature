@@ -3,6 +3,7 @@
 extends Control
 
 const Sizing := preload("res://ui/sizing.gd")
+const Preferences := preload("res://ui/preferences.gd")
 const PAGES := {
 	"Camp": preload("res://pages/camp.gd"),
 	"CampMeasure": preload("res://pages/camp_measure.gd"),
@@ -160,6 +161,20 @@ func _build() -> void:
 	dreams.text = "Your dreams"
 	dreams.pressed.connect(_camp_dreams)
 	column.add_child(dreams)
+	var mute := CheckButton.new()
+	mute.text = "Mute sound"
+	mute.button_pressed = Preferences.value("mute")
+	mute.toggled.connect(func(value: bool) -> void: Preferences.set_value("mute", value))
+	column.add_child(mute)
+	var larger := CheckButton.new()
+	larger.text = "Larger text"
+	larger.button_pressed = Preferences.value("large_text")
+	larger.toggled.connect(
+		func(value: bool) -> void:
+			Preferences.set_value("large_text", value)
+			_layout()
+	)
+	column.add_child(larger)
 	for route: String in ["CampMeasure", "Check", "Reports"]:
 		var button := Button.new()
 		button.text = {
@@ -212,7 +227,9 @@ func _layout() -> void:
 		for edge: String in ["left", "right", "top", "bottom"]:
 			style.set("content_margin_" + edge, gap)
 	for node: Node in _ui.find_children("*", "Control", true, false):
-		if node is Button:
+		if node is BaseButton:
+			if node is Button:
+				node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			node.custom_minimum_size = Vector2(48, 48) * scale_ui
 			node.add_theme_font_size_override("font_size", Sizing.font_size(16, scale_ui))
 		elif node is Label:

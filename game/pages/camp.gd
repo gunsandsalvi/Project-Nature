@@ -30,6 +30,7 @@ var _dock: PanelContainer
 var _details := false
 var _more: Button
 var _card: Label
+var _card_scroll: ScrollContainer
 var _summary: Label
 var _pause: Button
 var _speed: OptionButton
@@ -48,6 +49,7 @@ var _dreams: PanelContainer
 var _history: PanelContainer
 var _history_button: Button
 var _historical_item := {}
+var _sounds: Node
 var _heat_every := 2.0
 var _heat_wait := 0.0
 var _item_second := -1
@@ -135,6 +137,8 @@ func _build() -> void:
 	_labels = Labels.new()
 	_labels.drawing = drawing
 	_area.add_child(_labels)
+	_sounds = preload("res://camp/sounds.gd").new()
+	add_child(_sounds)
 	_dock = PanelContainer.new()
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color("172b24")
@@ -144,16 +148,20 @@ func _build() -> void:
 	_dock.add_child(column)
 	_summary = Label.new()
 	_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	column.add_child(_summary)
 	var scroll := ScrollContainer.new()
+	_card_scroll = scroll
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	column.add_child(scroll)
+	var text := VBoxContainer.new()
+	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(text)
 	_card = Label.new()
 	_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_card.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_card.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.add_child(_card)
+	text.add_child(_card)
+	text.add_child(_summary)
 	var row := HBoxContainer.new()
 	column.add_child(row)
 	_pause = Button.new()
@@ -162,11 +170,13 @@ func _build() -> void:
 	_pause.pressed.connect(toggle_pause)
 	row.add_child(_pause)
 	_speed = OptionButton.new()
-	for words: String in ["Real time", "1 min / sec", "1 hour / sec"]:
+	for words: String in ["Real time", "1 min/s", "1 h/s"]:
 		_speed.add_item(words)
 	_speed.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_speed.item_selected.connect(choose_speed)
 	row.add_child(_speed)
+	var actions := HBoxContainer.new()
+	column.add_child(actions)
 	_more = Button.new()
 	_more.text = "Details"
 	_more.pressed.connect(
@@ -175,11 +185,13 @@ func _build() -> void:
 			_resize()
 			_refresh_records()
 	)
-	row.add_child(_more)
+	_more.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	actions.add_child(_more)
 	_dream_button = Button.new()
 	_dream_button.text = "Dream…"
 	_dream_button.pressed.connect(func() -> void: open_dream(selected_id))
-	column.add_child(_dream_button)
+	_dream_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	actions.add_child(_dream_button)
 	_dreams = preload("res://camp/dreams.gd").new()
 	_dreams.camp = self
 	_native.add_child(_dreams)
@@ -292,6 +304,7 @@ func _refresh_records(counters: Dictionary = {}) -> void:
 		_summary.add_theme_color_override("font_color", Palette.WARN)
 		_pause.disabled = true
 		_speed.disabled = true
+		_card_scroll.ensure_control_visible(_summary)
 	elif not warning.is_empty():
 		_summary.text += "\n" + warning
 		_summary.add_theme_color_override("font_color", Palette.WARN)
@@ -321,6 +334,7 @@ func select_person(id: int) -> void:
 		selected_id = id
 		selected_item_id = 0
 		_historical_item = {}
+		_card_scroll.scroll_vertical = 0
 		_show_supplies = false
 		_refresh_records()
 
@@ -449,6 +463,7 @@ func _process(delta: float) -> void:
 	drawing.state = state
 	_refresh_records()
 	drawing.rebuild()
+	_sounds.update(people, items, camera, state, world.is_paused())
 	_labels.state = state
 	_labels.queue_redraw()
 

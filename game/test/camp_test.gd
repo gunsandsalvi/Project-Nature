@@ -230,7 +230,6 @@ func test_living_card_uses_saved_choice_and_needs_at_the_displayed_action() -> v
 	await _settled(page)
 	var person: Dictionary = page.people[0]
 	page.select_person(int(person.id))
-	assert_str(page._card.text).contains("Needs met:")
 	assert_str(page._card.text).contains("Why:")
 	assert_str(page._card.text).contains(str(person.name))
 	assert_int(person.decision_at).is_less_equal(page.world.frontier())
@@ -239,6 +238,7 @@ func test_living_card_uses_saved_choice_and_needs_at_the_displayed_action() -> v
 	assert_int(person.rest_need).is_between(0, 100)
 	page._details = true
 	page._refresh_records()
+	assert_str(page._card.text).contains("Needs met:")
 	assert_str(page._card.text).contains("Remembered supplies")
 	assert_str(page._card.text).contains("Didn't")
 	var digest: String = page.world.digest()

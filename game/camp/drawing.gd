@@ -188,6 +188,10 @@ func _sites() -> void:
 	)
 
 
+static func work_phase(person: Dictionary, second: float) -> int:
+	return maxi(0, int(second) - int(person.get("action_start", 0))) / 2
+
+
 func _person(person: Dictionary) -> void:
 	var id := int(person.id)
 	var rect: Rect2 = drawn[id]
@@ -209,6 +213,8 @@ func _person(person: Dictionary) -> void:
 		draw_rect(Rect2(bed + Vector2(unit * 4, unit), Vector2(unit * 8, unit * 2)), skin)
 		return
 	var phase := (int(person.get("progress_ppm", 0)) / 250000) % 2
+	if act in [8, 10, 12]:
+		phase = work_phase(person, float(state.get("second", 0))) % 2
 	var stride := (int(person.get("walk_cm", 0)) / 70) % 2 if act in [1, 7] else 0
 	var bend := unit * 2 if act == 4 else 0.0
 	var top := (foot - Vector2(unit * 2, unit * 12 - bend)).round()
@@ -222,7 +228,7 @@ func _person(person: Dictionary) -> void:
 		Rect2(top + Vector2(unit * 2.5, unit * 8), Vector2(unit * 1.5, unit * (3 + stride))), skin
 	)
 	draw_rect(Rect2(top + Vector2(unit * 2.5, unit * 2), Vector2(unit, unit)), Color("342b27"))
-	if act in [4, 5, 6, 7]:
+	if act in [4, 5, 6, 7, 8, 10, 12]:
 		var arm := top + Vector2(unit * 3, unit * (5 - phase))
 		draw_rect(Rect2(arm, Vector2(unit * 3, unit)), skin)
 		var colour := Color("93b8c4") if act == 6 else Color("ce9b6b")

@@ -121,9 +121,17 @@ func layout(window: Vector2, safe: Rect2) -> void:
 	if window == Vector2.ZERO:
 		return
 	var density := clampf(minf(window.x, window.y) / 450, 1, 3)
-	var gap := 16 * density
-	var width := minf(520 * density, safe.size.x - 2 * gap)
-	var height := minf(640 * density, safe.size.y - 2 * gap)
-	position = safe.position + (safe.size - Vector2(width, height)) / 2
-	size = Vector2(width, height)
 	Sizing.page(self, density)
+	_fit_window.call_deferred()
+
+
+func _fit_window() -> void:
+	if _window == Vector2.ZERO:
+		return
+	var density := clampf(minf(_window.x, _window.y) / 450, 1, 3)
+	var gap := 16 * density
+	var desired := Vector2(
+		minf(520 * density, _safe.size.x - 2 * gap), minf(640 * density, _safe.size.y - 2 * gap)
+	)
+	size = desired
+	position = _safe.position + (_safe.size - desired) / 2

@@ -1,9 +1,12 @@
 ## Implements PRE-26 PRE-30 PLT-02: independent integer bitmap text and physical touch sizes.
 extends RefCounted
 
+const Preferences := preload("res://ui/preferences.gd")
+
 
 static func font_size(logical: float, density: float) -> int:
-	return 16 * ceili(maxf(16.0, logical) * density / 16.0)
+	var larger := 1.5 if Preferences.value("large_text") else 1.0
+	return 16 * ceili(maxf(16.0, logical) * larger * density / 16.0)
 
 
 static func page(root: Control, density: float) -> void:
@@ -12,6 +15,8 @@ static func page(root: Control, density: float) -> void:
 	for child: Node in nodes:
 		var control := child as Control
 		control.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		if control is Button:
+			control.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		if not control.has_meta("ui_minimum"):
 			control.set_meta("ui_minimum", control.custom_minimum_size)
 		var minimum: Vector2 = control.get_meta("ui_minimum")

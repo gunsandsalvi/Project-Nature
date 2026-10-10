@@ -10,6 +10,8 @@ static func when(second: int, now: int) -> String:
 
 
 static func person(p: Dictionary, details: bool, now: int) -> String:
+	if not details:
+		return _summary(p)
 	var goals := ["food", "water", "rest", "nearby supplies"]
 	var choice := int(p.choice)
 	var action := str(p.activity)
@@ -162,6 +164,38 @@ static func person(p: Dictionary, details: bool, now: int) -> String:
 			% [acts.get(int(p.memory_kind), "Acted"), when(int(p.memory_at), now)]
 		)
 	return words
+
+
+static func _summary(p: Dictionary) -> String:
+	var goals := ["food", "water", "rest", "nearby supplies"]
+	var choice := int(p.choice)
+	var action := str(p.activity)
+	var reason := "Their known supplies weren't worth a trip yet."
+	if int(p.action_code) == 1:
+		action += " to " + goals[choice]
+	if choice < 3:
+		reason = "%s was %d/100." % [goals[choice].capitalize(), p.decision_needs[choice]]
+	if int(p.get("dream_pull", 0)) > 0 and choice == 3:
+		reason = "A remembered idea makes this feel worthwhile."
+	if int(p.action_code) == 11:
+		reason = "Resting here feels warmer."
+	elif int(p.action_code) == 12:
+		reason = "Tending the fire with finite fuel."
+	elif int(p.action_code) in [8, 10] or int(p.get("work_state", 0)) == 2:
+		action = (
+			"Making " + recipe(str(p.work_recipe)).to_lower()
+			if p.get("work_known", false)
+			else "Trying familiar materials"
+		)
+		reason = (
+			"A familiar craft seemed useful."
+			if p.get("work_known", false)
+			else "Curious about familiar materials."
+		)
+		if p.get("work_taught", false):
+			action = "Shared practice"
+			reason = "Following a shared practice session."
+	return "%s · %s\nWhy: %s" % [p.name, action, reason]
 
 
 static func name_of(id: int, people: Array) -> String:

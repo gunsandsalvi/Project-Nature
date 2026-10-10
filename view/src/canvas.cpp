@@ -121,6 +121,8 @@ godot::Dictionary KdCanvas::frame(int64_t width, int64_t height, double seconds)
     godot::Dictionary result;
     result["size"] = godot::Vector2(static_cast<float>(projection_.width()), static_cast<float>(projection_.height()));
     result["scale"] = projection_.pixel_scale();
+    const auto centre = projection_.centre();
+    result["camera_centre"] = godot::Vector2(static_cast<float>(centre.x), static_cast<float>(centre.y));
     result["height_basis"] = Projection::kB;
     result["ground_basis"] = Projection::kA;
     result["density"] = projection_.resting_density();
