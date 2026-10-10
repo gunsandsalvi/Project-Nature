@@ -2,6 +2,7 @@
 #include "kd/demo/living_rules.hpp"
 #include "kd/world/world.hpp"
 namespace kd::demo {
+class ChoiceSet;
 class Living final : public world::System {
 public:
     explicit Living(world::World& w);
@@ -47,7 +48,7 @@ private:
                                       std::size_t need) const;
     void thermal_alarm(world::Context& c, world::Beings::Handle h);
     void notice(world::Context& c, world::Beings::Handle h, ecs::Id camp);
-    void choose(world::Context& c, world::Beings::Handle h, ecs::Id camp);
+    void choose(world::Context& c, world::Beings::Handle h, ecs::Id camp, ChoiceSet* collected = nullptr);
     void continue_goal(world::Context& c, world::Beings::Handle h, ecs::Id camp);
     void settle(world::Context& c, world::Beings::Handle h, ecs::Id camp, bool interrupted);
     void begin(world::Context& c, world::Beings::Handle h, world::LivingAct what, time::Seconds takes, num::Point to);

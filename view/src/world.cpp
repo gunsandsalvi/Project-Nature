@@ -1048,9 +1048,18 @@ godot::Array reason_rows(const std::vector<world::CraftReason>& reasons, const d
         row["name"] = reason.kind == 2     ? godot::String(body[reason.need])
                       : reason.kind == 3   ? godot::String(fire[reason.action])
                       : reason.kind == 4   ? godot::String("Warm by fire")
-                      : reason.kind == 5   ? godot::String("Accepted shared practice")
+                      : reason.kind == 5   ? godot::String("Shared practice")
                       : bool(row["known"]) ? craft_label(catalogue.kind<data::Blueprint>().name(reason.recipe))
                                            : godot::String("Try familiar materials");
+        godot::PackedInt64Array parts;
+        for (const auto part : reason.parts) parts.push_back(part);
+        row["score_parts"] = parts;
+        if (&reason == &reasons.front() && reasons.size() >= 2) {
+            godot::PackedInt64Array differences;
+            for (std::size_t n = 0; n < reason.parts.size(); ++n)
+                differences.push_back(reason.parts[n] - reasons[1].parts[n]);
+            row["score_differences"] = differences;
+        }
         row["score"] = reason.score;
         row["benefit"] = reason.benefit;
         row["seconds"] = reason.seconds;

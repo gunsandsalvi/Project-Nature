@@ -1,6 +1,7 @@
 #include "kd/demo/fire.hpp"
 #include "doctest.h"
 #include "kd/data/folder.hpp"
+#include "kd/demo/choice.hpp"
 #include "kd/demo/crafting.hpp"
 #include "kd/demo/crowd_world.hpp"
 #include "kd/demo/discovery.hpp"
@@ -1124,6 +1125,34 @@ struct GenericFuelOperation : GenericFoodOperation {
             kd::demo::FireRules::deadlines(c, fixture.home);
         }
         auto& living = *const_cast<kd::demo::Living*>(fixture.camp.living());
+        if (cmd.what == 936 || cmd.what == 937) {
+            auto& thermal = w.beings().raw().get<kd::world::Thermal>(h);
+            thermal.warmth = 70;
+            thermal.felt_milli_c = 18000;
+            life.scores = {0, 0, 0, cmd.what == 936 ? 100000 : 0};
+            kd::demo::ChoiceSet options;
+            for (std::uint8_t goal = 0; goal < 4; ++goal)
+                options.add(kd::demo::Choices::body(life, goal), [&life, goal](std::uint64_t) {
+                    life.goal = goal;
+                    return false;
+                });
+            kd::demo::FireRules::choose_warm(living, c, h, &options);
+            kd::demo::FireRules::choose(living, c, h, &options);
+            CHECK(thermal.tending == 0);
+            CHECK(life.meal_item.value == 0);
+            CHECK(w.things().raw().get<kd::world::Item>(w.things().handle(fuel)).owner.value == 0);
+            kd::world::CraftReason craft;
+            craft.kind = 1;
+            craft.need = 3;
+            craft.score = 50000;
+            options.add(craft, [this](std::uint64_t) {
+                chosen = true;
+                return true;
+            });
+            const auto started = options.commit(c, h);
+            CHECK(started == (cmd.what == 937));
+            return;
+        }
         if (cmd.what == 934) {
             auto& thermal = w.beings().raw().get<kd::world::Thermal>(h);
             thermal.felt_milli_c = 18000;
@@ -1238,6 +1267,11 @@ TEST_CASE("ordinary timed fire and craft choices retain three reasons and reject
     bool craft = false, warmth = false;
     for (const auto& choice : history.choices) {
         REQUIRE(choice.reasons.size() == 3);
+        for (const auto& reason : choice.reasons) {
+            REQUIRE_MESSAGE(reason.parts[0] + reason.parts[1] + reason.parts[2] == reason.score, "choice ", choice.id,
+                            " kind ", int(reason.kind), " score ", reason.score, " parts ", reason.parts[0], ",",
+                            reason.parts[1], ",", reason.parts[2]);
+        }
         craft |= choice.reasons.front().kind == 0 || choice.reasons.front().kind == 1;
         warmth |= choice.reasons.front().kind == 4;
     }
@@ -1261,6 +1295,10 @@ TEST_CASE("ordinary timed fire and craft choices retain three reasons and reject
     history.choices.front().actor = original;
     REQUIRE(reopen_fire(w, why));
     history.choices.front().reasons.front().confidence = 101;
+    CHECK_FALSE(reopen_fire(w, why));
+    history.choices.front().reasons.front().confidence = 100;
+    REQUIRE(reopen_fire(w, why));
+    ++history.choices.front().reasons.front().parts[0];
     CHECK_FALSE(reopen_fire(w, why));
 }
 
@@ -1380,4 +1418,47 @@ TEST_CASE("fire selection ignores spent distractions and keeps the lowest eligib
         digests[variant] = kd::num::to_hex(w.digests().whole);
     }
     CHECK(digests[0] == digests[1]);
+}
+
+TEST_CASE("body and craft can beat earlier warmth and tending without reserving losing inputs") {
+    for (const auto command : {936U, 937U}) {
+        GenericFuelOperation op(false);
+        auto& w = op.fixture.camp.world();
+        (void)w.command(0, command, 0, 0);
+        w.run_to(1);
+        const auto h = w.beings().handle(op.person);
+        const auto& mind = w.beings().raw().get<kd::world::Knowledge>(h);
+        REQUIRE(mind.reasons.size() == 3);
+        CHECK(mind.reasons[0].kind == (command == 936 ? 2 : 1));
+        CHECK(mind.reasons[0].score >= mind.reasons[1].score);
+        CHECK(mind.reasons[1].score >= mind.reasons[2].score);
+        for (const auto& reason : mind.reasons)
+            CHECK(reason.parts[0] + reason.parts[1] + reason.parts[2] == reason.score);
+        CHECK(w.beings().raw().get<kd::world::Thermal>(h).tending == 0);
+        CHECK(op.chosen == (command == 937));
+        CHECK(w.things().raw().get<kd::world::Item>(w.things().handle(op.fuel)).mass == 1000000);
+    }
+}
+TEST_CASE("making and teaching share eight blueprint slots with stable equal-score order") {
+    kd::demo::ChoiceSet options;
+    for (std::uint32_t n = 0; n < 8; ++n) {
+        kd::world::CraftReason reason;
+        reason.intended = 1;
+        reason.recipe = n;
+        reason.score = 10;
+        options.add(reason, [](std::uint64_t) { return false; });
+    }
+    kd::world::CraftReason teaching;
+    teaching.kind = 5;
+    teaching.intended = 1;
+    teaching.recipe = 8;
+    teaching.score = 10;
+    options.add(teaching, [](std::uint64_t) { return false; });
+    REQUIRE(options.reasons().size() == 8);
+    CHECK(options.reasons().front().recipe == 0);
+    teaching.score = 11;
+    options.add(teaching, [](std::uint64_t) { return false; });
+    REQUIRE(options.reasons().size() == 8);
+    CHECK(options.reasons().front().recipe == 0);
+    CHECK(options.reasons().back().recipe == 8);
 }

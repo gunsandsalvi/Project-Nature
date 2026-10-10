@@ -164,6 +164,12 @@ static func person(p: Dictionary, details: bool, now: int) -> String:
 
 static func kept_reasons(reasons: Array) -> String:
 	var words := ""
+	if reasons.size() >= 2 and reasons[0].has("score_differences"):
+		var differences: PackedInt64Array = reasons[0].score_differences
+		words += (
+			"\nCompared with %s: need %+d, inclination/plan %+d, effort %+d."
+			% [reasons[1].name, differences[0], differences[1], differences[2]]
+		)
 	for n in reasons.size():
 		var r: Dictionary = reasons[n]
 		words += (

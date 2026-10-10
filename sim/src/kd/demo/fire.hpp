@@ -3,6 +3,7 @@
 #include "kd/world/world.hpp"
 namespace kd::demo {
 class Living;
+class ChoiceSet;
 class FireRules {
 public:
     static void start(world::World& w);
@@ -27,7 +28,8 @@ public:
     static void thermal_before(world::Context& c, ecs::Id camp);
     static void thermal_after(world::Context& c, ecs::Id camp);
     static void experience(world::Context& c, world::Beings::Handle person);
-    static bool choose_warm(Living& living, world::Context& c, world::Beings::Handle person);
+    static bool choose_warm(Living& living, world::Context& c, world::Beings::Handle person,
+                            ChoiceSet* proposals = nullptr);
     static bool continue_warm(Living& living, world::Context& c, world::Beings::Handle person, bool interrupted);
     static std::int64_t warmth(std::int64_t milli_c, world::LivingAct action);
     static void fresh_hearth(world::World& w, bool already_out = false);
@@ -37,7 +39,7 @@ public:
     static bool blow(world::Context& c, ecs::Id hearth);
     static bool bank(world::Context& c, ecs::Id hearth);
     static ecs::Id carry(world::Context& c, ecs::Id hearth, ecs::Id input, ecs::Id person);
-    static bool choose(Living& living, world::Context& c, world::Beings::Handle person);
+    static bool choose(Living& living, world::Context& c, world::Beings::Handle person, ChoiceSet* proposals = nullptr);
     static bool continue_tending(Living& living, world::Context& c, world::Beings::Handle person, bool interrupted);
     static void deadlines(world::Context& c, ecs::Id camp);
     static void handle(world::Context& c, ecs::Id camp, std::uint32_t slot);

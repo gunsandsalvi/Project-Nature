@@ -124,7 +124,7 @@ bool Learning::exchange(world::Context& c, world::Beings::Handle speaker, world:
     return true;
 }
 bool Learning::reply_to_lesson(Living& living, world::Context& c, world::Beings::Handle listener, ecs::Id proposer,
-                               bool resume) {
+                               bool resume, bool record) {
     auto& w = c.world();
     const auto& raw = w.beings().raw();
     const auto self = w.beings().id_of(listener);
@@ -140,15 +140,17 @@ bool Learning::reply_to_lesson(Living& living, world::Context& c, world::Beings:
     const bool accepted = comfortable(living, w, listener, c.now()) && own_plan_free && own_work_free &&
                           (resume || own_mind.session == 0);
     // This is the listener's reply, not the speaker reading needs, meals or private reservations.
-    c.record(accepted ? 213 : 214, self.value, proposer.value);
+    if (record) c.record(accepted ? 213 : 214, self.value, proposer.value);
     return accepted;
 }
-bool Learning::choose(Living& living, world::Context& c, world::Beings::Handle h) {
+bool Learning::choose(Living& living, world::Context& c, world::Beings::Handle h, ChoiceSet* proposals) {
     auto& w = c.world();
     auto& raw = w.beings().raw();
     auto* mind = raw.try_get<world::Knowledge>(h);
     if (!mind || !comfortable(living, w, h, c.now())) return false;
-    auto begin_meeting = [&](world::Lesson& s) {
+    auto begin_meeting = [&living, &c](world::Lesson& s, std::uint64_t choice = 0) {
+        auto& w = c.world();
+        auto& raw = w.beings().raw();
         const auto teacher = w.beings().handle(s.teacher), learner = w.beings().handle(s.learner);
         c.touch(s.teacher);
         c.touch(s.learner);
@@ -169,7 +171,8 @@ bool Learning::choose(Living& living, world::Context& c, world::Beings::Handle h
         raw.get<world::Life>(teacher).portion = 0;
         world::CraftReason reason{5, 1, 10, 3, s.recipe, 10, 10, 1800, {}};
         reason.need_met = raw.get<world::Knowledge>(teacher).curiosity_need;
-        Choices::keep(c, teacher, reason);
+        reason.parts = {0, 10, 0};
+        if (!choice) Choices::keep(c, teacher, reason);
         Choices::restore(w, learner, work.choice);
         living.begin(c, teacher, LivingAct::teach, time::kHour, raw.get<world::Place>(teacher).at);
         const bool moving = Crafting::continue_work(living, c, learner);
@@ -182,18 +185,37 @@ bool Learning::choose(Living& living, world::Context& c, world::Beings::Handle h
         return true;
     };
     if (auto* s = session(w, h)) {
-        if (s->state != 2) return true;
-        const auto teacher = w.beings().handle(s->teacher), learner = w.beings().handle(s->learner);
-        // The shared coordinator obtains each participant's own reply; neither mind reads the other.
-        if (!reply_to_lesson(living, c, teacher, s->learner, true) ||
-            !reply_to_lesson(living, c, learner, s->teacher, true))
-            return false;
-        if (s->work == 0) {
-            if (Crafting::prepare_lesson(c, teacher, learner, s->recipe, s->id))
+        if (s->state != 2) return !proposals;
+        const auto id = s->id;
+        auto resume = [&living, &c, h, id, begin_meeting](std::uint64_t choice) {
+            auto& w = c.world();
+            auto& raw = w.beings().raw();
+            auto* s = session(w, h);
+            KD_CHECK(s && s->id == id, "The selected shared plan still exists");
+            const auto teacher = w.beings().handle(s->teacher), learner = w.beings().handle(s->learner);
+            if (!reply_to_lesson(living, c, teacher, s->learner, true) ||
+                !reply_to_lesson(living, c, learner, s->teacher, true)) {
+                if (!choice) return false;
+                living.begin(c, h, LivingAct::watch, 60, raw.get<world::Place>(h).at);
+                return true;
+            }
+            if (s->work == 0 &&
+                Crafting::prepare_lesson(c, teacher, learner, s->recipe, s->id, choice ? &living : nullptr))
                 s->work = raw.get<world::Work>(learner).number;
-        }
-        if (s->work == 0) return false;
-        return begin_meeting(*s);
+            if (s->work == 0) {
+                if (!choice) return false;
+                living.begin(c, h, LivingAct::watch, 60, raw.get<world::Place>(h).at);
+                return true;
+            }
+            if (w.beings().id_of(h) == s->learner) raw.get<world::Work>(h).choice = choice;
+            return begin_meeting(*s, choice);
+        };
+        if (!proposals) return resume(0);
+        world::CraftReason reason{5, 1, 10, 3, s->recipe, 90000, 10, 1800, {}};
+        reason.need_met = mind->curiosity_need;
+        reason.parts = {0, 90000, 0};
+        proposals->add(reason, std::move(resume));
+        return false;
     }
     if (mind->kindness < 60 || raw.get<world::Work>(h).state != 0) return false;
     const auto home = raw.get<Home>(h).camp;
@@ -204,6 +226,7 @@ bool Learning::choose(Living& living, world::Context& c, world::Beings::Handle h
         const auto at = raw.get<world::Activity>(other).at(w.torus(), c.now());
         if (can_watch(w, home, raw.get<world::Place>(h).at, at, c.now())) nearby.push_back(id);
     });
+    std::size_t offers = 0;
     for (const auto other : nearby) {
         const auto learner = w.beings().handle(other);
         c.touch(other);
@@ -214,27 +237,63 @@ bool Learning::choose(Living& living, world::Context& c, world::Beings::Handle h
             });
             // Ask once when no evidence exists. Later observed use can correct this belief.
             if (peer == mind->peers.end()) {
-                (void)exchange(c, h, learner, known.recipe);
+                if (!proposals) {
+                    (void)exchange(c, h, learner, known.recipe);
+                    continue;
+                }
+                world::CraftReason reason{5, 1, 10, 3, known.recipe, 10, 10, 60, {}};
+                reason.need_met = mind->curiosity_need;
+                reason.parts = {0, 10, 0};
+                proposals->add(reason, [&living, &c, h, other, recipe = known.recipe](std::uint64_t) {
+                    const auto learner = c.world().beings().handle(other);
+                    (void)exchange(c, h, learner, recipe);
+                    living.begin(c, h, LivingAct::watch, 60, c.world().beings().raw().get<world::Place>(h).at);
+                    return true;
+                });
+                if (++offers == 8) return false;
                 continue;
             }
             if (peer->knows) continue;
-            c.record(211, person.value, other.value);  // Visible offer precedes the learner's private acceptance.
-            if (!reply_to_lesson(living, c, learner, person)) continue;
-            auto& list = lessons(w, h);
-            if (list.sessions.size() >= 64 || !Crafting::prepare_lesson(c, h, learner, known.recipe, list.next))
+            const auto recipe = known.recipe;
+            auto offer = [&living, &c, h, person, other, recipe, begin_meeting](std::uint64_t choice) {
+                auto& w = c.world();
+                auto& raw = w.beings().raw();
+                const auto learner = w.beings().handle(other);
+                c.touch(other);
+                c.record(211, person.value, other.value);
+                auto& list = lessons(w, h);
+                const bool ready = reply_to_lesson(living, c, learner, person, false, !choice);
+                const bool accepted =
+                    ready && list.sessions.size() < 64 &&
+                    Crafting::prepare_lesson(c, h, learner, recipe, list.next, choice ? &living : nullptr);
+                if (choice) c.record(accepted ? 213 : 214, other.value, person.value);
+                if (!accepted) {
+                    if (!choice) return false;
+                    living.begin(c, h, LivingAct::watch, 60, raw.get<world::Place>(h).at);
+                    return true;
+                }
+                world::Lesson s;
+                s.id = list.next++;
+                s.teacher = person;
+                s.learner = other;
+                s.recipe = recipe;
+                s.meeting = raw.get<world::Place>(h).at;
+                s.offered = c.now();
+                s.work = raw.get<world::Work>(learner).number;
+                raw.get<world::Knowledge>(h).session = s.id;
+                raw.get<world::Knowledge>(learner).session = s.id;
+                list.sessions.push_back(s);
+                return begin_meeting(list.sessions.back(), choice);
+            };
+            if (!proposals) {
+                if (offer(0)) return true;
                 continue;
-            world::Lesson s;
-            s.id = list.next++;
-            s.teacher = person;
-            s.learner = other;
-            s.recipe = known.recipe;
-            s.meeting = raw.get<world::Place>(h).at;
-            s.offered = c.now();
-            s.work = raw.get<world::Work>(learner).number;
-            mind->session = s.id;
-            raw.get<world::Knowledge>(learner).session = s.id;
-            list.sessions.push_back(s);
-            return begin_meeting(list.sessions.back());
+            }
+            world::CraftReason reason{5, 1, 10, 3, recipe, 10, 10, 1800, {}};
+            reason.need_met = mind->curiosity_need;
+            reason.parts = {0, 10, 0};
+            proposals->add(reason, std::move(offer));
+            if (++offers == 8) return false;
         }
     }
     return false;

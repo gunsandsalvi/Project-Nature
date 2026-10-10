@@ -450,7 +450,7 @@ void FireRules::handle(world::Context& c, ecs::Id camp, std::uint32_t slot) {
     food_refresh(c, camp);
     deadlines(c, camp);
 }
-bool FireRules::choose(Living& living, world::Context& c, world::Beings::Handle h) {
+bool FireRules::choose(Living& living, world::Context& c, world::Beings::Handle h, ChoiceSet* proposals) {
     auto& w = c.world();
     auto& raw = w.beings().raw();
     auto* t = raw.try_get<world::Thermal>(h);
@@ -561,17 +561,18 @@ bool FireRules::choose(Living& living, world::Context& c, world::Beings::Handle 
                 operation = f.heat == 1 ? 2 : 1;
                 hypothesis = true;
                 score = 500;  // Same short curious-use priority as ordinary Crafting::choose.
-                know.hourly_draw = hour;
+                if (!proposals) know.hourly_draw = hour;
             }
         }
     }
-    if (!operation || score <= l.scores[l.goal]) return false;
+    if (!operation || (!proposals && score <= l.scores[l.goal])) return false;
     world::CraftReason reason;
     reason.kind = 3;
     reason.action = operation;
     reason.need = hypothesis ? 3 : 4;
     reason.need_met = hypothesis ? know.curiosity_need : static_cast<std::uint8_t>(t->warmth);
     reason.score = score;
+    reason.parts = {0, score, 0};  // The existing confidence-scaled tending priority.
     reason.observed_heat = f.heat;
     reason.observed_fuel_mg = f.fuel_mg;
     reason.seconds = 60 + w.torus().distance(here, at(w, target, c.now())) * 10 / living.rules().speed;
@@ -582,14 +583,25 @@ bool FireRules::choose(Living& living, world::Context& c, world::Beings::Handle 
             *Discovery::familiar(know, item(w, input)),
             operation == 4 ? std::initializer_list<std::size_t>{6, 7, 9} : std::initializer_list<std::size_t>{6, 9});
     }
-    t->tending_choice = Choices::keep(c, h, reason);
-    t->tending = operation;
-    t->tending_phase = input.value ? 1 : 2;
-    t->tending_fire = target;
-    t->tending_input = input;
-    t->tending_mass = mass;
-    t->tending_started = c.now();
-    return continue_tending(living, c, h, false);
+    auto commit = [&living, &c, h, target, input, operation, mass, reason, hypothesis](std::uint64_t choice) {
+        if (hypothesis)
+            c.world().beings().raw().get<world::Knowledge>(h).hourly_draw =
+                static_cast<std::uint64_t>(c.now() / 3600 + 1);
+        auto& thermal = c.world().beings().raw().get<world::Thermal>(h);
+        thermal.tending_choice = choice ? choice : Choices::keep(c, h, reason);
+        thermal.tending = operation;
+        thermal.tending_phase = input.value ? 1 : 2;
+        thermal.tending_fire = target;
+        thermal.tending_input = input;
+        thermal.tending_mass = mass;
+        thermal.tending_started = c.now();
+        return continue_tending(living, c, h, false);
+    };
+    if (proposals) {
+        proposals->add(reason, std::move(commit));
+        return false;
+    }
+    return commit(0);
 }
 bool FireRules::continue_tending(Living& living, world::Context& c, world::Beings::Handle h, bool interrupted) {
     auto& w = c.world();

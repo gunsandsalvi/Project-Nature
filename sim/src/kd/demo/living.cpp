@@ -485,7 +485,7 @@ void Living::thermal_alarm(world::Context& c, world::Beings::Handle h) {
         if (event.key.owner == person.value && event.slot == kUrgent && event.key.second <= due) return;
     c.schedule(person, kUrgent, due);
 }
-void Living::choose(world::Context& c, world::Beings::Handle h, ecs::Id camp) {
+void Living::choose(world::Context& c, world::Beings::Handle h, ecs::Id camp, ChoiceSet* collected) {
     if (c.world().beings().raw().all_of<world::Knowledge>(h)) Learning::settle_mind(c, h);
     auto& raw = c.world().beings().raw();
     auto& l = raw.get<world::Life>(h);
@@ -571,11 +571,37 @@ void Living::choose(world::Context& c, world::Beings::Handle h, ecs::Id camp) {
     if (auto* mind = raw.try_get<world::Knowledge>(h)) {
         mind->reasons.clear();
         mind->choice = 0;
-    }
-    if (FireRules::choose_warm(*this, c, h) || FireRules::choose(*this, c, h) || Learning::choose(*this, c, h) ||
-        Crafting::choose(*this, c, h)) {
-        dream_consequence(c, h, camp, false);
-        return;
+        const auto body_pull = thought.decision_pull;
+        const auto body_subject = thought.decision_subject;
+        const auto body_goal = l.goal;
+        thought.decision_pull = 0;
+        thought.decision_subject = -1;
+        ChoiceSet local;
+        auto& candidates = collected ? *collected : local;
+        for (std::uint8_t goal = 0; goal < 4; ++goal) {
+            auto reason = Choices::body(l, goal);
+            if (goal == 3 && visiting) {
+                reason.parts = {0, kDreamPull, reason.score - kDreamPull};
+                reason.seconds = (kDreamPull - reason.score) * 60;
+            }
+            candidates.add(reason, [&l, &thought, goal, body_goal, body_pull, body_subject](std::uint64_t) {
+                l.goal = goal;
+                if (goal == body_goal) {
+                    thought.decision_pull = body_pull;
+                    thought.decision_subject = body_subject;
+                }
+                return false;
+            });
+        }
+        FireRules::choose_warm(*this, c, h, &candidates);
+        FireRules::choose(*this, c, h, &candidates);
+        Learning::choose(*this, c, h, &candidates);
+        Crafting::choose(*this, c, h, &candidates);
+        if (collected) return;
+        if (candidates.commit(c, h)) {
+            dream_consequence(c, h, camp, false);
+            return;
+        }
     }
     dream_consequence(c, h, camp, false);
     if (l.goal < 3)

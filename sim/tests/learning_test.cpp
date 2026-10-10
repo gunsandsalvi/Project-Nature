@@ -2,6 +2,7 @@
 #include "doctest.h"
 #include "kd/chance/chance.hpp"
 #include "kd/data/folder.hpp"
+#include "kd/demo/choice.hpp"
 #include "kd/demo/crafting.hpp"
 #include "kd/demo/crowd_world.hpp"
 #include "kd/demo/discovery.hpp"
@@ -499,6 +500,29 @@ struct TeachingFixture : WatchFixture {
             CHECK(kd::demo::Learning::exchange(c, teacher, learner, recipe));
             return;
         }
+        if (cmd.what == 919) {
+            kd::demo::ChoiceSet options;
+            auto& life = w.beings().raw().get<kd::world::Life>(teacher);
+            life.scores = {0, 0, 0, 0};
+            for (std::uint8_t goal = 0; goal < 4; ++goal)
+                options.add(kd::demo::Choices::body(life, goal), [](std::uint64_t) { return false; });
+            kd::demo::Learning::choose(*const_cast<kd::demo::Living*>(camp->living()), c, teacher, &options);
+            CHECK(options.commit(c, teacher));
+            accepted = mind(watcher).session != 0;
+            return;
+        }
+        if (cmd.what == 918) {
+            kd::demo::ChoiceSet options;
+            auto& life = w.beings().raw().get<kd::world::Life>(teacher);
+            life.scores = {100000, 0, 0, 0};
+            for (std::uint8_t goal = 0; goal < 4; ++goal)
+                options.add(kd::demo::Choices::body(life, goal), [](std::uint64_t) { return false; });
+            kd::demo::Learning::choose(*const_cast<kd::demo::Living*>(camp->living()), c, teacher, &options);
+            CHECK(options.reasons().size() > 4);
+            CHECK(w.beings().raw().get<kd::world::Work>(learner).state == 0);
+            CHECK_FALSE(options.commit(c, teacher));
+            return;
+        }
         if (cmd.what == 912) {
             accepted = kd::demo::Learning::choose(*const_cast<kd::demo::Living*>(camp->living()), c, teacher);
             return;
@@ -927,5 +951,55 @@ TEST_CASE("teachers make the same visible offer while learners decide from their
         CHECK(answer == 1);
         CHECK(f.accepted == !hungry);
         CHECK(f.sessions().sessions.empty() == hungry);
+    }
+}
+
+TEST_CASE("a rejected teaching option neither offers nor reserves the learner's practice") {
+    TeachingFixture f;
+    auto& w = f.camp->world();
+    f.at(w.frontier(), 910);
+    std::vector<kd::world::Record> events;
+    w.keep_history(&events);
+    f.at(w.frontier(), 918);
+    w.keep_history(nullptr);
+    CHECK(f.sessions().sessions.empty());
+    CHECK_FALSE(std::any_of(events.begin(), events.end(), [](const auto& e) { return e.what == 211; }));
+    CHECK(w.beings().raw().get<kd::world::Work>(w.beings().handle(f.watcher)).state == 0);
+    const auto& reasons = f.mind(f.maker).reasons;
+    REQUIRE(reasons.size() == 3);
+    CHECK(reasons[0].kind == 2);
+    CHECK(reasons[1].kind == 5);
+}
+
+TEST_CASE("the same common teaching offer is accepted only when it wins the learner's own comparison") {
+    for (const auto curiosity_met : {50, 100}) {
+        TeachingFixture f;
+        auto& w = f.camp->world();
+        f.at(w.frontier(), 910);
+        f.mind(f.watcher).curiosity_need = curiosity_met;
+        f.mind(f.watcher).settled = w.frontier();
+        std::vector<kd::world::Record> events;
+        w.keep_history(&events);
+        f.at(w.frontier(), 919);
+        w.keep_history(nullptr);
+        CHECK(f.accepted == (curiosity_met == 50));
+        CHECK(std::count_if(events.begin(), events.end(), [&](const auto& e) {
+                  return e.what == 211 && e.a == f.maker.value && e.b == f.watcher.value;
+              }) == 1);
+        CHECK(std::count_if(events.begin(), events.end(), [&](const auto& e) {
+                  return e.what == (curiosity_met == 50 ? 213 : 214) && e.a == f.watcher.value && e.b == f.maker.value;
+              }) == 1);
+        if (f.accepted) {
+            const auto& reasons = f.mind(f.watcher).reasons;
+            REQUIRE(reasons.size() == 3);
+            CHECK(reasons[0].kind == 5);
+            CHECK(reasons[0].need_met == 50);
+            CHECK(reasons[0].score > reasons[1].score);
+            CHECK(reasons[1].score >= reasons[2].score);
+            f.reopen();
+        } else {
+            CHECK(w.beings().raw().get<kd::world::Work>(w.beings().handle(f.watcher)).state == 0);
+            CHECK(f.sessions().sessions.empty());
+        }
     }
 }

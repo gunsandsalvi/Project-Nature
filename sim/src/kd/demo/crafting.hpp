@@ -4,14 +4,15 @@
 #include "kd/world/world.hpp"
 namespace kd::demo {
 class Living;
+class ChoiceSet;
 class Crafting {
 public:
     // Only fresh labelled Discovery scenes call this; never an opening/conversion hook.
     static void initialise(world::World& w, bool fire_already_out = false);
     // Called only at bodily decision/event boundaries, never by rendering.
     static bool prepare_lesson(world::Context& c, world::Beings::Handle teacher, world::Beings::Handle learner,
-                               std::uint32_t recipe, std::uint64_t session);
-    static bool choose(Living& living, world::Context& c, world::Beings::Handle h);
+                               std::uint32_t recipe, std::uint64_t session, Living* living = nullptr);
+    static bool choose(Living& living, world::Context& c, world::Beings::Handle h, ChoiceSet* proposals = nullptr);
     static bool continue_work(Living& living, world::Context& c, world::Beings::Handle h);
     static void settle(Living& living, world::Context& c, world::Beings::Handle h, bool interrupted, bool try_event);
     static bool meal(Living& living, world::Context& c, world::Beings::Handle h);
@@ -32,6 +33,9 @@ public:
 
 private:
     struct Decision;
-    static bool meal(Living& living, world::Context& c, world::Beings::Handle h, const Decision& decision);
+    static bool start_meal(Living& living, world::Context& c, world::Beings::Handle h, ecs::Id item,
+                           std::int64_t portion);
+    static bool meal(Living& living, world::Context& c, world::Beings::Handle h, const Decision& decision,
+                     ChoiceSet* proposals = nullptr);
 };
 }  // namespace kd::demo

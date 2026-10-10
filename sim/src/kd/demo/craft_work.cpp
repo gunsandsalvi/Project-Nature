@@ -174,6 +174,7 @@ Inputs reachable(world::Context& c, world::Beings::Handle h, const Supplies& sup
 }
 struct Candidate {
     bool dream_hunch = false;
+    std::int64_t ordinary_hunch = -1;
     world::CraftReason reason;
     std::vector<world::Reservation> inputs;
     std::int64_t duration = 0, unit = 0, goal = 0;
@@ -261,6 +262,7 @@ std::optional<Candidate> known(world::Context& c, world::Beings::Handle h, std::
     out.reason.benefit = std::min<std::int64_t>(b.benefit * out.goal / 1000000, 100 - need);
     out.reason.seconds = std::min<std::int64_t>(3600, out.duration * ((out.goal + out.unit - 1) / out.unit));
     out.reason.score = urgency * out.reason.benefit * 10 - out.reason.seconds / 60;
+    out.reason.parts = {urgency * out.reason.benefit * 10, 0, -out.reason.seconds / 60};
     return out;
 }
 std::vector<ecs::Id> matching(const world::World& w, const data::Blueprint& b, std::span<const ecs::Id> inputs) {
@@ -523,7 +525,7 @@ void Crafting::wear(world::Context& c, ecs::Id tool, std::int64_t worked, std::i
     (void)born(c, item, at);
 }
 bool Crafting::prepare_lesson(world::Context& c, world::Beings::Handle teacher, world::Beings::Handle learner,
-                              std::uint32_t recipe, std::uint64_t session) {
+                              std::uint32_t recipe, std::uint64_t session, Living* living) {
     const auto learner_id = c.world().beings().id_of(learner);
     const Supplies supply(c.world(), learner_id);
     auto inputs = reachable(c, teacher, supply, learner_id);
@@ -548,24 +550,68 @@ bool Crafting::prepare_lesson(world::Context& c, world::Beings::Handle teacher, 
     if (work.state != 0) return false;
     candidate->reason.kind = 5;
     candidate->reason.need_met = raw.get<world::Knowledge>(learner).curiosity_need;
-    work.choice = Choices::keep(c, learner, candidate->reason);
-    work.state = 1;
-    work.number = raw.get<world::Knowledge>(learner).next_work++;
-    work.action = candidate->reason.action;
-    work.intended = 1;
-    work.recipe = recipe;
-    work.route = 5;
-    work.lesson = session;
-    work.start = c.now();
-    work.active_start = c.now();
-    work.try_seconds = time_cost(w, learner, candidate->duration);
-    work.unit_mass = candidate->unit;
-    work.goal_mass = candidate->goal;
-    work.target = raw.get<world::Place>(teacher).at;
-    work.inputs = std::move(candidate->inputs);
-    return true;
+    std::optional<ChoiceSet> alternatives;
+    if (living) {
+        // The learner considers the invitation against their own options, without interrupting
+        // their current watch or starting a different plan merely because someone asked.
+        const auto saved_life = raw.get<world::Life>(learner);
+        const auto saved_dream = raw.get<world::Dream>(learner);
+        const auto saved_choice = raw.get<world::Knowledge>(learner).choice;
+        const auto saved_reasons = raw.get<world::Knowledge>(learner).reasons;
+        const auto saved_draw = raw.get<world::Knowledge>(learner).hourly_draw;
+        const auto* thermal = raw.try_get<world::Thermal>(learner);
+        raw.get<world::Life>(learner) =
+            living->sample(saved_life, raw.get<world::Activity>(learner), c.now(), thermal ? thermal->water_due_ml : 0);
+        alternatives.emplace();
+        living->choose(c, learner, raw.get<Home>(learner).camp, &*alternatives);
+        const auto curiosity = raw.get<world::Knowledge>(learner).curiosity_need;
+        candidate->reason.need = 3;
+        candidate->reason.need_met = curiosity;
+        candidate->reason.benefit = 10;  // Existing expected learning benefit, evaluated by its learner.
+        candidate->reason.parts = {std::max<std::int64_t>(0, 80 - curiosity) * 100, 0, -candidate->reason.seconds / 60};
+        candidate->reason.score = candidate->reason.parts[0] + candidate->reason.parts[2];
+        const auto best = std::max_element(alternatives->reasons().begin(), alternatives->reasons().end(),
+                                           [](const auto& a, const auto& b) { return a.score < b.score; });
+        const bool preferred = best == alternatives->reasons().end() || candidate->reason.score > best->score;
+        raw.get<world::Life>(learner) = saved_life;
+        raw.get<world::Dream>(learner) = saved_dream;
+        auto& mind = raw.get<world::Knowledge>(learner);
+        mind.choice = saved_choice;
+        mind.reasons = saved_reasons;
+        mind.hourly_draw = saved_draw;
+        if (!preferred) return false;
+    }
+    const auto reason = candidate->reason;
+    auto accept = [&c, learner, recipe, session, teacher,
+                   chosen = std::move(*candidate)](std::uint64_t choice) mutable {
+        auto& w = c.world();
+        auto& raw = w.beings().raw();
+        auto& work = raw.get<Work>(learner);
+        work.choice = choice;
+        work.state = 1;
+        work.number = raw.get<world::Knowledge>(learner).next_work++;
+        work.action = chosen.reason.action;
+        work.intended = 1;
+        work.recipe = recipe;
+        work.route = 5;
+        work.lesson = session;
+        work.start = c.now();
+        work.active_start = c.now();
+        work.try_seconds = time_cost(w, learner, chosen.duration);
+        work.unit_mass = chosen.unit;
+        work.goal_mass = chosen.goal;
+        work.target = raw.get<world::Place>(teacher).at;
+        work.inputs = std::move(chosen.inputs);
+        return true;
+    };
+    if (alternatives) {
+        alternatives->add(reason, std::move(accept));
+        return alternatives->commit(c, learner);
+    }
+    const auto choice = Choices::keep(c, learner, reason);
+    return accept(choice);
 }
-bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h) {
+bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h, ChoiceSet* proposals) {
     auto& raw = c.world().beings().raw();
     auto* know = raw.try_get<world::Knowledge>(h);
     if (!know) return false;
@@ -578,11 +624,34 @@ bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h
     const bool preparing_food =
         pending.intended && c.world().catalogue().kind<data::Blueprint>()[pending.recipe].need == 0;
     if (pending.lesson != 0) return false;
-    if (pending.state == 4 && (!urgent || (!other_urgent && preparing_food))) return continue_work(living, c, h);
+    if (pending.state == 4 && (!urgent || (!other_urgent && preparing_food))) {
+        if (!proposals) return continue_work(living, c, h);
+        Choices::restore(c.world(), h, pending.choice);
+        world::CraftReason reason;
+        if (!know->reasons.empty())
+            reason = know->reasons.front();
+        else {
+            reason.kind = pending.intended ? 0 : 1;
+            reason.intended = pending.intended;
+            reason.recipe = pending.intended ? pending.recipe : world::kNoRecipe;
+            reason.action = pending.action;
+            reason.need = 3;
+            reason.need_met = know->curiosity_need;
+            reason.seconds = pending.try_seconds;
+            for (const auto& input : pending.inputs) reason.inputs.push_back({input.item});
+        }
+        reason.parts = {0, 90000, 0};
+        reason.score = 90000;  // Protect an existing safe plan; urgent survival excludes it above.
+        proposals->add(reason, [&living, &c, h](std::uint64_t choice) {
+            c.world().beings().raw().get<Work>(h).choice = choice;
+            return continue_work(living, c, h);
+        });
+        return false;
+    }
     std::optional<Decision> decision;
     if (life.goal == 0 || (needs[0] < 60 && life.scores[0] == -1000000)) {
         decision.emplace(c, h);
-        if (meal(living, c, h, *decision)) return true;
+        if (meal(living, c, h, *decision, proposals)) return true;
     }
     if (other_urgent || raw.get<Work>(h).state != 0) return false;
     if (!decision) decision.emplace(c, h);
@@ -628,6 +697,7 @@ bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h
                     break;
                 }
             }
+            idea.reason.parts = {0, Living::kDreamPull, idea.reason.score - Living::kDreamPull};
             if (!idea.inputs.empty() && idea.inputs.size() == hint->inputs.size()) options.push_back(std::move(idea));
         }
     }
@@ -643,6 +713,7 @@ bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h
             experiment.reason.need = 3;
             experiment.reason.benefit = 10;
             experiment.reason.score = 500;
+            experiment.reason.parts = {0, 500, 0};
             experiment.duration = time_cost(c.world(), h, 60);
             experiment.reason.seconds = experiment.duration;
             experiment.reason.action = static_cast<std::uint8_t>(draws.below(1, 21));
@@ -676,7 +747,7 @@ bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h
                     experiment.reason.action = hunch.action;
                     experiment.reason.inputs.clear();
                     for (const auto& r : experiment.inputs) experiment.reason.inputs.push_back({r.item});
-                    hunch.last_use = c.now();
+                    experiment.ordinary_hunch = static_cast<std::int64_t>(&hunch - know->hunches.data());
                 }
             }
             if (experiment.reason.action == 6 || experiment.reason.action == 11)
@@ -689,40 +760,57 @@ bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h
     }
     std::stable_sort(options.begin(), options.end(),
                      [](const auto& a, const auto& b) { return a.reason.score > b.reason.score; });
-    if (options.empty() || options[0].reason.score <= life.scores[life.goal]) return false;
-    auto& chosen = options[0];
-    chosen.reason.need_met = static_cast<std::uint8_t>(chosen.reason.need < 3 ? life.decision_needs[chosen.reason.need]
-                                                                              : know->curiosity_need);
+    if (options.empty() || (!proposals && options[0].reason.score <= life.scores[life.goal])) return false;
     std::vector<world::CraftReason> rejected;
     for (std::size_t n = 1; n < options.size(); ++n) rejected.push_back(options[n].reason);
-    const auto choice = Choices::keep(c, h, chosen.reason, std::move(rejected));
-    if (chosen.dream_hunch) {
-        thought.decision_pull = Living::kDreamPull;
-        for (auto& hint : know->hunches)
-            if (hint.origin == 2 && hint.id == thought.hunch_id) hint.last_use = c.now();
+    auto make_commit = [&living, &c, h](Candidate chosen) {
+        return [&living, &c, h, chosen = std::move(chosen)](std::uint64_t choice) mutable {
+            auto& raw = c.world().beings().raw();
+            auto& know = raw.get<world::Knowledge>(h);
+            auto& thought = raw.get<world::Dream>(h);
+            if (chosen.ordinary_hunch >= 0)
+                know.hunches[static_cast<std::size_t>(chosen.ordinary_hunch)].last_use = c.now();
+            if (chosen.dream_hunch) {
+                thought.decision_pull = Living::kDreamPull;
+                for (auto& hint : know.hunches)
+                    if (hint.origin == 2 && hint.id == thought.hunch_id) hint.last_use = c.now();
+            }
+            auto& work = raw.get<Work>(h);
+            work.state = 1;
+            work.choice = choice;
+            work.number = know.next_work++;
+            work.action = chosen.reason.action;
+            work.intended = chosen.reason.intended;
+            work.recipe = chosen.reason.recipe;
+            work.route = work.intended ? 0 : 2;
+            if (!work.intended && std::any_of(know.hunches.begin(), know.hunches.end(), [&](const auto& hunch) {
+                    return hunch.last_use == c.now() && hunch.action == work.action;
+                }))
+                work.route = 3;
+            work.start = c.now();
+            work.active_start = c.now();
+            work.try_seconds = chosen.duration;
+            work.unit_mass = chosen.unit;
+            work.goal_mass = chosen.goal;
+            work.target = raw.get<world::Place>(h).at;
+            work.inputs = std::move(chosen.inputs);
+            if (work.action == 12)
+                if (const auto spot = FireRules::cooking_spot(c.world(), h, c.now())) work.target = *spot;
+            return continue_work(living, c, h);
+        };
+    };
+    for (auto& option : options)
+        option.reason.need_met = static_cast<std::uint8_t>(
+            option.reason.need < 3 ? life.decision_needs[option.reason.need] : know->curiosity_need);
+    if (proposals) {
+        for (auto& option : options) {
+            const auto reason = option.reason;
+            proposals->add(reason, make_commit(std::move(option)));
+        }
+        return false;
     }
-    auto& work = raw.get<Work>(h);
-    work.state = 1;
-    work.choice = choice;
-    work.number = know->next_work++;
-    work.action = chosen.reason.action;
-    work.intended = chosen.reason.intended;
-    work.recipe = chosen.reason.recipe;
-    work.route = work.intended ? 0 : 2;
-    if (!work.intended && std::any_of(know->hunches.begin(), know->hunches.end(), [&](const auto& hunch) {
-            return hunch.last_use == c.now() && hunch.action == work.action;
-        }))
-        work.route = 3;
-    work.start = c.now();
-    work.active_start = c.now();
-    work.try_seconds = chosen.duration;
-    work.unit_mass = chosen.unit;
-    work.goal_mass = chosen.goal;
-    work.target = raw.get<world::Place>(h).at;
-    work.inputs = std::move(chosen.inputs);
-    if (work.action == 12)
-        if (const auto spot = FireRules::cooking_spot(c.world(), h, c.now())) work.target = *spot;
-    return continue_work(living, c, h);
+    const auto choice = Choices::keep(c, h, options[0].reason, std::move(rejected));
+    return make_commit(std::move(options[0]))(choice);
 }
 bool Crafting::continue_work(Living& living, world::Context& c, world::Beings::Handle h) {
     auto& w = c.world();
@@ -914,7 +1002,8 @@ bool Crafting::meal(Living& living, world::Context& c, world::Beings::Handle h) 
     const Decision decision(c, h);
     return meal(living, c, h, decision);
 }
-bool Crafting::meal(Living& living, world::Context& c, world::Beings::Handle h, const Decision& decision) {
+bool Crafting::meal(Living& living, world::Context& c, world::Beings::Handle h, const Decision& decision,
+                    ChoiceSet* proposals) {
     auto& w = c.world();
     auto& raw = w.beings().raw();
     auto& life = raw.get<world::Life>(h);
@@ -932,33 +1021,52 @@ bool Crafting::meal(Living& living, world::Context& c, world::Beings::Handle h, 
         const auto* raw_familiar = Discovery::familiar(raw.get<world::Knowledge>(h), raw_food);
         const bool cooked_familiar = item.state == 1 && raw_familiar && raw_familiar->edible;
         if ((!f || !f->edible || (f->mask & (1U << 8U)) == 0 || f->values[8] == 0) && !cooked_familiar) continue;
-        // Finite food is collected at its actual position before it can be eaten.
-        const auto here = raw.get<world::Place>(h).at;
-        if (place(w, id) != here) {
-            life.goal = 0;
-            life.use_at = place(w, id);
-            life.meal_item = id;
-            life.carried_food = std::min<std::int64_t>(input.available, 1000000);
-            // The saved meal allocation acts as its own consumed reservation; keep the source shared while walking.
-            const auto path = Living::route(w, raw.get<Home>(h).camp, here, life.use_at);
-            const auto length = w.torus().distance(here, path.front()) * 10;
-            life.portion = 0;
-            living.begin(c, h, LivingAct::walk, (length + living.rules_.speed - 1) / living.rules_.speed, path.front());
-            return true;
+        const auto portion = std::min<std::int64_t>(input.available, 1000000);
+        if (proposals) {
+            auto reason = Choices::body(life, 0);
+            reason.inputs = {{id}};
+            reason.unavailable = 0;
+            reason.seconds = living.uses_[0].use.game +
+                             w.torus().distance(raw.get<world::Place>(h).at, place(w, id)) * 10 / living.rules_.speed;
+            const auto food_value = f && f->edible ? f->values[8] : raw_familiar->values[8];
+            reason.benefit = std::min<std::int64_t>(100 - life.decision_needs[0], portion * food_value * 50 / 4000000);
+            reason.score =
+                std::max<std::int64_t>(0, 80 - life.decision_needs[0]) * reason.benefit * 10 - reason.seconds / 60;
+            reason.parts = {std::max<std::int64_t>(0, 80 - life.decision_needs[0]) * reason.benefit * 10, 0,
+                            -reason.seconds / 60};
+            proposals->add(
+                reason, [&living, &c, h, id, portion](std::uint64_t) { return start_meal(living, c, h, id, portion); });
+            return false;
         }
-        life.meal_item = id;
-        life.carried_food = std::min<std::int64_t>(input.available, 1000000);
-        life.goal = 0;
-        life.use_at = here;
-        const auto actual = characteristics(w.catalogue(), item);
-        life.food_factor_ppm = actual[8] * 500000;
-        life.water_ml_per_kg = actual[9] * 200;
-        life.portion = life.carried_food;
-        living.begin(c, h, LivingAct::eat, living.uses_[0].use.game, here);
-        return true;
+        return start_meal(living, c, h, id, portion);
     }
     return false;
 }
+bool Crafting::start_meal(Living& living, world::Context& c, world::Beings::Handle h, ecs::Id id,
+                          std::int64_t portion) {
+    auto& w = c.world();
+    auto& raw = w.beings().raw();
+    auto& life = raw.get<world::Life>(h);
+    const auto here = raw.get<world::Place>(h).at;
+    life.goal = 0;
+    life.use_at = place(w, id);
+    life.meal_item = id;
+    life.carried_food = portion;
+    if (life.use_at != here) {
+        const auto path = Living::route(w, raw.get<Home>(h).camp, here, life.use_at);
+        const auto length = w.torus().distance(here, path.front()) * 10;
+        life.portion = 0;
+        living.begin(c, h, LivingAct::walk, (length + living.rules_.speed - 1) / living.rules_.speed, path.front());
+        return true;
+    }
+    const auto actual = characteristics(w.catalogue(), value(w, id));
+    life.food_factor_ppm = actual[8] * 500000;
+    life.water_ml_per_kg = actual[9] * 200;
+    life.portion = portion;
+    living.begin(c, h, LivingAct::eat, living.uses_[0].use.game, here);
+    return true;
+}
+
 void Crafting::settle_meal(world::Context& c, world::Beings::Handle h, std::int64_t eaten, bool finished) {
     auto& raw = c.world().beings().raw();
     auto& life = raw.get<world::Life>(h);

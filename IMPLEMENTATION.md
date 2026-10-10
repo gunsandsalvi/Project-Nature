@@ -94,7 +94,7 @@ Twenty years/minute means three wall-seconds/year: at 7,000 people and four core
 **Serves:** `MND-11`, `MND-13`, `MND-14`, `MND-23`, `MAT-22`, `RES-02`, `RES-03`, `RES-10`, `RES-16`, `RES-23`.
 **Architecture:** A11, A12, A19.3.
 **Tasks:**
-1. `T4.1c.1` Repair diagnosed prerequisite reach, learner attendance and known chain value without granting knowledge (`MAT-22`, `MND-13`).
+1. `T4.1c.1` Repair diagnosed prerequisite reach, learner attendance and known chain value without granting knowledge (`MAT-22`, `MND-13`). Include tending/teaching effort and time pricing after diagnosis (coordinator approved 10 October 2026); α4.1a preserves the M3 priorities.
 2. `T4.1c.2` After amendment review, implement saved homeostatic motivation with visible reasons. Missing materials never raise success; unavailable opportunities cannot accumulate pressure (`MND-11`, `MND-23`, `RES-16`).
 3. `T4.1c.3` Freeze and judge S/F below; disabled-controller comparisons are diagnostic. Failure blocks seasonal scope pending diagnosis/redesign (`RES-03`, `RES-23`).
 **Tests:** One run responds to shortage then relaxes after relief; bounds/saturation/impossible inputs/false beliefs; reopen at updates, 1/4-worker and camera/speed equality. No cross-world learning; original physical trials unchanged.

@@ -148,7 +148,7 @@ void FireRules::experience(world::Context& c, world::Beings::Handle h) {
     KD_CHECK(remembered, "Actual experienced fire has personal evidence");
     Discovery::memory(c, h, 12, {*remembered}, 13, current.source, 0, 70);
 }
-bool FireRules::choose_warm(Living& living, world::Context& c, world::Beings::Handle h) {
+bool FireRules::choose_warm(Living& living, world::Context& c, world::Beings::Handle h, ChoiceSet* proposals) {
     auto& w = c.world();
     auto& raw = w.beings().raw();
     auto* t = raw.try_get<world::Thermal>(h);
@@ -195,21 +195,31 @@ bool FireRules::choose_warm(Living& living, world::Context& c, world::Beings::Ha
     if (!source.value) return false;
     const auto score = (wanted < 20 ? 200 : std::max<std::int64_t>(0, 80 - wanted)) * (100 - wanted) * 10 -
                        w.torus().distance(here, spot) / 100;
-    if (score <= l.scores[l.goal]) return false;
+    if (!proposals && score <= l.scores[l.goal]) return false;
     world::CraftReason reason;
     reason.kind = 4;
     reason.action = 11;
     reason.need = 4;
     reason.need_met = static_cast<std::uint8_t>(wanted);
     reason.score = score;
+    reason.parts[0] = (wanted < 20 ? 200 : std::max<std::int64_t>(0, 80 - wanted)) * (100 - wanted) * 10;
+    reason.parts[2] = -w.torus().distance(here, spot) / 100;
     reason.benefit = 100 - wanted;
     reason.seconds = time::kHour + w.torus().distance(here, spot) * 10 / living.rules().speed;
     reason.inputs.push_back({source});
-    t->warm_choice = Choices::keep(c, h, reason);
-    t->warm_fire = source;
-    t->warm_at = spot;
-    t->warm_phase = 1;
-    return continue_warm(living, c, h, false);
+    auto commit = [&living, &c, h, source, spot, reason](std::uint64_t choice) {
+        auto& thermal = c.world().beings().raw().get<world::Thermal>(h);
+        thermal.warm_choice = choice ? choice : Choices::keep(c, h, reason);
+        thermal.warm_fire = source;
+        thermal.warm_at = spot;
+        thermal.warm_phase = 1;
+        return continue_warm(living, c, h, false);
+    };
+    if (proposals) {
+        proposals->add(reason, std::move(commit));
+        return false;
+    }
+    return commit(0);
 }
 bool FireRules::continue_warm(Living& living, world::Context& c, world::Beings::Handle h, bool interrupted) {
     auto& w = c.world();

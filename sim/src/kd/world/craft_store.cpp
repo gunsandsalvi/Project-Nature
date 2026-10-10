@@ -49,8 +49,8 @@ void save_craft(const World& w, std::vector<save::Chunk>& out) {
         }
     });
     out.push_back({save::tag("CRFT"), 2, true, craft.take()});
-    out.push_back({save::tag("KNOW"), 2, true, know.take()});
-    out.push_back({save::tag("HIST"), 2, true, history.take()});
+    out.push_back({save::tag("KNOW"), 3, true, know.take()});
+    out.push_back({save::tag("HIST"), 3, true, history.take()});
     // LEARN1 retains the foundation's four-letter wire tags.
     out.push_back({save::tag("LEAR"), 1, true, learning.take()});
 }
@@ -78,7 +78,11 @@ bool craft_headers(std::span<const save::Chunk> chunks, std::uint32_t& features,
             return fail("required craft extension is missing or mismatched");
         if (c && tag == save::tag("DRMS") && c->version != 3)
             return fail("Unsupported dream format. Start a new camp.");
-        if (c && (!c->critical || c->version != (tag == save::tag("LEAR") ? 1U : tag == save::tag("DRMS") ? 3U : 2U)))
+        if (c &&
+            (!c->critical ||
+             c->version != (tag == save::tag("LEAR")                                                           ? 1U
+                            : tag == save::tag("DRMS") || tag == save::tag("KNOW") || tag == save::tag("HIST") ? 3U
+                                                                                                               : 2U)))
             return fail("unsupported camp extension version");
     }
     return true;
@@ -108,6 +112,9 @@ bool reason_valid(const World& w, const CraftReason& reason) {
         reason.need_met > 100 || reason.confidence > 100 || reason.unavailable > 5 || reason.observed_heat > 5 ||
         reason.observed_fuel_mg < 0 || reason.observed_fuel_mg > 1000000000)
         return false;
+    for (const auto value : reason.parts)
+        if (value < -3000000 || value > 3000000) return false;
+    if (reason.parts[0] + reason.parts[1] + reason.parts[2] != reason.score) return false;
     return std::all_of(reason.inputs.begin(), reason.inputs.end(),
                        [&](const auto& input) { return item(w, input.id); });
 }

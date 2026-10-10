@@ -194,13 +194,14 @@ struct Hunch {
 };
 struct CraftReason {
     static constexpr std::string_view name = "craft-reason";
-    static constexpr std::uint32_t version = 2;
+    static constexpr std::uint32_t version = 3;
     std::uint8_t kind = 0, intended = 0, action = 0, need = 0;
     std::uint32_t recipe = kNoRecipe;
     std::int64_t score = 0, benefit = 0, seconds = 0;
     std::vector<Link> inputs;
     std::uint8_t need_met = 100, confidence = 100, unavailable = 0, observed_heat = 0;
     std::int64_t observed_fuel_mg = 0;
+    std::array<std::int64_t, 3> parts{};  // need benefit, inclination/plan, effort; sum is score
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
         v.u8({"kind", "known use or curiosity"}, c.kind);
@@ -220,6 +221,9 @@ struct CraftReason {
         v.u8({"unavailable", "recorded reason an alternative was unavailable"}, c.unavailable);
         v.u8({"observed_heat", "visible heat band at choice"}, c.observed_heat);
         v.i64({"observed_fuel_mg", "visible hearth fuel at choice"}, c.observed_fuel_mg);
+        v.i64({"need_score", "expected need benefit contribution"}, c.parts[0]);
+        v.i64({"inclination_score", "inclination and plan contribution"}, c.parts[1]);
+        v.i64({"effort_score", "effort contribution"}, c.parts[2]);
     }
 };
 struct Knowledge {

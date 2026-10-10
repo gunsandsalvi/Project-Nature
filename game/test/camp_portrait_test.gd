@@ -138,3 +138,20 @@ func test_menu_large_text_and_mute_stay_inside_the_small_phone_without_simulatio
 		assert_float(button.size.y).is_greater_equal(48)
 	assert_str(shell._page.world.digest()).is_equal(digest)
 	shell.free()
+
+
+func test_kept_reason_comparison_uses_saved_score_differences() -> void:
+	var words := preload("res://camp/words.gd").kept_reasons(
+		[
+			{
+				"name": "Food",
+				"score": 80,
+				"benefit": 5,
+				"seconds": 60,
+				"score_differences": PackedInt64Array([100, -10, -20])
+			},
+			{"name": "Warm by fire", "score": 10, "benefit": 5, "seconds": 60}
+		]
+	)
+	assert_str(words).contains("Compared with Warm by fire: need +100")
+	assert_str(words).contains("inclination/plan -10, effort -20")
