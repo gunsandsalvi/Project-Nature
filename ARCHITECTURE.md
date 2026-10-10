@@ -6,7 +6,7 @@ Existing A section numbers remain stable because code cites them. Deferred secti
 
 ## Status (10 October 2026)
 
-M1 accepted; M2 delivered, play answers open. Owner closed M3 partially on 10 October; static independent re-review completed, failed gates/phone evidence carried to M4. IMPLEMENTATION.md retains results and scope. A19 is proposed M4 design, dependent on review of PROJECT amendments; it is not built. Twenty-five adults do not certify full populations/geography/lives. Markers remain diagnostics.
+M1 accepted; M2 delivered, play answers open. Owner closed M3 partially on 10 October; static independent re-review completed, failed gates/phone evidence carried to M4. IMPLEMENTATION.md retains results and scope. A19 is approved M4 design: α4.1a/b are built; the remaining parts are planned. Twenty-five adults do not certify full populations/geography/lives. Markers remain diagnostics.
 
 ## A1. Overview
 
@@ -418,7 +418,7 @@ Freeze hard gates before tuning; report rare qualification instead of repairing 
 Storage measurements/owner disposition: [M3 result](IMPLEMENTATION.md#m3-result). Bounded live storage: A19.2 (PLT-10 amended 10 October 2026). Terrain expansion retains cross-chunk ordering/shadow tests.
 Outstanding biology, ecology and historical-trace checks remain open until actual consumers prove them; a partial stage never certifies the full item.
 
-## A19. M4 design (approved 10 October 2026; α4.1a built, rest planned)
+## A19. M4 design (approved 10 October 2026; α4.1a/b built, remainder planned)
 
 ### A19.1 Choices and evidence
 
@@ -430,7 +430,7 @@ Reuse World's next-event queue. Index active fuel/food/timers, nearby makers and
 
 Archive zero-mass spent items after active references expire; retain stable typed identity, provenance and needed inspection facts. Never discard positive mass/ash. Immutable history pages own pinned reasons and item records; live work/dreams/current views pin dependencies. Keep unlinked choices for two game days T, then discard; routine choice diagnostics must not accidentally pin everything. Public 25-year events and permanent firsts/family links remain. IDs are never reused; replace contiguous-choice indexing with stable lookup. Logical digest covers archival facts independent of page layout; both packed and reference paths apply identical retention, excluding expired diagnostics. Their continuations must match.
 
-Copy changed display data and bounded history pages; share immutable personal evidence groups and bound normal frame lead to one game day. Snapshot manifests reference checksummed immutable EVPG1/CHPG1/ARPG1 pages, bounded tails and PMAN1 references. Format 9 adds RTPG1 daily person/work-kind/intake counters; routine results expire after two days unless firsts or linked evidence need them. Public events remain 25 years. Export includes referenced pages; retain both recoverable manifests’ pages. Publish snapshots before compacting journals: preserve public prefixes, original frame sequences and every replay frame from the older snapshot; declared sparse prefixes never excuse replay gaps. Rebuild disposable indexes; refuse older formats. Instrument CPU/year, bytes/year, visits and peaks; gates live in IMPLEMENTATION.
+Copy changed display data and bounded history pages; share immutable personal evidence groups and bound normal frame lead to one game day. Snapshot manifests reference checksummed immutable EVPG1/CHPG1/ARPG1 pages, bounded tails and PMAN1 references. Format 9 adds RTPG1 daily person/work-kind/intake counters; routine results expire after two days unless firsts or linked evidence need them. Public events remain 25 years. Export includes referenced pages; retain both recoverable manifests’ pages. Wall-time saves also have a game-year checkpoint cap; track requests to avoid I/O backlog duplicates. Publish snapshots before compacting journals: preserve public prefixes, original frame sequences and every replay frame from the older snapshot; declared sparse prefixes never excuse replay gaps. Rebuild disposable indexes; refuse older formats. Instrument CPU/year, bytes/year, visits and peaks; gates live in IMPLEMENTATION.
 
 ### A19.3 In-run motivation
 

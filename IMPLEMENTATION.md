@@ -92,6 +92,8 @@ Twenty years/minute means three wall-seconds/year: at 7,000 people and four core
 
 **Owner sequencing (10 October 2026, 21:29):** Complete bookkeeping separately, then repair α4.1c's diagnosed value loop before P1. P1 retains 8601–8605 and ≥5 years/minute each; seasonal work still waits. [Cost evidence](dist/M4-1B-COST.json) separates unchanged physical behaviour from daily summaries/storage and display memory.
 
+**α4.1b result (10 October):** Bookkeeping delivered: exact archive/page/index/interval/recovery checks and completed routine coverage pass; check APK 50102 is 28.227 MiB. Display stress peaks at 384 MiB. Day-19 calibration is 0.620 years/minute, not P1. P1 awaits the approved value repair; phone and long-run acceptance remain owed.
+
 ### α4.1c Learning responds to experience
 
 **Goal:** Repair causal spread/fire bottlenecks; test generic in-run motivation.

@@ -486,5 +486,179 @@
       "THER2"
     ],
     "note": "Whole digest intentionally includes daily counters and changed historical retention. Physical state, personal knowledge, intake and resolved work match exactly. Timings are concurrent calibration, not P1. No behaviour repair applied."
+  },
+  "bookkeeping_final_19_day_comparison": {
+    "after": {
+      "seed": 8803,
+      "game_years": 0.316666667,
+      "complete": true,
+      "wall_seconds": 30.659721,
+      "period_seconds": 30.659721,
+      "years_per_minute": 0.619706,
+      "main_cpu_seconds": 30.091363,
+      "process_cpu_seconds": 30.368805,
+      "peak_rss_kib": 164636,
+      "population": 25,
+      "live_items": 1328,
+      "archived_items": 46913,
+      "eligible_spent": 0,
+      "choices": 29160,
+      "results": 26976,
+      "folder_bytes": 19568849,
+      "bytes_added": 19568849,
+      "snapshot_bytes": 595609,
+      "reachable_visits": 12953142,
+      "thermal_visits": 34188,
+      "digest": "9d299a9190d62169",
+      "cpu": {
+        "people": 11.394767,
+        "camp": 0.02994,
+        "layers": 6.5e-05,
+        "chooser": 9.659945,
+        "inputs": 2.544976,
+        "thermal": 0.416028,
+        "food": 0.023795,
+        "retention": 2.313518,
+        "observation": 2.082434,
+        "evidence": 1.091662,
+        "storage": 0.207591,
+        "queue_reporting": 0.326642,
+        "io_thread": 0.277442
+      },
+      "physical_parts": {
+        "clock": "da25fddf02c55a73",
+        "queue": "731700dc11140a9f",
+        "things": "d3862fdf5aa60621",
+        "systems": "bf22c1a54ae2d73b",
+        "history": "9f76b0cf1ddd73e7"
+      },
+      "finite_intake_mg": {
+        "base:kernels": 200000,
+        "base:meat": 52500000,
+        "base:roots": 1000000
+      },
+      "craft_sources": [
+        {
+          "recipe": "base:butcher",
+          "source": "base:carcass",
+          "recorded_results": 200,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:crack_nuts_bones",
+          "source": "base:crumb",
+          "recorded_results": 22038,
+          "same_kind_results": 11122
+        },
+        {
+          "recipe": "base:crack_nuts_bones",
+          "source": "base:kernels",
+          "recorded_results": 22464,
+          "same_kind_results": 11555
+        },
+        {
+          "recipe": "base:crack_nuts_bones",
+          "source": "base:nuts",
+          "recorded_results": 200,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:crack_nuts_bones",
+          "source": "base:roots",
+          "recorded_results": 490,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:ember_plough",
+          "source": "base:dry_stick",
+          "recorded_results": 1,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:leaf_bed",
+          "source": "base:crumb",
+          "recorded_results": 564,
+          "same_kind_results": 204
+        },
+        {
+          "recipe": "base:leaf_bed",
+          "source": "base:grass",
+          "recorded_results": 10,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:leaf_bed",
+          "source": "base:leaf_bedding",
+          "recorded_results": 1265,
+          "same_kind_results": 911
+        },
+        {
+          "recipe": "base:sharp_flake",
+          "source": "base:chert",
+          "recorded_results": 10,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:sharp_flake",
+          "source": "base:chunk",
+          "recorded_results": 169,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:sharp_flake",
+          "source": "base:flint",
+          "recorded_results": 10,
+          "same_kind_results": 0
+        }
+      ]
+    },
+    "before_folder_bytes": 20351337,
+    "bytes_ratio": 0.9615510273354522,
+    "note": "The older retained snapshot is frontier zero, so every replay frame must remain. Earlier 3.62MB result had a later older snapshot and is not a matched storage comparison. Wall-clock snapshot cadence can change the protected replay prefix. Physical and personal component digests remain equal."
+  },
+  "matched_frontier_storage_arithmetic": {
+    "journal_bytes": 17167176,
+    "older_frontier": 1623600,
+    "all_private_prefix_bytes": 16682472,
+    "person_routine_prefix_bytes": 16614360,
+    "nonroutine_prefix_bytes": 68112,
+    "nonroutine_kinds": {
+      "(3, 210)": 67464,
+      "(3, 150)": 648
+    },
+    "routine_frames_by_kind": {
+      "217": 81155,
+      "102": 1857,
+      "110": 8740,
+      "111": 8740,
+      "112": 8740,
+      "113": 8740,
+      "120": 8740,
+      "130": 8740,
+      "121": 8740,
+      "131": 8740,
+      "122": 8740,
+      "132": 8740,
+      "140": 8740,
+      "103": 4479,
+      "201": 21937,
+      "101": 854,
+      "100": 1550,
+      "200": 22675,
+      "202": 108
+    },
+    "note": "Arithmetic on existing valid framed history; no new simulation or gate. Final folder older snapshot is zero so no prefix is removable yet. Prototype older snapshot was 1623600."
+  },
+  "delivery": {
+    "code_commit": "132f63cf",
+    "apk_version_code": 50102,
+    "apk_bytes": 29597707,
+    "apk_mib": 28.22657299041748,
+    "apk_wall_seconds": 124.81,
+    "apk_peak_rss_kib": 795084,
+    "apk_sha256": "4581e879b2d252ef3381a81db14486f55e25ef7fc30f17e61ea39f6b51ba967f",
+    "mode": "check; not release-signed",
+    "source_completion": "PASS: all 27 changed sim and 5 changed view lint files; 13 source rules on 18 sim and 3 view files. Final wrapper 351.28 seconds/1033704 KiB; separate view lint 120.28 seconds/894832 KiB. Routine completed by two partial attempts plus owner-approved scoped repairs; no third full routine.",
+    "p1": "pending approved alpha4.1c value repair, unchanged seeds/threshold"
   }
 }
