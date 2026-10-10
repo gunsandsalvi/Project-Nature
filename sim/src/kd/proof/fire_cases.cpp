@@ -2,6 +2,23 @@
 #include "kd/demo/crafting.hpp"
 #include "kd/save/snapshot.hpp"
 namespace kd::proof {
+void FireRun::observe_result(const world::World& w, const world::Result& event) {
+    if ((event.kind != 0 && event.kind != 1) || !event.result.value) return;
+    const auto& recipe = w.catalogue().kind<data::Blueprint>()[event.recipe];
+    if ((recipe.action == 6 || recipe.action == 11) &&
+        w.things().raw().all_of<world::Fire>(w.things().handle(event.result))) {
+        ++friction_results;
+        if (ember_at < 0) ember_at = event.at;
+    }
+    if (recipe.action == 12 && recipe.heat >= 2) {
+        ++cooked;
+        if (cooked_at < 0) cooked_at = event.at;
+        if (ember_at >= 0 && tend_at >= ember_at && flame_at >= ember_at && event.at >= flame_at &&
+            event.at >= tend_at && completed_at < 0)
+            completed_at = event.at;
+    }
+}
+
 FireRun fire_chain(const data::Catalogue& catalogue, std::uint64_t seed, bool wet_control, time::Seconds duration,
                    const LearningProgress& progress) {
     demo::CrowdWorld camp(seed, catalogue, 1, true, true, true);
@@ -56,22 +73,7 @@ FireRun fire_chain(const data::Catalogue& catalogue, std::uint64_t seed, bool we
             }
             if (record.what == 219 && record.b >= 2 && out.flame_at < 0) out.flame_at = record.key.second;
         }
-        for (; cursor < history.events.size(); ++cursor) {
-            const auto& event = history.events[cursor];
-            if ((event.kind != 0 && event.kind != 1) || !event.result.value) continue;
-            const auto& recipe = catalogue.kind<data::Blueprint>()[event.recipe];
-            if (recipe.action == 11 && w.things().raw().all_of<world::Fire>(w.things().handle(event.result))) {
-                ++out.friction_results;
-                if (out.ember_at < 0) out.ember_at = event.at;
-            }
-            if (recipe.action == 12 && recipe.heat >= 2) {
-                ++out.cooked;
-                if (out.cooked_at < 0) out.cooked_at = event.at;
-                if (out.ember_at >= 0 && out.tend_at >= out.ember_at && out.flame_at >= out.ember_at &&
-                    event.at >= out.flame_at && event.at >= out.tend_at && out.completed_at < 0)
-                    out.completed_at = event.at;
-            }
-        }
+        for (; cursor < history.events.size(); ++cursor) out.observe_result(w, history.events[cursor]);
         // Keep at most one hour of trace, never the world's accumulated routine history.
         trace.clear();
         out.complete = out.completed_at >= 0;

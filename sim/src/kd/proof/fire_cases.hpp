@@ -10,6 +10,7 @@ struct FireRun {
     std::uint32_t reopen_failures = 0;
     std::size_t peak_trace_records = 0;
     std::string digest;
+    void observe_result(const world::World& w, const world::Result& event);
 };
 // Same 25 adults and finite full-kit food/water reserves as the sharp-stone scene.
 // Three game years; cold initial hearth; control wets all starting combustible inputs.

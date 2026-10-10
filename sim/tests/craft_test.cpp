@@ -8,6 +8,7 @@
 #include "kd/demo/discovery_scene.hpp"
 #include "kd/demo/kept.hpp"
 #include "kd/demo/living.hpp"
+#include "kd/proof/fire_cases.hpp"
 #include "kd/save/archive.hpp"
 #include "kd/save/versions.hpp"
 #include "kd/world/craft_store.hpp"
@@ -1380,6 +1381,11 @@ TEST_CASE("ordinary drill and grind fits discover friction without an idea dream
                 if (skill.recipe == trial.recipe && skill.known) ++discovered;
             for (const auto& memory : know.memories)
                 if (memory.sign == 13) ++hints;
+            kd::proof::FireRun observed;
+            for (const auto& event : trial.history().events) observed.observe_result(trial.w, event);
+            const auto made = std::count_if(trial.history().events.begin(), trial.history().events.end(),
+                                            [](const auto& event) { return event.kind == 0 || event.kind == 1; });
+            CHECK(observed.friction_results == static_cast<std::uint64_t>(made));
             CHECK(trial.w.beings().raw().get<kd::world::Dream>(trial.h).at == -1);
         }
         CHECK(discovered > 0);
