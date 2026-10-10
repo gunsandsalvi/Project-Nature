@@ -1516,6 +1516,7 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                         ecs::Id{act.person}.family() != ecs::Family::person ||
                         (act.person & ((std::uint64_t{1} << 60U) - 1)) == 0 ||
                         (act.person & ((std::uint64_t{1} << 60U) - 1)) >= ids_.next() ||
+                        (act.kind == 1 && act.status == 1 && !beings_.find(ecs::Id{act.person})) ||
                         (act.kind == 0 ? (act.subject < 0 || act.subject > 2) : act.subject != -1) ||
                         !idea_valid(act, act.status == 2 ? act.executed : -1, act.status == 1) || !inside(act.place) ||
                         act.requested < 0 || act.requested > frontier_ || act.received != act.requested ||

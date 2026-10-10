@@ -419,6 +419,18 @@ TEST_CASE("DRMS2 rejects never allocated targets and attempts fabricated at drea
         CHECK_FALSE(open_idea(w, why));
         CHECK_FALSE(why.empty());
     }
+    {
+        StoredIdea pending(false);
+        auto& w = pending.camp.world();
+        const auto item = w.make_thing();
+        // The shared serial was allocated to an item, never to a person.
+        pending.act().person =
+            (std::uint64_t{3} << 60U) | (w.things().id_of(item).value & ((std::uint64_t{1} << 60U) - 1));
+        w.things().end(w.things().id_of(item));
+        std::string why;
+        CHECK_FALSE(open_idea(w, why));
+        CHECK_FALSE(why.empty());
+    }
     StoredIdea fixture(true);
     fixture.act().first_attempt_at = fixture.act().executed;
     std::string why;
