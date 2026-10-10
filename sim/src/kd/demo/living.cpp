@@ -486,6 +486,7 @@ void Living::thermal_alarm(world::Context& c, world::Beings::Handle h) {
     c.schedule(person, kUrgent, due);
 }
 void Living::choose(world::Context& c, world::Beings::Handle h, ecs::Id camp, ChoiceSet* collected) {
+    const auto measured = c.world().measure(world::Cost::chooser);
     if (c.world().beings().raw().all_of<world::Knowledge>(h)) Learning::settle_mind(c, h);
     auto& raw = c.world().beings().raw();
     auto& l = raw.get<world::Life>(h);
@@ -760,6 +761,12 @@ void Living::settle(world::Context& c, world::Beings::Handle h, ecs::Id camp, bo
     auto& facts = raw.get<world::Camp>(ch);
     auto& env = raw.get<world::Habitat>(ch);
     if (act == LivingAct::eat) {
+        if (amount > 0 && l.meal_item.value == 0) {
+            if (auto* history = raw.try_get<world::CraftHistory>(ch)) {
+                history->routine.record({0, c.now() / time::kDay * time::kDay, c.world().beings().id_of(h), 2, 0, 0, 0,
+                                         0, 0, 0, 0, amount});
+            }
+        }
         l.carried_food -= amount;
         l.memory_kind = a.what;
         l.memory_at = c.now();

@@ -355,6 +355,7 @@ namespace {
 // with the digest the world had at the end.
 struct Folder {
     kd::save::FakeFiles files;
+    std::vector<kd::world::Record> records;
     std::string newest;
     kd::time::Seconds end = 0;
     std::uint64_t digest = 0;
@@ -372,6 +373,7 @@ Folder folder() {
     for (const kd::time::Seconds stop : {kd::time::Seconds{30'000}, kd::time::Seconds{45'000}}) {
         w.run_to(stop);
         keeper.history(records);
+        out.records.insert(out.records.end(), records.begin(), records.end());
         records.clear();
         keeper.snapshot(w);
     }
@@ -380,6 +382,7 @@ Folder folder() {
     out.end = 60'000;
     w.run_to(out.end);
     keeper.history(records);
+    out.records.insert(out.records.end(), records.begin(), records.end());
     keeper.flush();
     out.digest = w.digests().whole;
     out.newest = "snapshots/" + out.files.list("snapshots").back();
@@ -486,10 +489,15 @@ TEST_CASE("after a power cut the folder opens and the world made again matches t
     CHECK(kept.replayed == 1);
     CHECK(digest == made.digest);
     CHECK(mismatches == 0);
-    // and the history holds every record of the world, none lost behind a snapshot
+    // The public prefix and every replay frame remain, exactly; routine prefix
+    // frames are represented by the recoverable snapshots.
     {
         kd::save::Keeper keeper(cut);
-        CHECK(keeper.open().history.size() == kept.crowd->world().history_count());
+        const auto held = kd::save::read_year(*cut.read(kd::save::year_file(1)));
+        std::vector<kd::world::Record> want;
+        for (const auto& record : made.records)
+            if (record.key.second >= held.compacted_before || kept.crowd->world().keeps(record)) want.push_back(record);
+        CHECK(keeper.open().history == want);
     }
     // with no power cut, the history written after the snapshot is made again and compared, and a journal with a
     // damaged end is cut there
@@ -683,24 +691,26 @@ bool is_call(const kd::world::Record& r) {
 }  // namespace
 
 // checks: PLT-10 PRN-15
-TEST_CASE("a 30-year world's history keeps every event of its last 25 years and only kept kinds before") {
+TEST_CASE("a 30-year world's history keeps public events and the exact recoverable replay suffix") {
     const ThirtyYears& thirty = thirty_years();
     kd::save::FakeFiles files = thirty.files;
     const std::vector<kd::world::Record>& made = thirty.made;
     const kd::time::Seconds end = thirty.end;
     const std::uint64_t digest = thirty.digest;
     const auto call = is_call;
-    // years 1 to 5 ended more than 25 years before the 31st began, and keep only the calls; the rest keep everything
+    // Years 1 to 5 are thinned. Later public records remain, while snapshots
+    // replace routine frames only before the older recoverable frontier.
     std::uint64_t wrongly_flagged = 0;
     for (std::int64_t year = 1; year <= 31; ++year) {
         CAPTURE(year);
+        const kd::save::Year held = year_held(files, year);
         std::vector<kd::world::Record> want;
         for (const kd::world::Record& r : made) {
-            if (kd::save::year_of(r.key.second) == year && (year > 5 || call(r))) {
+            if (kd::save::year_of(r.key.second) == year &&
+                (call(r) || (year > 5 && r.key.second >= held.compacted_before))) {
                 want.push_back(r);
             }
         }
-        const kd::save::Year held = year_held(files, year);
         CHECK(held.thinned == (year <= 5));
         CHECK_FALSE(held.cut);
         std::vector<kd::world::Record> got;
@@ -710,9 +720,9 @@ TEST_CASE("a 30-year world's history keeps every event of its last 25 years and 
         }
         CHECK(got == want);
         // a call in each of the first 30 years, and a day of the 31st
-        const bool thinned = year <= 5;
-        CHECK(want.size() >= (thinned ? 1 : year <= 30 ? 1000 : 10));
-        CHECK((!thinned || want.size() == 1));
+        const bool public_only = year <= 5 || held.compacted_before >= year * kd::save::Keeper::kYear;
+        CHECK_FALSE(want.empty());
+        CHECK((!public_only || want.size() == 1));
     }
     CHECK(wrongly_flagged == 0);
     CHECK(files.list("history").size() == 31);

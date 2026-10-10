@@ -26,7 +26,7 @@ public:
     [[nodiscard]] static std::string dream_problem(const world::World& w, ecs::Id person, std::int64_t subject,
                                                    time::Seconds at = -1);
     void command(world::Context& c, const world::Command& cmd) override;
-    [[nodiscard]] bool keeps(std::uint32_t what) const override { return what == 217 || what == 218 || what == 219; }
+    [[nodiscard]] bool keeps(std::uint32_t what) const override { return what == 218 || what == 219; }
     [[nodiscard]] std::int64_t reach() const override { return 10000; }
     void bounds(const world::World& w, time::Seconds a, time::Seconds b, std::span<const ecs::Id> owners,
                 std::vector<world::Bound>& out) const override;

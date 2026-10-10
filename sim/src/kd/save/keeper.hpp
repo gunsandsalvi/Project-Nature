@@ -59,6 +59,9 @@ struct Year {
     std::vector<Held> records;
     /// Whether the year is thinned, holding only the records that stay for ever.
     bool thinned = false;
+    // Versioned compaction preserves every replay record from this frontier on.
+    time::Seconds compacted_before = -1;
+    std::uint64_t next_sequence = 1;
     /// The bytes its good records take, and whether anything after them was refused, so the file is cut there.
     std::uint64_t good = 0;
     bool cut = false;
@@ -140,6 +143,7 @@ private:
     };
 
     void append(const world::Record& r);
+    void flush_history();
     /// On the I/O thread, after a write that did not complete: nothing more is written.
     void fail() { failed_.store(true, std::memory_order_release); }
     /// Cuts the history back to before a stored record: its file cut there, and the later files removed.
@@ -162,6 +166,10 @@ private:
     std::uint64_t journal_next_ = 1;
     // the sequence number of the next record of each history file read or written
     std::map<std::string, std::uint64_t> sequences_;
+    // Routine frames before these declared floors were already summarized.
+    std::map<std::string, time::Seconds> replay_floors_;
+    std::string pending_path_;
+    Bytes pending_history_;
     // the year of the newest file of the history, and the newest year thinned, 0 for none
     std::int64_t year_ = 0;
     std::int64_t thinned_ = 0;

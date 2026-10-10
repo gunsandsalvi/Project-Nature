@@ -151,6 +151,7 @@ std::vector<world::Familiar> Discovery::handling(world::Context& c, world::Being
 void Discovery::memory(world::Context& c, world::Beings::Handle h, std::uint8_t action,
                        std::vector<world::Familiar> inputs, std::uint8_t sign, ecs::Id result, std::uint64_t event,
                        std::uint8_t strength) {
+    const auto measured = c.world().measure(world::Cost::evidence);
     auto& know = c.world().beings().raw().get<world::Knowledge>(h);
     world::Memory m;
     m.id = know.next_memory++;

@@ -33,7 +33,7 @@ Bytes frame(std::uint32_t type, std::uint64_t sequence, std::span<const std::byt
     return out;
 }
 
-LogRead read_log(std::span<const std::byte> bytes, std::uint64_t first) {
+LogRead read_log(std::span<const std::byte> bytes, std::uint64_t first, bool allow_gaps) {
     LogRead out;
     std::uint64_t at = 0;
     std::uint64_t next = first;
@@ -56,7 +56,8 @@ LogRead read_log(std::span<const std::byte> bytes, std::uint64_t first) {
             break;
         }
         const std::span<const std::byte> body = bytes.subspan(at + kFrame, length);
-        if ((next != 0 && sequence != next) || sum != checksum(length, type, sequence, body)) {
+        if ((next != 0 && (allow_gaps ? sequence < next : sequence != next)) ||
+            sum != checksum(length, type, sequence, body)) {
             out.cut = true;
             break;
         }

@@ -123,7 +123,7 @@ if(KD_SIM_TESTS)
 endif()
 
 if(KD_SIM_TESTS)
-    add_executable(kindling tools/kindling.cpp)
+    add_executable(kindling tools/kindling.cpp tools/camp_cost.cpp)
     target_link_libraries(kindling PRIVATE kd_sim)
     kindling_rules(kindling)
 

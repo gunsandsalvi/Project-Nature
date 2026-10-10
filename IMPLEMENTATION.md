@@ -90,6 +90,8 @@ Twenty years/minute means three wall-seconds/year: at 7,000 people and four core
 **Tests:** Conservation, archived links, interruption and own-format recovery; compacted/uncompacted logical states/continuations equal. One million archived records add zero chooser/thermal visits; live spent count reaches zero after references expire. P1: 8601–8605, three years each, each ≥5 years/minute on one declared desktop core.
 **On the phone:** Old History opens spent inputs/original reasons without freezing; measure sustained speed, save/catch-up latency and RSS.
 
+**Owner sequencing (10 October 2026, 21:29):** Complete bookkeeping separately, then repair α4.1c's diagnosed value loop before P1. P1 retains 8601–8605 and ≥5 years/minute each; seasonal work still waits. [Cost evidence](dist/M4-1B-COST.json) separates unchanged physical behaviour from daily summaries/storage and display memory.
+
 ### α4.1c Learning responds to experience
 
 **Goal:** Repair causal spread/fire bottlenecks; test generic in-run motivation.

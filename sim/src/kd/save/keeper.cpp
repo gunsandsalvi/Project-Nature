@@ -22,6 +22,7 @@ constexpr std::uint32_t kPause = 2;
 constexpr std::uint32_t kHappened = 1;
 constexpr std::uint32_t kThinned = 2;
 constexpr std::uint32_t kKept = 3;
+constexpr std::uint32_t kCompacted = 4;
 
 const std::string kJournal = "journal.log";
 const std::string kAbout = "world.toml";
@@ -102,10 +103,25 @@ std::string history_file(time::Seconds second) {
 
 Year read_year(std::span<const std::byte> bytes) {
     Year out;
-    const LogRead log = read_log(bytes, 0);
-    std::uint64_t offset = 0;
+    // Only a versioned history header enables sparse original sequence numbers.
+    bool compacted = false;
+    if (bytes.size() >= kFrame) {
+        ByteReader header(bytes.first(kFrame));
+        std::uint32_t length = 0, type = 0;
+        std::uint64_t sequence = 0;
+        compacted = header.u32(length) && header.u32(type) && header.u64(sequence) && type == kCompacted &&
+                    length == 16 && sequence == 0;
+    }
+    const LogRead log = read_log(bytes, 0, compacted);
+    std::uint64_t offset = 0, replay_sequence = 0;
     for (const Entry& e : log.entries) {
-        if (e.type == kThinned && e.sequence == 1 && e.body.empty()) {
+        if (e.type == kCompacted && e.sequence == 0 && offset == 0) {
+            ByteReader marker(e.body);
+            if (!marker.i64(out.compacted_before) || !marker.u64(replay_sequence) || !marker.finished() ||
+                out.compacted_before < 0 || replay_sequence == 0)
+                break;
+            out.next_sequence = replay_sequence;
+        } else if (e.type == kThinned && e.sequence == 1 && e.body.empty()) {
             out.thinned = true;
         } else {
             Year::Held h;
@@ -116,6 +132,15 @@ Year read_year(std::span<const std::byte> bytes) {
             if ((e.type != kHappened && e.type != kKept) || !read_record(r, h.record)) {
                 break;
             }
+            if (out.compacted_before >= 0) {
+                if (h.record.key.second >= out.compacted_before) {
+                    if (replay_sequence == 0 || e.sequence != replay_sequence || replay_sequence == UINT64_MAX) break;
+                    ++replay_sequence;
+                } else if (!h.kept || (replay_sequence != 0 && e.sequence >= replay_sequence))
+                    break;
+            }
+            if (h.sequence == UINT64_MAX) break;
+            out.next_sequence = std::max(out.next_sequence, h.sequence + 1);
             out.records.push_back(h);
         }
         offset += kFrame + e.body.size();
@@ -246,7 +271,8 @@ Found Keeper::open() {
                 stored_.push_back(h.record);
                 where_.push_back({path, h.offset, h.sequence});
             }
-            sequences_[path] = y.records.empty() ? 1 : y.records.back().sequence + 1;
+            sequences_[path] = y.next_sequence;
+            if (y.compacted_before >= 0) replay_floors_[path] = y.compacted_before;
             broken = y.cut;
         }
     });
@@ -325,6 +351,8 @@ void Keeper::expect(time::Seconds frontier) {
 
 void Keeper::history(std::span<const world::Record> records) {
     for (const world::Record& r : records) {
+        const auto floor = replay_floors_.find(history_file(r.key.second));
+        if (floor != replay_floors_.end() && r.key.second < floor->second && !(keeps_ && keeps_(r))) continue;
         const std::int64_t year = year_of(r.key.second);
         if (year <= thinned_) {
             // a thinned year made again, by a world made again from its seed: its history is settled, and stays
@@ -350,10 +378,14 @@ void Keeper::history(std::span<const world::Record> records) {
         }
         append(r);
     }
+    flush_history();
 }
 
 void Keeper::cut_history(std::size_t index) {
     const Place at = where_[index];
+    const auto floor = replay_floors_.find(at.path);
+    const auto second = stored_[index].key.second;
+    const bool lower_floor = floor != replay_floors_.end() && second < floor->second;
     std::vector<std::string> later;
     for (auto it = sequences_.upper_bound(at.path); it != sequences_.end(); ++it) {
         later.push_back(it->first);
@@ -366,11 +398,29 @@ void Keeper::cut_history(std::size_t index) {
             fail();
             return;
         }
+        if (lower_floor) {
+            auto prefix = f.read(at.path);
+            ByteWriter marker;
+            marker.i64(second);
+            marker.u64(at.sequence);
+            const auto header = frame(kCompacted, 0, marker.bytes());
+            if (!prefix || prefix->size() < header.size()) {
+                fail();
+                return;
+            }
+            std::copy(header.begin(), header.end(), prefix->begin());
+            if (!f.write_whole(at.path, *prefix)) {
+                fail();
+                return;
+            }
+        }
         for (const std::string& p : later) {
             f.remove(p);
         }
     });
     sequences_.erase(sequences_.upper_bound(at.path), sequences_.end());
+    replay_floors_.erase(replay_floors_.upper_bound(at.path), replay_floors_.end());
+    if (lower_floor) replay_floors_[at.path] = second;
     sequences_[at.path] = at.sequence;
     stored_.resize(index);
     where_.resize(index);
@@ -379,20 +429,25 @@ void Keeper::cut_history(std::size_t index) {
 void Keeper::append(const world::Record& r) {
     const std::string path = history_file(r.key.second);
     auto [it, made] = sequences_.try_emplace(path, 1);
-    Bytes record = record_frame(r, it->second++, keeps_ && keeps_(r));
-    io_.post([this, path, record = std::move(record)](Files& f) {
-        // after a failed write nothing more: a record written past a gap would be cut away with all after it
-        if (failed()) {
-            return;
-        }
+    const Bytes record = record_frame(r, it->second++, keeps_ && keeps_(r));
+    if (pending_path_ != path) flush_history();
+    pending_path_ = path;
+    pending_history_.insert(pending_history_.end(), record.begin(), record.end());
+    if (pending_history_.size() >= 65536) flush_history();
+}
+
+void Keeper::flush_history() {
+    if (pending_history_.empty()) return;
+    io_.post([this, path = std::move(pending_path_), record = std::move(pending_history_)](Files& f) {
+        if (failed()) return;
         if (!f.append(path, record)) {
             fail();
             return;
         }
-        if (unsynced_.empty() || unsynced_.back() != path) {
-            unsynced_.push_back(path);
-        }
+        if (unsynced_.empty() || unsynced_.back() != path) unsynced_.push_back(path);
     });
+    pending_path_.clear();
+    pending_history_ = {};
 }
 
 void Keeper::thin(std::int64_t year) {
@@ -476,9 +531,51 @@ void Keeper::snapshot(const world::World& w) {
             }
             pinned.insert(refs->begin(), refs->end());
         }
-        if (complete)
+        if (complete) {
             for (const auto& page : f.list("pages"))
                 if (ends_with(page, ".kdp") && !pinned.contains("pages/" + page)) f.remove("pages/" + page);
+            time::Seconds replay_from = frontier;
+            for (const auto& kept : f.list("snapshots"))
+                if (const auto at = number_before(kept, ".kds")) replay_from = std::min(replay_from, *at);
+            // Snapshot publication is safe before compaction. Keep all public
+            // frames and every frame the older recoverable snapshot may replay.
+            // Original sequences stay intact, so queued appends need no rewriting.
+            for (const auto& file : f.list("history")) {
+                if (!file_year(file)) continue;
+                const auto path = "history/" + file;
+                const auto data = f.read(path);
+                if (!data) {
+                    fail();
+                    return;
+                }
+                const auto year = read_year(*data);
+                if (year.cut) {
+                    fail();
+                    return;
+                }
+                if (year.thinned || year.compacted_before >= replay_from || replay_from == 0) continue;
+                ByteWriter marker;
+                marker.i64(replay_from);
+                const auto replay = std::find_if(year.records.begin(), year.records.end(), [&](const auto& held) {
+                    return held.record.key.second >= replay_from;
+                });
+                marker.u64(replay == year.records.end() ? year.next_sequence : replay->sequence);
+                Bytes compacted = frame(kCompacted, 0, marker.bytes());
+                bool removed = false;
+                for (const auto& held : year.records) {
+                    if (!held.kept && held.record.key.second < replay_from) {
+                        removed = true;
+                        continue;
+                    }
+                    const auto record = record_frame(held.record, held.sequence, held.kept);
+                    compacted.insert(compacted.end(), record.begin(), record.end());
+                }
+                if (removed && !f.write_whole(path, compacted)) {
+                    fail();
+                    return;
+                }
+            }
+        }
         snapshots_.fetch_add(1, std::memory_order_relaxed);
         last_snapshot_.store(frontier, std::memory_order_relaxed);
         last_bytes_.store(bytes.size(), std::memory_order_relaxed);

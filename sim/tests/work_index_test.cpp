@@ -90,3 +90,32 @@ TEST_CASE("indexed and scalar live work preserve whole states through deadlines 
         }
     }
 }
+
+TEST_CASE("output-only cost scopes preserve world states and own-format continuations") {
+    struct Probe final : kd::world::CostProbe {
+        std::array<std::uint64_t, static_cast<std::size_t>(kd::world::Cost::count)> begins{}, ends{};
+        void enter(kd::world::Cost kind) noexcept override { ++begins[static_cast<std::size_t>(kind)]; }
+        void leave(kd::world::Cost kind) noexcept override { ++ends[static_cast<std::size_t>(kind)]; }
+    } probe;
+    kd::data::Catalogue catalogue;
+    REQUIRE(catalogue.load(kd::data::read_catalogue(KD_REPO "/data")).empty());
+    kd::demo::CrowdWorld observed(8811, catalogue, 1, true, true), plain(8811, catalogue, 1, true, true);
+    observed.world().set_cost_probe(&probe);
+    for (kd::time::Seconds day = 1; day <= 3; ++day) {
+        observed.world().run_to(day * kd::time::kDay);
+        plain.world().run_to(day * kd::time::kDay);
+        CHECK(observed.world().digests().whole == plain.world().digests().whole);
+        CHECK(probe.begins == probe.ends);
+    }
+    CHECK(probe.begins[static_cast<std::size_t>(kd::world::Cost::chooser)] > 0);
+    CHECK(probe.begins[static_cast<std::size_t>(kd::world::Cost::retention)] == 3);
+    std::string why;
+    const auto reopened = kd::demo::CrowdWorld::open(catalogue, observed.world().save(), why);
+    REQUIRE_MESSAGE(reopened, why);
+    if (!reopened) return;
+    CHECK(reopened->world().digests().whole == observed.world().digests().whole);
+    observed.world().run_to(4 * kd::time::kDay);
+    reopened->world().run_to(4 * kd::time::kDay);
+    CHECK(reopened->world().digests().whole == observed.world().digests().whole);
+    observed.world().set_cost_probe(nullptr);
+}

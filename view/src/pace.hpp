@@ -15,6 +15,9 @@ class Pace {
 public:
     /// How far ahead of the screen the world is asked to stay, in real seconds (A3.9).
     static constexpr double kLead = 0.25;
+    // Bound retained display history independently of requested speed. At M4
+    // desktop 20 years/min, a day still gives 50 ms of lead (100 ms on phone).
+    static constexpr double kMaxGameLead = 86400.0;
     /// The real time the speed shown is measured over.
     static constexpr double kWindow = 1.0;
 

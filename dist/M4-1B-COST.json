@@ -1,0 +1,490 @@
+{
+  "status": "T4.1b.3 bookkeeping calibration; P1 deferred until approved alpha4.1c value repair (owner 10 Oct 21:29), same seeds/threshold",
+  "calibration": {
+    "seed": 8803,
+    "setup": "ordinary warm 25-founder one-camp app world, hourly run_to, initial/yearly and 30-wall-second keeper snapshots; actual journal; taskset core 5",
+    "wall_limit_seconds": 120,
+    "record": {
+      "seed": 8803,
+      "game_years": 0.525694444,
+      "complete": false,
+      "wall_seconds": 121.838216,
+      "period_seconds": 121.838216,
+      "years_per_minute": 0.258882,
+      "main_cpu_seconds": 116.288936,
+      "process_cpu_seconds": 120.187542,
+      "peak_rss_kib": 403072,
+      "population": 25,
+      "live_items": 1296,
+      "archived_items": 219805,
+      "eligible_spent": 0,
+      "choices": 221541,
+      "results": 220281,
+      "folder_bytes": 59512797,
+      "bytes_added": 59512797,
+      "snapshot_bytes": 592492,
+      "reachable_visits": 33665741,
+      "thermal_visits": 53334,
+      "digest": "45c58b63eb96efe3",
+      "cpu": {
+        "people": 57.326114,
+        "camp": 0.055997,
+        "layers": 0.000129,
+        "chooser": 33.517829,
+        "inputs": 8.070151,
+        "thermal": 1.680156,
+        "food": 0.038255,
+        "retention": 13.103599,
+        "storage": 1.184137,
+        "queue_reporting": 1.31257,
+        "io_thread": 3.898606
+      }
+    }
+  },
+  "display_diagnostic": {
+    "fixture": "immutable item trails and personal knowledge do not expose a future frontier to the screen",
+    "seed": 83,
+    "frontier_seconds": 90000,
+    "screen_seconds": 0,
+    "before": {
+      "wall_seconds": 43.05,
+      "peak_rss_kib": 4669576,
+      "retained_knowledge_bytes": 4543536024
+    },
+    "after_individual_immutable_evidence_sharing": {
+      "wall_seconds": 80.04,
+      "peak_rss_kib": 352016,
+      "retained_knowledge_bytes": 177627504
+    },
+    "ways": 19111,
+    "unique_knowledge": 18644,
+    "work_bytes": 1066512,
+    "item_bytes": 26347016,
+    "normal_frame_lead_cap_game_seconds": 86400,
+    "note": "Held-screen 90000-second stress is diagnostic, not a speed gate. Exact scalar reconstruction and old-publication immutability pass. Normal display lead is bounded to one game day; retention skips link scans before the first possible expiry.",
+    "after_memory_lookup_and_retention_cache": {
+      "wall_seconds": 52.9,
+      "peak_rss_kib": 365168,
+      "test_cases": 3,
+      "assertions": 1071
+    },
+    "after_no_expiry_fast_path": {
+      "wall_seconds": 15.65,
+      "peak_rss_kib": 386324,
+      "test_cases": 4,
+      "assertions": 1074
+    }
+  },
+  "food_accounting_before_value_repair": {
+    "seed": 8803,
+    "game_years": 0.316666667,
+    "complete": false,
+    "wall_seconds": 30.693351,
+    "period_seconds": 30.693351,
+    "years_per_minute": 0.619027,
+    "main_cpu_seconds": 29.188971,
+    "process_cpu_seconds": 30.362254,
+    "peak_rss_kib": 119872,
+    "population": 25,
+    "live_items": 1328,
+    "archived_items": 46913,
+    "eligible_spent": 0,
+    "choices": 48813,
+    "results": 47421,
+    "folder_bytes": 20351337,
+    "bytes_added": 20351337,
+    "snapshot_bytes": 595602,
+    "reachable_visits": 12953142,
+    "thermal_visits": 34188,
+    "digest": "b07e2ba7407bf2c2",
+    "cpu": {
+      "people": 11.704116,
+      "camp": 0.030438,
+      "layers": 7.2e-05,
+      "chooser": 9.969181,
+      "inputs": 2.605024,
+      "thermal": 0.430069,
+      "food": 0.023168,
+      "retention": 0.610312,
+      "observation": 2.096398,
+      "evidence": 1.131782,
+      "storage": 0.246954,
+      "queue_reporting": 0.341457,
+      "io_thread": 1.173283
+    },
+    "finite_intake_mg": {
+      "base:kernels": 200000,
+      "base:meat": 52500000,
+      "base:roots": 1000000
+    },
+    "craft_sources": [
+      {
+        "recipe": "base:butcher",
+        "source": "base:carcass",
+        "recorded_results": 200,
+        "same_kind_results": 0
+      },
+      {
+        "recipe": "base:crack_nuts_bones",
+        "source": "base:crumb",
+        "recorded_results": 22038,
+        "same_kind_results": 11122
+      },
+      {
+        "recipe": "base:crack_nuts_bones",
+        "source": "base:kernels",
+        "recorded_results": 22464,
+        "same_kind_results": 11555
+      },
+      {
+        "recipe": "base:crack_nuts_bones",
+        "source": "base:nuts",
+        "recorded_results": 200,
+        "same_kind_results": 0
+      },
+      {
+        "recipe": "base:crack_nuts_bones",
+        "source": "base:roots",
+        "recorded_results": 490,
+        "same_kind_results": 0
+      },
+      {
+        "recipe": "base:ember_plough",
+        "source": "base:dry_stick",
+        "recorded_results": 1,
+        "same_kind_results": 0
+      },
+      {
+        "recipe": "base:leaf_bed",
+        "source": "base:crumb",
+        "recorded_results": 564,
+        "same_kind_results": 204
+      },
+      {
+        "recipe": "base:leaf_bed",
+        "source": "base:grass",
+        "recorded_results": 10,
+        "same_kind_results": 0
+      },
+      {
+        "recipe": "base:leaf_bed",
+        "source": "base:leaf_bedding",
+        "recorded_results": 1265,
+        "same_kind_results": 911
+      },
+      {
+        "recipe": "base:sharp_flake",
+        "source": "base:chert",
+        "recorded_results": 10,
+        "same_kind_results": 0
+      },
+      {
+        "recipe": "base:sharp_flake",
+        "source": "base:chunk",
+        "recorded_results": 169,
+        "same_kind_results": 0
+      },
+      {
+        "recipe": "base:sharp_flake",
+        "source": "base:flint",
+        "recorded_results": 10,
+        "same_kind_results": 0
+      }
+    ]
+  },
+  "retention_cache_calibration": {
+    "seed": 8803,
+    "game_years": 0.516666667,
+    "complete": false,
+    "wall_seconds": 121.347677,
+    "period_seconds": 121.347677,
+    "years_per_minute": 0.255464,
+    "main_cpu_seconds": 116.249862,
+    "process_cpu_seconds": 119.810109,
+    "peak_rss_kib": 390880,
+    "population": 25,
+    "live_items": 1298,
+    "archived_items": 212135,
+    "eligible_spent": 0,
+    "choices": 213873,
+    "results": 212613,
+    "folder_bytes": 57830889,
+    "bytes_added": 57830889,
+    "snapshot_bytes": 586533,
+    "reachable_visits": 32793016,
+    "thermal_visits": 52583,
+    "digest": "3946c832debefcdf",
+    "cpu": {
+      "people": 53.366286,
+      "camp": 0.056162,
+      "layers": 0.000117,
+      "chooser": 34.404284,
+      "inputs": 8.123629,
+      "thermal": 1.687751,
+      "food": 0.039576,
+      "retention": 1.612157,
+      "observation": 9.368587,
+      "evidence": 5.414777,
+      "storage": 0.946754,
+      "queue_reporting": 1.229782,
+      "io_thread": 3.560247
+    }
+  },
+  "bookkeeping_only_19_day_comparison": {
+    "seed": 8803,
+    "before": {
+      "seed": 8803,
+      "game_years": 0.316666667,
+      "complete": false,
+      "wall_seconds": 30.693351,
+      "period_seconds": 30.693351,
+      "years_per_minute": 0.619027,
+      "main_cpu_seconds": 29.188971,
+      "process_cpu_seconds": 30.362254,
+      "peak_rss_kib": 119872,
+      "population": 25,
+      "live_items": 1328,
+      "archived_items": 46913,
+      "eligible_spent": 0,
+      "choices": 48813,
+      "results": 47421,
+      "folder_bytes": 20351337,
+      "bytes_added": 20351337,
+      "snapshot_bytes": 595602,
+      "reachable_visits": 12953142,
+      "thermal_visits": 34188,
+      "digest": "b07e2ba7407bf2c2",
+      "cpu": {
+        "people": 11.704116,
+        "camp": 0.030438,
+        "layers": 7.2e-05,
+        "chooser": 9.969181,
+        "inputs": 2.605024,
+        "thermal": 0.430069,
+        "food": 0.023168,
+        "retention": 0.610312,
+        "observation": 2.096398,
+        "evidence": 1.131782,
+        "storage": 0.246954,
+        "queue_reporting": 0.341457,
+        "io_thread": 1.173283
+      },
+      "finite_intake_mg": {
+        "base:kernels": 200000,
+        "base:meat": 52500000,
+        "base:roots": 1000000
+      },
+      "craft_sources": [
+        {
+          "recipe": "base:butcher",
+          "source": "base:carcass",
+          "recorded_results": 200,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:crack_nuts_bones",
+          "source": "base:crumb",
+          "recorded_results": 22038,
+          "same_kind_results": 11122
+        },
+        {
+          "recipe": "base:crack_nuts_bones",
+          "source": "base:kernels",
+          "recorded_results": 22464,
+          "same_kind_results": 11555
+        },
+        {
+          "recipe": "base:crack_nuts_bones",
+          "source": "base:nuts",
+          "recorded_results": 200,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:crack_nuts_bones",
+          "source": "base:roots",
+          "recorded_results": 490,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:ember_plough",
+          "source": "base:dry_stick",
+          "recorded_results": 1,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:leaf_bed",
+          "source": "base:crumb",
+          "recorded_results": 564,
+          "same_kind_results": 204
+        },
+        {
+          "recipe": "base:leaf_bed",
+          "source": "base:grass",
+          "recorded_results": 10,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:leaf_bed",
+          "source": "base:leaf_bedding",
+          "recorded_results": 1265,
+          "same_kind_results": 911
+        },
+        {
+          "recipe": "base:sharp_flake",
+          "source": "base:chert",
+          "recorded_results": 10,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:sharp_flake",
+          "source": "base:chunk",
+          "recorded_results": 169,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:sharp_flake",
+          "source": "base:flint",
+          "recorded_results": 10,
+          "same_kind_results": 0
+        }
+      ]
+    },
+    "after": {
+      "seed": 8803,
+      "game_years": 0.316666667,
+      "complete": true,
+      "wall_seconds": 32.566107,
+      "period_seconds": 32.566107,
+      "years_per_minute": 0.583429,
+      "main_cpu_seconds": 31.710727,
+      "process_cpu_seconds": 32.250778,
+      "peak_rss_kib": 181032,
+      "population": 25,
+      "live_items": 1328,
+      "archived_items": 46913,
+      "eligible_spent": 0,
+      "choices": 29160,
+      "results": 26976,
+      "folder_bytes": 3624241,
+      "bytes_added": 3624241,
+      "snapshot_bytes": 595609,
+      "reachable_visits": 12953142,
+      "thermal_visits": 34188,
+      "digest": "9d299a9190d62169",
+      "cpu": {
+        "people": 11.906142,
+        "camp": 0.03097,
+        "layers": 6.7e-05,
+        "chooser": 10.273522,
+        "inputs": 2.636145,
+        "thermal": 0.42782,
+        "food": 0.024246,
+        "retention": 2.529148,
+        "observation": 2.130653,
+        "evidence": 1.174217,
+        "storage": 0.243357,
+        "queue_reporting": 0.334442,
+        "io_thread": 0.540051
+      },
+      "physical_parts": {
+        "clock": "da25fddf02c55a73",
+        "queue": "731700dc11140a9f",
+        "things": "d3862fdf5aa60621",
+        "systems": "bf22c1a54ae2d73b",
+        "history": "9f76b0cf1ddd73e7"
+      },
+      "finite_intake_mg": {
+        "base:kernels": 200000,
+        "base:meat": 52500000,
+        "base:roots": 1000000
+      },
+      "craft_sources": [
+        {
+          "recipe": "base:butcher",
+          "source": "base:carcass",
+          "recorded_results": 200,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:crack_nuts_bones",
+          "source": "base:crumb",
+          "recorded_results": 22038,
+          "same_kind_results": 11122
+        },
+        {
+          "recipe": "base:crack_nuts_bones",
+          "source": "base:kernels",
+          "recorded_results": 22464,
+          "same_kind_results": 11555
+        },
+        {
+          "recipe": "base:crack_nuts_bones",
+          "source": "base:nuts",
+          "recorded_results": 200,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:crack_nuts_bones",
+          "source": "base:roots",
+          "recorded_results": 490,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:ember_plough",
+          "source": "base:dry_stick",
+          "recorded_results": 1,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:leaf_bed",
+          "source": "base:crumb",
+          "recorded_results": 564,
+          "same_kind_results": 204
+        },
+        {
+          "recipe": "base:leaf_bed",
+          "source": "base:grass",
+          "recorded_results": 10,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:leaf_bed",
+          "source": "base:leaf_bedding",
+          "recorded_results": 1265,
+          "same_kind_results": 911
+        },
+        {
+          "recipe": "base:sharp_flake",
+          "source": "base:chert",
+          "recorded_results": 10,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:sharp_flake",
+          "source": "base:chunk",
+          "recorded_results": 169,
+          "same_kind_results": 0
+        },
+        {
+          "recipe": "base:sharp_flake",
+          "source": "base:flint",
+          "recorded_results": 10,
+          "same_kind_results": 0
+        }
+      ]
+    },
+    "bytes_ratio": 0.17808368069380404,
+    "physical_digest_match": true,
+    "identical_component_payloads": [
+      "CAMP4",
+      "LIFE2",
+      "DRMS3",
+      "CRFT2",
+      "KNOW3",
+      "LEAR1",
+      "FIRE3",
+      "THER2"
+    ],
+    "note": "Whole digest intentionally includes daily counters and changed historical retention. Physical state, personal knowledge, intake and resolved work match exactly. Timings are concurrent calibration, not P1. No behaviour repair applied."
+  }
+}

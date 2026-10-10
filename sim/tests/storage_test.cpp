@@ -9,6 +9,7 @@
 #include "kd/run/workers.hpp"
 #include "kd/save/archive.hpp"
 #include "kd/save/keeper.hpp"
+#include "kd/save/log.hpp"
 #include "kd/save/pages.hpp"
 
 namespace {
@@ -177,6 +178,12 @@ TEST_CASE("two day diagnostic expiry preserves sparse linked and current reasons
     result.recipe = *storage_catalogue().find("blueprint", "base:butcher");
     result.inputs.push_back({input});
     history.events.push_back(result);
+    kd::world::Memory remembered;
+    remembered.id = mind.next_memory++;
+    remembered.event = result.id;
+    remembered.place = result.place;
+    remembered.participants.push_back({person});
+    mind.memories.push_back(std::move(remembered));
     // Isolated storage fixture, not a simulation outcome: advance only the expiry query.
     w.retain_records(3 * kd::time::kDay);
     CHECK(history.choices.find(1));
@@ -398,3 +405,174 @@ TEST_CASE("page publication survives each power cut and damaged pages fall back 
 }
 
 // checks: PLT-10 MAT-10 PLT-07 RES-05 TIM-17
+
+TEST_CASE("retained result links expire identically after page certification and public history thinning") {
+    StorageCamp indexed, scalar;
+    scalar.w.set_scalar_work(true);
+    const auto prepare = [](StorageCamp& fixture) {
+        auto& history = fixture.w.beings().raw().get<kd::world::CraftHistory>(fixture.w.beings().handle(fixture.home));
+        for (std::uint64_t n = 1; n <= 1025; ++n) {
+            const auto choice = history.next_choice++;
+            history.choices.push_back({choice, 0, {}, {}});
+            kd::world::Result result;
+            result.id = history.next++;
+            result.choice = choice;
+            result.kind = 2;
+            history.events.push_back(result);
+        }
+        history.choices.push_back({history.next_choice++, 0, {}, {}});
+    };
+    prepare(indexed);
+    prepare(scalar);
+    for (const auto at : {kd::time::Seconds{0}, 3 * kd::time::kDay, 4 * kd::time::kDay, 26 * kd::time::kYear}) {
+        indexed.w.retain_records(at);
+        scalar.w.retain_records(at);
+        CHECK(indexed.w.digests().whole == scalar.w.digests().whole);
+        const auto& history = std::as_const(indexed.w).beings().raw().get<kd::world::CraftHistory>(
+            std::as_const(indexed.w).beings().handle(indexed.home));
+        CHECK(history.choices.size() == (at == 0 ? 1026 : at < 26 * kd::time::kYear ? 1025 : 1));
+    }
+    // An external mutable access invalidates derived certification before a
+    // linked event can be removed without a simulated event.
+    prepare(indexed);
+    prepare(scalar);
+    indexed.w.retain_records(0);
+    scalar.w.retain_records(0);
+    for (auto* fixture : {&indexed, &scalar})
+        fixture->w.beings()
+            .raw()
+            .get<kd::world::CraftHistory>(fixture->w.beings().handle(fixture->home))
+            .events.clear();
+    indexed.w.retain_records(3 * kd::time::kDay);
+    scalar.w.retain_records(3 * kd::time::kDay);
+    CHECK(indexed.w.digests().whole == scalar.w.digests().whole);
+    CHECK(std::as_const(indexed.w)
+              .beings()
+              .raw()
+              .get<kd::world::CraftHistory>(std::as_const(indexed.w).beings().handle(indexed.home))
+              .choices.empty());
+}
+
+TEST_CASE("daily routine counters equal actual finite intake and resolved craft through batching and reopen") {
+    StorageCamp fixture;
+    auto& w = fixture.w;
+    std::vector<kd::world::Record> trace;
+    w.keep_history(&trace);
+    std::uint64_t cursor = 0, resolved = 0, eaten = 0;
+    for (kd::time::Seconds at = kd::time::kHour; at <= 3 * kd::time::kDay; at += kd::time::kHour) {
+        w.run_to(at);
+        const auto& history = std::as_const(w).beings().raw().get<kd::world::CraftHistory>(
+            std::as_const(w).beings().handle(fixture.home));
+        auto first = std::upper_bound(history.events.begin(), history.events.end(), cursor,
+                                      [](auto id, const auto& event) { return id < event.id; });
+        for (; first != history.events.end(); ++first) {
+            cursor = first->id;
+            if ((first->kind == 0 || first->kind == 1 || first->kind == 5) &&
+                storage_catalogue().kind<kd::data::Blueprint>()[first->recipe].heat == 0)
+                ++resolved;
+        }
+        for (const auto& record : trace)
+            if (record.what == 202) eaten += record.b;
+        trace.clear();
+    }
+    const auto& routine = std::as_const(w)
+                              .beings()
+                              .raw()
+                              .get<kd::world::CraftHistory>(std::as_const(w).beings().handle(fixture.home))
+                              .routine;
+    std::uint64_t tries = 0, intake = 0;
+    const auto sum = [&](const auto& rows) {
+        for (const auto& row : rows) {
+            if (row.type == 0) tries += row.tries;
+            if (row.type == 1) intake += static_cast<std::uint64_t>(row.eaten_mg);
+        }
+    };
+    sum(routine.days);
+    sum(routine.current);
+    CHECK(tries == resolved);
+    CHECK(intake == eaten);
+    CHECK(tries > 0);
+    CHECK(routine.days.size() + routine.current.size() < tries);
+    std::string why;
+    auto copy = kd::demo::CrowdWorld::open(storage_catalogue(), w.save(), why);
+    REQUIRE_MESSAGE(copy, why);
+    if (!copy) return;
+    CHECK(copy->world().digests().whole == w.digests().whole);
+    w.run_to(4 * kd::time::kDay);
+    copy->world().run_to(4 * kd::time::kDay);
+    CHECK(copy->world().digests().whole == w.digests().whole);
+    w.keep_history(nullptr);
+}
+
+TEST_CASE("compacted journals allow only declared public prefix gaps and reject missing replay frames") {
+    kd::ByteWriter marker;
+    marker.i64(100);
+    marker.u64(8);
+    const auto frame = kd::save::frame(4, 0, marker.bytes());
+    const kd::world::Record first{{50, 1, 1}, 0, 200, 1, 1}, replay{{100, 1, 2}, 0, 202, 1, 2},
+        later{{101, 1, 3}, 0, 202, 1, 3};
+    const auto make = [&](bool lose_first, bool lose_middle, bool private_prefix) {
+        auto bytes = frame;
+        const auto add = [&](const auto& record, auto sequence, bool kept) {
+            const auto raw = kd::save::record_frame(record, sequence, kept);
+            bytes.insert(bytes.end(), raw.begin(), raw.end());
+        };
+        add(first, 3, !private_prefix);
+        if (!lose_first) add(replay, 8, false);
+        add(later, lose_middle ? 10 : 9, false);
+        return kd::save::read_year(bytes);
+    };
+    const auto whole = make(false, false, false);
+    CHECK_FALSE(whole.cut);
+    CHECK(whole.compacted_before == 100);
+    CHECK(whole.records.size() == 3);
+    CHECK(whole.next_sequence == 10);
+    auto prefix = frame;
+    const auto public_record = kd::save::record_frame(first, 3, true);
+    prefix.insert(prefix.end(), public_record.begin(), public_record.end());
+    const auto empty_tail = kd::save::read_year(prefix);
+    CHECK_FALSE(empty_tail.cut);
+    CHECK(empty_tail.next_sequence == 8);
+    const auto appended = kd::save::record_frame(replay, 8, false);
+    prefix.insert(prefix.end(), appended.begin(), appended.end());
+    CHECK_FALSE(kd::save::read_year(prefix).cut);
+    CHECK(make(true, false, false).cut);
+    CHECK(make(false, true, false).cut);
+    CHECK(make(false, false, true).cut);
+    kd::ByteWriter invalid;
+    invalid.i64(100);
+    invalid.u64(0);
+    CHECK(kd::save::read_year(kd::save::frame(4, 0, invalid.bytes())).cut);
+}
+
+TEST_CASE("a corrected public prefix lowers the compacted replay floor without hiding a later gap") {
+    kd::save::FakeFiles files;
+    kd::ByteWriter marker;
+    marker.i64(100);
+    marker.u64(8);
+    auto bytes = kd::save::frame(4, 0, marker.bytes());
+    const kd::world::Record original{{50, 1, 1}, 0, 200, 1, 1}, replay{{100, 1, 2}, 0, 202, 1, 2};
+    for (const auto& frame : {kd::save::record_frame(original, 3, true), kd::save::record_frame(replay, 8, false)})
+        bytes.insert(bytes.end(), frame.begin(), frame.end());
+    REQUIRE(files.write_whole(kd::save::year_file(1), bytes));
+    auto corrected = original;
+    corrected.b = 99;
+    {
+        kd::save::Keeper keeper(files);
+        CHECK(keeper.open().problem.empty());
+        keeper.keep_kinds([](const auto& record) { return record.what == 200; });
+        const std::array records{corrected, replay};
+        keeper.history(records);
+        keeper.flush();
+        CHECK_FALSE(keeper.failed());
+        CHECK(keeper.mismatches() == 1);
+    }
+    const auto held = kd::save::read_year(*files.read(kd::save::year_file(1)));
+    CHECK_FALSE(held.cut);
+    CHECK(held.compacted_before == 50);
+    REQUIRE(held.records.size() == 2);
+    CHECK(held.records[0].record == corrected);
+    CHECK(held.records[1].record == replay);
+    CHECK(held.records[0].sequence == 3);
+    CHECK(held.records[1].sequence == 4);
+}

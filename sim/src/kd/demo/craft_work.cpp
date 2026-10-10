@@ -130,6 +130,7 @@ struct Inputs {
     std::vector<SeenInput> all, tools;
 };
 Inputs reachable(world::Context& c, world::Beings::Handle h, const Supplies& supply, ecs::Id participant = {}) {
+    const auto measured = c.world().measure(world::Cost::inputs);
     const auto& w = c.world();
     const auto& raw = w.beings().raw();
     const auto person = w.beings().id_of(h);
@@ -425,6 +426,9 @@ void resolve(world::Context& c, world::Beings::Handle h, std::uint32_t recipe, s
             if (r.item == roles[role]) r.mass = std::min(r.mass, mutable_item(w, r.item).mass);
     }
     if (success && made.value && w.catalogue().find("item", "base:ember") == result.kind) FireRules::ember(c, made);
+    auto& history = raw.get<world::CraftHistory>(w.beings().handle(raw.get<Home>(h).camp));
+    history.routine.record({0, c.now() / time::kDay * time::kDay, person, 0, recipe, source.kind, result.kind, 1,
+                            static_cast<std::uint64_t>(success), debit, result.mass, 0});
     const auto event = Discovery::result(c, h, recipe, actual, perceived, made, success, unknown, route);
     Learning::worked(c, h, event, success);
     Learning::demonstrated(c, h, event);
@@ -1078,7 +1082,12 @@ void Crafting::settle_meal(world::Context& c, world::Beings::Handle h, std::int6
     item.mass -= eaten;
     spent(item);
     c.item_changed(life.meal_item);
-    if (eaten > 0) c.record(202, c.world().beings().id_of(h).value, static_cast<std::uint64_t>(eaten));
+    if (eaten > 0) {
+        raw.get<world::CraftHistory>(c.world().beings().handle(raw.get<Home>(h).camp))
+            .routine.record({0, c.now() / time::kDay * time::kDay, c.world().beings().id_of(h), 1, 0, item.kind,
+                             item.kind, 0, 0, 0, 0, eaten});
+        c.record(202, c.world().beings().id_of(h).value, static_cast<std::uint64_t>(eaten));
+    }
     if (!finished) return;
     life.carried_food = 0;
     life.meal_item = {};

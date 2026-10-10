@@ -35,6 +35,6 @@ struct LogRead {
 
 /// Implements PLT-07, see A3.7: a log's records in order, the first numbered first, or anything when first is 0, and
 /// each next one more, up to the first that is short, damaged or out of sequence.
-[[nodiscard]] LogRead read_log(std::span<const std::byte> bytes, std::uint64_t first);
+[[nodiscard]] LogRead read_log(std::span<const std::byte> bytes, std::uint64_t first, bool allow_gaps = false);
 
 }  // namespace kd::save

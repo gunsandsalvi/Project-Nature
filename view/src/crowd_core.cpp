@@ -99,8 +99,7 @@ CrowdStepper::CrowdStepper(demo::CrowdWorld& crowd) : crowd_(crowd), camp_ids_(c
             const auto* ambient = raw.try_get<world::Ambient>(w.beings().handle(camp));
             ambient_trails_.push_back({ambient ? std::optional<world::Ambient>(*ambient) : std::nullopt});
             const auto* know = raw.try_get<world::Knowledge>(h);
-            knowledge_trails_.push_back(
-                {know ? std::make_shared<const world::Knowledge>(*know) : std::shared_ptr<const world::Knowledge>{}});
+            knowledge_trails_.push_back({know ? world::KnowledgeView::capture(*know) : world::KnowledgeView{}});
         }
     });
     w.things().each([&](ecs::Id id, world::Things::Handle h) {
@@ -134,7 +133,8 @@ std::vector<world::ItemWay>& CrowdStepper::mutable_item_trail(ecs::Id id) {
 }
 
 void CrowdStepper::fill(Snapshot& s) const {
-    s.frontier = crowd_.world().frontier();
+    const auto& w = std::as_const(crowd_.world());
+    s.frontier = w.frontier();
     s.walkers = walkers_;
     s.supplies.clear();
     s.habitats.clear();
@@ -149,8 +149,8 @@ void CrowdStepper::fill(Snapshot& s) const {
     s.items.clear();
     s.item_first.clear();
     s.craft_history.clear();
-    s.item_archive = crowd_.world().item_archive();
-    s.archive_index = crowd_.world().archive_index();
+    s.item_archive = w.item_archive();
+    s.archive_index = w.archive_index();
     for (const auto& [id, trail] : item_trails_) {
         (void)id;
         s.item_first.push_back(static_cast<std::uint32_t>(s.items.size()));
@@ -158,12 +158,11 @@ void CrowdStepper::fill(Snapshot& s) const {
     }
     s.item_first.push_back(static_cast<std::uint32_t>(s.items.size()));
     for (const ecs::Id id : camp_ids_) {
-        const auto* camp = crowd_.world().beings().raw().try_get<world::Camp>(crowd_.world().beings().handle(id));
+        const auto* camp = w.beings().raw().try_get<world::Camp>(w.beings().handle(id));
         if (camp != nullptr) s.supplies.push_back(*camp);
-        const auto* habitat = crowd_.world().beings().raw().try_get<world::Habitat>(crowd_.world().beings().handle(id));
+        const auto* habitat = w.beings().raw().try_get<world::Habitat>(w.beings().handle(id));
         if (habitat != nullptr) s.habitats.push_back(*habitat);
-        const auto* history =
-            crowd_.world().beings().raw().try_get<world::CraftHistory>(crowd_.world().beings().handle(id));
+        const auto* history = w.beings().raw().try_get<world::CraftHistory>(w.beings().handle(id));
         if (history) {
             (void)history->public_index();
             s.craft_history.push_back(*history);

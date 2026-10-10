@@ -244,6 +244,7 @@ void FireRules::food_changed(world::Context& c, ecs::Id id) {
     deadlines(c, i.home);
 }
 void FireRules::food_refresh(world::Context& c, ecs::Id camp) {
+    const auto measured = c.world().measure(world::Cost::food);
     std::vector<ecs::Id> foods;
     const auto& w = std::as_const(c.world());
     for (const auto& entry : w.physical_items(camp).food) {

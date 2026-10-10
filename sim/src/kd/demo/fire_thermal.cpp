@@ -103,6 +103,7 @@ world::Thermal FireRules::sample_thermal(world::Thermal t, const world::Activity
     return t;
 }
 world::Thermal FireRules::sample_thermal(const world::World& w, world::Beings::Handle h, time::Seconds at) {
+    const auto measured = w.measure(world::Cost::thermal);
     const auto& raw = w.beings().raw();
     const auto home = raw.get<Home>(h).camp;
     const auto* ambient = raw.try_get<world::Ambient>(w.beings().handle(home));

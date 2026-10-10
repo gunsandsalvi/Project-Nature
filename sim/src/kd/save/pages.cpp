@@ -37,7 +37,7 @@ bool read_manifest(std::span<const Chunk> chunks, std::uint64_t& total, std::vec
         if (!r.u64(ref.at) || !r.u32(ref.tag) || !r.u32(ref.version) || !r.u8(ref.critical) || !r.u64(ref.hash) ||
             !r.u64(ref.size) || ref.at >= total || (!references.empty() && ref.at <= references.back().at) ||
             ref.version != 1 || ref.critical != 1 ||
-            (ref.tag != tag("ARPG") && ref.tag != tag("EVPG") && ref.tag != tag("CHPG")) ||
+            (ref.tag != tag("ARPG") && ref.tag != tag("EVPG") && ref.tag != tag("CHPG") && ref.tag != tag("RTPG")) ||
             ref.size > (std::uint64_t{1} << 27U))
             return false;
         references.push_back(ref);

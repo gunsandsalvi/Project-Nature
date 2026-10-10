@@ -32,9 +32,11 @@
 #include "kd/run/workers.hpp"
 #include "kd/save/snapshot.hpp"
 #include "kd/world/camp.hpp"
+#include "kd/world/cost.hpp"
 #include "kd/world/dream.hpp"
 #include "kd/world/fire.hpp"
 #include "kd/world/knowledge.hpp"
+#include "kd/world/knowledge_view.hpp"
 #include "kd/world/life.hpp"
 #include "kd/world/parts.hpp"
 
@@ -187,7 +189,7 @@ struct Way {
     std::optional<Life> life = std::nullopt;
     std::optional<Dream> dream = std::nullopt;
     std::optional<Work> work = std::nullopt;
-    std::shared_ptr<const Knowledge> knowledge = {};
+    KnowledgeView knowledge = {};
     std::optional<Thermal> thermal = std::nullopt;
     std::optional<Ambient> ambient = std::nullopt;
 };
@@ -284,7 +286,7 @@ private:
     friend class World;
     Context(World& w, Island* island) : w_(w), island_(island) {}
     // Display-only immutable knowledge, private to this context/worker.
-    std::map<ecs::Id, std::shared_ptr<const Knowledge>> knowledge_views_;
+    std::map<ecs::Id, KnowledgeView> knowledge_views_;
     bool notifying_item_ = false;
     void run(const event::Event& e);
 
@@ -326,7 +328,10 @@ public:
     [[nodiscard]] time::Seconds frontier() const { return frontier_; }
 
     [[nodiscard]] Beings& beings() {
-        if (!item_event_ && !in_islands_) makers_valid_ = false;
+        if (!item_event_ && !in_islands_) {
+            makers_valid_ = false;
+            retained_links_.clear();
+        }
         return beings_;
     }
     [[nodiscard]] const Beings& beings() const { return beings_; }
@@ -463,6 +468,8 @@ public:
 
     /// Each part's digest and the whole's, at the frontier. Implements RES-05.
     [[nodiscard]] Digests digests() const;
+    void set_cost_probe(CostProbe* probe) { cost_probe_ = probe; }
+    [[nodiscard]] CostSpan measure(Cost kind) const { return {cost_probe_, kind}; }
     [[nodiscard]] std::uint64_t events_run() const { return events_; }
     [[nodiscard]] const event::Queue& queue() const { return queue_; }
     /// Whether an event is still the one its owner's slot waits for.
@@ -516,6 +523,14 @@ private:
     RecordIndex archive_index_;
     std::map<ecs::Id, std::size_t> archived_ids_;
     std::map<ecs::Id, std::set<std::uint64_t>> archived_choice_pins_;
+    // Rebuilt on mutable external access, reopen and history thinning. Contents
+    // only certify immutable history links; current work pins stay uncached.
+    struct RetainedLinks {
+        std::size_t indexed = 0;
+        std::set<std::uint64_t> event_choices;
+        std::set<std::pair<std::uint64_t, std::uint64_t>> choice_pages;
+    };
+    std::map<ecs::Id, RetainedLinks> retained_links_;
     bool archive_enabled_ = true;
     mutable ItemVisits item_visits_{};  // output only; never save, hash or use to choose
     mutable bool item_sites_valid_ = false;
@@ -557,6 +572,7 @@ private:
     time::Seconds frontier_ = 0;
     std::optional<std::uint64_t> fuzz_;
     std::uint64_t batches_ = 0;
+    CostProbe* cost_probe_ = nullptr;  // output-only, never saved/hashed
     std::uint64_t events_ = 0;
     run::Workers* workers_ = nullptr;
     time::Seconds window_ = 0;

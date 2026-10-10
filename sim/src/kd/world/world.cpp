@@ -105,10 +105,10 @@ void Context::moved(ecs::Id id) {
     const auto* thermal = w_.beings_.raw().try_get<Thermal>(w_.beings_.handle(id));
     const auto* home = w_.beings_.raw().try_get<demo::Home>(w_.beings_.handle(id));
     const auto* ambient = home ? w_.beings_.raw().try_get<Ambient>(w_.beings_.handle(home->camp)) : nullptr;
-    std::shared_ptr<const Knowledge> knowledge;
+    KnowledgeView knowledge;
     if (know) {
         auto& previous = knowledge_views_[id];
-        if (!previous || *previous != *know) previous = std::make_shared<const Knowledge>(*know);
+        previous = KnowledgeView::capture(*know, previous);
         knowledge = previous;
     }
     const Way way{current_,
@@ -211,6 +211,10 @@ void Context::record(std::uint32_t what, std::uint64_t a, std::uint64_t b) {
 }
 
 void Context::run(const event::Event& e) {
+    const auto family = ecs::Id{e.key.owner}.family();
+    const auto measured = w_.measure(family == ecs::Family::person  ? Cost::people
+                                     : family == ecs::Family::place ? Cost::camp
+                                                                    : Cost::layers);
     const ecs::Id owner{e.key.owner};
     w_.schedule_of(owner)->expected[e.slot] = 0;
     now_ = e.key.second;
@@ -625,6 +629,7 @@ const ArchivedItem* World::archived_item(ecs::Id id) const {
 }
 
 void World::retain_records(time::Seconds now) {
+    const auto measured = measure(Cost::retention);
     std::set<ecs::Id> physical;
     const auto pin = [&](ecs::Id id) {
         if (id.value) physical.insert(id);
@@ -643,6 +648,9 @@ void World::retain_records(time::Seconds now) {
     for (const auto ch : beings_.raw().view<CraftHistory>()) {
         const auto camp = beings_.id_of(ch);
         auto& history = beings_.raw().get<CraftHistory>(ch);
+        // Every validated fact has a nonnegative time. Before the shortest
+        // retention window can expire, there is nothing to prune or pin.
+        if (!scalar_work_ && now <= 2 * time::kDay) continue;
         std::set<std::uint64_t> choices, events;
         const auto keep_event = [&](std::uint64_t id) {
             if (id) events.insert(id);
@@ -653,9 +661,16 @@ void World::retain_records(time::Seconds now) {
             if (const auto* knowledge = beings_.raw().try_get<Knowledge>(h)) {
                 if (knowledge->choice) choices.insert(knowledge->choice);
                 for (const auto& skill : knowledge->skills) keep_event(skill.source_event);
-                for (const auto& familiar : knowledge->familiar)
+                const auto evidence = [&](const Familiar& familiar) {
                     for (const auto event : familiar.source_events) keep_event(event);
-                for (const auto& memory : knowledge->memories) keep_event(memory.event);
+                };
+                for (const auto& familiar : knowledge->familiar) evidence(familiar);
+                for (const auto& memory : knowledge->memories) {
+                    keep_event(memory.event);
+                    for (const auto& input : memory.inputs) evidence(input);
+                }
+                for (const auto& hunch : knowledge->hunches)
+                    for (const auto& input : hunch.inputs) evidence(input);
                 for (const auto& peer : knowledge->peers) keep_event(peer.event);
                 keep_event(knowledge->last_observed_event);
             }
@@ -672,27 +687,59 @@ void World::retain_records(time::Seconds now) {
         });
         if (const auto* lessons = beings_.raw().try_get<Lessons>(ch))
             for (const auto& lesson : lessons->sessions) keep_event(lesson.last_try);
-        // Public first discoveries and first transmission routes remain permanent.
-        if (now > 25 * time::kYear) {
-            std::set<std::pair<std::uint32_t, std::uint8_t>> firsts;
-            std::set<std::uint64_t> permanent;
-            for (const auto& event : history.events)
-                if (event.noticed && firsts.insert({event.recipe, event.route}).second) permanent.insert(event.id);
-            const auto previous_size = history.events.size();
-            history.events.retain([&](const Result& event) {
-                return permanent.contains(event.id) || events.contains(event.id) || event.at >= now - 25 * time::kYear;
-            });
-            if (history.events.size() != previous_size) {
-                history.public_results.clear();
-                history.public_indexed = 0;
-            }
+        // First noticed recipes/routes and public discoveries/transmissions stay;
+        // routine uses/failures retain full facts only while recent or referenced.
+        std::set<std::pair<std::uint32_t, std::uint8_t>> firsts;
+        std::set<std::uint64_t> permanent;
+        std::map<std::uint32_t, std::uint64_t> last_named, last_public;
+        for (const auto& event : history.events) {
+            if (event.noticed && firsts.insert({event.recipe, event.route}).second) permanent.insert(event.id);
+            if (!event.word.empty()) last_named[event.recipe] = event.id;
+            if (event.kind >= 1 && event.kind <= 4) last_public[event.recipe] = event.id;
         }
-        for (const auto& event : history.events)
-            if (event.choice) choices.insert(event.choice);
+        // Future forgetting/returning cites these exact latest records.
+        for (const auto& [recipe, event] : last_named) {
+            (void)recipe;
+            events.insert(event);
+        }
+        for (const auto& [recipe, event] : last_public) {
+            (void)recipe;
+            events.insert(event);
+        }
+        const auto previous_size = history.events.size();
+        history.events.retain([&](const Result& event) {
+            const bool public_event = (event.kind >= 1 && event.kind <= 4) || !event.heat_sources.empty();
+            return permanent.contains(event.id) || events.contains(event.id) ||
+                   event.at >= now - (public_event ? 25 * time::kYear : 2 * time::kDay);
+        });
+        if (history.events.size() != previous_size) {
+            history.public_results.clear();
+            history.public_indexed = 0;
+            retained_links_.erase(camp);
+        }
+        history.routine.days.retain([&](const RoutineDay& row) { return row.day >= now - 25 * time::kYear; });
+        auto& links = retained_links_[camp];
+        if (scalar_work_ || links.indexed > history.events.size()) links = {};
+        for (std::size_t n = links.indexed; n < history.events.size(); ++n)
+            if (history.events[n].choice) links.event_choices.insert(history.events[n].choice);
+        links.indexed = history.events.size();
         if (const auto at = archived_choice_pins_.find(camp); at != archived_choice_pins_.end())
             choices.insert(at->second.begin(), at->second.end());
         history.choices.retain(
-            [&](const Choice& choice) { return choice.at >= now - 2 * time::kDay || choices.contains(choice.id); });
+            [&](const Choice& choice) {
+                return choice.at >= now - 2 * time::kDay || choices.contains(choice.id) ||
+                       links.event_choices.contains(choice.id);
+            },
+            [&](const std::vector<Choice>& page) {
+                if (scalar_work_) return false;
+                const auto key = std::pair{page.front().id, page.back().id};
+                if (links.choice_pages.contains(key)) return true;
+                if (!std::all_of(page.begin(), page.end(),
+                                 [&](const Choice& choice) { return links.event_choices.contains(choice.id); }))
+                    return false;
+                links.choice_pages.insert(key);
+                return true;
+            });
     }
     if (!archive_enabled_) return;
     std::vector<ecs::Id> spent;
@@ -1255,8 +1302,8 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
         if (c.critical && c.tag != save::tag("CAMP") && c.tag != save::tag("LIFE") && c.tag != save::tag("DRMS") &&
             c.tag != save::tag("CRFT") && c.tag != save::tag("KNOW") && c.tag != save::tag("HIST") &&
             c.tag != save::tag("EVPG") && c.tag != save::tag("CHPG") && c.tag != save::tag("ARPG") &&
-            c.tag != save::tag("ARCV") && c.tag != save::tag("LEAR") && c.tag != save::tag("FIRE") &&
-            c.tag != save::tag("THER") &&
+            c.tag != save::tag("RTPG") && c.tag != save::tag("ARCV") && c.tag != save::tag("LEAR") &&
+            c.tag != save::tag("FIRE") && c.tag != save::tag("THER") &&
             std::none_of(kParts.begin(), kParts.end(), [&](const auto& p) { return p.first == c.tag; })) {
             why = "it holds a part this version cannot read";
             return false;

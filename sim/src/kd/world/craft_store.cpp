@@ -60,6 +60,11 @@ void save_craft(const World& w, std::vector<save::Chunk>& out) {
             };
             pages(x->events, save::tag("EVPG"));
             pages(x->choices, save::tag("CHPG"));
+            history.u64(x->routine.next);
+            history.i64(x->routine.day);
+            pages(x->routine.days, save::tag("RTPG"));
+            ecs::PartWriter writer(history);
+            writer.records({"routine_current", "current daily counters"}, x->routine.current, 4096, 77);
         }
         if (const auto* x = beings.raw().try_get<Lessons>(h)) {
             learning.u64(id.value);
@@ -68,7 +73,7 @@ void save_craft(const World& w, std::vector<save::Chunk>& out) {
     });
     out.push_back({save::tag("CRFT"), 2, true, craft.take()});
     out.push_back({save::tag("KNOW"), 3, true, know.take()});
-    out.push_back({save::tag("HIST"), 5, true, history.take()});
+    out.push_back({save::tag("HIST"), 6, true, history.take()});
     // LEARN1 retains the foundation's four-letter wire tags.
     out.push_back({save::tag("LEAR"), 1, true, learning.take()});
 }
@@ -97,7 +102,7 @@ bool craft_headers(std::span<const save::Chunk> chunks, std::uint32_t& features,
         if (c && tag == save::tag("DRMS") && c->version != 3)
             return fail("Unsupported dream format. Start a new camp.");
         const auto version = tag == save::tag("LEAR")                                                           ? 1U
-                             : tag == save::tag("HIST")                                                         ? 5U
+                             : tag == save::tag("HIST")                                                         ? 6U
                              : tag == save::tag("DRMS") || tag == save::tag("KNOW") || tag == save::tag("FIRE") ? 3U
                                                                                                                 : 2U;
         if (c && (!c->critical || c->version != version)) return fail("unsupported camp extension version");
@@ -106,7 +111,8 @@ bool craft_headers(std::span<const save::Chunk> chunks, std::uint32_t& features,
         std::count_if(chunks.begin(), chunks.end(), [](const auto& c) { return c.tag == save::tag("ARCV"); });
     if (archive_count != (features ? 1 : 0)) return fail("mismatched spent archive extension");
     for (const auto& chunk : chunks) {
-        if (chunk.tag != save::tag("EVPG") && chunk.tag != save::tag("CHPG") && chunk.tag != save::tag("ARPG"))
+        if (chunk.tag != save::tag("EVPG") && chunk.tag != save::tag("CHPG") && chunk.tag != save::tag("ARPG") &&
+            chunk.tag != save::tag("RTPG"))
             continue;
         if (!features || !chunk.critical || chunk.version != 1) return fail("unsupported historical page");
     }
@@ -350,8 +356,46 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
             };
             if (!h || !(last < id) || !raw.all_of<Camp>(*h) || !r.u64(value.next) || !r.u64(value.next_choice) ||
                 value.next == 0 || value.next_choice == 0 || !pages(value.events, save::tag("EVPG"), 76) ||
-                !pages(value.choices, save::tag("CHPG"), 204))
+                !pages(value.choices, save::tag("CHPG"), 204) || !r.u64(value.routine.next) ||
+                !r.i64(value.routine.day) || !pages(value.routine.days, save::tag("RTPG"), 77))
                 return fail("invalid craft history record");
+            ecs::PartReader routine_reader(r, entries);
+            routine_reader.records({"routine_current", "current daily counters"}, value.routine.current, 4096, 77);
+            if (!routine_reader.ok() || value.routine.next == 0 || value.routine.day < -1 ||
+                value.routine.day > w.frontier() || (value.routine.day >= 0 && value.routine.day % time::kDay != 0))
+                return fail("invalid routine history header");
+            const auto routine_valid = [&](const RoutineDay& row) {
+                if (!person(w, row.actor) || raw.get<demo::Home>(w.beings().handle(row.actor)).camp != id ||
+                    row.day < 0 || row.day > w.frontier() || row.day % time::kDay != 0 || row.type > 2 ||
+                    row.input_mg < 0 || row.result_mg < 0 || row.eaten_mg < 0 || row.successes > row.tries ||
+                    row.tries > static_cast<std::uint64_t>(time::kDay))
+                    return false;
+                return row.type == 0
+                           ? row.tries > 0 && row.eaten_mg == 0 && row.result_mg <= row.input_mg &&
+                                 row.input_mg <= static_cast<std::int64_t>(row.tries) * 1000000000
+                           : row.recipe == 0 && row.input_kind == row.result_kind &&
+                                 (row.type != 2 || row.input_kind == 0) && row.tries == 0 && row.successes == 0 &&
+                                 row.input_mg == 0 && row.result_mg == 0 && row.eaten_mg > 0;
+            };
+            std::uint64_t routine_id = 0;
+            std::int64_t routine_day = -1;
+            std::optional<decltype(RoutineDay{}.key())> routine_key;
+            for (const auto& row : value.routine.days) {
+                if (!routine_valid(row) || row.id <= routine_id || row.id >= value.routine.next ||
+                    row.day < routine_day || row.day >= value.routine.day ||
+                    (row.day == routine_day && routine_key && !(routine_key.value() < row.key())))
+                    return fail("invalid sealed routine counter");
+                routine_id = row.id;
+                routine_day = row.day;
+                routine_key = row.key();
+            }
+            routine_key.reset();
+            for (const auto& row : value.routine.current) {
+                if (!routine_valid(row) || row.id != 0 || row.day != value.routine.day ||
+                    (routine_key && !(routine_key.value() < row.key())))
+                    return fail("invalid current routine counter");
+                routine_key = row.key();
+            }
             last = id;
             std::uint64_t previous = 0;
             for (const auto& e : value.events) {
@@ -396,7 +440,8 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
         }
         if (!r.finished()) return fail("trailing craft history records");
         for (const auto& chunk : chunks) {
-            if (chunk.tag != save::tag("EVPG") && chunk.tag != save::tag("CHPG")) continue;
+            if (chunk.tag != save::tag("EVPG") && chunk.tag != save::tag("CHPG") && chunk.tag != save::tag("RTPG"))
+                continue;
             ByteReader wire(chunk.bytes());
             ecs::Id owner{};
             const auto h = wire.u64(owner.value) ? w.beings().find(owner) : std::nullopt;

@@ -172,10 +172,16 @@ public:
     }
     template <typename Predicate>
     void retain(Predicate keep) {
+        retain(keep, [](const std::vector<T>&) { return false; });
+    }
+    // A derived index may certify a whole immutable page. Uncertified pages
+    // still evaluate every record; tails are never skipped.
+    template <typename Predicate, typename PagePredicate>
+    void retain(Predicate keep, PagePredicate keep_page) {
         Pages next;
         for (std::size_t n = 0; n < pages_.size(); ++n) {
             const auto& page = pages_[n];
-            if (std::all_of(page->begin(), page->end(), keep))
+            if (keep_page(*page) || std::all_of(page->begin(), page->end(), keep))
                 next.append_page(page, encoded_[n]);
             else {
                 std::vector<T> kept;

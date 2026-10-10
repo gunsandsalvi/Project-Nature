@@ -39,6 +39,7 @@ std::vector<ActiveMaker> active_makers(const world::World& w) {
     return out;
 }
 void observe_active(world::Context& c, world::Beings::Handle observer, std::span<const ActiveMaker> makers) {
+    const auto measured = c.world().measure(world::Cost::observation);
     auto& w = c.world();
     auto& raw = w.beings().raw();
     auto* mind = raw.try_get<world::Knowledge>(observer);

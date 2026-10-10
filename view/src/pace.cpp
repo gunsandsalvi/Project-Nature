@@ -58,7 +58,7 @@ std::int64_t Pace::frame(double real_seconds, std::int64_t frontier) {
     if (paused_) {
         return frontier;
     }
-    return num::to_int(screen_ + std::max(1.0, this->rate() * kLead), num::Round::up);
+    return num::to_int(screen_ + std::clamp(this->rate() * kLead, 1.0, kMaxGameLead), num::Round::up);
 }
 
 double Pace::speed_shown() const {

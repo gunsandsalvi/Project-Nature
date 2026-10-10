@@ -78,7 +78,7 @@ struct Snapshot {
     SharedRows<std::optional<world::Life>> lives{};  // aligned with ways in living camps; empty in marker worlds
     SharedRows<std::optional<world::Dream>> dreams{};
     SharedRows<std::optional<world::Work>> works{};
-    SharedRows<std::shared_ptr<const world::Knowledge>> knowledge{};
+    SharedRows<world::KnowledgeView> knowledge{};
     SharedRows<std::optional<world::Thermal>> thermals{};
     SharedRows<std::optional<world::Ambient>> ambients{};
     std::vector<ecs::Id> camp_ids{};
@@ -166,7 +166,7 @@ private:
     std::vector<Pages<time::Seconds>> change_trails_;
     std::vector<world::Way> ways_;
     std::vector<Pages<std::optional<world::Work>>> work_trails_;
-    std::vector<Pages<std::shared_ptr<const world::Knowledge>>> knowledge_trails_;
+    std::vector<Pages<world::KnowledgeView>> knowledge_trails_;
     std::vector<Pages<std::optional<world::Thermal>>> thermal_trails_;
     std::vector<Pages<std::optional<world::Ambient>>> ambient_trails_;
     std::map<ecs::Id, std::shared_ptr<std::vector<world::ItemWay>>> item_trails_;

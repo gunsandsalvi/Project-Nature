@@ -90,6 +90,7 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include "camp_cost.hpp"
 
 #include <algorithm>
 #include <array>
@@ -145,6 +146,8 @@ int usage() {
         stderr,
         "usage: kindling proof [--threads N] [suite...]\n"
         "       kindling suites\n"
+        "       kindling camp-cost <seed> <years> <new-folder> [--scalar] [--no-probe] [--food-accounting] "
+        "[--wall-limit SECONDS]\n"
         "       kindling idea-capture <folder> <seed> <build> [data] conditional app test save\n"
         "       kindling idea-gate <first-seed> <count> conditional paired sleepers\n"
         "       kindling fire-gate <first-seed> <count> [control] autonomous cold-hearth chain\n"
@@ -1330,6 +1333,7 @@ int main(int argc, char** argv) {
     }
     const std::string_view command = args.front();
     args.erase(args.begin());
+    if (command == "camp-cost") return kd::tool::camp_cost(args);
     if (command == "idea-capture") {
         if (args.size() < 3 || args.size() > 4) return usage();
         kd::data::Catalogue catalogue;

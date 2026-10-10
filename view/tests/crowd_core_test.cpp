@@ -1,6 +1,8 @@
 #include <atomic>
 #include <chrono>
 #include <cstdint>
+#include <cstdio>
+#include <set>
 #include <thread>
 #include <vector>
 
@@ -33,6 +35,50 @@ const kd::data::Catalogue& fixture() {
 }
 
 }  // namespace
+
+TEST_CASE("shared display knowledge reconstructs every scalar and immutable evidence record exactly") {
+    kd::world::Knowledge source;
+    source.familiar.resize(8);
+    for (std::uint64_t n = 1; n <= 200; ++n) {
+        kd::world::Memory memory;
+        memory.id = n;
+        memory.inputs = source.familiar;
+        memory.participants.push_back({kd::ecs::Id{n}});
+        source.memories.push_back(memory);
+    }
+    source.skills.resize(3);
+    source.hunches.resize(2);
+    source.reasons.resize(3);
+    source.peers.resize(2);
+    source.observations.resize(2);
+    kd::world::KnowledgeView previous;
+    for (std::uint64_t n = 0; n < 128; ++n) {
+        source.settled = -static_cast<std::int64_t>(n + 1);
+        source.curiosity_remainder = static_cast<std::int64_t>(n * 191);
+        source.choice = n + 1000;
+        source.watching = kd::ecs::Id{n};
+        source.sectors[n % 15].last_use = -static_cast<std::int64_t>(n + 1);
+        source.sectors[n % 15].fraction = static_cast<std::int64_t>(n * 12345);
+        source.skills[n % 3].practice.decay_level = static_cast<std::int64_t>(n);
+        source.familiar[n % 8].source_events[n % 18] = n;
+        source.memories[n % 200].strength = static_cast<std::uint8_t>(n);
+        // Fixtures may present a noncanonical record order; sharing must still
+        // reconstruct exactly, without assuming sorted memory identities.
+        if (n == 64) std::reverse(source.memories.begin(), source.memories.end());
+        const auto captured = kd::world::KnowledgeView::capture(source, previous);
+        kd::ByteWriter actual, expected;
+        kd::ecs::write_component(*captured.get(), actual);
+        kd::ecs::write_component(source, expected);
+        const auto held = actual.take();
+        CHECK(held == expected.take());
+        CHECK(kd::world::KnowledgeView::capture(source, captured) == captured);
+        source.memories[n % 200].certainty ^= 1;
+        kd::ByteWriter old;
+        kd::ecs::write_component(*captured.get(), old);
+        CHECK(held == old.take());
+        previous = captured;
+    }
+}
 
 TEST_CASE("unchanged personal knowledge shares notifications while changed evidence preserves older views") {
     using namespace kd;
@@ -389,6 +435,28 @@ TEST_CASE("immutable item trails and personal knowledge do not expose a future f
     while (frontier < 90000) frontier = stepper.advance(frontier, 90000);
     REQUIRE(stepper.snapshots().take());
     const auto future = stepper.snapshots().front();
+    // Output-only footprint diagnosis, not an acceptance scene or altered law.
+    std::set<const void*> unique, payloads;
+    std::uint64_t knowledge_bytes = 0, work_bytes = 0, item_bytes = 0, heat_bytes = 0;
+    for (std::size_t n = 0; n < future.knowledge.size(); ++n) {
+        const auto& k = future.knowledge[n];
+        if (!k || !unique.insert(k.identity()).second) continue;
+        knowledge_bytes += k.retained_bytes(payloads);
+    }
+    for (std::size_t n = 0; n < future.works.size(); ++n)
+        if (const auto& work = future.works[n]; work)
+            work_bytes += work->inputs.capacity() * sizeof(kd::world::Reservation);
+    for (std::size_t n = 0; n < future.items.size(); ++n) {
+        const auto& item = future.items[n];
+        item_bytes += sizeof(item) + item.item.parents.capacity() * sizeof(kd::world::Link);
+        if (item.timer) heat_bytes += item.timer->heat_sources.capacity() * sizeof(kd::world::HeatCredit);
+    }
+    std::fprintf(stderr,
+                 "DISPLAY-COST frontier=%lld ways=%zu unique_knowledge=%zu knowledge_bytes=%llu "
+                 "work_bytes=%llu item_bytes=%llu heat_credit_bytes=%llu\n",
+                 static_cast<long long>(future.frontier), future.ways.size(), unique.size(),
+                 static_cast<unsigned long long>(knowledge_bytes), static_cast<unsigned long long>(work_bytes),
+                 static_cast<unsigned long long>(item_bytes), static_cast<unsigned long long>(heat_bytes));
     CHECK(future.frontier == 90000);
     CHECK(future.item_first.size() >= initial.item_first.size());
     std::int64_t mass = 0;

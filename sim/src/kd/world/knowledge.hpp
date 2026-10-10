@@ -3,6 +3,7 @@
 #include <array>
 #include "kd/core/pages.hpp"
 #include "kd/world/craft.hpp"
+#include "kd/world/routine.hpp"
 namespace kd::world {
 struct Familiar {
     friend bool operator==(const Familiar&, const Familiar&) = default;
@@ -333,10 +334,11 @@ struct PublicResult {
 };
 struct CraftHistory {
     static constexpr std::string_view name = "craft-history";
-    static constexpr std::uint32_t version = 2;
+    static constexpr std::uint32_t version = 3;
     std::uint64_t next = 1, next_choice = 1;
     Pages<Result> events;
     Pages<Choice> choices;
+    RoutineHistory routine;
     mutable Pages<PublicResult> public_results;
     mutable std::uint64_t public_indexed = 0;
     [[nodiscard]] const Pages<PublicResult>& public_index() const {
@@ -355,6 +357,7 @@ struct CraftHistory {
         v.records({"events", "kept results and discoveries"}, c.events, UINT32_MAX, 76);
         v.u64({"next_choice", "next immutable choice identity"}, c.next_choice);
         v.records({"choices", "kept fire, warmth and craft decisions"}, c.choices, UINT32_MAX, 204);
+        RoutineHistory::visit(v, c.routine);
     }
 };
 }  // namespace kd::world

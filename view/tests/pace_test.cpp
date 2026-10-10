@@ -139,3 +139,15 @@ TEST_CASE("a limit holds the speed down whatever is asked, as when the phone is 
     frames(pace, world, 2.0, 1.0 / 60.0, [] {});
     CHECK(pace.speed_shown() == doctest::Approx(259'200.0).epsilon(0.02));
 }
+
+TEST_CASE("display lead stays within one game day at high speed without changing the world clock") {
+    Pace pace(0.0);
+    pace.set_speed(5'000'000.0);
+    pace.set_limit(5'000'000.0);
+    pace.play();
+    const auto first = pace.frame(1.0 / 30.0, 0);
+    CHECK(first == 86400);
+    const auto next = pace.frame(1.0 / 30.0, first);
+    CHECK(next <= first + 86400);
+    CHECK(pace.screen() == doctest::Approx(86400.0));
+}
