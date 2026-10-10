@@ -206,9 +206,17 @@ static func _summary(p: Dictionary) -> String:
 	var reason := "Their known supplies weren't worth a trip yet."
 	if not p.get("reasons", []).is_empty():
 		var winner: Dictionary = p.reasons[0]
+		if int(p.get("work_state", 0)) != 0:
+			action = (
+				"Making " + recipe(str(p.work_recipe))
+				if p.work_known
+				else "Trying familiar materials"
+			)
+		else:
+			action = str(winner.name)
 		return (
 			"%s · %s\nWhy: need met %d/100, priority %d; estimate %d%% certain."
-			% [p.name, winner.name, int(winner.need_met), int(winner.score), int(winner.confidence)]
+			% [p.name, action, int(winner.need_met), int(winner.score), int(winner.confidence)]
 		)
 	if int(p.action_code) == 1:
 		action += " to " + goals[choice]

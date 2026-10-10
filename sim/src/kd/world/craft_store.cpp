@@ -499,7 +499,9 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
                 ByteWriter current, kept;
                 for (const auto& reason : know.reasons) ecs::write_component(reason, current);
                 for (const auto& reason : chosen->reasons) ecs::write_component(reason, kept);
-                if (current.take() != kept.take()) valid = false;
+                const auto current_bytes = current.take();
+                const auto kept_bytes = kept.take();
+                if (current_bytes != kept_bytes) valid = false;
             }
         }
         const auto event_exists = [&](std::uint64_t n) {
