@@ -33,6 +33,19 @@ num::Point at(const world::World& w, ecs::Id id, time::Seconds now) {
     }
     return w.things().raw().get<world::Place>(w.things().handle(id)).at;
 }
+// Known maintenance is selected by the action/heat affordance, never a catalogue name.
+std::optional<std::uint32_t> maintenance_recipe(const world::World& w, world::Beings::Handle person,
+                                                std::uint8_t operation, const data::FitInput* input = nullptr) {
+    const auto& know = w.beings().raw().get<world::Knowledge>(person);
+    const auto& recipes = w.catalogue().kind<data::Blueprint>();
+    for (std::uint32_t r = 0; r < recipes.size(); ++r) {
+        const auto& b = recipes[r];
+        if (b.heat == 1 && b.action == (operation == 3 ? 16 : 0) && b.inputs.size() == 1 && Learning::knows(know, r) &&
+            (!input || data::fits(b.inputs[0], *input)))
+            return r;
+    }
+    return {};
+}
 void clear_tend(world::Thermal& t) {
     t.tending = t.tending_phase = t.tending_shared = 0;
     t.tending_fire = t.tending_input = {};
@@ -438,11 +451,7 @@ bool FireRules::choose(Living& living, world::Context& c, world::Beings::Handle 
     std::int64_t mass = 0, score = 0;
     const auto clock = c.now() % time::kDay;
     const auto& know = raw.get<world::Knowledge>(h);
-    const auto has = [&](std::string_view name) {
-        const auto r = w.catalogue().find("blueprint", name);
-        return r && Learning::knows(know, *r);
-    };
-    if (clock >= 20 * time::kHour && f.heat >= 2 && f.ash_mg >= 100000 && has("base:bank_fire")) {
+    if (clock >= 20 * time::kHour && f.heat >= 2 && f.ash_mg >= 100000 && maintenance_recipe(w, h, 3)) {
         operation = 3;
         score = 120;
     } else if ((f.heat == 1 || f.fuel_mg < 2500000) &&
@@ -466,7 +475,7 @@ bool FireRules::choose(Living& living, world::Context& c, world::Beings::Handle 
             score = 150;
         }
     }
-    if (!operation && f.heat == 1 && has("base:carry_ember")) {
+    if (!operation && f.heat == 1 && maintenance_recipe(w, h, 4)) {
         const chance::Draws draws(w.seed(), chance::name("carry ember choice"), person.value, c.now() / 3600,
                                   chance::name("container"));
         if (draws.below(0, 24) == 0)
@@ -475,8 +484,9 @@ bool FireRules::choose(Living& living, world::Context& c, world::Beings::Handle 
                 const auto fit = Crafting::physical(w.catalogue(), source);
                 if (!input.value && source.home == camp && !w.things().raw().all_of<Fire>(th) &&
                     (!source.owner.value || source.owner == person) && Discovery::familiar(know, source) &&
-                    fit.values[6] >= 4 && fit.values[7] >= 1 && fit.values[7] <= 2 && fit.values[9] <= 1 &&
-                    Crafting::available(w, id, person) >= 100000 && Living::visible(w, camp, here, at(w, id, c.now())))
+                    maintenance_recipe(w, h, 4, &fit) && fit.values[6] >= 4 && fit.values[7] >= 1 &&
+                    fit.values[7] <= 2 && fit.values[9] <= 1 && Crafting::available(w, id, person) >= 100000 &&
+                    Living::visible(w, camp, here, at(w, id, c.now())))
                     input = id;
             });
         if (input.value) {
@@ -513,8 +523,7 @@ bool FireRules::continue_tending(Living& living, world::Context& c, world::Being
     const auto here = raw.get<world::Place>(h).at;
     if (t->tending_phase == 3) {
         if (t->tending >= 3) {
-            const auto recipe =
-                w.catalogue().find("blueprint", t->tending == 3 ? "base:bank_fire" : "base:carry_ember");
+            const auto recipe = maintenance_recipe(w, h, t->tending);
             KD_CHECK(recipe.has_value(), "Tending uses a validated known recipe");
             const std::array roles{target};
             const chance::Draws draws(w.seed(), chance::name("tend result"), person.value, t->tending_started,

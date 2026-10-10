@@ -7,16 +7,8 @@
 #include "kd/num/sort.hpp"
 namespace kd::demo {
 namespace {
-std::uint32_t required_entry(const kd::data::Catalogue& catalogue, std::string_view folder, std::string_view name) {
-    const auto found = catalogue.find(folder, name);
-    KD_CHECK(found.has_value(), "Fire requires its validated catalogue entry");
-    return found.value_or(0);
-}
 using world::HeatTimer;
 using world::Item;
-bool food(const world::World& w, const Item& i) {
-    return i.kind == w.catalogue().find("item", "base:roots") || i.kind == w.catalogue().find("item", "base:meat");
-}
 num::Point position(const world::World& w, ecs::Id id, time::Seconds at) {
     const auto h = w.things().handle(id);
     const auto& i = w.things().raw().get<Item>(h);
@@ -64,7 +56,8 @@ void settle(world::Context& c, ecs::Id id) {
         if (t.exposure_heat >= 4) t.hot_elapsed = std::min(time::kHour, t.hot_elapsed + duration);
     }
     t.settled_at = c.now();
-    const auto roast = required_entry(w.catalogue(), "blueprint", "base:roast_food");
+    const auto recipe = FireRules::cooking_recipe(w.catalogue(), i);
+    const auto roast = recipe.value_or(world::kNoRecipe);
     if (!t.completed && (t.elapsed >= 2 * time::kHour || t.hot_elapsed >= time::kHour)) {
         i.state = 2;
         i.changed_mask |= 1U << 8U;
@@ -72,7 +65,7 @@ void settle(world::Context& c, ecs::Id id) {
         t.completed = 1;
         t.notices.clear();
         c.item_changed(id);
-    } else if (!t.tried && t.elapsed >= time::kHour &&
+    } else if (recipe && !t.tried && t.elapsed >= time::kHour &&
                ((t.exposure_heat >= 2 && t.exposure_heat <= 3) ||
                 (heat(w, id, c.now()) >= 2 && heat(w, id, c.now()) <= 3))) {
         t.tried = 1;
@@ -136,6 +129,15 @@ void settle(world::Context& c, ecs::Id id) {
     if (old_heat != t.exposure_heat || old_next != t.next) c.item_changed(id);
 }
 }  // namespace
+std::optional<std::uint32_t> FireRules::cooking_recipe(const data::Catalogue& catalogue, const Item& item) {
+    const auto physical = Crafting::physical(catalogue, item);
+    const auto& recipes = catalogue.kind<data::Blueprint>();
+    for (std::uint32_t r = 0; r < recipes.size(); ++r) {
+        const auto& b = recipes[r];
+        if (b.action == 12 && b.heat >= 2 && b.inputs.size() == 1 && data::fits(b.inputs[0], physical)) return r;
+    }
+    return {};
+}
 void FireRules::food_changed(world::Context& c, ecs::Id id) {
     auto& w = c.world();
     const auto h = w.things().handle(id);
@@ -145,7 +147,7 @@ void FireRules::food_changed(world::Context& c, ecs::Id id) {
         food_refresh(c, i.home);
         return;
     }
-    if (!food(w, i)) return;
+    if (!w.things().raw().all_of<HeatTimer>(h) && !cooking_recipe(w.catalogue(), i)) return;
     auto* t = w.things().raw().try_get<HeatTimer>(h);
     const HeatTimer* inherited = nullptr;
     if (i.parents.size() == 1) {
@@ -180,7 +182,9 @@ void FireRules::food_refresh(world::Context& c, ecs::Id camp) {
     std::vector<ecs::Id> foods;
     c.world().things().each([&](ecs::Id id, auto h) {
         const auto& i = c.world().things().raw().get<Item>(h);
-        if (i.home == camp && food(c.world(), i)) foods.push_back(id);
+        if (i.home == camp &&
+            (c.world().things().raw().all_of<HeatTimer>(h) || cooking_recipe(c.world().catalogue(), i)))
+            foods.push_back(id);
     });
     for (const auto id : foods) food_changed(c, id);
     deadlines(c, camp);
@@ -188,11 +192,9 @@ void FireRules::food_refresh(world::Context& c, ecs::Id camp) {
 void FireRules::carried_food(world::Context& c, ecs::Id person) {
     const auto& w = std::as_const(c.world());
     std::vector<ecs::Id> carried;
-    for (const auto kind : {w.catalogue().find("item", "base:roots"), w.catalogue().find("item", "base:meat")}) {
-        if (!kind) continue;
-        for (const auto& entry : w.items_owned(person, *kind)) carried.push_back(entry.id);
-    }
-    // The two kind groups must retain the original whole-world ID order before callbacks mutate indexes.
+    for (std::uint32_t kind = 0; kind < w.catalogue().kind<data::ItemKind>().size(); ++kind)
+        for (const auto& entry : w.items_owned(person, kind)) carried.push_back(entry.id);
+    // Preserve whole-world ID order before callbacks mutate the live carried-item index.
     num::sort_strict(carried.begin(), carried.end(), [](auto a, auto b) { return a < b; });
     for (const auto id : carried) food_changed(c, id);
 }
@@ -231,7 +233,6 @@ void FireRules::notice_food(world::Context& c, world::Beings::Handle person) {
     const auto here = w.beings().raw().get<world::Activity>(person).at(w.torus(), c.now());
     const auto clock = c.now() % time::kDay;
     const std::int64_t range = clock >= 6 * time::kHour && clock < 20 * time::kHour ? 3000 : 500;
-    const auto roast = required_entry(w.catalogue(), "blueprint", "base:roast_food");
     std::vector<ecs::Id> noticed;
     for (const auto fh : w.things().raw().view<HeatTimer>()) {
         auto& t = w.things().raw().get<HeatTimer>(fh);
@@ -247,6 +248,9 @@ void FireRules::notice_food(world::Context& c, world::Beings::Handle person) {
     for (const auto id : noticed) {
         Discovery::learn(c, person, id, Discovery::kSight, 1);
         const auto& i = w.things().raw().get<Item>(w.things().handle(id));
+        const auto recipe = cooking_recipe(w.catalogue(), i);
+        if (!recipe) continue;
+        const auto roast = *recipe;
         const auto* familiar = Discovery::familiar(know, i);
         const std::array inputs{id};
         Discovery::result(c, person, roast, inputs, {*familiar}, id, true, !Learning::knows(know, roast), 1);

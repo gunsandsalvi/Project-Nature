@@ -3,6 +3,7 @@
 #include "kd/data/folder.hpp"
 #include "kd/demo/crafting.hpp"
 #include "kd/demo/crowd_world.hpp"
+#include "kd/demo/discovery.hpp"
 #include "kd/demo/learning.hpp"
 #include "kd/demo/living.hpp"
 #include "kd/run/workers.hpp"
@@ -29,7 +30,8 @@ std::uint32_t fire_entry(std::string_view name) {
 struct FireFixture {
     kd::demo::CrowdWorld camp;
     kd::ecs::Id home{}, hearth{}, food{};
-    explicit FireFixture(std::uint64_t seed = 91) : camp(seed, fire_catalogue(), 1, true, true) {
+    explicit FireFixture(std::uint64_t seed = 91, const kd::data::Catalogue& catalogue = fire_catalogue())
+        : camp(seed, catalogue, 1, true, true) {
         auto& w = camp.world();
         auto& raw = w.beings().raw();
         home = camp.camp_ids().front();
@@ -45,7 +47,7 @@ struct FireFixture {
             for (std::uint32_t slot = 0; slot < 4; ++slot) w.cancel(id, slot);
             w.schedule(id, 0, 8 * kd::time::kHour);
         });
-        hearth = add(fire_entry("base:dry_stick"), 5000000, here);
+        hearth = add(required_entry(catalogue, "item", "base:dry_stick"), 5000000, here);
         auto& f = w.things().raw().emplace<kd::world::Fire>(w.things().handle(hearth));
         f.hearth = home;
         f.at = here;
@@ -54,7 +56,7 @@ struct FireFixture {
         f.ash_mg = 1000000;
         f.burn_remainder = 13;
         f.next = f.deadline();
-        food = add(fire_entry("base:roots"), 1000000, here);
+        food = add(required_entry(catalogue, "item", "base:roots"), 1000000, here);
         auto& t = w.things().raw().emplace<kd::world::HeatTimer>(w.things().handle(food));
         t.item = food;
         t.elapsed = 600;
@@ -973,4 +975,166 @@ TEST_CASE("fire readers reject disagreement with physical item ownership includi
         CHECK_FALSE(reopen_fire(w, why));
         CHECK(why == "fire carrier disagrees with physical item owner");
     }
+}
+
+namespace {
+const kd::data::Catalogue& renamed_fire_catalogue() {
+    static const auto catalogue = [] {
+        auto files = kd::data::read_catalogue(std::string(KD_REPO) + "/data");
+        std::vector<kd::data::SourceFile> copies;
+        for (auto& file : files) {
+            if (file.path == "base/item/roots.toml") copies.push_back({"base/item/review_roots.toml", file.text});
+            if (file.path == "base/item/dry_stick.toml") copies.push_back({"base/item/review_fuel.toml", file.text});
+            if (file.path == "base/blueprint/bank_fire.toml") file.path = "base/blueprint/review_bank.toml";
+            if (file.path == "base/blueprint/carry_ember.toml") file.path = "base/blueprint/review_carry.toml";
+            if (file.path == "base/blueprint/roast_food.toml") file.path = "base/blueprint/review_roast.toml";
+        }
+        files.insert(files.end(), copies.begin(), copies.end());
+        kd::data::Catalogue out;
+        REQUIRE(out.load(files).empty());
+        return out;
+    }();
+    return catalogue;
+}
+struct GenericFoodOperation : kd::world::System {
+    FireFixture fixture;
+    kd::ecs::Id person{};
+    bool prepared = false;
+    explicit GenericFoodOperation(bool renamed) : fixture(91, renamed_fire_catalogue()) {
+        auto& w = fixture.camp.world();
+        w.beings().each([&](kd::ecs::Id id, auto h) {
+            if (!person.value && w.beings().raw().all_of<kd::world::Person>(h)) person = id;
+        });
+        const auto ph = w.beings().handle(person);
+        w.beings().raw().get<kd::world::Place>(ph).at = fixture.fire().at;
+        const auto at = fixture.fire().at;
+        w.beings().raw().get<kd::world::Activity>(ph) = {2, 0, 8 * kd::time::kHour, at, at};
+        auto& item = w.things().raw().get<kd::world::Item>(w.things().handle(fixture.food));
+        item.kind = item.material = required_entry(w.catalogue(), "item", renamed ? "base:review_roots" : "base:roots");
+        item.owner = person;
+        auto& fire = fixture.fire();
+        fire.fuel_mg = 30000000;
+        fire.ash_mg = 1000000;
+        w.things().raw().get<kd::world::Item>(w.things().handle(fixture.hearth)).mass = fire.fuel_mg + fire.ash_mg;
+        fire.next = fire.deadline();
+        w.set_command_taker(*this);
+    }
+    std::string_view name() const override { return "generic food regression"; }
+    void handle(kd::world::Context&, const kd::event::Event&) override {}
+    void command(kd::world::Context& c, const kd::world::Command& cmd) override {
+        auto& w = c.world();
+        const auto h = w.beings().handle(person);
+        if (cmd.what == 930) {
+            kd::demo::Discovery::learn(c, h, fixture.food, 1U << 8U, 3);
+            const auto roast = required_entry(w.catalogue(), "blueprint", "base:review_roast");
+            prepared = kd::demo::Crafting::prepare_lesson(c, h, h, roast, 7);
+            w.beings().raw().get<kd::world::Work>(h) = {};
+            kd::demo::FireRules::carried_food(c, person);
+        }
+        if (cmd.what == 931) kd::demo::FireRules::notice_food(c, h);
+    }
+};
+}  // namespace
+TEST_CASE("identical renamed food prepares cooking and retains the same thermal outcome") {
+    std::array<std::int64_t, 2> state{}, elapsed{}, nourishment{};
+    for (int variant = 0; variant < 2; ++variant) {
+        GenericFoodOperation op(variant != 0);
+        auto& w = op.fixture.camp.world();
+        (void)w.command(0, 930, 0, 0);
+        w.run_to(1);
+        CHECK(op.prepared);
+        (void)w.command(kd::time::kHour + 1, 931, 0, 0);
+        w.run_to(kd::time::kHour + 2);
+        const auto h = w.things().handle(op.fixture.food);
+        const auto& item = w.things().raw().get<kd::world::Item>(h);
+        state[variant] = item.state;
+        elapsed[variant] = w.things().raw().get<kd::world::HeatTimer>(h).elapsed;
+        nourishment[variant] = kd::demo::Crafting::characteristics(w.catalogue(), item)[8];
+    }
+    CHECK(state[0] == state[1]);
+    CHECK(elapsed[0] == elapsed[1]);
+    CHECK(nourishment[0] == nourishment[1]);
+}
+
+namespace {
+struct GenericFuelOperation : GenericFoodOperation {
+    kd::ecs::Id fuel{};
+    bool chosen = false;
+    explicit GenericFuelOperation(bool renamed) : GenericFoodOperation(false) {
+        auto& w = fixture.camp.world();
+        const auto kind = required_entry(w.catalogue(), "item", renamed ? "base:review_fuel" : "base:dry_stick");
+        fuel = fixture.add(kind, 1000000, fixture.fire().at);
+        w.things().each([&](kd::ecs::Id id, auto h) {
+            if (id == fuel || id == fixture.hearth) return;
+            auto& item = w.things().raw().get<kd::world::Item>(h);
+            item.mass = 0;
+            item.state = 4;
+            if (auto* f = w.things().raw().try_get<kd::world::Fire>(h)) {
+                *f = {};
+                f->hearth = item.home;
+                f->at = w.things().raw().get<kd::world::Place>(h).at;
+            }
+        });
+        fixture.fire().heat = 2;
+        fixture.fire().fuel_mg = 1000000;
+        fixture.fire().ash_mg = 4000000;
+        w.things().raw().get<kd::world::Item>(w.things().handle(fixture.hearth)).mass = 5000000;
+    }
+    void command(kd::world::Context& c, const kd::world::Command& cmd) override {
+        auto& w = c.world();
+        const auto h = w.beings().handle(person);
+        auto& life = w.beings().raw().get<kd::world::Life>(h);
+        life.decision_needs = {100, 100, 100};
+        life.scores = {-1000000, -1000000, -1000000, -1000000};
+        life.goal = 3;
+        kd::demo::Discovery::learn(c, h, fuel, (1U << 6U) | (1U << 7U) | (1U << 9U), 3);
+        if (cmd.what == 933) {
+            fixture.fire().heat = 2;
+            fixture.fire().fuel_mg = 1000000;
+            fixture.fire().ash_mg = 4000000;
+            w.things().raw().get<kd::world::Item>(w.things().handle(fixture.hearth)).mass = 5000000;
+            w.beings().raw().get<kd::world::Work>(h) = {};
+            w.beings().raw().get<kd::world::Thermal>(h) = {};
+            w.beings().raw().get<kd::world::Place>(h).at = fixture.fire().at;
+            w.beings().raw().get<kd::world::Activity>(h) = {0, c.now(), c.now() + 300, fixture.fire().at,
+                                                            fixture.fire().at};
+        }
+        auto& living = *const_cast<kd::demo::Living*>(fixture.camp.living());
+        chosen = kd::demo::FireRules::choose(living, c, h);
+    }
+};
+}  // namespace
+TEST_CASE("identical renamed fuel receives the same autonomous tending choice and conserved feed") {
+    std::array<std::int64_t, 2> fuel{};
+    for (int variant = 0; variant < 2; ++variant) {
+        GenericFuelOperation op(variant != 0);
+        auto& w = op.fixture.camp.world();
+        (void)w.command(0, 932, 0, 0);
+        w.run_to(1);
+        CHECK(op.chosen);
+        CHECK(w.beings().raw().get<kd::world::Thermal>(w.beings().handle(op.person)).tending == 1);
+        fuel[variant] = op.fixture.fire().fuel_mg;
+    }
+    CHECK(fuel[0] == fuel[1]);
+    CHECK(fuel[0] == 2000000);
+    CHECK_FALSE(renamed_fire_catalogue().find("blueprint", "base:bank_fire"));
+    CHECK_FALSE(renamed_fire_catalogue().find("blueprint", "base:carry_ember"));
+    CHECK_FALSE(renamed_fire_catalogue().find("blueprint", "base:roast_food"));
+}
+
+TEST_CASE("renamed known banking affordance is selected without the original blueprint name") {
+    GenericFuelOperation op(false);
+    auto& w = op.fixture.camp.world();
+    // This is a maintenance-choice fixture, not an autonomous long-run scene.
+    w.beings().each([&](kd::ecs::Id id, auto h) {
+        if (!w.beings().raw().all_of<kd::world::Person>(h)) return;
+        for (std::uint32_t slot = 0; slot < 4; ++slot) w.cancel(id, slot);
+        auto& activity = w.beings().raw().get<kd::world::Activity>(h);
+        activity.what = 2;
+        activity.end = 21 * kd::time::kHour;
+    });
+    (void)w.command(20 * kd::time::kHour, 933, 0, 0);
+    w.run_to(20 * kd::time::kHour + 1);
+    CHECK(op.chosen);
+    CHECK(w.beings().raw().get<kd::world::Thermal>(w.beings().handle(op.person)).tending == 3);
 }

@@ -195,9 +195,7 @@ std::optional<Candidate> known(world::Context& c, world::Beings::Handle h, std::
                 continue;
             if (requirement.retained && !input.free) continue;
             const auto& item = *input.item;
-            if (b.heat > 0 && (item.state != 0 || (item.kind != w.catalogue().find("item", "base:roots") &&
-                                                   item.kind != w.catalogue().find("item", "base:meat"))))
-                continue;
+            if (b.heat > 0 && item.state != 0) continue;
             const auto* f = input.familiar;
             if (!f) continue;
             const auto& kind = w.catalogue().kind<data::ItemKind>()[item.kind];

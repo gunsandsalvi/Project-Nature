@@ -7,6 +7,8 @@ class FireRules {
 public:
     static void start(world::World& w);
     static bool task_light(const world::World& w, ecs::Id camp, num::Point from, num::Point to, time::Seconds at);
+    [[nodiscard]] static std::optional<std::uint32_t> cooking_recipe(const data::Catalogue& catalogue,
+                                                                     const world::Item& item);
     static void food_changed(world::Context& c, ecs::Id id);
     static void food_refresh(world::Context& c, ecs::Id camp);
     static void carried_food(world::Context& c, ecs::Id person);
