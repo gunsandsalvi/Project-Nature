@@ -3,8 +3,8 @@
 # Usage: tools/check.sh [--deliver] [--audit]
 # Routine: formats/lints/native source rules, host builds/tests, M1 proofs on one/four threads, catalogue,
 # Godot import/scripts/tests, tools, documents/IDs, and the existing signed APK for delivery.
-# Audit: other compilers/emulation/sanitizers, shuffled ties, kill/scenes/repeat, native
-# code scans, the long Godot benchmark and (with --deliver) a second throwaway-key export.
+# Audit: cross-compiler digests, TSan, shuffled ties and kill/scenes/repeat only
+# (owner, 10 October 2026). No emulated full suites, render benchmark or second export.
 # Ends with "Checks: PASS <commit>"; generated files stay in ignored folders.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -19,13 +19,11 @@ for option in "$@"; do
     *) echo "usage: tools/check.sh [--deliver] [--audit]" >&2; exit 2 ;;
   esac
 done
-[ -x "$GODOT" ] && command -v gdformat >/dev/null && command -v ruff >/dev/null && command -v ccache >/dev/null \
-  && [ -d "$KD_GDUNIT" ] || tools/setup.sh
 COMMIT="$(git rev-parse --short=12 HEAD)"
 T0=$(date +%s)
 git fetch -q origin +refs/heads/main:refs/remotes/origin/main 2>/dev/null || true
 TMP="$(mktemp -d)"
-trap 'rm -rf "$TMP"' EXIT
+trap '[ -z "${AUDIT_THREAD_PID:-}" ] || kill "$AUDIT_THREAD_PID" 2>/dev/null || true; rm -rf "$TMP"' EXIT
 # Each step's header, after the time the step before took, so a slow step shows.
 STEP_T=$(date +%s)
 step() {
@@ -53,6 +51,115 @@ pass() {
   echo "$2" >"build/passed/$1"
 }
 
+build_one() {  # name, source folder, configure options...; TARGET, if set, builds only that target
+  local name="$1" src="$2"
+  shift 2
+  quiet cmake -S "$src" -B "build/$name" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+    -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache "$@"
+  quiet cmake --build "build/$name" ${TARGET:+--target "$TARGET"}
+}
+# The audit adds only checks with distinct failure modes (owner, 10 October 2026).
+# Binary/data/helper fingerprints retain passes; changed inputs rerun the affected checks.
+audit() {
+  local san="-fsanitize=undefined -fsanitize=float-cast-overflow -fno-sanitize-recover=all"
+  local names=(sim sim-gcc sim-a64-ndk sim-a64-tie1 sim-a64-tie2)
+  local ndk=("-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake"
+    -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-24 -DANDROID_STL=c++_static
+    -DCMAKE_EXE_LINKER_FLAGS=-static -DCMAKE_CROSSCOMPILING_EMULATOR=qemu-aarch64-static)
+  step "audit builds"
+  TARGET=kindling build_one sim sim -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+  TARGET=kindling build_one sim-gcc sim -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ \
+    "-DCMAKE_C_FLAGS=$san" "-DCMAKE_CXX_FLAGS=$san" "-DCMAKE_EXE_LINKER_FLAGS=$san"
+  TARGET=kindling build_one sim-a64-ndk sim "${ndk[@]}"
+  TARGET=kd_sim_tests build_one sim-tsan sim -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ \
+    -DCMAKE_C_FLAGS=-fsanitize=thread -DCMAKE_CXX_FLAGS=-fsanitize=thread -DCMAKE_EXE_LINKER_FLAGS=-fsanitize=thread
+  for seed in 1 2; do
+    TARGET=kindling build_one "sim-a64-tie$seed" sim "${ndk[@]}" \
+      "-DCMAKE_CXX_FLAGS=-D_LIBCPP_DEBUG_RANDOMIZE_UNSPECIFIED_STABILITY -D_LIBCPP_DEBUG_RANDOMIZE_UNSPECIFIED_STABILITY_SEED=$seed"
+  done
+  local thread_stamp thread_pid=""
+  thread_stamp="$(python3 tools/cppcache.py tests build/sim-tsan)"
+  if [ "$thread_stamp" = unknown ] || [ "$(cat build/sim-tsan/tests.passed 2>/dev/null)" != "$thread_stamp" ]; then
+    TSAN_OPTIONS=halt_on_error=1 build/sim-tsan/kd_sim_tests >"$TMP/threads" 2>&1 &
+    thread_pid=$!
+    AUDIT_THREAD_PID=$thread_pid
+  else
+    echo "   TSan unchanged since it passed"
+  fi
+  step "cross-compiler digests and shuffled ties"
+  local data_files=() binaries=() fp run=()
+  mapfile -t data_files < <(find data -type f -name '*.toml' | sort)
+  for name in "${names[@]}"; do binaries+=("build/$name/kindling"); done
+  fp="$(fingerprint "${binaries[@]}" "${data_files[@]}" tools/samebits.py tools/check.sh 'audit-digests-v1:one/four:1001:2001')"
+  if passed audit-digests "$fp"; then
+    echo "   cross-compiler and tie digests unchanged since they passed"
+  else
+    for name in "${names[@]}"; do
+      run=()
+      [[ "$name" != sim-a64-* ]] || run=(qemu-aarch64-static)
+      for threads in 1 4; do
+        "${run[@]}" "build/$name/kindling" proof --threads "$threads" >"$TMP/proof-$name-$threads"
+      done
+      if [[ "$name" != sim-a64-tie* ]]; then
+        "${run[@]}" "build/$name/kindling" learning-gate 1001 1 >"$TMP/learning-$name.json"
+        "${run[@]}" "build/$name/kindling" idea-gate 2001 1 >"$TMP/idea-$name.json"
+      fi
+    done
+    python3 tools/samebits.py same "$TMP"/proof-* | sed 's/^/   /'
+    python3 - "$TMP" <<'COMPARE'
+import json
+import re
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+for kind, keys in [('learning', ['digest']), ('idea', ['sent_digest', 'control_digest', 'missing_digest'])]:
+    rows = [json.loads(path.read_text()) for path in sorted(root.glob(kind + '-*.json'))]
+    if len(rows) != 3 or any(not re.fullmatch('[0-9a-f]{16}', str(row[key])) for row in rows for key in keys):
+        raise SystemExit('M3 ' + kind + ' missing or invalid end digest')
+    if any(any(row[key] != rows[0][key] for key in keys) for row in rows):
+        raise SystemExit('M3 ' + kind + ' cross-compiler digests differ')
+    if kind == 'learning' and any(row['reopen_failures'] for row in rows):
+        raise SystemExit('M3 learning phase reopen failed')
+    if kind == 'idea' and any(not all(row[key] for key in ['pending_reopen', 'delivered_reopen', 'final_reopen']) for row in rows):
+        raise SystemExit('M3 idea phase reopen failed')
+print('M3: retained learning/idea end digests match across Clang, GCC and ARM/NDK')
+COMPARE
+    pass audit-digests "$fp"
+  fi
+  step "kill, scenes and repeat"
+  fp="$(fingerprint build/sim/kindling "${data_files[@]}" tools/killtest.py tools/scenecheck.py tools/check.sh 'audit-recovery-v1')"
+  if passed audit-recovery "$fp"; then
+    echo "   crash/repeat checks unchanged since they passed"
+  else
+    python3 tools/killtest.py build/sim/kindling data
+    python3 tools/scenecheck.py build/sim/kindling data
+    pass audit-recovery "$fp"
+  fi
+  if [ -n "$thread_pid" ]; then
+    wait "$thread_pid" || { tail -60 "$TMP/threads"; echo "Thread checker: FAIL"; return 1; }
+    [ "$thread_stamp" = unknown ] || echo "$thread_stamp" >build/sim-tsan/tests.passed
+    AUDIT_THREAD_PID=""
+    echo "   TSan passed with no race"
+  fi
+}
+
+if [ "$AUDIT" = 1 ]; then
+  audit
+  # --deliver still verifies the existing release; it never exports another APK.
+  if [ "$DELIVER" = 1 ]; then
+    python3 tools/filecheck.py note
+    STEP="$(sed -n '1s/^# .*α\([0-9]\{1,2\}\.[0-9]\{1,2\}[a-e]\).*/\1/p' dist/NOTE.md)"
+    [ -n "$STEP" ] || { echo "Delivery: note names no alpha"; exit 1; }
+    (cd dist && sha256sum --quiet -c kindling.apk.sha256)
+    tools/verify-apk.sh dist/kindling.apk release "$STEP"
+  fi
+  echo "Checks: PASS $COMMIT ($(($(date +%s) - T0)) seconds; audit=1)"
+  exit 0
+fi
+
+[ -x "$GODOT" ] && command -v gdformat >/dev/null && command -v ruff >/dev/null && command -v ccache >/dev/null \
+  && [ -d "$KD_GDUNIT" ] || tools/setup.sh
+
 # Our code: every file git holds or would hold, outside third-party code.
 ALL=()
 while IFS= read -r f; do [ -f "$f" ] && ALL+=("$f"); done < <(git ls-files -co --exclude-standard \
@@ -76,124 +183,32 @@ for f in "${SH[@]}"; do quiet bash -n "$f"; done
 echo "   GDScript, Python and ${#SH[@]} shell scripts"
 
 step "3 C++"
-# The five builds of our C++ (A2.2): the simulation with clang (its tests and tool), with GCC and its
-# undefined-behaviour checks, and for arm64 with GCC and with the phone's own compiler (NDK r30) as static
-# programs run under qemu, which the same-bits check compares; and the extension with clang, which the Godot tests
-# load. Each through ccache.
-SANITIZE="-fsanitize=undefined -fsanitize=float-cast-overflow -fno-sanitize-recover=all"
-SIM_BUILDS=(sim)
-TIE_BUILDS=()
-if [ "$AUDIT" = 1 ]; then
-  SIM_BUILDS+=(sim-gcc sim-a64-gcc sim-a64-ndk)
-  TIE_BUILDS=(sim-a64-tie1 sim-a64-tie2)
-fi
-build_one() {  # name, source folder, configure options...; TARGET, if set, builds only that target
-  local name="$1" src="$2"
-  shift 2
-  quiet cmake -S "$src" -B "build/$name" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-    -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache "$@"
-  quiet cmake --build "build/$name" ${TARGET:+--target "$TARGET"}
-}
-if [ -f sim/CMakeLists.txt ]; then
-  build_one sim sim -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
-  if [ "$AUDIT" = 1 ]; then
-  build_one sim-gcc sim -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ "-DCMAKE_C_FLAGS=$SANITIZE" \
-    "-DCMAKE_CXX_FLAGS=$SANITIZE" "-DCMAKE_EXE_LINKER_FLAGS=$SANITIZE"
-  build_one sim-a64-gcc sim "-DCMAKE_TOOLCHAIN_FILE=$ROOT/sim/cmake/a64-gcc.cmake"
-  NDK=("-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" -DANDROID_ABI=arm64-v8a
-    -DANDROID_PLATFORM=android-24 -DANDROID_STL=c++_static -DCMAKE_EXE_LINKER_FLAGS=-static
-    -DCMAKE_CROSSCOMPILING_EMULATOR=qemu-aarch64-static)
-  build_one sim-a64-ndk sim "${NDK[@]}"
-  # the tests once more under GCC's thread checker, since a race can damage memory without failing a test (A2.2)
-  build_one sim-tsan sim -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_FLAGS=-fsanitize=thread \
-    -DCMAKE_CXX_FLAGS=-fsanitize=thread -DCMAKE_EXE_LINKER_FLAGS=-fsanitize=thread
-  # libc++ shuffles before each sort that may leave ties in any order, so a result that depends on ties moves
-  for seed in 1 2; do
-    TARGET=kindling build_one "sim-a64-tie$seed" sim "${NDK[@]}" "-DCMAKE_CXX_FLAGS=-D_LIBCPP_DEBUG_RANDOMIZE_UNSPECIFIED_STABILITY \
--D_LIBCPP_DEBUG_RANDOMIZE_UNSPECIFIED_STABILITY_SEED=$seed"
-  done
-  fi
-fi
+[ ! -f sim/CMakeLists.txt ] || build_one sim sim -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
 [ ! -f view/CMakeLists.txt ] || build_one view view -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
-echo "   host simulation and extension built; audit=$AUDIT"
+echo "   host simulation and extension built"
 
-# The simulation's doctest tests on its four builds, the same-bits check across them, the scans of what the
-# compilers did, and the code linted (clang-tidy 18).
 cpp_tests() {
   echo "== 3 C++ tests"
   [ -f sim/CMakeLists.txt ] || { echo "   no simulation yet"; return; }
-  # the thread checker over every test, on a core of its own beside the rest, and only when they changed since it
-  # passed; it stops at the first race
-  if [ "$AUDIT" = 1 ]; then
-  THREADS_STAMP="$(python3 tools/cppcache.py tests build/sim-tsan)"
-  THREADS_RESULT="tests unchanged since they passed"
-  if [ "$THREADS_STAMP" = unknown ] || [ "$(cat build/sim-tsan/tests.passed 2>/dev/null)" != "$THREADS_STAMP" ]; then
-    TSAN_OPTIONS="halt_on_error=1" build/sim-tsan/kd_sim_tests >"$TMP/threads" 2>&1 &
-    THREADS=$!
-    THREADS_RESULT="tests passed with no race"
+  local stamp
+  stamp="$(python3 tools/cppcache.py tests build/sim)"
+  if [ "$stamp" != unknown ] && [ "$(cat build/sim/tests.passed 2>/dev/null)" = "$stamp" ]; then
+    echo "   sim: tests unchanged since they passed"
+  else
+    quiet ctest --test-dir build/sim --output-on-failure
+    [ "$stamp" = unknown ] || echo "$stamp" >build/sim/tests.passed
+    echo "   sim: tests passed"
   fi
-  fi
-  for b in "${SIM_BUILDS[@]}"; do
-    B="build/$b"
-    # the tests run again only when something they are built from changed since they passed (tools/cppcache.py)
-    STAMP="$(python3 tools/cppcache.py tests "$B")"
-    if [ "$b" = sim-a64-gcc ]; then
-      # the phone's processor is emulated twice; every test runs once, under the phone's own compiler (sim-a64-ndk),
-      # and this build gives the same-bits proofs below, which are what it is for
-      TESTS="the same-bits proofs; its tests run under the phone's own compiler"
-    elif [ "$STAMP" != unknown ] && [ "$(cat "$B/tests.passed" 2>/dev/null)" = "$STAMP" ]; then
-      TESTS="tests unchanged since they passed"
-    else
-      quiet ctest --test-dir "$B" --output-on-failure
-      [ "$STAMP" = unknown ] || echo "$STAMP" >"$B/tests.passed"
-      TESTS="tests passed"
-    fi
-    # every proof suite on one thread and four, on every build; all must give one digest (A3.4)
-    RUN=()
-    [[ "$b" != sim-a64-* ]] || RUN=(qemu-aarch64-static)
-    for threads in 1 4; do
-      "${RUN[@]}" "$B/kindling" proof --threads "$threads" >"$TMP/proof-$b-$threads" || { cat "$TMP/proof-$b-$threads"; exit 1; }
-    done
-    echo "   $b: $TESTS"
+  for threads in 1 4; do
+    build/sim/kindling proof --threads "$threads" >"$TMP/proof-sim-$threads"
   done
-  if [ -n "${THREADS:-}" ]; then
-    wait "$THREADS" || { grep -vE '^\s*$' "$TMP/threads" | tail -60; echo "Thread checker: FAIL"; exit 1; }
-    [ "$THREADS_STAMP" = unknown ] || echo "$THREADS_STAMP" >build/sim-tsan/tests.passed
-  fi
-  [ "$AUDIT" = 0 ] || echo "   sim-tsan: $THREADS_RESULT"
-  # the extension's own tests, of what needs no Godot (the speed loop)
-  if [ -f build/view/CTestTestfile.cmake ]; then
-    quiet ctest --test-dir build/view --output-on-failure
-    echo "   view: tests passed"
-  fi
-  for b in "${TIE_BUILDS[@]}"; do
-    for threads in 1 4; do
-      qemu-aarch64-static "build/$b/kindling" proof --threads "$threads" >"$TMP/proof-$b-$threads" \
-        || { cat "$TMP/proof-$b-$threads"; exit 1; }
-    done
-  done
-  # the catalogues, loaded and checked by the simulation's own tool, every problem named by file, line and column
-  if [ -d data ] && [ -x build/sim/kindling ]; then
-    build/sim/kindling catalogue check data >"$TMP/catalogue" || { cat "$TMP/catalogue"; exit 1; }
+  [ ! -f build/view/CTestTestfile.cmake ] || quiet ctest --test-dir build/view --output-on-failure
+  echo "   view: tests passed"
+  if [ -d data ]; then
+    build/sim/kindling catalogue check data >"$TMP/catalogue"
     sed 's/^/   /' "$TMP/catalogue"
-    if [ "$AUDIT" = 1 ]; then
-    # the kill test: a kept world killed at 100 moments ends as an unbroken one (PLT-07, A3.7)
-    python3 tools/killtest.py build/sim/kindling data >"$TMP/kill" || { cat "$TMP/kill"; exit 1; }
-    sed 's/^/   /' "$TMP/kill"
-    # the scenes: each passes, the planted one flags every oddity, a failed rule is judged on twice its runs, and the
-    # repeat check runs one scene and the benchmark world on one core and on four with a stop between (PRC-10)
-    python3 tools/scenecheck.py build/sim/kindling data >"$TMP/scenes" || { cat "$TMP/scenes"; exit 1; }
-    sed 's/^/   /' "$TMP/scenes"
-    fi
   fi
   python3 tools/samebits.py same "$TMP"/proof-* | sed 's/^/   /'
-  [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
-  if [ "$AUDIT" = 1 ]; then
-  python3 tools/samebits.py flags "${SIM_BUILDS[@]/#/build/}" build/view | sed 's/^/   /'
-  [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
-  python3 tools/samebits.py scan "${SIM_BUILDS[@]/#/build/}" build/view | sed 's/^/   /'
-  [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
-  fi
   # the routine lint, on every core, only the files whose code, headers, compile command or rules changed; then the banned
   # list over the simulation's and the extension's own code (A3.4)
   for d in sim view; do
@@ -334,7 +349,6 @@ if [ "$DELIVER" = 1 ]; then
   STEP="$(sed -n '1s/^# .*α\([0-9]\{1,2\}\.[0-9]\{1,2\}[a-e]\).*/\1/p' dist/NOTE.md)"
   [ -n "$STEP" ] || { echo "Delivery: dist/NOTE.md's title names no step, such as 'α0.1a'"; exit 1; }
   # The release build already exported and signed this APK. Avoid exporting it a second time.
-  [ "$AUDIT" = 0 ] || tools/build.sh "$STEP" check
   (cd dist && sha256sum --quiet -c kindling.apk.sha256)
   tools/verify-apk.sh dist/kindling.apk release "$STEP"
 fi

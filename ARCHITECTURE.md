@@ -473,7 +473,7 @@ M3 introduces sounds from actual action/fire; M9 completes sound obligations. Wo
 ## A17. Testing and checks
 
 Testing policy: owner OK 8 October 2026. Keep the routine/delivery/audit split; IMPLEMENTATION.md owns delivery instructions.
-Routine tests cover native/view/app/tools, accepted deterministic proofs, catalogues and document structure and ID traceability checks. Native lint and source rules are in the routine gate. The full audit adds compiler/architecture/thread/sanitizer/kill/repeat/render stress and runs only at the milestone end (owner, 9 October 2026).
+Routine tests cover native/view/app/tools, accepted deterministic proofs, catalogues and document structure and ID traceability checks. Native lint and source rules are in the routine gate. The milestone-end audit now adds only cross-compiler digests (including retained M3 scenes), TSan, shuffled ties and kill/scene/repeat recovery (owner, 10 October 2026). It skips emulated full suites, repeated routine checks, long render benchmarks, instruction scans and a second throwaway export. Exact binary/data/checker fingerprints retain passes; changes rerun affected checks.
 Optional ID annotations locate evidence; they do not certify full acceptance. Current-save corruption/recovery and determinism regressions remain mandatory; older saves are refused.
 
 ### A17.0 Traps met so far
