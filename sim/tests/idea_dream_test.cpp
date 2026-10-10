@@ -277,7 +277,17 @@ TEST_CASE("idea urgent_need_wins and actual attempts alone receive attribution")
         life.awake = 0;
         w.command(101, 3, f.person.value, f.remembered);
         w.run_to(7202);
-        CHECK(f.thought().decision_pull == (urgent ? 0 : 60));
+        if (urgent)
+            CHECK(f.thought().decision_pull == 0);
+        else if (f.thought().decision_pull == 0) {
+            // A real higher-valued option may beat the dream in the common chooser.
+            REQUIRE(!f.know().reasons.empty());
+            if (f.know().reasons.empty()) return;
+            CHECK(f.know().reasons.front().score >=
+                  kd::demo::Living::kDreamPull -
+                      kd::demo::Crafting::time_cost(w, w.beings().handle(f.person), 300) / 60);
+        } else
+            CHECK(f.thought().decision_pull == kd::demo::Living::kDreamPull);
         CHECK(f.ledger().acts.front().first_attempt_at == -1);  // collection is not an attempt
         if (urgent) CHECK(f.ledger().acts.front().pull == 0);
         w.run_to(75000);

@@ -74,6 +74,17 @@ void clear_tend(world::Thermal& t) {
     t.tending_mass = t.tending_started = 0;
     t.tending_choice = 0;
 }
+void release_input(world::Context& c, ecs::Id input, num::Point here) {
+    auto& w = c.world();
+    item(w, input).owner = {};
+    w.things().raw().get<world::Place>(w.things().handle(input)).at = here;
+    // A carried portion may have physically ignited while waiting beside the hearth.
+    if (auto* f = w.things().raw().try_get<Fire>(w.things().handle(input))) {
+        f->owner = {};
+        f->at = here;
+    }
+    c.item_changed(input);
+}
 void schedule_world(world::World& w, ecs::Id camp) {
     auto next = w.beings().raw().get<world::Ambient>(w.beings().handle(camp)).next;
     w.things().each([&](ecs::Id, auto h) {
@@ -540,53 +551,55 @@ bool FireRules::choose(Living& living, world::Context& c, world::Beings::Handle 
             score = 80 * confidence(*evidence, {6, 7, 9}) / 100;
         }
     }
-    // A familiar visible input may be tried against a personally known fire affordance.
-    // Unknown values are hypotheses at the role's lower bounds, never catalogue facts.
-    // Use the existing hourly curiosity opportunity and score; do not add a new frequency T.
+    // A visible failing heat source gives a goal for a personally known maintenance action.
+    // Trying an uncertain familiar input is a plan hypothesis, not another hourly random draw.
+    // Actual contact below records its burn/wetness outcome; uncertainty never changes ignition.
     const auto hour = static_cast<std::uint64_t>(c.now() / time::kHour + 1);
-    if (!operation && know.hourly_draw != hour && maintenance_recipe(w, h, 4) && (f.heat == 1 || f.fuel_mg < 2500000)) {
-        const chance::Draws draws(w.seed(), chance::name("curious hour"), person.value, static_cast<std::int64_t>(hour),
-                                  chance::name("attempt and familiar action"));
-        if (draws.below(0, know.curiosity >= 75 ? 24 : 168) == 0) {
-            std::vector<ecs::Id> guesses;
-            w.things().each([&](ecs::Id id, auto th) {
-                const auto& source = w.things().raw().get<Item>(th);
-                const auto* remembered = Discovery::familiar(know, source);
-                if (!remembered || confidence(*remembered, {6, 9}) || source.home != camp ||
-                    (source.owner.value && source.owner != person) || w.things().raw().all_of<Fire>(th) ||
-                    Crafting::available(w, id, person) < 100000 || !(remembered->mask & (1U << 9U)) ||
-                    remembered->values[9] > (f.heat == 1 ? 1 : 2) ||
-                    w.torus().squared_distance(here, at(w, id, c.now())) > 25000000 ||
-                    !Living::visible(w, camp, here, at(w, id, c.now())))
-                    return;
-                auto guess = perceived_input(w.catalogue(), source, *remembered);
-                const auto recipe = maintenance_recipe(w, h, 4);
-                for (const auto& range : w.catalogue().kind<data::Blueprint>()[*recipe].inputs[0].ranges)
-                    if (!(remembered->mask & (1U << static_cast<unsigned>(range.characteristic))))
-                        guess.values[static_cast<std::size_t>(range.characteristic)] = range.minimum;
-                if (maintenance_recipe(w, h, 4, &guess)) guesses.push_back(id);
-            });
-            if (!guesses.empty()) {
-                input = guesses[draws.below(3, guesses.size())];
-                mass = std::min<std::int64_t>(1000000, Crafting::available(w, input, person));
-                operation = f.heat == 1 ? 2 : 1;
-                hypothesis = true;
-                score = 500;  // Same short curious-use priority as ordinary Crafting::choose.
-                if (!proposals) know.hourly_draw = hour;
+    if (!operation && maintenance_recipe(w, h, 4) && (f.heat == 1 || f.fuel_mg < 2500000)) {
+        std::int64_t closest = INT64_MAX;
+        w.things().each([&](ecs::Id id, auto th) {
+            const auto& source = w.things().raw().get<Item>(th);
+            const auto* remembered = Discovery::familiar(know, source);
+            if (!remembered || confidence(*remembered, {6, 9}) || source.home != camp ||
+                (source.owner.value && source.owner != person) || w.things().raw().all_of<Fire>(th) ||
+                Crafting::available(w, id, person) < 100000 || !(remembered->mask & (1U << 9U)) ||
+                remembered->values[9] > (f.heat == 1 ? 1 : 2) ||
+                w.torus().squared_distance(here, at(w, id, c.now())) > 25000000 ||
+                !Living::visible(w, camp, here, at(w, id, c.now())))
+                return;
+            auto guess = perceived_input(w.catalogue(), source, *remembered);
+            const auto recipe = maintenance_recipe(w, h, 4);
+            for (const auto& range : w.catalogue().kind<data::Blueprint>()[recipe.value_or(0)].inputs[0].ranges)
+                if (!(remembered->mask & (1U << static_cast<unsigned>(range.characteristic))))
+                    guess.values[static_cast<std::size_t>(range.characteristic)] = range.minimum;
+            if (!maintenance_recipe(w, h, 4, &guess)) return;
+            const auto distance = w.torus().distance(here, at(w, id, c.now())) +
+                                  w.torus().distance(at(w, id, c.now()), at(w, target, c.now()));
+            if (distance < closest || (distance == closest && id < input)) {
+                closest = distance;
+                input = id;
             }
+        });
+        if (input.value) {
+            mass = std::min<std::int64_t>(1000000, Crafting::available(w, input, person));
+            operation = f.heat == 1 ? 2 : 1;
+            hypothesis = true;
+            score = 500;
         }
     }
-    if (!operation || (!proposals && score <= l.scores[l.goal])) return false;
+    if (!operation) return false;
     world::CraftReason reason;
     reason.kind = 3;
     reason.action = operation;
     reason.need = hypothesis ? 3 : 4;
     reason.need_met = hypothesis ? know.curiosity_need : static_cast<std::uint8_t>(t->warmth);
-    reason.score = score;
-    reason.parts = {0, score, 0};  // The existing confidence-scaled tending priority.
+    reason.parts = {0, score, 0};
     reason.observed_heat = f.heat;
     reason.observed_fuel_mg = f.fuel_mg;
-    reason.seconds = 60 + w.torus().distance(here, at(w, target, c.now())) * 10 / living.rules().speed;
+    const auto distance = input.value ? w.torus().distance(here, at(w, input, c.now())) +
+                                            w.torus().distance(at(w, input, c.now()), at(w, target, c.now()))
+                                      : w.torus().distance(here, at(w, target, c.now()));
+    reason.seconds = (operation == 3 ? 300 : 60) + distance * 10 / living.rules().speed;
     reason.inputs.push_back({target});
     if (input.value) {
         reason.inputs.push_back({input});
@@ -594,10 +607,12 @@ bool FireRules::choose(Living& living, world::Context& c, world::Beings::Handle 
             *Discovery::familiar(know, item(w, input)),
             operation == 4 ? std::initializer_list<std::size_t>{6, 7, 9} : std::initializer_list<std::size_t>{6, 9});
     }
-    auto commit = [&living, &c, h, target, input, operation, mass, reason, hypothesis](std::uint64_t choice) {
-        if (hypothesis)
-            c.world().beings().raw().get<world::Knowledge>(h).hourly_draw =
-                static_cast<std::uint64_t>(c.now() / 3600 + 1);
+    const auto uncertainty = hypothesis ? (100 - reason.confidence) / 2 : 0;
+    reason.parts[2] = -reason.seconds / 60 - uncertainty;
+    reason.score = reason.parts[1] + reason.parts[2];
+    if (!proposals && reason.score <= l.scores[l.goal]) return false;
+    auto commit = [&living, &c, h, target, input, operation, mass, reason, hypothesis, hour](std::uint64_t choice) {
+        if (hypothesis) c.world().beings().raw().get<world::Knowledge>(h).hourly_draw = hour;
         auto& thermal = c.world().beings().raw().get<world::Thermal>(h);
         thermal.tending_choice = choice ? choice : Choices::keep(c, h, reason);
         thermal.tending = operation;
@@ -624,9 +639,7 @@ bool FireRules::continue_tending(Living& living, world::Context& c, world::Being
     const auto target = t->tending_fire, input = t->tending_input;
     if (interrupted || !w.things().find(target) || !fire(w, target).heat) {
         if (input.value && t->tending_shared && w.things().find(input)) {
-            item(w, input).owner = {};
-            w.things().raw().get<world::Place>(w.things().handle(input)).at = raw.get<world::Place>(h).at;
-            c.item_changed(input);
+            release_input(c, input, raw.get<world::Place>(h).at);
         }
         clear_tend(*t);
         return false;
@@ -634,6 +647,10 @@ bool FireRules::continue_tending(Living& living, world::Context& c, world::Being
     const auto here = raw.get<world::Place>(h).at;
     if (t->tending_phase == 3) {
         if (t->tending <= 2) {
+            // A completed real fuel trial reveals these properties even when it fails.
+            Discovery::learn(c, h, input, (1U << 6U) | (1U << 9U), 3);
+            const auto observed = *Discovery::familiar(raw.get<world::Knowledge>(h), item(w, input));
+            Discovery::memory(c, h, 0, {observed}, 0, target);
             if (feed(c, target, input, t->tending_mass, person)) {
                 if (t->tending == 2) (void)blow(c, target);
                 fire(w, target).tended_at = c.now();
@@ -663,10 +680,7 @@ bool FireRules::continue_tending(Living& living, world::Context& c, world::Being
                 if (skill.recipe == recipe.value_or(0))
                     Learning::practice(skill.practice, c.now(), t->tending == 3 ? 300 : 60, success, know.learning_ppm);
         }
-        if (input.value && t->tending_shared) {
-            item(w, input).owner = {};
-            c.item_changed(input);
-        }
+        if (input.value && t->tending_shared) release_input(c, input, here);
         clear_tend(*t);
         return false;
     }

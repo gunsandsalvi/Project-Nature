@@ -53,6 +53,15 @@ bool free_plan(const world::World& w, world::Beings::Handle h, time::Seconds now
            (a.end <= now || a.what == static_cast<std::uint8_t>(LivingAct::watch) ||
             a.what == static_cast<std::uint8_t>(LivingAct::watch_craft));
 }
+world::CraftReason invitation(const world::Knowledge& mind, std::uint32_t recipe, std::int64_t seconds) {
+    world::CraftReason reason{5, 1, 10, 3, recipe, 0, 10, seconds, {}};
+    reason.need_met = mind.curiosity_need;
+    // A kind person's wish to help a believed novice is an inclination, not the novice's hidden need.
+    reason.parts = {std::max<std::int64_t>(0, 80 - mind.curiosity_need) * reason.benefit * 10,
+                    mind.kindness * reason.benefit, -seconds / 60};
+    reason.score = reason.parts[0] + reason.parts[1] + reason.parts[2];
+    return reason;
+}
 void credit(world::Context& c, world::Lesson& s, bool success_bonus = false) {
     auto& w = c.world();
     auto& raw = w.beings().raw();
@@ -169,9 +178,7 @@ bool Learning::choose(Living& living, world::Context& c, world::Beings::Handle h
         work.state = 1;
         work.target = s.meeting;
         raw.get<world::Life>(teacher).portion = 0;
-        world::CraftReason reason{5, 1, 10, 3, s.recipe, 10, 10, 1800, {}};
-        reason.need_met = raw.get<world::Knowledge>(teacher).curiosity_need;
-        reason.parts = {0, 10, 0};
+        auto reason = invitation(raw.get<world::Knowledge>(teacher), s.recipe, 1800);
         if (!choice) Choices::keep(c, teacher, reason);
         Choices::restore(w, learner, work.choice);
         living.begin(c, teacher, LivingAct::teach, time::kHour, raw.get<world::Place>(teacher).at);
@@ -223,7 +230,12 @@ bool Learning::choose(Living& living, world::Context& c, world::Beings::Handle h
     std::vector<ecs::Id> nearby;
     w.beings().each([&](ecs::Id id, world::Beings::Handle other) {
         if (id == person || !raw.all_of<world::Knowledge, Home>(other) || raw.get<Home>(other).camp != home) return;
-        const auto at = raw.get<world::Activity>(other).at(w.torus(), c.now());
+        const auto& activity = raw.get<world::Activity>(other);
+        // Offer when the other person visibly watches or finishes an activity. Their bodily reply stays private.
+        if (activity.end > c.now() && activity.what != static_cast<std::uint8_t>(LivingAct::watch) &&
+            activity.what != static_cast<std::uint8_t>(LivingAct::watch_craft))
+            return;
+        const auto at = activity.at(w.torus(), c.now());
         if (can_watch(w, home, raw.get<world::Place>(h).at, at, c.now())) nearby.push_back(id);
     });
     std::size_t offers = 0;
@@ -241,9 +253,7 @@ bool Learning::choose(Living& living, world::Context& c, world::Beings::Handle h
                     (void)exchange(c, h, learner, known.recipe);
                     continue;
                 }
-                world::CraftReason reason{5, 1, 10, 3, known.recipe, 10, 10, 60, {}};
-                reason.need_met = mind->curiosity_need;
-                reason.parts = {0, 10, 0};
+                auto reason = invitation(*mind, known.recipe, 60);
                 proposals->add(reason, [&living, &c, h, other, recipe = known.recipe](std::uint64_t) {
                     const auto learner = c.world().beings().handle(other);
                     (void)exchange(c, h, learner, recipe);
@@ -255,6 +265,7 @@ bool Learning::choose(Living& living, world::Context& c, world::Beings::Handle h
             }
             if (peer->knows) continue;
             const auto recipe = known.recipe;
+            if (!Crafting::lesson_reachable(c, h, learner, recipe)) continue;
             auto offer = [&living, &c, h, person, other, recipe, begin_meeting](std::uint64_t choice) {
                 auto& w = c.world();
                 auto& raw = w.beings().raw();
@@ -289,9 +300,10 @@ bool Learning::choose(Living& living, world::Context& c, world::Beings::Handle h
                 if (offer(0)) return true;
                 continue;
             }
-            world::CraftReason reason{5, 1, 10, 3, recipe, 10, 10, 1800, {}};
-            reason.need_met = mind->curiosity_need;
-            reason.parts = {0, 10, 0};
+            const auto walking = w.torus().distance(raw.get<world::Place>(h).at,
+                                                    raw.get<world::Activity>(learner).at(w.torus(), c.now())) *
+                                 10 / living.rules().speed;
+            auto reason = invitation(*mind, recipe, 1800 + walking);
             proposals->add(reason, std::move(offer));
             if (++offers == 8) return false;
         }

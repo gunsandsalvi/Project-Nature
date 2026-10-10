@@ -77,9 +77,12 @@ std::uint64_t Choices::keep(world::Context& c, world::Beings::Handle h, world::C
     const auto& life = raw.get<world::Life>(h);
     auto& mind = raw.get<world::Knowledge>(h);
     for (auto& reason : alternatives) {
-        if (reason.kind <= 1)
-            reason.need_met =
-                static_cast<std::uint8_t>(reason.need < 3 ? life.decision_needs[reason.need] : mind.curiosity_need);
+        if (reason.kind <= 1) {
+            const auto* thermal = raw.try_get<world::Thermal>(h);
+            reason.need_met = static_cast<std::uint8_t>(reason.need < 3    ? life.decision_needs[reason.need]
+                                                        : reason.need == 4 ? (thermal ? thermal->warmth : 100)
+                                                                           : mind.curiosity_need);
+        }
         parts(reason);
     }
     if (add_body)

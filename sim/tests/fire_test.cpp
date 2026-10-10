@@ -1096,6 +1096,9 @@ struct GenericFuelOperation : GenericFoodOperation {
             w.beings().raw().get<kd::world::Knowledge>(h).familiar.clear();
             kd::demo::Discovery::learn(c, h, fuel, kd::demo::Discovery::kSight, 1);
         }
+        if (cmd.what == 938)
+            w.beings().raw().get<kd::world::Knowledge>(h).hourly_draw =
+                static_cast<std::uint64_t>(c.now() / kd::time::kHour + 1);
         if (cmd.what == 933) {
             fixture.fire().heat = 2;
             fixture.fire().fuel_mg = 1000000;
@@ -1186,6 +1189,32 @@ TEST_CASE("identical renamed fuel receives the same autonomous tending choice an
     CHECK_FALSE(renamed_fire_catalogue().find("blueprint", "base:roast_food"));
 }
 
+TEST_CASE("shared tending fuel igniting beside the hearth releases both physical owners") {
+    GenericFuelOperation op(false);
+    auto& w = op.fixture.camp.world();
+    op.fixture.fire().air_until = 2;
+    op.fixture.fire().next = op.fixture.fire().deadline();
+    (void)w.command(0, 932, 0, 0);
+    w.run_to(1);
+    REQUIRE(op.chosen);
+    const auto input = w.beings().raw().get<kd::world::Thermal>(w.beings().handle(op.person)).tending_input;
+    REQUIRE(input.value);
+    // A real ambient event ignites the carried dry fuel during the finite tending activity.
+    w.schedule(op.fixture.home, 2, 2);
+    w.run_to(3);
+    const auto h = w.things().handle(input);
+    REQUIRE(w.things().raw().all_of<kd::world::Fire>(h));
+    if (!w.things().raw().all_of<kd::world::Fire>(h)) return;
+    CHECK(w.things().raw().get<kd::world::Fire>(h).owner == op.person);
+    w.run_to(61);
+    const auto& item = w.things().raw().get<kd::world::Item>(h);
+    const auto& fire = w.things().raw().get<kd::world::Fire>(h);
+    CHECK(item.owner.value == 0);
+    CHECK(fire.owner == item.owner);
+    CHECK(fire.at == w.things().raw().get<kd::world::Place>(h).at);
+    CHECK(item.mass == fire.fuel_mg + fire.ash_mg);
+}
+
 TEST_CASE("renamed known banking affordance is selected without the original blueprint name") {
     GenericFuelOperation op(false);
     auto& w = op.fixture.camp.world();
@@ -1216,13 +1245,44 @@ TEST_CASE("unlearned hidden burn and fuel properties cannot change the person's 
             (void)w.command(0, 932, 0, 0);
             w.run_to(1);
             const auto& know = w.beings().raw().get<kd::world::Knowledge>(w.beings().handle(op.person));
-            const auto* evidence = kd::demo::Discovery::familiar(know, fuel);
+            auto perceived = fuel;
+            perceived.state = 0;  // Selection may have split the source; no real trial has finished yet.
+            const auto* evidence = kd::demo::Discovery::familiar(know, perceived);
             REQUIRE(evidence);
             CHECK((evidence->mask & (1U << property)) == 0);
             chosen[variant] = op.chosen;
         }
         CHECK(chosen[0] == chosen[1]);
-        CHECK_FALSE(chosen[0]);
+        CHECK(chosen[0]);  // The same uncertain plan is allowed in both worlds; physics still decides its result.
+    }
+}
+
+TEST_CASE("a goal directed fuel trial survives spent hourly curiosity and learns only from actual contact") {
+    for (const std::uint8_t burn : {0, 4}) {
+        GenericFuelOperation op(false);
+        op.learned = false;
+        auto& w = op.fixture.camp.world();
+        auto& physical = w.things().raw().get<kd::world::Item>(w.things().handle(op.fuel));
+        physical.changed_mask = 1U << 6U;
+        physical.changed[6] = burn;
+        const auto perceived = physical;
+        (void)w.command(0, 938, 0, 0);  // Labelled choice fixture, not an ordinary acceptance scene.
+        w.run_to(1);
+        REQUIRE(op.chosen);
+        const auto h = w.beings().handle(op.person);
+        const auto& mind = w.beings().raw().get<kd::world::Knowledge>(h);
+        const auto* before = kd::demo::Discovery::familiar(mind, perceived);
+        REQUIRE(before);
+        CHECK((before->mask & (1U << 6U)) == 0);
+        REQUIRE(mind.reasons.size() == 3);
+        CHECK(mind.reasons.front().confidence == 0);
+        CHECK(mind.reasons.front().parts[2] < 0);
+        w.run_to(61);
+        const auto* after = kd::demo::Discovery::familiar(mind, perceived);
+        REQUIRE(after);
+        CHECK((after->mask & (1U << 6U)) != 0);
+        CHECK(after->values[6] == burn);
+        CHECK(op.fixture.fire().fuel_mg + op.fixture.fire().ash_mg == (burn ? 6000000 : 5000000));
     }
 }
 

@@ -1241,6 +1241,34 @@ TEST_CASE("urgent hunger can choose personally known food preparation when remem
     }
 }
 
+TEST_CASE("ordinary hungry choice eats ready kernels instead of cracking them again") {
+    WorkFixture trial(8805, "base:crack_nuts_bones", 3, {"base:nuts", "base:granite", "base:granite"});
+    auto& raw = trial.w.beings().raw();
+    auto& life = raw.get<kd::world::Life>(trial.h);
+    life.food = 100000;
+    raw.get<kd::world::Camp>(trial.w.beings().handle(trial.home)).food_mg = 0;
+    raw.get<kd::world::Habitat>(trial.w.beings().handle(trial.home)).crop_budget_mg = 0;
+    trial.w.things().each([&](kd::ecs::Id id, auto h) {
+        auto& item = trial.w.things().raw().get<kd::world::Item>(h);
+        if (id == trial.inputs.front()) {
+            // Labelled ready-food fixture, conserving the original stock mass.
+            item.kind = item.material = entry(catalogue(), "item", "base:kernels");
+            item.length = 30;
+        } else if (catalogue().kind<kd::data::ItemKind>()[item.kind].edible) {
+            item.mass = 0;
+            item.state = 4;
+        }
+    });
+    trial.w.run_to(2);
+    CHECK(life.meal_item == trial.inputs.front());
+    CHECK(raw.get<kd::world::Work>(trial.h).state == 0);
+    const auto& reasons = raw.get<kd::world::Knowledge>(trial.h).reasons;
+    REQUIRE(reasons.size() == 3);
+    CHECK(reasons.front().kind == 2);
+    for (const auto& reason : reasons)
+        if (reason.intended && reason.recipe == trial.recipe) CHECK(reason.benefit == 0);
+}
+
 TEST_CASE("a paused edible work input cannot also be allocated to a finite meal") {
     WorkFixture trial(7, "base:leaf_bed", 2, {"base:roots"});
     auto& raw = trial.w.beings().raw();
