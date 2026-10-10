@@ -90,6 +90,7 @@ void KdWorlds::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_root", "root"), &KdWorlds::set_root);
     ClassDB::bind_method(D_METHOD("list"), &KdWorlds::list);
     ClassDB::bind_method(D_METHOD("make_discovery", "name", "seed"), &KdWorlds::make_discovery);
+    ClassDB::bind_method(D_METHOD("make_cold_discovery", "name", "seed"), &KdWorlds::make_cold_discovery);
     ClassDB::bind_method(D_METHOD("rename", "id", "name"), &KdWorlds::rename);
     ClassDB::bind_method(D_METHOD("remove", "id"), &KdWorlds::remove);
     ClassDB::bind_method(D_METHOD("current"), &KdWorlds::current);
@@ -126,6 +127,7 @@ godot::Array KdWorlds::list() const {
         const std::optional<demo::About> about = about_text ? demo::read_about(*about_text) : std::nullopt;
         w["name"] = text_of(about ? about->name : std::string());
         w["discovery"] = about && about->discovery;
+        w["fire_already_out"] = about && about->fire_already_out;
         w["kind"] = about && about->camp_alpha ? "camp_alpha" : "crowd";
         w["seed"] = about ? static_cast<int64_t>(about->seed) : int64_t{0};
         // a test's world, marked as one with the switches it ran with (RES-10, PLT-05)
@@ -194,6 +196,12 @@ std::string KdWorlds::new_id() const {
 }
 
 godot::String KdWorlds::make_discovery(const godot::String& name, int64_t seed) {
+    return make_discovery_state(name, seed, false);
+}
+godot::String KdWorlds::make_cold_discovery(const godot::String& name, int64_t seed) {
+    return make_discovery_state(name, seed, true);
+}
+godot::String KdWorlds::make_discovery_state(const godot::String& name, int64_t seed, bool fire_already_out) {
     const std::string id = new_id();
     std::error_code error;
     fs::create_directories(fs::path(root_) / id, error);
@@ -206,6 +214,7 @@ godot::String KdWorlds::make_discovery(const godot::String& name, int64_t seed) 
     about.camps = 1;
     about.camp_alpha = true;
     about.discovery = true;
+    about.fire_already_out = fire_already_out;
     const std::string text = demo::about_text(about);
     save::DiskFiles files((fs::path(root_) / id).string());
     if (!files.write_whole("world.toml", save::Bytes(reinterpret_cast<const std::byte*>(text.data()),

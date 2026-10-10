@@ -187,6 +187,8 @@ struct Way {
     std::optional<Dream> dream = std::nullopt;
     std::optional<Work> work = std::nullopt;
     std::shared_ptr<const Knowledge> knowledge = {};
+    std::optional<Thermal> thermal = std::nullopt;
+    std::optional<Ambient> ambient = std::nullopt;
 };
 // Immutable physical state at a real item event, independent of the producer's later frontier.
 struct ItemWay {
@@ -195,6 +197,8 @@ struct ItemWay {
     ecs::Id id;
     Place place;
     Item item;
+    std::optional<Fire> fire = std::nullopt;
+    std::optional<HeatTimer> timer = std::nullopt;
 };
 
 /// One island of a window (A3.3): its events, run in key order on one worker, those it makes at or after the

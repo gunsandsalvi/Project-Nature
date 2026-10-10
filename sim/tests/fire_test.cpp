@@ -386,8 +386,8 @@ TEST_CASE("200 low high banking and carrying trials use maker chance without fre
                 CHECK(reopen_fire(w, why));
             }
             MESSAGE("operation ", operation, " level ", level, ": ", successes, "/200");
-            CHECK(successes >= (level == 10 ? 181 : 82));
-            CHECK(successes <= (level == 10 ? 197 : 118));
+            CHECK(successes >= (level == 10 ? 181 : 100));
+            CHECK(successes <= (level == 10 ? 197 : 140));
         }
     }
 }
@@ -766,6 +766,10 @@ TEST_CASE("cooking uses the normal low and high maker chance in two hundred root
                 skill.practice = {high ? 10000 : 0, high ? 10000 : 0, 0, 0};
                 know.skills.push_back(skill);
                 know.sectors[5] = skill.practice;
+                const auto ph = w.beings().handle(ops.viewer);
+                w.beings().raw().get<kd::world::Place>(ph).at = ops.fires.fixture.fire().at;
+                auto& activity = w.beings().raw().get<kd::world::Activity>(ph);
+                activity.from = activity.to = ops.fires.fixture.fire().at;
                 ops.item().kind = ops.item().material = fire_entry(name);
                 ops.request(0, 925);
                 w.run_to(3601);
@@ -775,8 +779,8 @@ TEST_CASE("cooking uses the normal low and high maker chance in two hundred root
             }
             INFO(std::string(name), " high=", high, " successes=", successes);
             MESSAGE(std::string(name), " high=", high, " successes=", successes, "/200");
-            CHECK(successes >= (high ? 181 : 44));
-            CHECK(successes <= (high ? 197 : 77));
+            CHECK(successes >= (high ? 181 : 62));
+            CHECK(successes <= (high ? 197 : 98));
         }
     }
 }
@@ -856,4 +860,89 @@ TEST_CASE("carried raw food schedules its actual entry into heat before the walk
     CHECK(ops.timer().next == 3780);
     std::string why;
     CHECK(reopen_fire(w, why));
+}
+TEST_CASE("actual fire task light removes darkness cost and walls block it") {
+    FireOperations ops;
+    auto& w = ops.fixture.camp.world();
+    const auto here = ops.fixture.fire().at;
+    const auto edge = w.torus().moved(here, {200, 0});
+    CHECK(kd::demo::FireRules::task_light(w, ops.fixture.home, here, edge, 0));
+    CHECK_FALSE(kd::demo::FireRules::task_light(w, ops.fixture.home, here, w.torus().moved(here, {201, 0}), 0));
+    kd::ecs::Id person{};
+    w.beings().each([&](kd::ecs::Id id, auto h) {
+        if (!person.value && w.beings().raw().all_of<kd::world::Person>(h)) person = id;
+    });
+    const auto h = w.beings().handle(person);
+    auto& activity = w.beings().raw().get<kd::world::Activity>(h);
+    activity.from = activity.to = here;
+    const auto recipe = *fire_catalogue().find("blueprint", "base:sharp_flake");
+    const auto lit = kd::demo::Crafting::success(w, h, recipe, {});
+    CHECK(kd::demo::Crafting::time_cost(w, h, 100) == 100);
+    activity.from = activity.to = w.torus().moved(here, {500, 0});
+    CHECK(kd::demo::Crafting::success(w, h, recipe, {}) == lit - 100000);
+    CHECK(kd::demo::Crafting::time_cost(w, h, 100) == 125);
+    auto& rock = w.beings().raw().get<kd::world::Habitat>(w.beings().handle(ops.fixture.home));
+    rock.rock_west = -1010;
+    rock.rock_east = -990;
+    rock.rock_south = 1500;
+    rock.rock_north = 1700;
+    CHECK_FALSE(kd::demo::FireRules::task_light(w, ops.fixture.home, edge, edge, 0));
+}
+TEST_CASE("fresh out-fire scene has the same finite stock and skills without fire or invented warmth") {
+    kd::demo::CrowdWorld cold(93, fire_catalogue(), 1, true, true, true);
+    auto& w = cold.world();
+    std::int64_t mass = 0, ash = 0;
+    w.things().each([&](kd::ecs::Id, auto h) {
+        mass += w.things().raw().get<kd::world::Item>(h).mass;
+        if (const auto* f = w.things().raw().try_get<kd::world::Fire>(h)) {
+            CHECK(f->heat == 0);
+            CHECK(f->fuel_mg == 0);
+            CHECK(f->next == 0);
+            ash += f->ash_mg;
+        }
+    });
+    CHECK(mass == 450000000);
+    CHECK(ash == 5000000);
+    w.beings().each([&](kd::ecs::Id, auto h) {
+        if (const auto* know = w.beings().raw().try_get<kd::world::Knowledge>(h)) {
+            CHECK(know->skills.size() == 5);
+            CHECK(know->memories.empty());
+        }
+    });
+    std::string why;
+    CHECK(reopen_fire(w, why));
+}
+
+TEST_CASE("an active cooking demonstration credits nearby observers through the shared learning path") {
+    CookingOperations ops;
+    auto& w = ops.fires.fixture.camp.world();
+    auto& raw = w.beings().raw();
+    const auto recipe = *fire_catalogue().find("blueprint", "base:roast_food");
+    const auto maker = w.beings().handle(ops.viewer);
+    auto& work = raw.get<kd::world::Work>(maker);
+    work.number = 1;
+    work.state = 2;
+    work.action = 12;
+    work.recipe = recipe;
+    work.intended = 1;
+    work.try_seconds = work.next_try = work.end = 3600;
+    const auto here = ops.fires.fixture.fire().at;
+    raw.get<kd::world::Activity>(maker) = {static_cast<std::uint8_t>(kd::world::LivingAct::craft), 0, 7200, here, here};
+    kd::ecs::Id observer{};
+    w.beings().each([&](kd::ecs::Id id, auto h) {
+        if (observer.value || id == ops.viewer || !raw.all_of<kd::world::Knowledge>(h)) return;
+        observer = id;
+        raw.get<kd::world::Activity>(h) = {0, 0, 7200, here, here};
+        raw.get<kd::world::Life>(h).awake = 1;
+    });
+    REQUIRE(observer.value);
+    ops.request(0, 925);
+    w.run_to(3601);
+    const auto& mind = raw.get<kd::world::Knowledge>(w.beings().handle(observer));
+    const auto skill =
+        std::find_if(mind.skills.begin(), mind.skills.end(), [&](const auto& s) { return s.recipe == recipe; });
+    REQUIRE(skill != mind.skills.end());
+    CHECK(skill->observation_quarters == 1);
+    CHECK_FALSE(skill->known);
+    CHECK(mind.last_observed_event > 0);
 }

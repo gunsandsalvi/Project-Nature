@@ -43,6 +43,7 @@ func _ready() -> void:
 	add_child(row)
 	row.add_child(_button("New Discovery camp", func() -> void: make_world()))
 	row.add_child(_button("Import a world", pick_import))
+	add_child(_button("New camp · fire already out", make_cold_world))
 	_status = _label(16, TEXT)
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -78,6 +79,16 @@ func make_world() -> String:
 	if _waiting():
 		return ""
 	var id := worlds.make_discovery("Discovery camp %d" % (listed.size() + 1), randi())
+	status = "Made %s: open it to begin" % id if id != "" else "The new world could not be made"
+	refresh()
+	return id
+
+
+## Makes a fresh labelled camp with the same knowledge and finite stocks, and a cold hearth.
+func make_cold_world() -> String:
+	if _waiting():
+		return ""
+	var id := worlds.make_cold_discovery("Camp · fire already out", randi())
 	status = "Made %s: open it to begin" % id if id != "" else "The new world could not be made"
 	refresh()
 	return id

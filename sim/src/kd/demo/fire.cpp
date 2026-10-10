@@ -42,6 +42,18 @@ void schedule_world(world::World& w, ecs::Id camp) {
     w.schedule(camp, 2, next);
 }
 }  // namespace
+bool FireRules::task_light(const world::World& w, ecs::Id camp, num::Point from, num::Point to, time::Seconds now) {
+    for (const auto h : w.things().raw().view<Fire>()) {
+        const auto& f = w.things().raw().get<Fire>(h);
+        if (f.hearth != camp || f.heat < 2) continue;
+        const auto here = at(w, w.things().id_of(h), now);
+        if (w.torus().squared_distance(here, from) <= 200LL * 200 &&
+            w.torus().squared_distance(here, to) <= 200LL * 200 && Living::visible(w, camp, here, from) &&
+            Living::visible(w, camp, here, to))
+            return true;
+    }
+    return false;
+}
 std::int64_t FireRules::ambient(time::Seconds at) {
     const auto clock = at % time::kDay;
     return clock >= 6 * time::kHour && clock < 20 * time::kHour ? 24000 : 18000;
@@ -68,7 +80,7 @@ void FireRules::start(world::World& w) {
         }
     });
 }
-void FireRules::fresh_hearth(world::World& w) {
+void FireRules::fresh_hearth(world::World& w, bool already_out) {
     w.beings().each([&](ecs::Id camp, auto ch) {
         if (!w.beings().raw().all_of<world::Ambient>(ch)) return;
         const auto here = w.beings().raw().get<world::Camp>(ch).shelter_at;
@@ -109,6 +121,15 @@ void FireRules::fresh_hearth(world::World& w) {
         f.fuel_mg = i.mass;
         f.settled_at = w.frontier();
         f.air_until = w.frontier() + 1;
+        if (already_out) {
+            f.heat = 0;
+            f.fuel_mg = 0;
+            f.ash_mg = i.mass;
+            f.air_until = 0;
+            i.kind = i.material = *w.catalogue().find("item", "base:ash");
+            i.state = 0;
+            i.changed[12] = 0;
+        }
         f.next = next_fire(f);
         schedule_world(w, camp);
     });
@@ -394,11 +415,13 @@ bool FireRules::choose(Living& living, world::Context& c, world::Beings::Handle 
     if (*std::min_element(l.decision_needs.begin(), l.decision_needs.end()) < 20) return false;
     const auto person = w.beings().id_of(h), camp = raw.get<Home>(h).camp;
     const auto here = raw.get<world::Place>(h).at;
+    const auto sight_clock = c.now() % time::kDay;
+    const auto sight_range = sight_clock >= 6 * time::kHour && sight_clock < 20 * time::kHour ? 3000 : 500;
     ecs::Id target{};
     w.things().each([&](ecs::Id id, auto th) {
         const auto* f = w.things().raw().try_get<Fire>(th);
         if (!f || !f->heat || f->hearth != camp || (f->owner.value && f->owner != person) || target.value ||
-            w.torus().squared_distance(here, at(w, id, c.now())) > 25000000 ||
+            w.torus().squared_distance(here, at(w, id, c.now())) > sight_range * sight_range ||
             !Living::visible(w, camp, here, at(w, id, c.now())))
             return;
         target = id;

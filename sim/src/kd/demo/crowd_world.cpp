@@ -479,7 +479,7 @@ void Markers::near(const world::World& /*w*/, time::Seconds /*a*/, time::Seconds
 }
 
 CrowdWorld::CrowdWorld(std::uint64_t seed, const data::Catalogue& catalogue, std::optional<std::int64_t> camps,
-                       bool camp_alpha, bool discovery)
+                       bool camp_alpha, bool discovery, bool fire_already_out)
     : crowd_(crowd_of(catalogue)),
       world_(seed, catalogue),
       daylight_(world_, crowd_.dawn, crowd_.dusk),
@@ -515,7 +515,7 @@ CrowdWorld::CrowdWorld(std::uint64_t seed, const data::Catalogue& catalogue, std
         raw.emplace<world::Activity>(h, 0, 0, 0, at, at);
     }
     living_->start(world_);
-    if (discovery) Crafting::initialise(world_);
+    if (discovery) Crafting::initialise(world_, fire_already_out);
 }
 
 CrowdWorld::CrowdWorld(const data::Catalogue& catalogue, Opening /*opening*/)

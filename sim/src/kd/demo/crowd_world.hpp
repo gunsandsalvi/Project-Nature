@@ -166,7 +166,7 @@ class CrowdWorld {
 public:
     /// A new crowd's world; camps, if given, replaces the tuning's number, for smaller worlds in tests.
     CrowdWorld(std::uint64_t seed, const data::Catalogue& catalogue, std::optional<std::int64_t> camps = std::nullopt,
-               bool camp_alpha = false, bool discovery = false);
+               bool camp_alpha = false, bool discovery = false, bool fire_already_out = false);
     /// A crowd's world opened from a snapshot's chunks, or nothing, with why. Implements PLT-07, see A3.7.
     [[nodiscard]] static std::unique_ptr<CrowdWorld> open(const data::Catalogue& catalogue,
                                                           std::span<const save::Chunk> chunks, std::string& why);

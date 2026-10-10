@@ -2,6 +2,7 @@
 #include <algorithm>
 #include "kd/data/craft.hpp"
 #include "kd/demo/discovery.hpp"
+#include "kd/demo/fire.hpp"
 #include "kd/demo/living.hpp"
 #include "kd/num/convert.hpp"
 #include "kd/num/maths.hpp"
@@ -19,9 +20,8 @@ void Learning::settle_mind(world::Context& c, world::Beings::Handle h) {
     std::erase_if(mind.hunches, [&](const auto& hint) { return c.now() - hint.last_use >= time::kYear; });
 }
 bool Learning::can_watch(const world::World& w, ecs::Id camp, num::Point from, num::Point to, time::Seconds at) {
-    // The bounded camp has daylight, but no simulated task light yet (fire comes in alpha 3.13c).
     const auto clock = at % time::kDay;
-    return clock >= 6 * time::kHour && clock < 20 * time::kHour &&
+    return ((clock >= 6 * time::kHour && clock < 20 * time::kHour) || FireRules::task_light(w, camp, from, to, at)) &&
            w.torus().squared_distance(from, to) <= 500LL * 500 && Living::visible(w, camp, from, to);
 }
 namespace {
@@ -70,7 +70,15 @@ void observe_active(world::Context& c, world::Beings::Handle observer, std::span
                                                                                                                : 1;
         if (weight != 0) {
             // Whole game-second intervals, independent of event batching, frames and save boundaries.
-            if (act.from == act.to && demonstration.from == demonstration.to) {
+            bool moving_light = false;
+            for (const auto fh : w.things().raw().view<world::Fire>()) {
+                const auto& fire = w.things().raw().get<world::Fire>(fh);
+                if (fire.hearth == camp && fire.heat >= 2 && fire.owner.value) {
+                    const auto& carrier = raw.get<world::Activity>(w.beings().handle(fire.owner));
+                    moving_light = moving_light || carrier.from != carrier.to;
+                }
+            }
+            if (act.from == act.to && demonstration.from == demonstration.to && !moving_light) {
                 // Stationary work has constant geometry. Count daylight exactly across the interval
                 // rather than repeating identical sight and torus tests every game second.
                 const auto daylight = [](time::Seconds t) {
@@ -79,7 +87,10 @@ void observe_active(world::Context& c, world::Beings::Handle observer, std::span
                 };
                 if (end > begin && w.torus().squared_distance(act.from, demonstration.from) <= 500LL * 500 &&
                     Living::visible(w, camp, act.from, demonstration.from))
-                    found->weighted_seconds += weight * (daylight(end) - daylight(begin));
+                    found->weighted_seconds +=
+                        weight * (FireRules::task_light(w, camp, act.from, demonstration.from, begin)
+                                      ? end - begin
+                                      : daylight(end) - daylight(begin));
             } else {
                 for (auto t = begin; t < end; ++t)
                     if (Learning::can_watch(w, camp, act.at(w.torus(), t), demonstration.at(w.torus(), t), t))

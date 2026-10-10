@@ -1,5 +1,6 @@
 #include "kd/demo/discovery.hpp"
 #include "kd/demo/fire.hpp"
+#include "kd/demo/learning.hpp"
 #include "kd/demo/living.hpp"
 namespace kd::demo {
 namespace {
@@ -26,16 +27,6 @@ Felt felt(const world::World& w, world::Beings::Handle h, time::Seconds at) {
     if (out.source.value) out.temperature += 15000;
     return out;
 }
-bool moving_heat(const world::World& w) {
-    for (const auto th : w.things().raw().view<world::Fire>()) {
-        const auto& f = w.things().raw().get<world::Fire>(th);
-        if (f.heat >= 2 && f.owner.value) {
-            const auto& a = w.beings().raw().get<world::Activity>(w.beings().handle(f.owner));
-            if (a.from != a.to) return true;
-        }
-    }
-    return false;
-}
 void clear_warm(world::Thermal& t) {
     t.warm_phase = 0;
     t.warm_fire = {};
@@ -49,39 +40,65 @@ std::int64_t FireRules::warmth(std::int64_t milli_c, world::LivingAct action) {
     const auto comfort = work ? 14000 : 24000;
     return std::clamp<std::int64_t>(100 - 5 * std::max<std::int64_t>(0, comfort - milli_c) / 1000, 0, 100);
 }
-world::Thermal FireRules::sample_thermal(const world::World& w, world::Beings::Handle h, time::Seconds at) {
-    const auto& raw = w.beings().raw();
-    auto t = raw.get<world::Thermal>(h);
-    const auto& a = raw.get<world::Activity>(h);
+world::Thermal FireRules::sample_thermal(world::Thermal t, const world::Activity& a, const num::Torus& torus,
+                                         time::Seconds at, std::int64_t water, std::int64_t ambient_temperature,
+                                         std::span<const HeatField> fires) {
     at = std::clamp(at, a.start, a.end);
-    const auto water = w.catalogue().kind<LivingRules>()[0].water_day;
-    const auto charge = [&](Felt feeling, time::Seconds seconds) {
+    const auto feeling = [&](time::Seconds second) {
+        Felt out{ambient_temperature, {}};
+        const auto here = a.at(torus, second);
+        for (const auto& f : fires) {
+            if (torus.squared_distance(here, f.activity.at(torus, second)) <= 200LL * 200 &&
+                (!out.source.value || f.id < out.source))
+                out.source = f.id;
+        }
+        if (out.source.value) out.temperature += 15000;
+        return out;
+    };
+    const auto charge = [&](Felt felt, time::Seconds seconds) {
         const auto numerator =
-            seconds * water * std::max<std::int64_t>(0, feeling.temperature - 32000) * 2 + t.water_remainder;
+            seconds * water * std::max<std::int64_t>(0, felt.temperature - 32000) * 2 + t.water_remainder;
         const auto used = numerator / (time::kDay * 100000);
         t.water_remainder = numerator % (time::kDay * 100000);
         t.water_used_ml += used;
         t.water_due_ml += used;
-        if (feeling.source.value) t.warming_progress += seconds;
+        if (felt.source.value) t.warming_progress += seconds;
     };
     const auto begin = std::max(t.settled_at, a.start);
     if (at > begin) {
-        if (a.from == a.to && !moving_heat(w))
-            charge(felt(w, h, begin), at - begin);
+        if (a.from == a.to &&
+            std::none_of(fires.begin(), fires.end(), [](const auto& f) { return f.activity.from != f.activity.to; }))
+            charge(feeling(begin), at - begin);
         else
-            for (auto second = begin; second < at; ++second) charge(felt(w, h, second), 1);
+            for (auto second = begin; second < at; ++second) charge(feeling(second), 1);
     }
-    const auto current = felt(w, h, at);
-    t.felt_milli_c = current.temperature;
-    t.warmth = warmth(current.temperature, static_cast<world::LivingAct>(a.what));
+    t.felt_milli_c = feeling(at).temperature;
+    t.warmth = warmth(t.felt_milli_c, static_cast<world::LivingAct>(a.what));
     t.settled_at = std::max(t.settled_at, at);
     return t;
+}
+world::Thermal FireRules::sample_thermal(const world::World& w, world::Beings::Handle h, time::Seconds at) {
+    const auto& raw = w.beings().raw();
+    const auto home = raw.get<Home>(h).camp;
+    const auto* ambient = raw.try_get<world::Ambient>(w.beings().handle(home));
+    std::vector<HeatField> fires;
+    for (const auto fh : w.things().raw().view<world::Fire>()) {
+        const auto& f = w.things().raw().get<world::Fire>(fh);
+        if (f.hearth != home || f.heat < 2) continue;
+        auto activity = world::Activity{0, 0, std::numeric_limits<time::Seconds>::max(), f.at, f.at};
+        if (f.owner.value) activity = raw.get<world::Activity>(w.beings().handle(f.owner));
+        fires.push_back({w.things().id_of(fh), activity});
+    }
+    return sample_thermal(raw.get<world::Thermal>(h), raw.get<world::Activity>(h), w.torus(), at,
+                          w.catalogue().kind<LivingRules>()[0].water_day,
+                          ambient ? ambient->milli_c : FireRules::ambient(at), fires);
 }
 void FireRules::thermal_before(world::Context& c, ecs::Id camp) {
     auto& w = c.world();
     auto& raw = w.beings().raw();
     w.beings().each([&](ecs::Id id, auto h) {
         if (raw.all_of<world::Thermal, Home>(h) && raw.get<Home>(h).camp == camp) {
+            if (raw.all_of<world::Knowledge>(h)) Learning::observe(c, h);
             raw.get<world::Thermal>(h) = sample_thermal(w, h, c.now());
             c.moved(id);
         }

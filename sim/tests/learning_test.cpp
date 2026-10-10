@@ -844,3 +844,29 @@ TEST_CASE("item position index follows event mutations births and spent stock wi
     (void)w.command(w.frontier(), 906, f.input.value, 0);
     w.run_to(w.frontier() + 1);
 }
+TEST_CASE("night observation stops exactly when actual task-light fuel runs out") {
+    WatchFixture f(false, 200, 0);
+    auto& w = f.camp->world();
+    const auto here = w.beings().raw().get<kd::world::Place>(w.beings().handle(f.maker)).at;
+    const auto h = w.make_thing();
+    const auto at = w.torus().moved(here, {100, 0});
+    w.things().raw().emplace<kd::world::Place>(h, at);
+    auto& item = w.things().raw().emplace<kd::world::Item>(h);
+    item.home = f.home;
+    item.kind = item.material = watch_entry("item", "base:dry_stick");
+    item.mass = 250000;
+    item.length = 300;
+    auto& fire = w.things().raw().emplace<kd::world::Fire>(h);
+    fire.hearth = f.home;
+    fire.at = at;
+    fire.heat = 2;
+    fire.fuel_mg = item.mass;
+    fire.next = fire.deadline();
+    CHECK(fire.next == 900);
+    CHECK(kd::demo::Learning::can_watch(w, f.home, here, w.torus().moved(here, {200, 0}), 0));
+    f.use();
+    REQUIRE(f.mind(f.watcher).skills.size() == 1);
+    CHECK(f.mind(f.watcher).skills.front().observation_quarters == 2);
+    CHECK(f.mind(f.watcher).skills.front().observation_remainder == 0);
+    f.reopen();
+}

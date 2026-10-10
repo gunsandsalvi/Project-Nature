@@ -7,7 +7,7 @@ class Living;
 class Crafting {
 public:
     // Only fresh labelled Discovery scenes call this; never an opening/conversion hook.
-    static void initialise(world::World& w);
+    static void initialise(world::World& w, bool fire_already_out = false);
     // Called only at bodily decision/event boundaries, never by rendering.
     static bool prepare_lesson(world::Context& c, world::Beings::Handle teacher, world::Beings::Handle learner,
                                std::uint32_t recipe, std::uint64_t session);

@@ -39,6 +39,7 @@ std::string about_text(const About& a) {
         quoted(a.name) + "\nkind = " + quoted(a.camp_alpha ? "camp_alpha" : "crowd") +
         "\nseed = " + std::to_string(a.seed) + "\ncamps = " + std::to_string(a.camps) + "\n";
     if (a.discovery) out += "discovery = true\n";
+    if (a.fire_already_out) out += "fire_already_out = true\n";
     if (a.test) {
         out += "# A test's world (PLT-05), with the test switches it runs with (RES-10).\ntest = true\nswitches = [";
         for (std::size_t i = 0; i < a.switches.size(); ++i) {
@@ -58,6 +59,7 @@ std::optional<About> read_about(const std::string& text) {
     const data::Value* test = p.root.find("test");
     const data::Value* discovery = p.root.find("discovery");
     const data::Value* switches = p.root.find("switches");
+    const data::Value* cold_fire = p.root.find("fire_already_out");
     if (!p.problems.empty() ||
         (kind != nullptr &&
          (kind->kind != data::Value::Kind::text || (kind->text != "crowd" && kind->text != "camp_alpha"))) ||
@@ -66,6 +68,7 @@ std::optional<About> read_about(const std::string& text) {
         (name != nullptr && name->kind != data::Value::Kind::text) ||
         (test != nullptr && test->kind != data::Value::Kind::truth) ||
         (discovery != nullptr && discovery->kind != data::Value::Kind::truth) ||
+        (cold_fire != nullptr && cold_fire->kind != data::Value::Kind::truth) ||
         (switches != nullptr && switches->kind != data::Value::Kind::array)) {
         return std::nullopt;
     }
@@ -76,6 +79,8 @@ std::optional<About> read_about(const std::string& text) {
     a.camps = camps->whole;
     a.test = test != nullptr && test->truth;
     a.discovery = discovery != nullptr && discovery->truth;
+    a.fire_already_out = cold_fire && cold_fire->truth;
+    if (a.fire_already_out && !a.discovery) return std::nullopt;
     if (a.discovery && !a.camp_alpha) return std::nullopt;
     if (switches != nullptr) {
         for (const data::Value& v : switches->items) {
@@ -124,7 +129,7 @@ Kept keep_crowd(save::Keeper& keeper, const data::Catalogue& catalogue, std::uin
         }
         out.crowd =
             std::make_unique<CrowdWorld>(seed, catalogue, camps > 0 ? std::optional<std::int64_t>(camps) : std::nullopt,
-                                         camp_alpha, about && about->discovery);
+                                         camp_alpha, about && about->discovery, about && about->fire_already_out);
         out.made = true;
         // a test's world takes its switches before it runs, where the build has them (RES-10)
         if (about && !about->switches.empty()) {

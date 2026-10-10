@@ -2,6 +2,7 @@
 #include <limits>
 #include "kd/demo/crafting.hpp"
 #include "kd/demo/discovery.hpp"
+#include "kd/demo/fire.hpp"
 #include "kd/demo/learning.hpp"
 
 #include <godot_cpp/classes/file_access.hpp>
@@ -773,8 +774,18 @@ godot::Array KdWorld::people() const {
             const auto& saved_life = snapshot.lives[k];
             if (saved_life && crowd()->living()) {
                 const auto& recorded = *saved_life;
-                const auto live =
-                    crowd()->living()->sample(recorded, activity, static_cast<time::Seconds>(screen_time()));
+                const auto thermal = snapshot.thermal_at(i, screen_time(), crowd()->living()->rules().water_day);
+                const auto live = crowd()->living()->sample(
+                    recorded, activity, static_cast<time::Seconds>(screen_time()), thermal ? thermal->water_due_ml : 0);
+                if (thermal) {
+                    row["felt_milli_c"] = thermal->felt_milli_c;
+                    row["warmth_need"] = thermal->warmth;
+                    row["tending"] = thermal->tending;
+                    if (activity.what == static_cast<std::uint8_t>(world::LivingAct::warm))
+                        row["activity"] = "Resting by fire";
+                    if (activity.what == static_cast<std::uint8_t>(world::LivingAct::tend))
+                        row["activity"] = "Tending fire";
+                }
                 const auto need = demo::Living::needs(live);
                 row["food_need"] = need[0];
                 row["water_need"] = need[1];
@@ -996,6 +1007,37 @@ godot::Array KdWorld::items(int64_t person) const {
         }
         const auto observer = person > 0 ? static_cast<std::uint64_t>(person) : item.owner.value;
         row["observer"] = static_cast<int64_t>(observer);
+        if (saved->fire) {
+            const auto& fire = *saved->fire;
+            const auto rate = fire.heat >= 3 ? 5000000 : fire.heat == 2 ? 1000000 : 0;
+            const auto elapsed =
+                std::max<time::Seconds>(0, static_cast<time::Seconds>(screen_time()) - fire.settled_at);
+            const auto fuel =
+                std::max<std::int64_t>(0, fire.fuel_mg - (elapsed * rate + fire.burn_remainder) / time::kHour);
+            row["fire_heat"] = fire.heat;
+            row["fuel_mg"] = fuel;
+            row["ash_mg"] = fire.ash_mg + fire.fuel_mg - fuel;
+            row["fuel_seconds"] =
+                rate ? (fuel * time::kHour - (elapsed * rate + fire.burn_remainder) % time::kHour + rate - 1) / rate
+                     : 0;
+            row["name"] = fire.heat >= 2 ? "Campfire" : fire.heat == 1 ? "Embers" : "Cold hearth";
+        }
+        if (saved->timer) {
+            const auto& timer = *saved->timer;
+            const auto elapsed =
+                timer.exposure_heat >= 2 && !timer.completed
+                    ? std::max<time::Seconds>(0, static_cast<time::Seconds>(screen_time()) - timer.settled_at)
+                    : 0;
+            row["heat_exposure_seconds"] = std::min(2 * time::kHour, timer.elapsed + elapsed);
+            row["cooking_paused"] = timer.exposure_heat < 2;
+            row["cooking_tried"] = timer.tried != 0;
+            row["cooking_next"] = timer.next;
+        }
+        if ((catalogue_->find("item", "base:roots") == item.kind ||
+             catalogue_->find("item", "base:meat") == item.kind) &&
+            item.state > 0 && item.state < 3)
+            row["name"] = godot::String(item.state == 1 ? "Cooked " : "Burnt ") +
+                          craft_label(catalogue_->kind<data::ItemKind>().name(item.kind));
         row["facts"] = godot::Dictionary();
         if (const auto* know = recorded_knowledge(s, observer, screen_time())) {
             if (const auto* f = demo::Discovery::familiar(*know, item)) {

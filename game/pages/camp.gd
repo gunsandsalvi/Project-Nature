@@ -323,7 +323,18 @@ func selected_item() -> Dictionary:
 
 
 func tap(at: Vector2) -> void:
-	var exact: int = drawing.pick(camera.from_screen(at), 0, selected_id)
+	var local := camera.from_screen(at)
+	# A grounded hearth can sit under resting people. Its small marker remains inspectable.
+	for item: Dictionary in items:
+		if (
+			item.has("fire_heat")
+			and drawing.drawn_items.get(int(item.id), Rect2()).has_point(local)
+		):
+			selected_item_id = int(item.id)
+			_show_supplies = false
+			_refresh_records()
+			return
+	var exact: int = drawing.pick(local, 0, selected_id)
 	if exact != 0:
 		select_person(exact)
 		return

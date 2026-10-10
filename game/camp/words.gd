@@ -24,6 +24,16 @@ static func person(p: Dictionary, details: bool, now: int) -> String:
 		"%s · %s · %d%% done\nNeeds met: food %d · water %d · rest %d\n"
 		% [p.name, action, int(p.progress_ppm) / 10000, p.food_need, p.water_need, p.rest_need]
 	)
+	if p.has("felt_milli_c"):
+		words += (
+			"Feels %.1f °C · warmth %d/100.\n" % [float(p.felt_milli_c) / 1000, int(p.warmth_need)]
+		)
+		if int(p.action_code) == 11:
+			words += "Why: resting here feels warmer."
+			return words
+		if int(p.action_code) == 12:
+			words += "Why: tending the fire with finite fuel."
+			return words
 	if choice < 3:
 		words += (
 			"Why: %s was %d/100. Expected +%d.\nAbout %d min for travel and work."
@@ -164,6 +174,26 @@ static func item(p: Dictionary, people: Array, details: bool, now: int) -> Strin
 		"%s · %s\n%.3f kg · %d mm · %s"
 		% [p.name, p.material, float(p.mass_mg) / 1000000, int(p.length_mm), holder]
 	)
+	if p.has("fire_heat"):
+		words = "%s · %.2f kg fuel" % [p.name, float(p.fuel_mg) / 1000000]
+		if int(p.fire_heat) >= 2:
+			words += " · about %d minutes left" % ceili(float(p.fuel_seconds) / 60)
+		elif int(p.fire_heat) == 1:
+			words += " · glowing embers"
+		else:
+			words += " · already out"
+		if details:
+			words += "\n%.2f kg ash · heat %d." % [float(p.ash_mg) / 1000000, int(p.fire_heat)]
+	if p.has("heat_exposure_seconds"):
+		if int(p.state) == 1:
+			words += "\nMore filling than raw."
+		elif int(p.state) == 2:
+			words += "\nBurnt · no food left."
+		else:
+			words += (
+				"\n%d minutes of heat kept%s."
+				% [int(p.heat_exposure_seconds) / 60, " · paused" if p.cooking_paused else ""]
+			)
 	var facts: Dictionary = p.get("facts", {})
 	if facts.is_empty():
 		words += "\nSelect a person to inspect their familiar properties."

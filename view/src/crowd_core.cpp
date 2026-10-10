@@ -9,6 +9,7 @@
 #include <sched.h>
 #endif
 
+#include "kd/demo/fire.hpp"
 #include "kd/demo/parts.hpp"
 #include "trace.hpp"
 
@@ -45,6 +46,27 @@ const world::ItemWay* Snapshot::item_at(std::size_t i, double t) const {
     return &items[at];
 }
 
+std::optional<world::Thermal> Snapshot::thermal_at(std::size_t walker, double t, std::int64_t water_day) const {
+    const auto k = way_index(walker, t);
+    if (k >= thermals.size() || !thermals[k]) return std::nullopt;
+    const auto camp = camp_ids[walkers[walker].camp];
+    std::vector<demo::FireRules::HeatField> fires;
+    for (std::size_t i = 0; i + 1 < item_first.size(); ++i) {
+        const auto* saved = item_at(i, t);
+        if (!saved || !saved->fire || saved->fire->hearth != camp || saved->fire->heat < 2) continue;
+        const auto& f = *saved->fire;
+        auto activity = world::Activity{0, 0, std::numeric_limits<time::Seconds>::max(), f.at, f.at};
+        if (f.owner.value)
+            for (std::size_t owner = 0; owner < walkers.size(); ++owner)
+                if (walkers[owner].id == f.owner.value) activity = way_at(owner, t);
+        fires.push_back({saved->id, activity});
+    }
+    const auto ambient = k < ambients.size() && ambients[k] ? ambients[k]->milli_c
+                                                            : demo::FireRules::ambient(static_cast<time::Seconds>(t));
+    return demo::FireRules::sample_thermal(*thermals[k], ways[k], world::World::kTorus, static_cast<time::Seconds>(t),
+                                           water_day, ambient, fires);
+}
+
 CrowdStepper::CrowdStepper(demo::CrowdWorld& crowd) : crowd_(crowd), camp_ids_(crowd.camp_ids()) {
     const world::World& w = crowd_.world();
     const auto& raw = w.beings().raw();
@@ -72,6 +94,10 @@ CrowdStepper::CrowdStepper(demo::CrowdWorld& crowd) : crowd_(crowd), camp_ids_(c
             change_trails_.push_back({raw.get<world::Activity>(h).start});
             const auto* work = raw.try_get<world::Work>(h);
             work_trails_.push_back({work ? std::optional<world::Work>(*work) : std::nullopt});
+            const auto* thermal = raw.try_get<world::Thermal>(h);
+            thermal_trails_.push_back({thermal ? std::optional<world::Thermal>(*thermal) : std::nullopt});
+            const auto* ambient = raw.try_get<world::Ambient>(w.beings().handle(camp));
+            ambient_trails_.push_back({ambient ? std::optional<world::Ambient>(*ambient) : std::nullopt});
             const auto* know = raw.try_get<world::Knowledge>(h);
             knowledge_trails_.push_back(
                 {know ? std::make_shared<const world::Knowledge>(*know) : std::shared_ptr<const world::Knowledge>{}});
@@ -80,7 +106,15 @@ CrowdStepper::CrowdStepper(demo::CrowdWorld& crowd) : crowd_(crowd), camp_ids_(c
     w.things().each([&](ecs::Id id, world::Things::Handle h) {
         const auto* item = w.things().raw().try_get<world::Item>(h);
         if (!item) return;
-        item_trails_[id].push_back({{w.frontier(), id.value, 0}, 0, id, w.things().raw().get<world::Place>(h), *item});
+        const auto* fire = w.things().raw().try_get<world::Fire>(h);
+        const auto* timer = w.things().raw().try_get<world::HeatTimer>(h);
+        item_trails_[id].push_back({{w.frontier(), id.value, 0},
+                                    0,
+                                    id,
+                                    w.things().raw().get<world::Place>(h),
+                                    *item,
+                                    fire ? std::optional<world::Fire>(*fire) : std::nullopt,
+                                    timer ? std::optional<world::HeatTimer>(*timer) : std::nullopt});
     });
     crowd_.world().keep_item_ways(&item_ways_);
     crowd_.world().keep_history(&history_);
@@ -100,6 +134,9 @@ void CrowdStepper::fill(Snapshot& s) const {
     s.changed_at.clear();
     s.works.clear();
     s.knowledge.clear();
+    s.thermals.clear();
+    s.ambients.clear();
+    s.camp_ids = camp_ids_;
     s.items.clear();
     s.item_first.clear();
     s.craft_history.clear();
@@ -127,6 +164,10 @@ void CrowdStepper::fill(Snapshot& s) const {
         if (!work_trails_.empty()) s.works.insert(s.works.end(), work_trails_[i].begin(), work_trails_[i].end());
         if (!knowledge_trails_.empty())
             s.knowledge.insert(s.knowledge.end(), knowledge_trails_[i].begin(), knowledge_trails_[i].end());
+        if (!thermal_trails_.empty())
+            s.thermals.insert(s.thermals.end(), thermal_trails_[i].begin(), thermal_trails_[i].end());
+        if (!ambient_trails_.empty())
+            s.ambients.insert(s.ambients.end(), ambient_trails_[i].begin(), ambient_trails_[i].end());
         if (!change_trails_.empty())
             s.changed_at.insert(s.changed_at.end(), change_trails_[i].begin(), change_trails_[i].end());
         s.first.push_back(static_cast<std::uint32_t>(s.ways.size()));
@@ -182,6 +223,8 @@ time::Seconds CrowdStepper::advance(time::Seconds frontier, time::Seconds goal) 
         if (!work_trails_.empty()) work_trails_[i].push_back(way.work);
         if (!knowledge_trails_.empty()) knowledge_trails_[i].push_back(way.knowledge);
         if (!change_trails_.empty()) change_trails_[i].push_back(way.key.second);
+        if (!thermal_trails_.empty()) thermal_trails_[i].push_back(way.thermal);
+        if (!ambient_trails_.empty()) ambient_trails_[i].push_back(way.ambient);
     }
     ways_.clear();
     for (const auto& way : item_ways_) item_trails_[way.id].push_back(way);
@@ -205,6 +248,10 @@ time::Seconds CrowdStepper::advance(time::Seconds frontier, time::Seconds goal) 
             changes.erase(changes.begin(), changes.begin() + static_cast<std::ptrdiff_t>(gone));
             auto& works = work_trails_[i];
             works.erase(works.begin(), works.begin() + static_cast<std::ptrdiff_t>(gone));
+            auto& thermal = thermal_trails_[i];
+            thermal.erase(thermal.begin(), thermal.begin() + static_cast<std::ptrdiff_t>(gone));
+            auto& ambient = ambient_trails_[i];
+            ambient.erase(ambient.begin(), ambient.begin() + static_cast<std::ptrdiff_t>(gone));
             auto& know = knowledge_trails_[i];
             know.erase(know.begin(), know.begin() + static_cast<std::ptrdiff_t>(gone));
         }

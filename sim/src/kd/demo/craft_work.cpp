@@ -438,10 +438,14 @@ std::int64_t Crafting::duration(const data::Blueprint& recipe, std::int64_t edge
     return std::max<std::int64_t>(1, seconds);
 }
 std::int64_t Crafting::time_cost(const world::World& w, world::Beings::Handle h, std::int64_t seconds) {
+    const auto& raw = w.beings().raw();
     const auto& life = w.beings().raw().get<world::Life>(h);
     if (Living::needs(life)[2] < 20) seconds = seconds * 5 / 4;
     const auto clock = life.settled % time::kDay;
-    if (clock < 6 * time::kHour || clock >= 20 * time::kHour) seconds = seconds * 5 / 4;
+    const auto here = raw.get<world::Activity>(h).at(w.torus(), life.settled);
+    if ((clock < 6 * time::kHour || clock >= 20 * time::kHour) &&
+        !FireRules::task_light(w, raw.get<Home>(h).camp, here, here, life.settled))
+        seconds = seconds * 5 / 4;
     return std::clamp<std::int64_t>(seconds, 1, 3600);
 }
 std::int64_t Crafting::success(const world::World& w, world::Beings::Handle h, std::uint32_t recipe,
@@ -465,7 +469,11 @@ std::int64_t Crafting::success(const world::World& w, world::Beings::Handle h, s
     }
     if (100 - fatigue * 100 / 129600 < 20) ppm -= 100000;
     const auto night = (at < 0 ? life.settled : at) % time::kDay;
-    if (night < 6 * time::kHour || night >= 20 * time::kHour) ppm -= 100000;
+    const auto moment = at < 0 ? life.settled : at;
+    const auto here = raw.get<world::Activity>(h).at(w.torus(), moment);
+    if ((night < 6 * time::kHour || night >= 20 * time::kHour) &&
+        !FireRules::task_light(w, raw.get<Home>(h).camp, here, here, moment))
+        ppm -= 100000;
     std::int64_t quality_sum = 0, count = 0;
     for (const auto id : roles) {
         if (id.value == 0) continue;

@@ -20,7 +20,7 @@ void stock(world::World& w, ecs::Id home, std::uint32_t kind, std::int64_t mass,
     }
 }
 }  // namespace
-void Crafting::initialise(world::World& w) {
+void Crafting::initialise(world::World& w, bool fire_already_out) {
     auto& raw = w.beings().raw();
     // Canonical IDs fix both the material order and each final partial portion.
     w.beings().each([&](ecs::Id id, world::Beings::Handle h) {
@@ -73,7 +73,7 @@ void Crafting::initialise(world::World& w) {
         }
     });
     FireRules::start(w);
-    FireRules::fresh_hearth(w);
+    FireRules::fresh_hearth(w, fire_already_out);
 }
 std::array<std::int64_t, 18> Crafting::characteristics(const data::Catalogue& c, const world::Item& item) {
     const auto& kind = c.kind<data::ItemKind>()[item.kind];

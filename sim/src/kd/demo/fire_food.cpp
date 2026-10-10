@@ -73,7 +73,10 @@ void settle(world::Context& c, ecs::Id id) {
         const std::array roles{id};
         auto ppm = 400000LL;
         const auto clock = c.now() % time::kDay;
-        if (clock < 6 * time::kHour || clock >= 20 * time::kHour) ppm -= 100000;
+        const auto here = position(w, id, c.now());
+        if ((clock < 6 * time::kHour || clock >= 20 * time::kHour) &&
+            !FireRules::task_light(w, i.home, here, here, c.now()))
+            ppm -= 100000;
         if (i.quality < 2) ppm -= 100000;
         if (i.quality >= 4) ppm += 100000;
         if (t.intended) ppm = Crafting::success(w, w.beings().handle(t.maker), roast, roles, c.now());
@@ -91,13 +94,22 @@ void settle(world::Context& c, ecs::Id id) {
         }
         if (t.intended) {
             const auto person = w.beings().handle(t.maker);
+            const auto& work = w.beings().raw().get<world::Work>(person);
+            const auto demonstrating = work.state == 2 && work.intended && work.recipe == roast;
+            if (demonstrating) Learning::observe_maker(c, person);
             auto perceived = Discovery::handling(c, person, 12, roles);
-            Discovery::result(c, person, roast, roles, std::move(perceived), id, i.state == 1, false, 0);
+            const auto event =
+                Discovery::result(c, person, roast, roles, std::move(perceived), id, i.state == 1, false, 0);
             auto& know = w.beings().raw().get<world::Knowledge>(person);
-            for (auto& skill : know.skills)
-                if (skill.recipe == roast)
-                    Learning::practice(skill.practice, c.now(), time::kHour, i.state == 1, know.learning_ppm);
-            Learning::practice(know.sectors[5], c.now(), time::kHour, i.state == 1, know.learning_ppm);
+            if (demonstrating) {
+                Learning::worked(c, person, event, i.state == 1);
+                Learning::demonstrated(c, person, event);
+            } else {
+                for (auto& skill : know.skills)
+                    if (skill.recipe == roast)
+                        Learning::practice(skill.practice, c.now(), time::kHour, i.state == 1, know.learning_ppm);
+                Learning::practice(know.sectors[5], c.now(), time::kHour, i.state == 1, know.learning_ppm);
+            }
             t.notices.push_back({t.maker});
             c.moved(t.maker);
         }

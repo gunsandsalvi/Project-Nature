@@ -92,6 +92,9 @@ void Context::moved(ecs::Id id) {
     const auto* dream = w_.beings_.raw().try_get<Dream>(w_.beings_.handle(id));
     const auto* work = w_.beings_.raw().try_get<Work>(w_.beings_.handle(id));
     const auto* know = w_.beings_.raw().try_get<Knowledge>(w_.beings_.handle(id));
+    const auto* thermal = w_.beings_.raw().try_get<Thermal>(w_.beings_.handle(id));
+    const auto* home = w_.beings_.raw().try_get<demo::Home>(w_.beings_.handle(id));
+    const auto* ambient = home ? w_.beings_.raw().try_get<Ambient>(w_.beings_.handle(home->camp)) : nullptr;
     const Way way{current_,
                   ways_++,
                   id,
@@ -99,7 +102,9 @@ void Context::moved(ecs::Id id) {
                   life ? std::optional<Life>(*life) : std::nullopt,
                   dream ? std::optional<Dream>(*dream) : std::nullopt,
                   work ? std::optional<Work>(*work) : std::nullopt,
-                  know ? std::make_shared<const Knowledge>(*know) : std::shared_ptr<const Knowledge>{}};
+                  know ? std::make_shared<const Knowledge>(*know) : std::shared_ptr<const Knowledge>{},
+                  thermal ? std::optional<Thermal>(*thermal) : std::nullopt,
+                  ambient ? std::optional<Ambient>(*ambient) : std::nullopt};
     if (island_ != nullptr) {
         island_->ways.push_back(way);
     } else {
@@ -121,8 +126,11 @@ void Context::item_changed(ecs::Id id) {
     if (!w_.item_ways_list_) return;
     KD_CHECK(in_event_ && !island_, "Craft item snapshots are emitted in reference event order");
     const auto h = w_.things_.handle(id);
-    w_.item_ways_list_->push_back(
-        {current_, ways_++, id, w_.things_.raw().get<Place>(h), w_.things_.raw().get<Item>(h)});
+    const auto* fire = w_.things_.raw().try_get<Fire>(h);
+    const auto* timer = w_.things_.raw().try_get<HeatTimer>(h);
+    w_.item_ways_list_->push_back({current_, ways_++, id, w_.things_.raw().get<Place>(h), w_.things_.raw().get<Item>(h),
+                                   fire ? std::optional<Fire>(*fire) : std::nullopt,
+                                   timer ? std::optional<HeatTimer>(*timer) : std::nullopt});
 }
 
 void Context::schedule(ecs::Id owner, std::uint32_t slot, time::Seconds at) {

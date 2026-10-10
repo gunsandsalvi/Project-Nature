@@ -53,6 +53,10 @@ func rebuild() -> void:
 		item_piles[int(item.id)] = [int(item.id)]
 		var at := _absolute(Vector2i(item.east_cm, item.north_cm))
 		var side := maxf(7, roundf(float(state.get("density", 16.0)) * 0.5))
+		if item.has("fire_heat"):
+			side = maxf(16, side * 2)
+			drawn_items[int(item.id)] = Rect2(at - Vector2(side * 0.5, side), Vector2(side, side))
+			continue
 		var site := "%d:%d:%d" % [int(item.owner), int(item.east_cm), int(item.north_cm)]
 		var index: int = site_counts.get(site, 0)
 		# Cosmetic offsets keep distinct things selectable without covering a person's sprite.
@@ -252,7 +256,29 @@ func _items() -> void:
 			continue
 		var rect: Rect2 = drawn_items[id]
 		var colour := Color("c5b58f") if str(item.form) in ["rod", "sheet"] else Color("b9bdb2")
-		if str(item.form) == "flake":
+		if int(item.get("fire_heat", 0)) >= 2:
+			draw_rect(rect.grow(2), Color("5d4135"))
+			draw_colored_polygon(
+				PackedVector2Array(
+					[
+						rect.position + Vector2(0, rect.size.y),
+						rect.position + Vector2(rect.size.x * 0.5, -rect.size.y),
+						rect.end
+					]
+				),
+				Color("dd8750")
+			)
+			draw_rect(
+				Rect2(
+					rect.position + Vector2(rect.size.x * 0.35, 0), rect.size * Vector2(0.3, 0.8)
+				),
+				Color("f0c880")
+			)
+		elif int(item.get("fire_heat", 0)) == 1:
+			draw_rect(rect, Color("a66643"))
+		elif int(item.state) == 2 and item.has("heat_exposure_seconds"):
+			draw_rect(rect, Color("463e35"))
+		elif str(item.form) == "flake":
 			draw_colored_polygon(
 				PackedVector2Array(
 					[rect.position, rect.end, rect.position + Vector2(0, rect.size.y)]

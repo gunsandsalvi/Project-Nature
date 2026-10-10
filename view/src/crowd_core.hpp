@@ -43,6 +43,10 @@ struct Snapshot {
     std::vector<std::optional<world::Dream>> dreams{};
     std::vector<std::optional<world::Work>> works{};
     std::vector<std::shared_ptr<const world::Knowledge>> knowledge{};
+    std::vector<std::optional<world::Thermal>> thermals{};
+    std::vector<std::optional<world::Ambient>> ambients{};
+    std::vector<ecs::Id> camp_ids{};
+    [[nodiscard]] std::optional<world::Thermal> thermal_at(std::size_t walker, double t, std::int64_t water_day) const;
     std::vector<world::ItemWay> items{};
     std::vector<std::uint32_t> item_first{};
     std::vector<world::CraftHistory> craft_history{};
@@ -125,6 +129,8 @@ private:
     std::vector<world::Way> ways_;
     std::vector<std::vector<std::optional<world::Work>>> work_trails_;
     std::vector<std::vector<std::shared_ptr<const world::Knowledge>>> knowledge_trails_;
+    std::vector<std::vector<std::optional<world::Thermal>>> thermal_trails_;
+    std::vector<std::vector<std::optional<world::Ambient>>> ambient_trails_;
     std::map<ecs::Id, std::vector<world::ItemWay>> item_trails_;
     std::vector<world::ItemWay> item_ways_;
     TripleBuffer<Snapshot> snapshots_;

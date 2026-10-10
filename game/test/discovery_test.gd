@@ -2,6 +2,7 @@
 extends GdUnitTestSuite
 
 const Main := preload("res://main.gd")
+const Words := preload("res://camp/words.gd")
 const ROOT := "user://test-worlds/discovery-route"
 var _window_before := Vector2i.ZERO
 
@@ -132,7 +133,7 @@ func test_distinct_raw_piles_are_selected_with_real_touch_and_items_have_no_drea
 	var selected := {}
 	for item: Dictionary in page.items:
 		var id: int = int(item.id)
-		if not page.drawing.drawn_items.has(id) or int(item.owner) != 0:
+		if item.has("fire_heat") or not page.drawing.drawn_items.has(id) or int(item.owner) != 0:
 			continue
 		var rect: Rect2 = page.drawing.drawn_items[id]
 		var local: Vector2 = (
@@ -150,9 +151,16 @@ func test_distinct_raw_piles_are_selected_with_real_touch_and_items_have_no_drea
 	shell.free()
 
 
-func test_people_at_the_same_actual_position_can_each_be_selected_by_touch() -> void:
+func test_people_at_the_same_display_position_can_each_be_selected_by_touch() -> void:
 	var shell := await _shell()
 	var page: Control = shell._page
+	# A picture-only overlap fixture: autonomous fire choices need not leave people clustered.
+	# The authoritative camp and its digest remain untouched.
+	page.drawing.people = page.people.duplicate(true)
+	page.drawing.people[1].east_cm = page.drawing.people[0].east_cm
+	page.drawing.people[1].north_cm = page.drawing.people[0].north_cm
+	page.drawing.people[1].action_code = page.drawing.people[0].action_code
+	page.drawing.rebuild()
 	var cluster: Array[int] = []
 	var at := Vector2.ZERO
 	for id: int in page.drawing.drawn:
@@ -210,7 +218,7 @@ func test_a_stock_marker_cycles_real_portions_without_changing_stock() -> void:
 
 
 func test_pending_observation_is_separate_from_known_skill_and_source_is_readable() -> void:
-	var words: String = preload("res://camp/words.gd").knowledge(
+	var words: String = Words.knowledge(
 		{"skills": [], "observations": [{"credits": 1.25}], "hunches": [], "reasons": []}, [], 0
 	)
 	assert_str(words).contains("1.25 / 5 credits")
@@ -230,4 +238,64 @@ func test_history_opens_and_back_restores_selection_without_unlocking() -> void:
 	assert_bool(page._history.visible).is_false()
 	assert_int(page.selected_id).is_equal(selected)
 	assert_str(page.world.digest()).is_equal(digest)
+	shell.free()
+
+
+func test_cold_discovery_entry_starts_with_a_real_cold_hearth_and_no_added_knowledge() -> void:
+	var worlds := Worlds.at(ROOT.path_join("cold"))
+	var id := worlds.make_cold_discovery("Camp · fire already out", 93)
+	assert_str(id).is_not_empty()
+	var listed: Array = worlds.list()
+	assert_bool(listed[0].fire_already_out).is_true()
+	var world := KdWorld.new()
+	GameData.load_into(world)
+	var opened: Dictionary = world.open_camp(
+		ProjectSettings.globalize_path(ROOT.path_join("cold").path_join(id)),
+		93,
+		str(ProjectSettings.get_setting("application/config/version"))
+	)
+	assert_bool(opened.has("problem")).is_false()
+	world.frame()
+	var fires: Array = world.items().filter(func(i: Dictionary) -> bool: return i.has("fire_heat"))
+	assert_int(fires.size()).is_equal(1)
+	assert_int(fires[0].fire_heat).is_equal(0)
+	assert_int(fires[0].fuel_mg).is_equal(0)
+	assert_int(fires[0].ash_mg).is_equal(5000000)
+	var people: Array = world.people()
+	assert_int(people.size()).is_equal(25)
+	var know: Dictionary = world.knowledge(int(people[0].id))
+	assert_int(know.skills.size()).is_equal(5)
+	assert_array(know.hunches).is_empty()
+	var before: String = world.digest()
+	var card := Words.item(fires[0], people, false, 0)
+	assert_str(card).contains("Cold hearth")
+	assert_str(card).contains("already out")
+	world.items(int(people[0].id))
+	world.people()
+	assert_str(world.digest()).is_equal(before)
+	world.save_now()
+
+
+func test_fire_marker_is_grounded_and_can_be_inspected_by_touch() -> void:
+	var shell := await _shell()
+	var page: Control = shell._page
+	var tested := false
+	for item: Dictionary in page.items:
+		if not item.has("fire_heat"):
+			continue
+		var rect: Rect2 = page.drawing.drawn_items[int(item.id)]
+		var foot: Vector2 = page.camera.project_world(int(item.east_cm), int(item.north_cm), 0)
+		assert_float(rect.end.y).is_equal(foot.y)
+		for fraction: float in [0.05, 0.95]:
+			var local := rect.position + Vector2(rect.size.x * fraction, rect.size.y * 0.8)
+			var at := (
+				local * float(page.state.scale) * float(page.state.live_scale)
+				+ Vector2(page.state.offset)
+			)
+			_touch(page._area.global_position + at)
+			assert_int(page.selected_item_id).is_equal(int(item.id))
+			assert_str(page._card.text).contains("fuel")
+			tested = true
+			break
+	assert_bool(tested).is_true()
 	shell.free()

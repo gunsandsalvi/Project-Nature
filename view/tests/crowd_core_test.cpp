@@ -8,6 +8,8 @@
 #include "doctest.h"
 #include "heat.hpp"
 #include "kd/data/folder.hpp"
+#include "kd/demo/fire.hpp"
+#include "kd/ecs/component.hpp"
 #include "kd/proof/camp_cases.hpp"
 #include "kd/proof/fixture.hpp"
 #include "triple.hpp"
@@ -275,7 +277,7 @@ TEST_CASE("immutable item trails and personal knowledge do not expose a future f
         if (!item) continue;
         ++visible;
         mass += item->item.mass;
-        CHECK(item->item.made_at == -1);
+        CHECK(item->item.made_at == (item->fire ? 0 : -1));
     }
     CHECK(visible + 1 == initial.item_first.size());
     CHECK(mass == 450000000);
@@ -296,4 +298,46 @@ TEST_CASE("immutable item trails and personal knowledge do not expose a future f
     // The old display-owned value survives slot recycling and producer pruning.
     CHECK(initial.items.front().item.mass > 0);
     CHECK(initial.items.front().item.made_at == -1);
+}
+TEST_CASE("fire and comfort snapshots sample the display time while the producer runs ahead") {
+    kd::data::Catalogue c;
+    REQUIRE(c.load(kd::data::read_folder(KD_REPO "/data")).empty());
+    kd::demo::CrowdWorld ahead(93, c, 1, true, true);
+    kd::demo::CrowdWorld reference(93, c, 1, true, true);
+    kd::view::CrowdStepper stepper(ahead);
+    auto frontier = kd::time::Seconds{0};
+    while (frontier < 36000) frontier = stepper.advance(frontier, 36000);
+    REQUIRE(stepper.snapshots().take());
+    const auto snapshot = stepper.snapshots().front();
+    const auto digest = ahead.world().digests().whole;
+    for (const kd::time::Seconds screen : {199, 599, 1199, 2999, 4999, 21999, 29999}) {
+        reference.world().run_to(screen + 1);
+        for (std::size_t i = 0; i < snapshot.walkers.size(); ++i) {
+            const auto id = kd::ecs::Id{snapshot.walkers[i].id};
+            const auto h = reference.world().beings().handle(id);
+            const auto sampled =
+                snapshot.thermal_at(i, static_cast<double>(screen), reference.living()->rules().water_day);
+            REQUIRE(sampled);
+            const auto actual = kd::demo::FireRules::sample_thermal(reference.world(), h, screen);
+            kd::ByteWriter a, b;
+            kd::ecs::write_component(*sampled, a);
+            kd::ecs::write_component(actual, b);
+            CHECK(a.take() == b.take());
+            const auto k = snapshot.way_index(i, screen);
+            const auto shown =
+                reference.living()->sample(*snapshot.lives[k], snapshot.ways[k], screen, sampled->water_due_ml);
+            const auto& body = reference.world().beings().raw().get<kd::world::Life>(h);
+            const auto& act = reference.world().beings().raw().get<kd::world::Activity>(h);
+            const auto real = reference.living()->sample(body, act, screen, actual.water_due_ml);
+            CHECK(shown.water == real.water);
+            CHECK(shown.awake == real.awake);
+        }
+        for (std::size_t i = 0; i + 1 < snapshot.item_first.size(); ++i) {
+            const auto* item = snapshot.item_at(i, screen);
+            if (!item || !item->fire) continue;
+            const auto rh = reference.world().things().handle(item->id);
+            CHECK(item->fire->heat == reference.world().things().raw().get<kd::world::Fire>(rh).heat);
+        }
+    }
+    CHECK(ahead.world().digests().whole == digest);
 }

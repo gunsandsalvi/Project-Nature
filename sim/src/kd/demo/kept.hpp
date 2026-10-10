@@ -48,6 +48,7 @@ struct About {
     bool camp_alpha = false;
     bool discovery = false;
     std::vector<std::string> switches;
+    bool fire_already_out = false;
 };
 
 /// world.toml's text for a crowd's world, and what a world.toml says; nothing if it is not a crowd's.
