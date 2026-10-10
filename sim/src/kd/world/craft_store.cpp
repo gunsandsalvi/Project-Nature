@@ -8,7 +8,7 @@ std::uint32_t craft_features(const World& w) {
     return w.beings().raw().view<CraftHistory>().empty() && w.beings().raw().view<Knowledge>().empty() &&
                    w.beings().raw().view<Work>().empty()
                ? 0U
-               : kCraft | kLearning | (w.beings().raw().view<Ambient>().empty() ? 0U : kFire);
+               : kCraft | kLearning | kIdeas | (w.beings().raw().view<Ambient>().empty() ? 0U : kFire);
 }
 void save_craft(const World& w, std::vector<save::Chunk>& out) {
     if (craft_features(w) == 0) return;
@@ -63,8 +63,8 @@ bool craft_headers(std::span<const save::Chunk> chunks, std::uint32_t& features,
     if (camp) {
         if (camp->version != 4 || !camp->critical || camp->data.size() < 4) return fail("unsupported Camp format");
         ByteReader mask(std::span(camp->data).last(4));
-        if (!mask.u32(features) ||
-            (features != 0 && features != (kCraft | kLearning) && features != (kCraft | kLearning | kFire)))
+        if (!mask.u32(features) || (features != 0 && features != (kCraft | kLearning | kIdeas) &&
+                                    features != (kCraft | kLearning | kFire | kIdeas)))
             return fail("unsupported camp features");
     }
     for (const auto tag : {save::tag("LIFE"), save::tag("DRMS"), save::tag("CRFT"), save::tag("KNOW"),
@@ -76,7 +76,7 @@ bool craft_headers(std::span<const save::Chunk> chunks, std::uint32_t& features,
                            tag == save::tag("LEAR");
         if ((craft && ((features != 0) != bool(c))) || (features != 0 && !c))
             return fail("required craft extension is missing or mismatched");
-        if (c && (!c->critical || c->version != (tag == save::tag("LIFE") ? 2U : 1U)))
+        if (c && (!c->critical || c->version != (tag == save::tag("LIFE") || tag == save::tag("DRMS") ? 2U : 1U)))
             return fail("unsupported camp extension version");
     }
     return true;
@@ -226,9 +226,13 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
                 for (const auto& p : m.participants)
                     if (!person(w, p.id)) return fail("invalid memory participant");
             }
+            std::set<std::uint64_t> dream_hunches;
             for (const auto& h : value.hunches) {
-                if (h.action > 20 || h.result_form > 14 || h.failures >= 10 || h.last_use < 0 ||
-                    h.last_use > w.frontier() || !person(w, h.source, true) ||
+                if (h.origin > 2 ||
+                    (h.origin == 2 && (h.source.value != 0 || h.id == 0 || h.id != h.source_memory ||
+                                       !dream_hunches.insert(h.id).second)) ||
+                    (h.origin != 2 && h.id != 0) || h.action > 20 || h.result_form > 14 || h.failures >= 10 ||
+                    h.last_use < 0 || h.last_use > w.frontier() || !person(w, h.source, true) ||
                     (h.source_memory == 0 || h.source_memory >= value.next_memory))
                     return fail("invalid hunch source");
                 for (const auto& f : h.inputs)

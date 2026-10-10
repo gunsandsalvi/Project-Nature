@@ -10,6 +10,7 @@
 #include <utility>
 
 #include "kd/chance/chance.hpp"
+#include "kd/data/craft.hpp"
 #include "kd/num/sort.hpp"
 #include "kd/num/whole.hpp"
 
@@ -953,7 +954,7 @@ std::vector<save::Chunk> World::save() const {
                 ecs::write_component(*thought, dreams);
             }
         });
-        out.push_back({save::tag("DRMS"), 1, true, dreams.take()});
+        out.push_back({save::tag("DRMS"), 2, true, dreams.take()});
     }
     save_craft(*this, out);
     save_fire(*this, out);
@@ -981,7 +982,7 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
     const auto* dream_chunk = save::find_chunk(chunks, save::tag("DRMS"));
     if ((camp_chunk && camp_chunk->version == 4 && !dream_chunk) ||
         (dream_chunk &&
-         (!camp_chunk || camp_chunk->version != 4 || !dream_chunk->critical || dream_chunk->version != 1))) {
+         (!camp_chunk || camp_chunk->version != 4 || !dream_chunk->critical || dream_chunk->version != 2))) {
         why = "dream extension is missing or mismatched";
         return false;
     }
@@ -1425,6 +1426,24 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                 const auto offset = torus_.offset(centre, p);
                 return std::abs(offset.dx) <= patch.half_width_cm && std::abs(offset.dy) <= patch.half_height_cm;
             };
+            const auto idea_valid = [&](const IdeaFields& idea, time::Seconds delivered, bool pending) {
+                if (idea.kind > 1 || idea.action > 20 || idea.desired_property >= 18 || idea.first_attempt_at < -1 ||
+                    idea.first_attempt_at > frontier_)
+                    return false;
+                if (idea.kind == 0)
+                    return idea.memory == 0 && idea.hunch_id == 0 && idea.action == 0 && idea.desired_property == 0 &&
+                           idea.recipe == kNoRecipe && idea.inputs.empty() && idea.first_attempt_at == -1;
+                if (!(features & kIdeas) || idea.memory == 0 || idea.inputs.empty() || idea.inputs.size() > 2 ||
+                    (pending && (idea.hunch_id != 0 || idea.first_attempt_at != -1 || idea.recipe == kNoRecipe)) ||
+                    (!pending && delivered >= 0 && idea.hunch_id != idea.memory) ||
+                    (idea.first_attempt_at >= 0 && (delivered < 0 || idea.first_attempt_at < delivered)))
+                    return false;
+                const auto& recipes = catalogue_.kind<data::Blueprint>();
+                if (idea.recipe != kNoRecipe &&
+                    (idea.recipe >= recipes.size() || recipes[idea.recipe].action != idea.action))
+                    return false;
+                return true;
+            };
             const auto night = frontier_ / time::kDay + (frontier_ % time::kDay + 18 * time::kHour) / time::kDay - 1;
             if (kind == 1 && beings_.raw().all_of<Camp>(*h)) {
                 Dreams ledger;
@@ -1462,10 +1481,12 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                 for (std::uint64_t a = 0; a < n; ++a) {
                     DreamAct act;
                     if (!ecs::read_component(act, r, entries) || act.number <= previous ||
-                        ecs::Id{act.person}.family() != ecs::Family::person || act.subject < 0 || act.subject > 2 ||
-                        !inside(act.place) || act.requested < 0 || act.requested > frontier_ ||
-                        act.received != act.requested || act.status < 1 || act.status > 3 || act.reason > 3 ||
-                        act.executed < -1 || act.executed > frontier_ ||
+                        ecs::Id{act.person}.family() != ecs::Family::person ||
+                        (act.kind == 0 ? (act.subject < 0 || act.subject > 2) : act.subject != -1) ||
+                        !idea_valid(act, act.status == 2 ? act.executed : -1, act.status == 1) || !inside(act.place) ||
+                        act.requested < 0 || act.requested > frontier_ || act.received != act.requested ||
+                        act.status < 1 || act.status > 3 || act.reason > 5 || act.executed < -1 ||
+                        act.executed > frontier_ ||
                         act.executed > std::numeric_limits<std::int64_t>::max() - 3 * time::kDay ||
                         act.decision_at < -1 || act.decision_at > frontier_ || act.visited_at < -1 ||
                         act.visited_at > frontier_ || act.choice < -1 || act.choice > 3 || act.pull < 0 ||
@@ -1517,18 +1538,23 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                 if (!ecs::read_component(thought, r, entries) || thought.night < -2 || thought.night > night ||
                     thought.at < -1 || thought.at > frontier_ ||
                     thought.at > std::numeric_limits<std::int64_t>::max() - 3 * time::kDay || thought.subject < -1 ||
-                    thought.subject > 2 || (thought.decision_pull != 0 && thought.decision_pull != 60) ||
-                    thought.decision_subject < -1 || thought.decision_subject > 2 ||
-                    ((thought.decision_pull == 0) != (thought.decision_subject == -1)) || thought.visit_at < -1 ||
+                    thought.subject > 2 || !idea_valid(thought, thought.at, false) ||
+                    (thought.decision_pull != 0 && thought.decision_pull != 60) || thought.decision_subject < -1 ||
+                    thought.decision_subject > 2 ||
+                    (thought.kind == 0 && ((thought.decision_pull == 0) != (thought.decision_subject == -1))) ||
+                    (thought.kind == 1 && thought.decision_subject != -1) || thought.visit_at < -1 ||
                     thought.visit_at > frontier_ ||
                     (thought.at == -1 && (thought.subject != -1 || thought.until != -1 || thought.decision_pull != 0 ||
                                           thought.visit_at != -1)) ||
                     (thought.at >= 0 &&
-                     (thought.subject == -1 || thought.until != thought.at + 3 * time::kDay || !inside(thought.place) ||
+                     (thought.until != thought.at + 3 * time::kDay || !inside(thought.place) ||
                       (thought.at + 18 * time::kHour) / time::kDay - 1 > thought.night ||
-                      beings_.raw().get<Life>(*h).source[static_cast<std::size_t>(thought.subject)] == 0 ||
-                      thought.place !=
-                          beings_.raw().get<Life>(*h).known_at[static_cast<std::size_t>(thought.subject)])) ||
+                      (thought.kind == 0 &&
+                       (thought.subject == -1 ||
+                        beings_.raw().get<Life>(*h).source[static_cast<std::size_t>(thought.subject)] == 0 ||
+                        thought.place !=
+                            beings_.raw().get<Life>(*h).known_at[static_cast<std::size_t>(thought.subject)])) ||
+                      (thought.kind == 1 && thought.subject != -1))) ||
                     (thought.visit_at != -1 && thought.visit_at < thought.at)) {
                     why = "invalid ordinary dream thought";
                     return false;
@@ -1579,6 +1605,23 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
         }
         if (!load_craft(*this, chunks, entries, features, why) || !load_fire(*this, chunks, entries, features, why))
             return false;
+        for (const auto ph : beings_.raw().view<Dream, Knowledge>()) {
+            const auto& thought = beings_.raw().get<Dream>(ph);
+            if (thought.kind == 1 && thought.memory >= beings_.raw().get<Knowledge>(ph).next_memory) {
+                why = "idea has an invented memory identity";
+                return false;
+            }
+        }
+        for (const auto ch : beings_.raw().view<Dreams>()) {
+            for (const auto& act : beings_.raw().get<Dreams>(ch).acts) {
+                const auto target = beings_.find(ecs::Id{act.person});
+                if (act.kind == 1 && target && beings_.raw().all_of<Knowledge>(*target) &&
+                    act.memory >= beings_.raw().get<Knowledge>(*target).next_memory) {
+                    why = "private idea has an invented memory identity";
+                    return false;
+                }
+            }
+        }
         context_.now_ = frontier_;
         for (System* sys : systems) {
             sys->opened(*this);

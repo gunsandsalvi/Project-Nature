@@ -152,7 +152,8 @@ if(KD_SIM_TESTS)
         tests/learning_test.cpp
         tests/fire_test.cpp
         tests/camp_test.cpp
-        tests/living_test.cpp)
+        tests/living_test.cpp
+        tests/idea_dream_test.cpp)
     target_include_directories(kd_sim_tests SYSTEM PRIVATE "${KD_DOCTEST}" "${KD_XXHASH}")
     # The repository, where tests read current catalogue fixtures.
     target_compile_definitions(kd_sim_tests PRIVATE DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS

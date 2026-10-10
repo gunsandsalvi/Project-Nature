@@ -171,7 +171,9 @@ struct Memory {
 };
 struct Hunch {
     static constexpr std::string_view name = "hunch";
-    static constexpr std::uint32_t version = 1;
+    static constexpr std::uint32_t version = 2;
+    std::uint64_t id = 0;
+    std::uint8_t origin = 0;  // ordinary hint, telling, dream; never player provenance
     std::uint8_t action = 0, result_form = 0, failures = 0;
     std::uint64_t source_memory = 0;
     ecs::Id source{};
@@ -180,6 +182,8 @@ struct Hunch {
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
         v.u8({"action", "action to try"}, c.action);
+        v.u64({"id", "ordinary dream hunch identity, or zero"}, c.id);
+        v.u8({"origin", "ordinary hint, telling or dream"}, c.origin);
         v.u8({"result_form", "guessed physical result"}, c.result_form);
         v.u8({"failures", "failed attempts"}, c.failures);
         v.u64({"source_memory", "actual hint memory"}, c.source_memory);
