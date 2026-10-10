@@ -410,6 +410,19 @@ void World::end_being(ecs::Id id) {
     KD_CHECK(!in_islands_, "world::World: beings end only between windows");
     Schedule* s = schedule_of(id);
     KD_CHECK(s != nullptr, "world::World: no being with that id to end");
+    const auto h = beings_.handle(id);
+    const auto* person = beings_.raw().try_get<Person>(h);
+    const auto* home = beings_.raw().try_get<demo::Home>(h);
+    if (person && home) {
+        auto* ledger = beings_.raw().try_get<Dreams>(beings_.handle(home->camp));
+        if (ledger) {
+            const auto at = std::lower_bound(ledger->ended.begin(), ledger->ended.end(), id,
+                                             [](const auto& entry, ecs::Id wanted) { return entry.id < wanted; });
+            const auto* knowledge = beings_.raw().try_get<Knowledge>(h);
+            ledger->ended.insert(at, {id, *person, context_.in_event_ ? context_.now() : frontier_,
+                                      knowledge ? knowledge->next_memory : 0});
+        }
+    }
     for (std::uint64_t& expected : s->expected) {
         if (expected != 0) {
             expected = 0;
@@ -980,13 +993,20 @@ std::vector<save::Chunk> World::save() const {
                 for (const auto sent : ledger->sent) dreams.u64(sent);
                 dreams.u64(ledger->acts.size());
                 for (const auto& act : ledger->acts) ecs::write_component(act, dreams);
+                dreams.u64(ledger->ended.size());
+                for (const auto& ended : ledger->ended) {
+                    dreams.u64(ended.id.value);
+                    ecs::write_component(ended.person, dreams);
+                    dreams.i64(ended.ended_at);
+                    dreams.u64(ended.next_memory);
+                }
             } else if (const auto* thought = beings_.raw().try_get<Dream>(h)) {
                 dreams.u64(id.value);
                 dreams.u8(2);
                 ecs::write_component(*thought, dreams);
             }
         });
-        out.push_back({save::tag("DRMS"), 2, true, dreams.take()});
+        out.push_back({save::tag("DRMS"), 3, true, dreams.take()});
     }
     save_craft(*this, out);
     save_fire(*this, out);
@@ -1014,7 +1034,7 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
     const auto* dream_chunk = save::find_chunk(chunks, save::tag("DRMS"));
     if ((camp_chunk && camp_chunk->version == 4 && !dream_chunk) ||
         (dream_chunk &&
-         (!camp_chunk || camp_chunk->version != 4 || !dream_chunk->critical || dream_chunk->version != 2))) {
+         (!camp_chunk || camp_chunk->version != 4 || !dream_chunk->critical || dream_chunk->version != 3))) {
         why = "dream extension is missing or mismatched";
         return false;
     }
@@ -1516,7 +1536,6 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                         ecs::Id{act.person}.family() != ecs::Family::person ||
                         (act.person & ((std::uint64_t{1} << 60U) - 1)) == 0 ||
                         (act.person & ((std::uint64_t{1} << 60U) - 1)) >= ids_.next() ||
-                        (act.kind == 1 && act.status == 1 && !beings_.find(ecs::Id{act.person})) ||
                         (act.kind == 0 ? (act.subject < 0 || act.subject > 2) : act.subject != -1) ||
                         !idea_valid(act, act.status == 2 ? act.executed : -1, act.status == 1) || !inside(act.place) ||
                         act.requested < 0 || act.requested > frontier_ || act.received != act.requested ||
@@ -1559,6 +1578,28 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                         sleepers.push_back(act.person);
                     }
                     ledger.acts.push_back(act);
+                }
+                if (!r.u64(n) || n > dream_chunk->data.size() / 36) {
+                    why = "oversized ended-person ledger";
+                    return false;
+                }
+                ecs::Id last_ended{};
+                for (std::uint64_t a = 0; a < n; ++a) {
+                    Dreams::EndedPerson ended;
+                    if (!r.u64(ended.id.value) || !(last_ended < ended.id) ||
+                        ended.id.family() != ecs::Family::person ||
+                        (ended.id.value & ((std::uint64_t{1} << 60U) - 1)) == 0 ||
+                        (ended.id.value & ((std::uint64_t{1} << 60U) - 1)) >= ids_.next() || beings_.find(ended.id) ||
+                        !ecs::read_component(ended.person, r, entries) ||
+                        ended.person.name_index >= kPersonNames.size() || ended.person.age_years < 18 ||
+                        ended.person.age_years > 45 || ended.person.appearance > 24 || !r.i64(ended.ended_at) ||
+                        ended.ended_at < 0 || ended.ended_at > frontier_ || !r.u64(ended.next_memory) ||
+                        ((features != 0) != (ended.next_memory != 0))) {
+                        why = "invalid typed ended-person record";
+                        return false;
+                    }
+                    last_ended = ended.id;
+                    ledger.ended.push_back(ended);
                 }
                 auto expected_sent = delivered[ledger.night];
                 std::stable_sort(expected_sent.begin(), expected_sent.end());
@@ -1647,9 +1688,28 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                 return false;
             }
         }
+        std::map<std::uint64_t, ecs::Id> allocated;
+        beings_.each([&](ecs::Id id, auto) { allocated.emplace(id.value & ((std::uint64_t{1} << 60U) - 1), id); });
+        things_.each([&](ecs::Id id, auto) { allocated.emplace(id.value & ((std::uint64_t{1} << 60U) - 1), id); });
         for (const auto ch : beings_.raw().view<Dreams>()) {
-            for (const auto& act : beings_.raw().get<Dreams>(ch).acts) {
+            const auto& ledger = beings_.raw().get<Dreams>(ch);
+            for (const auto& ended : ledger.ended) {
+                if (!allocated.emplace(ended.id.value & ((std::uint64_t{1} << 60U) - 1), ended.id).second) {
+                    why = "ended-person serial already identifies another record";
+                    return false;
+                }
+            }
+            for (const auto& act : ledger.acts) {
                 const auto target = beings_.find(ecs::Id{act.person});
+                const auto ended =
+                    std::lower_bound(ledger.ended.begin(), ledger.ended.end(), ecs::Id{act.person},
+                                     [](const auto& entry, ecs::Id wanted) { return entry.id < wanted; });
+                if (!target &&
+                    (ended == ledger.ended.end() || ended->id.value != act.person || act.requested > ended->ended_at ||
+                     (act.status == 2 && act.executed > ended->ended_at))) {
+                    why = "private dream target has no live or typed ended-person identity";
+                    return false;
+                }
                 if (target && (!beings_.raw().all_of<Person, demo::Home>(*target) ||
                                beings_.raw().get<demo::Home>(*target).camp != beings_.id_of(ch))) {
                     why = "private dream target is not a person of its camp";
@@ -1658,6 +1718,10 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                 if (act.kind == 1 && target && beings_.raw().all_of<Knowledge>(*target) &&
                     act.memory >= beings_.raw().get<Knowledge>(*target).next_memory) {
                     why = "private idea has an invented memory identity";
+                    return false;
+                }
+                if (act.kind == 1 && !target && act.memory >= ended->next_memory) {
+                    why = "ended person's idea has an invented memory identity";
                     return false;
                 }
             }
@@ -1723,6 +1787,13 @@ Digests World::digests() const {
                 for (const auto sent : ledger->sent) d.u64(sent);
                 d.u64(ledger->acts.size());
                 for (const auto& act : ledger->acts) ecs::digest_component(act, d);
+                d.u64(ledger->ended.size());
+                for (const auto& ended : ledger->ended) {
+                    d.u64(ended.id.value);
+                    ecs::digest_component(ended.person, d);
+                    d.i64(ended.ended_at);
+                    d.u64(ended.next_memory);
+                }
             }
             if (const auto* p = beings_.raw().try_get<Person>(h)) {
                 d.u64(id.value);

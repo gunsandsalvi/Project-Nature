@@ -2,6 +2,7 @@
 #pragma once
 #include <array>
 #include <vector>
+#include "kd/world/camp.hpp"
 #include "kd/world/craft.hpp"
 #include "kd/world/parts.hpp"
 namespace kd::world {
@@ -83,8 +84,15 @@ struct DreamAct : IdeaFields {
     }
 };
 struct Dreams {
+    struct EndedPerson {
+        ecs::Id id{};
+        Person person{};
+        std::int64_t ended_at = 0;
+        std::uint64_t next_memory = 0;  // zero for a camp without the knowledge system
+    };
     std::int64_t night = -2;
     std::array<std::uint64_t, 3> sent{};
-    std::vector<DreamAct> acts{};  // private, persisted in full; only pending work is capped
+    std::vector<DreamAct> acts{};      // private, persisted in full; only pending work is capped
+    std::vector<EndedPerson> ended{};  // typed identities, in ID order; home is this ledger's camp
 };
 }  // namespace kd::world

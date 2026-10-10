@@ -54,6 +54,56 @@ struct One {
     }
 };
 }  // namespace
+TEST_CASE("pending place dreams require a live person or a typed ended person of their camp") {
+    for (int fault = 0; fault < 8; ++fault) {
+        One one;
+        one.know();
+        one.w.command(0, 2, one.id.value, 0);
+        one.w.run_to(1);
+        auto& ledger = one.w.beings().raw().get<world::Dreams>(one.ch);
+        REQUIRE(ledger.acts.size() == 1);
+        if (fault == 1 || fault == 2) {
+            const auto item = one.w.make_thing();
+            const auto serial = one.w.things().id_of(item).value & ((std::uint64_t{1} << 60U) - 1);
+            ledger.acts.front().person = (std::uint64_t{3} << 60U) | serial;
+            if (fault == 2) one.w.things().end(one.w.things().id_of(item));
+        }
+        if (fault >= 3) {
+            one.w.end_being(one.id);
+            REQUIRE(ledger.ended.size() == 1);
+            if (fault == 4) ledger.ended.clear();
+            if (fault == 5) ledger.ended.front().id = one.home;
+            if (fault == 6) ledger.ended.front().ended_at = 2;
+        }
+        std::string why;
+        auto chunks = one.w.save();
+        if (fault == 7)
+            for (auto& chunk : chunks)
+                if (chunk.tag == save::tag("DRMS")) chunk.version = 2;
+        auto opened = demo::CrowdWorld::open(test::camp_fixture(), chunks, why);
+        INFO(fault, why);
+        if (fault == 0 || fault == 3) {
+            REQUIRE(opened);
+            CHECK(opened->world().digests().whole == one.w.digests().whole);
+            CHECK(save::write_snapshot(opened->world().save()) == save::write_snapshot(one.w.save()));
+            one.w.run_to(2);
+            opened->world().run_to(2);
+            CHECK(opened->world().digests().whole == one.w.digests().whole);
+            if (fault == 3) {
+                one.w.run_to(time::kHour + 1);
+                CHECK(ledger.acts.front().status == 3);
+                auto cancelled = demo::CrowdWorld::open(test::camp_fixture(), one.w.save(), why);
+                INFO(why);
+                REQUIRE(cancelled);
+                CHECK(cancelled->world().digests().whole == one.w.digests().whole);
+            }
+        } else {
+            CHECK_FALSE(opened);
+            CHECK_FALSE(why.empty());
+            if (fault == 7) CHECK(why.find("Start a new camp") != std::string::npos);
+        }
+    }
+}
 TEST_CASE("a sleeping place dream tips a close autonomous visit but urgent thirst wins") {
     for (const bool urgent : {false, true}) {
         One one;

@@ -832,11 +832,16 @@ TEST_CASE("fresh founders have personal starting skills and independently keyed 
         CHECK(know->kindness <= 80);
         traits.insert({know->curiosity, know->kindness});
         for (const auto& skill : know->skills) {
-            CHECK(skill.practice.level >= 3000);
+            CHECK(skill.practice.level == 3000);
             CHECK(skill.source_event == 0);
             CHECK(skill.source.value == 0);
             CHECK(catalogue().kind<kd::data::Blueprint>()[skill.recipe].starting);
         }
+        const auto age = w.beings().raw().get<kd::world::Person>(h).age_years;
+        const auto bonus = static_cast<std::int64_t>(age > 20 ? (age - 20) / 15 : 0) * 1000;
+        CHECK(know->sectors[5].level == 3000 + bonus);
+        CHECK(know->sectors[4].level == 2000 + bonus);
+        CHECK(know->sectors[2].level == 1000 + bonus);
     });
     CHECK(traits.size() > 20);
 }

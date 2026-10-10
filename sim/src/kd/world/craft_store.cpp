@@ -76,7 +76,9 @@ bool craft_headers(std::span<const save::Chunk> chunks, std::uint32_t& features,
                            tag == save::tag("LEAR");
         if ((craft && ((features != 0) != bool(c))) || (features != 0 && !c))
             return fail("required craft extension is missing or mismatched");
-        if (c && (!c->critical || c->version != (tag == save::tag("LEAR") ? 1U : 2U)))
+        if (c && tag == save::tag("DRMS") && c->version != 3)
+            return fail("Unsupported dream format. Start a new camp.");
+        if (c && (!c->critical || c->version != (tag == save::tag("LEAR") ? 1U : tag == save::tag("DRMS") ? 3U : 2U)))
             return fail("unsupported camp extension version");
     }
     return true;

@@ -33,7 +33,8 @@ void Crafting::initialise(world::World& w, bool fire_already_out) {
                                       chance::name("curiosity and kindness"));
             know.curiosity = static_cast<std::uint8_t>(draws.between(0, 20, 80));
             know.kindness = static_cast<std::uint8_t>(draws.between(1, 20, 80));
-            const auto age_extra = static_cast<std::int64_t>((person->age_years - 18) / 10) * 100;
+            const auto age_extra =
+                static_cast<std::int64_t>(person->age_years > 20 ? (person->age_years - 20) / 15 : 0) * 1000;
             know.sectors[5] = {3000 + age_extra, 3000 + age_extra, 0, -1};
             know.sectors[4] = {2000 + age_extra, 2000 + age_extra, 0, -1};
             know.sectors[2] = {1000 + age_extra, 1000 + age_extra, 0, -1};
@@ -43,7 +44,7 @@ void Crafting::initialise(world::World& w, bool fire_already_out) {
                 world::Skill skill;
                 skill.recipe = r;
                 skill.known = 1;
-                skill.practice = {3000 + age_extra, 3000 + age_extra, 0, -1};
+                skill.practice = {3000, 3000, 0, -1};
                 know.skills.push_back(skill);
             }
             Discovery::starting(w, h);

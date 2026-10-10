@@ -81,7 +81,7 @@ TEST_CASE("DRMS2 preserves pending and delivered idea fields without granting re
         const auto chunks = w.save();
         const auto* dreams = kd::save::find_chunk(chunks, kd::save::tag("DRMS"));
         REQUIRE(dreams);
-        CHECK(dreams->version == 2);
+        CHECK(dreams->version == 3);
         CHECK(kd::save::kSnapshotVersion == 6);
         std::string why;
         auto copy = open_idea(w, why);
@@ -436,4 +436,20 @@ TEST_CASE("DRMS2 rejects never allocated targets and attempts fabricated at drea
     std::string why;
     CHECK_FALSE(open_idea(fixture.camp.world(), why));
     CHECK_FALSE(why.empty());
+}
+
+TEST_CASE("typed ended people preserve pending and delivered ideas but reject invented former memories") {
+    for (const bool delivered : {false, true}) {
+        StoredIdea fixture(delivered);
+        auto& w = fixture.camp.world();
+        w.end_being(fixture.person);
+        std::string why;
+        auto copy = open_idea(w, why);
+        INFO(why);
+        REQUIRE(copy);
+        CHECK(copy->world().digests().whole == w.digests().whole);
+        fixture.act().memory = 2;
+        CHECK_FALSE(open_idea(w, why));
+        CHECK_FALSE(why.empty());
+    }
 }
