@@ -320,9 +320,10 @@ struct CraftHistory {
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
         v.u64({"next", "next actual result event"}, c.next);
-        v.records({"events", "kept results and discoveries"}, c.events, 100000);
+        // History grows with real play; bound allocation by actual wire bytes, not an elapsed-play ceiling.
+        v.records({"events", "kept results and discoveries"}, c.events, UINT32_MAX, 76);
         v.u64({"next_choice", "next immutable choice identity"}, c.next_choice);
-        v.records({"choices", "kept fire, warmth and craft decisions"}, c.choices, 100000);
+        v.records({"choices", "kept fire, warmth and craft decisions"}, c.choices, UINT32_MAX, 204);
     }
 };
 }  // namespace kd::world

@@ -1386,3 +1386,32 @@ TEST_CASE("ordinary drill and grind fits discover friction without an idea dream
         CHECK(hints > 0);
     }
 }
+
+TEST_CASE("large kept choice and result histories reopen beyond the former elapsed-play ceiling") {
+    StoredCraft fixture;
+    auto& w = fixture.camp.world();
+    auto& raw = w.beings().raw();
+    auto& kept = raw.get<kd::world::CraftHistory>(w.beings().handle(fixture.home));
+    kd::world::CraftReason reason;
+    reason.kind = 2;
+    const std::vector<kd::world::CraftReason> reasons(3, reason);
+    constexpr std::uint64_t count = 100001;
+    kept.choices.reserve(count);
+    kept.events.reserve(count);
+    for (std::uint64_t n = 1; n <= count; ++n) {
+        kept.choices.push_back({n, 0, fixture.person, reasons});
+        kd::world::Result event;
+        event.id = n;
+        event.choice = n;
+        event.actor = fixture.person;
+        event.place = raw.get<kd::world::Place>(w.beings().handle(fixture.person)).at;
+        event.recipe = entry(catalogue(), "blueprint", "base:butcher");
+        event.inputs.push_back({fixture.thing});
+        kept.events.push_back(std::move(event));
+    }
+    kept.next_choice = kept.next = count + 1;
+    std::string why;
+    REQUIRE_MESSAGE(accepted(w, why), why);
+    kept.events.back().choice = count + 1;
+    CHECK_FALSE(accepted(w, why));
+}

@@ -46,7 +46,8 @@ public:
     void i64(const Part& /*p*/, const std::int64_t& v) { d_.i64(v); }
     void text(const Part& /*p*/, const std::string& v, std::size_t /*most*/ = 128) { d_.text(v); }
     template <typename C>
-    void records(const Part& /*p*/, const std::vector<C>& values, std::size_t /*most*/) {
+    void records(const Part& /*p*/, const std::vector<C>& values, std::size_t /*most*/,
+                 std::size_t /*least_bytes*/ = 4) {
         d_.u64(values.size());
         for (const auto& value : values) {
             d_.text(C::name);
@@ -86,7 +87,8 @@ public:
     void i64(const Part& /*p*/, const std::int64_t& v) { w_.i64(v); }
     void text(const Part& /*p*/, const std::string& v, std::size_t /*most*/ = 128) { w_.text(v); }
     template <typename C>
-    void records(const Part& /*p*/, const std::vector<C>& values, std::size_t /*most*/) {
+    void records(const Part& /*p*/, const std::vector<C>& values, std::size_t /*most*/,
+                 std::size_t /*least_bytes*/ = 4) {
         w_.u64(values.size());
         for (const auto& value : values) {
             w_.u32(C::version);
@@ -128,9 +130,9 @@ public:
     void i64(const Part& /*p*/, std::int64_t& v) { r_.i64(v); }
     void text(const Part& /*p*/, std::string& v, std::size_t most = 128) { ok_ = ok_ && r_.text(v, most); }
     template <typename C>
-    void records(const Part& /*p*/, std::vector<C>& values, std::size_t most) {
+    void records(const Part& /*p*/, std::vector<C>& values, std::size_t most, std::size_t least_bytes = 4) {
         std::uint64_t count = 0;
-        if (!ok_ || !r_.u64(count) || count > most || count > r_.remaining() / 4) {
+        if (!ok_ || !r_.u64(count) || count > most || least_bytes < 4 || count > r_.remaining() / least_bytes) {
             ok_ = false;
             return;
         }

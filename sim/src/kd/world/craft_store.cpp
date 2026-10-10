@@ -312,11 +312,12 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
             }
             if (value.next_choice != value.choices.size() + 1) return fail("invalid next choice identity");
             for (const auto& event : value.events)
-                if (event.choice && std::none_of(value.choices.begin(), value.choices.end(), [&](const auto& choice) {
-                        return choice.id == event.choice &&
-                               (choice.actor == event.actor || choice.actor == event.source) && choice.at <= event.at;
-                    }))
-                    return fail("result choice identity disagrees");
+                if (event.choice) {
+                    if (event.choice > value.choices.size()) return fail("result choice identity disagrees");
+                    const auto& choice = value.choices[event.choice - 1];
+                    if ((choice.actor != event.actor && choice.actor != event.source) || choice.at > event.at)
+                        return fail("result choice identity disagrees");
+                }
             raw.emplace<CraftHistory>(*h, std::move(value));
         }
         if (!r.finished()) return fail("trailing craft history records");
