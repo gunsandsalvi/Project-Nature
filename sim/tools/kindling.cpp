@@ -126,6 +126,7 @@
 #include "kd/look/frame.hpp"
 #include "kd/look/measures.hpp"
 #include "kd/num/digest.hpp"
+#include "kd/proof/fire_cases.hpp"
 #include "kd/proof/idea_cases.hpp"
 #include "kd/proof/learning_cases.hpp"
 #include "kd/proof/proof.hpp"
@@ -146,6 +147,7 @@ int usage() {
         "       kindling suites\n"
         "       kindling idea-capture <folder> <seed> <build> [data] conditional app test save\n"
         "       kindling idea-gate <first-seed> <count> conditional paired sleepers\n"
+        "       kindling fire-gate <first-seed> <count> [control] autonomous cold-hearth chain\n"
         "       kindling learning-gate <first-seed> <count> [control]  finite multi-year scenes\n"
         "       kindling discovery <seed> <new-folder> [data] [build]  capture an ordinary first flake\n"
         "       kindling catalogue check|schema|fingerprint [data]\n"
@@ -1381,6 +1383,46 @@ int main(int argc, char** argv) {
                 p.pending_reopen ? "true" : "false", p.delivered_reopen ? "true" : "false",
                 p.final_reopen ? "true" : "false", p.absent_conserved ? "true" : "false", p.sent_digest.c_str(),
                 p.control_digest.c_str(), p.missing_digest.c_str(), static_cast<long long>(ms));
+            std::fflush(stdout);
+        }
+        return 0;
+    }
+    if (command == "fire-gate") {
+        if (args.size() < 2 || args.size() > 3 || (args.size() == 3 && args[2] != "control")) return usage();
+        kd::data::Catalogue catalogue;
+        if (!catalogue.load(kd::data::read_catalogue("data")).empty()) return 1;
+        const auto first = std::strtoull(std::string(args[0]).c_str(), nullptr, 10);
+        const auto count = std::strtoull(std::string(args[1]).c_str(), nullptr, 10);
+        if (!count || count > 40) return usage();
+        for (std::uint64_t n = 0; n < count; ++n) {
+            const auto start = std::chrono::steady_clock::now();
+            const auto progress = [&](const kd::world::World& w, kd::time::Seconds end) {
+                const auto elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
+                std::fprintf(stderr, "fire seed %llu day %.1f/%.1f elapsed %.1fs items %zu\n",
+                             static_cast<unsigned long long>(first + n), double(w.frontier()) / kd::time::kDay,
+                             double(end) / kd::time::kDay, elapsed, w.things().size());
+                std::fflush(stderr);
+            };
+            const auto result =
+                kd::proof::fire_chain(catalogue, first + n, args.size() == 3, 3 * kd::time::kYear, progress);
+            const auto ms =
+                std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
+            std::printf(
+                "{\"seed\":%llu,\"control\":%s,\"complete\":%s,\"ordinary_setup\":%s,\"completed_at\":%lld,\"ember_"
+                "at\":%lld,\"flame_at\":%lld,\"tend_at\":%lld,"
+                "\"cooked_at\":%lld,\"ended\":%lld,\"friction_choices\":%llu,\"wood_pairs\":%llu,\"friction_results\":%"
+                "llu,\"tended\":%llu,\"cooked\":%llu,\"reopen_"
+                "failures\":%u,\"peak_trace_records\":%zu,\"digest\":\"%s\",\"ms\":%lld}\n",
+                static_cast<unsigned long long>(result.seed), result.wet_control ? "true" : "false",
+                result.complete ? "true" : "false", result.ordinary_setup ? "true" : "false",
+                static_cast<long long>(result.completed_at), static_cast<long long>(result.ember_at),
+                static_cast<long long>(result.flame_at), static_cast<long long>(result.tend_at),
+                static_cast<long long>(result.cooked_at), static_cast<long long>(result.ended),
+                static_cast<unsigned long long>(result.friction_choices),
+                static_cast<unsigned long long>(result.wood_pairs),
+                static_cast<unsigned long long>(result.friction_results),
+                static_cast<unsigned long long>(result.tended), static_cast<unsigned long long>(result.cooked),
+                result.reopen_failures, result.peak_trace_records, result.digest.c_str(), static_cast<long long>(ms));
             std::fflush(stdout);
         }
         return 0;

@@ -1297,6 +1297,23 @@ TEST_CASE("kept choices and resumed plans match serial and four-worker islands")
     CHECK(reopen_fire(parallel.world(), why));
 }
 
+#include "kd/proof/fire_cases.hpp"
+TEST_CASE("autonomous cold-hearth chain starts without an action or memory and bounds its proof trace") {
+    for (const bool control : {false, true}) {
+        const auto run = kd::proof::fire_chain(fire_catalogue(), 715, control, kd::time::kDay);
+        CHECK(run.ordinary_setup);
+        CHECK(run.ended <= kd::time::kDay);
+        CHECK(run.reopen_failures == 0);
+        CHECK(run.peak_trace_records < 100000);
+        CHECK_FALSE(run.digest.empty());
+        if (control) {
+            CHECK(run.ember_at == -1);
+            CHECK(run.cooked_at == -1);
+            CHECK_FALSE(run.complete);
+        }
+    }
+}
+
 TEST_CASE("tentative fire trials use the same visible evidence regardless of hidden burn and resolve after work") {
     std::array<bool, 2> selected{};
     for (int variant = 0; variant < 2; ++variant) {
