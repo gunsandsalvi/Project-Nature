@@ -33,12 +33,9 @@ struct ActiveMaker {
 std::vector<ActiveMaker> active_makers(const world::World& w) {
     std::vector<ActiveMaker> out;
     const auto& raw = w.beings().raw();
-    w.beings().each([&](ecs::Id id, world::Beings::Handle h) {
-        if (!raw.all_of<world::Knowledge, world::Work, Home>(h)) return;
-        const auto& work = raw.get<world::Work>(h);
-        if (work.state == 2 && work.intended && work.try_seconds > 0)
-            out.push_back({id, raw.get<Home>(h).camp, &work, &raw.get<world::Activity>(h)});
-    });
+    for (const auto& maker : w.makers())
+        out.push_back(
+            {maker.id, maker.camp, &raw.get<world::Work>(maker.handle), &raw.get<world::Activity>(maker.handle)});
     return out;
 }
 void observe_active(world::Context& c, world::Beings::Handle observer, std::span<const ActiveMaker> makers) {
@@ -107,6 +104,7 @@ void Learning::observe(world::Context& c, world::Beings::Handle observer) {
 }
 void Learning::observe_maker(world::Context& c, world::Beings::Handle maker) {
     auto& w = c.world();
+    w.makers_changed();
     auto& raw = w.beings().raw();
     const auto camp = raw.get<Home>(maker).camp;
     const auto active = active_makers(w);
@@ -118,6 +116,7 @@ void Learning::observe_maker(world::Context& c, world::Beings::Handle maker) {
 }
 void Learning::forget_work(world::Context& c, world::Beings::Handle maker) {
     auto& w = c.world();
+    w.makers_changed();
     const auto person = w.beings().id_of(maker);
     const auto camp = w.beings().raw().get<Home>(maker).camp;
     w.beings().each([&](ecs::Id id, world::Beings::Handle h) {

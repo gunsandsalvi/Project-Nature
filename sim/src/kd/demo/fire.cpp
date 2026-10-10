@@ -317,6 +317,7 @@ bool FireRules::blow(world::Context& c, ecs::Id hearth) {
     f.embers_until = c.now() + 3 * time::kHour;
     f.air_until = c.now() + 60;
     f.next = next_fire(f);
+    c.world().physical_changed(hearth);
     deadlines(c, f.hearth);
     return true;
 }
@@ -330,13 +331,15 @@ bool FireRules::bank(world::Context& c, ecs::Id hearth) {
     f.banked_until = c.now() + 12 * time::kHour;
     f.embers_until = f.banked_until;
     f.next = next_fire(f);
+    c.world().physical_changed(hearth);
     thermal_after(c, f.hearth);
     deadlines(c, f.hearth);
     return true;
 }
 ecs::Id FireRules::carry(world::Context& c, ecs::Id hearth, ecs::Id input, ecs::Id person) {
     auto& w = c.world();
-    if (w.things().raw().all_of<Fire>(w.things().handle(input))) return {};
+    const auto live_input = w.things().find(input);
+    if (!live_input || w.things().raw().all_of<Fire>(*live_input)) return {};
     const auto source = item(w, input);
     const auto fit = Crafting::physical(w.catalogue(), source);
     if ((fit.material_class != "wood" && fit.material_class != "plant") || fit.values[6] < 4 || fit.values[9] > 1 ||
@@ -396,14 +399,9 @@ void FireRules::deadlines(world::Context& c, ecs::Id camp) {
     if (!ambient) return;
     auto heat = ambient->next;
     time::Seconds timer = 0;
-    for (const auto h : w.things().raw().view<Fire>()) {
-        const auto& f = w.things().raw().get<Fire>(h);
-        if (f.hearth == camp && f.next) heat = std::min(heat, f.next);
-    }
-    for (const auto h : w.things().raw().view<world::HeatTimer>()) {
-        const auto& t = w.things().raw().get<world::HeatTimer>(h);
-        if (item(w, t.item).home == camp && t.next) timer = timer ? std::min(timer, t.next) : t.next;
-    }
+    const auto& physical = std::as_const(w).physical_items(camp);
+    if (!physical.fire_due.empty()) heat = std::min(heat, physical.fire_due.begin()->first);
+    if (!physical.food_due.empty()) timer = physical.food_due.begin()->first;
     c.schedule(camp, 2, std::max(c.now() + 1, heat));
     if (timer)
         c.schedule(camp, 3, std::max(c.now() + 1, timer));
@@ -419,17 +417,21 @@ void FireRules::handle(world::Context& c, ecs::Id camp, std::uint32_t slot) {
         a.next = next_ambient(c.now());
     }
     std::vector<ecs::Id> due;
-    w.things().each([&](ecs::Id id, auto h) {
-        const auto* f = w.things().raw().try_get<Fire>(h);
-        if (f && f->hearth == camp && f->next && f->next <= c.now()) due.push_back(id);
-    });
+    for (const auto& [when, ids] : std::as_const(w).physical_items(camp).fire_due) {
+        if (when > c.now()) break;
+        due.insert(due.end(), ids.begin(), ids.end());
+    }
+    std::stable_sort(due.begin(), due.end());
     for (const auto id : due) settle_fire(c, id);
     std::vector<std::pair<ecs::Id, ecs::Id>> ignite;
-    w.things().each([&](ecs::Id id, auto h) {
+    const auto candidates = std::as_const(w).physical_items(camp).fuel;
+    for (const auto& entry : candidates) {
+        const auto id = entry.id;
+        const auto h = entry.handle;
         const auto& source = w.things().raw().get<Item>(h);
-        if (source.home != camp || source.mass == 0 || w.things().raw().any_of<Fire, world::HeatTimer>(h)) return;
+        if (source.home != camp || source.mass == 0 || w.things().raw().any_of<Fire, world::HeatTimer>(h)) continue;
         const auto fit = Crafting::physical(w.catalogue(), source);
-        if (fit.values[6] < 2 || fit.values[9] >= 3) return;
+        if (fit.values[6] < 2 || fit.values[9] >= 3) continue;
         for (const auto flame : due) {
             if (fire(w, flame).heat >= 2 &&
                 w.torus().squared_distance(at(w, id, c.now()), at(w, flame, c.now())) <= 10000) {
@@ -437,7 +439,7 @@ void FireRules::handle(world::Context& c, ecs::Id camp, std::uint32_t slot) {
                 break;
             }
         }
-    });
+    }
     for (const auto& [id, source] : ignite) {
         const auto i = item(w, id);
         auto& f = w.things().raw().emplace<Fire>(w.things().handle(id));

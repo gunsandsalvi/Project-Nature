@@ -5,6 +5,7 @@
 #include "kd/world/craft.hpp"
 namespace kd::world {
 struct Familiar {
+    friend bool operator==(const Familiar&, const Familiar&) = default;
     static constexpr std::string_view name = "familiar";
     static constexpr std::uint32_t version = 1;
     std::uint32_t kind = 0, material = 0, mask = 0;
@@ -35,6 +36,7 @@ struct Familiar {
     }
 };
 struct Practice {
+    friend bool operator==(const Practice&, const Practice&) = default;
     static constexpr std::string_view name = "practice";
     static constexpr std::uint32_t version = 2;
     std::int64_t level = 0, best = 0, seconds = 0, last_use = -1;
@@ -53,6 +55,7 @@ struct Practice {
     }
 };
 struct Skill {
+    friend bool operator==(const Skill&, const Skill&) = default;
     static constexpr std::string_view name = "skill";
     static constexpr std::uint32_t version = 2;
     std::uint32_t recipe = 0, observation_quarters = 0;
@@ -74,6 +77,7 @@ struct Skill {
     }
 };
 struct PeerBelief {
+    friend bool operator==(const PeerBelief&, const PeerBelief&) = default;
     static constexpr std::string_view name = "peer-craft-belief";
     static constexpr std::uint32_t version = 1;
     ecs::Id person{};
@@ -92,6 +96,7 @@ struct PeerBelief {
     }
 };
 struct Observation {
+    friend bool operator==(const Observation&, const Observation&) = default;
     static constexpr std::string_view name = "work-observation";
     static constexpr std::uint32_t version = 1;
     ecs::Id person{};
@@ -146,6 +151,7 @@ struct Lessons {
     }
 };
 struct Memory {
+    friend bool operator==(const Memory&, const Memory&) = default;
     static constexpr std::string_view name = "handling-memory";
     static constexpr std::uint32_t version = 1;
     std::uint64_t id = 0, event = 0;
@@ -171,6 +177,7 @@ struct Memory {
     }
 };
 struct Hunch {
+    friend bool operator==(const Hunch&, const Hunch&) = default;
     static constexpr std::string_view name = "hunch";
     static constexpr std::uint32_t version = 2;
     std::uint64_t id = 0;
@@ -194,6 +201,7 @@ struct Hunch {
     }
 };
 struct CraftReason {
+    friend bool operator==(const CraftReason&, const CraftReason&) = default;
     static constexpr std::string_view name = "craft-reason";
     static constexpr std::uint32_t version = 3;
     std::uint8_t kind = 0, intended = 0, action = 0, need = 0;
@@ -228,6 +236,7 @@ struct CraftReason {
     }
 };
 struct Knowledge {
+    friend bool operator==(const Knowledge&, const Knowledge&) = default;
     static constexpr std::string_view name = "knowledge";
     static constexpr std::uint32_t version = 3;
     std::uint32_t performed = 0;

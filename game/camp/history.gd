@@ -32,11 +32,14 @@ func _ready() -> void:
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(scroll)
+	var content := VBoxContainer.new()
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(content)
 	_body = VBoxContainer.new()
 	_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(_body)
+	content.add_child(_body)
 	var navigation := HBoxContainer.new()
-	column.add_child(navigation)
+	content.add_child(navigation)
 	_newer = Button.new()
 	_newer.text = "Newer"
 	_newer.pressed.connect(

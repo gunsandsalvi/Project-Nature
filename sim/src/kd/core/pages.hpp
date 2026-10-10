@@ -6,6 +6,7 @@
 #include <array>
 #include <compare>
 #include <cstddef>
+#include <initializer_list>
 #include <iterator>
 #include <memory>
 #include <vector>
@@ -49,6 +50,10 @@ class Pages {
 public:
     using value_type = T;
     using Page = std::shared_ptr<const std::vector<T>>;
+    Pages() = default;
+    Pages(std::initializer_list<T> values) {
+        for (const auto& value : values) push_back(value);
+    }
     static constexpr std::size_t kPage = 512;
     class Iterator {
     public:
@@ -143,6 +148,28 @@ public:
         ends_.push_back(sealed_);
         encoded_.push_back(std::move(encoded));
     }
+    // Display trails discard only the prefix passed by the screen. Retained sealed
+    // pages stay shared with earlier publications; at most one boundary page changes.
+    void drop_prefix(std::size_t count) {
+        KD_CHECK(count <= size(), "prefix outside retained records");
+        if (count == 0) return;
+        Pages next;
+        for (std::size_t n = 0; n < pages_.size(); ++n) {
+            const auto& page = pages_[n];
+            if (count >= page->size()) {
+                count -= page->size();
+                continue;
+            }
+            if (count) {
+                next.append_page(std::make_shared<const std::vector<T>>(
+                    page->begin() + static_cast<std::ptrdiff_t>(count), page->end()));
+                count = 0;
+            } else
+                next.append_page(page, encoded_[n]);
+        }
+        next.tail_.assign(tail_.begin() + static_cast<std::ptrdiff_t>(count), tail_.end());
+        *this = std::move(next);
+    }
     template <typename Predicate>
     void retain(Predicate keep) {
         Pages next;
@@ -166,8 +193,9 @@ public:
         if (!encoded_[n]) encoded_[n] = std::make_shared<const std::vector<std::byte>>(encode(*pages_[n]));
         return encoded_[n];
     }
-    [[nodiscard]] const T* find(decltype(T{}.id) id) const {
-        using Id = decltype(T{}.id);
+    template <typename U = T>
+    [[nodiscard]] const T* find(decltype(U{}.id) id) const {
+        using Id = decltype(U{}.id);
         const auto at =
             std::lower_bound(begin(), end(), id, [](const T& value, Id wanted) { return value.id < wanted; });
         return at != end() && at->id == id ? &*at : nullptr;

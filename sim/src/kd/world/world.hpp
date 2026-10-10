@@ -283,6 +283,8 @@ public:
 private:
     friend class World;
     Context(World& w, Island* island) : w_(w), island_(island) {}
+    // Display-only immutable knowledge, private to this context/worker.
+    std::map<ecs::Id, std::shared_ptr<const Knowledge>> knowledge_views_;
     bool notifying_item_ = false;
     void run(const event::Event& e);
 
@@ -323,10 +325,16 @@ public:
     /// How far the world has got: every event before it is done, none at or after it.
     [[nodiscard]] time::Seconds frontier() const { return frontier_; }
 
-    [[nodiscard]] Beings& beings() { return beings_; }
+    [[nodiscard]] Beings& beings() {
+        if (!item_event_ && !in_islands_) makers_valid_ = false;
+        return beings_;
+    }
     [[nodiscard]] const Beings& beings() const { return beings_; }
     [[nodiscard]] Things& things() {
-        if (!item_event_) item_sites_valid_ = false;
+        if (!item_event_) {
+            item_sites_valid_ = false;
+            physical_items_valid_ = false;
+        }
         return things_;
     }
     struct ItemSite {
@@ -350,6 +358,22 @@ public:
     [[nodiscard]] const std::vector<ItemSite>& item_sites() const;
     // Owned live items of a kind, plus retained timers requiring identical settlement; no inert spent stock.
     [[nodiscard]] std::span<const ItemSite::Entry> items_owned(ecs::Id owner, std::uint32_t kind) const;
+    // Physical integration only. These fitting/fuel facts never answer a mind's
+    // perceived eligibility; those readers use visible sites and their evidence.
+    struct PhysicalItems {
+        std::vector<ItemSite::Entry> food, fuel, timers, fires;
+        std::map<time::Seconds, std::set<ecs::Id>> fire_due, food_due;
+    };
+    [[nodiscard]] const PhysicalItems& physical_items(ecs::Id camp) const;
+    void physical_changed(ecs::Id id) const { physical_dirty_.push_back(id); }
+    [[nodiscard]] bool scalar_work() const { return scalar_work_; }
+    void set_scalar_work(bool enabled) { scalar_work_ = enabled; }
+    struct MakerEntry {
+        ecs::Id id, camp;
+        Beings::Handle handle;
+    };
+    [[nodiscard]] const std::vector<MakerEntry>& makers() const;
+    void makers_changed() const { makers_valid_ = false; }
     [[nodiscard]] const Things& things() const { return things_; }
     [[nodiscard]] const ArchivedItem* archived_item(ecs::Id id) const;
     [[nodiscard]] const Pages<ArchivedItem>& item_archive() const { return item_archive_; }
@@ -495,6 +519,19 @@ private:
     bool archive_enabled_ = true;
     mutable ItemVisits item_visits_{};  // output only; never save, hash or use to choose
     mutable bool item_sites_valid_ = false;
+    bool scalar_work_ = false;  // reference implementation switch, never saved/hashed
+    mutable bool physical_items_valid_ = false;
+    mutable std::map<ecs::Id, PhysicalItems> physical_items_;
+    struct PhysicalAddress {
+        ecs::Id camp;
+        std::uint8_t flags = 0;
+        time::Seconds fire_due = 0, food_due = 0;
+        friend bool operator==(const PhysicalAddress&, const PhysicalAddress&) = default;
+    };
+    mutable std::map<ecs::Id, PhysicalAddress> physical_address_;
+    mutable std::vector<ecs::Id> physical_dirty_;
+    mutable bool makers_valid_ = false;
+    mutable std::vector<MakerEntry> makers_;
     mutable std::vector<ItemSite> item_sites_;
     mutable std::map<std::tuple<std::uint64_t, std::int32_t, std::int32_t>, std::size_t> item_site_at_;
     struct ItemAddress {

@@ -8,6 +8,7 @@ namespace kd::world {
 inline constexpr std::uint32_t kCraft = 1, kLearning = 2, kFire = 4, kIdeas = 8;
 inline constexpr std::uint32_t kNoRecipe = std::numeric_limits<std::uint32_t>::max();
 struct Link {
+    friend bool operator==(const Link&, const Link&) = default;
     static constexpr std::string_view name = "link";
     static constexpr std::uint32_t version = 1;
     ecs::Id id{};

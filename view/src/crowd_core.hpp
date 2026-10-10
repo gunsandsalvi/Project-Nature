@@ -24,31 +24,39 @@ struct Walker {
     std::optional<world::Person> person = std::nullopt;
 };
 
-// Changed item trails are copied by the producer; unchanged trails are shared
-// across publications. The screen owns const rows independently of slot reuse.
-class ItemRows {
+// Publications share immutable rows and copy only each actor’s bounded tail.
+// The screen owns const rows independently of slot reuse. Item trails share
+// unchanged rows and copy a changed item’s trail.
+template <typename T>
+class SharedRows {
 public:
+    SharedRows() = default;
+    SharedRows(std::initializer_list<T> values) { append(std::make_shared<const std::vector<T>>(values)); }
     void clear() {
         pages_.clear();
         ends_.clear();
     }
-    void append(std::shared_ptr<const std::vector<world::ItemWay>> page) {
+    void append(std::shared_ptr<const std::vector<T>> page) {
         if (page->empty()) return;
         const auto total = size() + page->size();
         pages_.push_back(std::move(page));
         ends_.push_back(total);
     }
+    void append(const Pages<T>& trail) {
+        for (const auto& page : trail.pages()) append(page);
+        if (!trail.tail().empty()) append(std::make_shared<const std::vector<T>>(trail.tail()));
+    }
     [[nodiscard]] std::size_t size() const { return ends_.empty() ? 0 : ends_.back(); }
     [[nodiscard]] bool empty() const { return size() == 0; }
-    [[nodiscard]] const world::ItemWay& operator[](std::size_t n) const {
+    [[nodiscard]] const T& operator[](std::size_t n) const {
         const auto p = static_cast<std::size_t>(std::upper_bound(ends_.begin(), ends_.end(), n) - ends_.begin());
-        KD_CHECK(p < pages_.size(), "display item index outside published rows");
+        KD_CHECK(p < pages_.size(), "display index outside published rows");
         return (*pages_[p])[n - (p ? ends_[p - 1] : 0)];
     }
-    [[nodiscard]] const world::ItemWay& front() const { return (*this)[0]; }
+    [[nodiscard]] const T& front() const { return (*this)[0]; }
 
 private:
-    std::vector<std::shared_ptr<const std::vector<world::ItemWay>>> pages_;
+    std::vector<std::shared_ptr<const std::vector<T>>> pages_;
     std::vector<std::size_t> ends_;
 };
 
@@ -63,26 +71,26 @@ void place(const num::Torus& torus, const world::Activity& way, double t, num::P
 struct Snapshot {
     std::int64_t frontier = -1;
     std::vector<Walker> walkers;
-    std::vector<world::Activity> ways;
+    SharedRows<world::Activity> ways;
     std::vector<std::uint32_t> first;
     std::vector<world::Camp> supplies{};
     std::vector<world::Habitat> habitats{};
-    std::vector<std::optional<world::Life>> lives{};  // aligned with ways in living camps; empty in marker worlds
-    std::vector<std::optional<world::Dream>> dreams{};
-    std::vector<std::optional<world::Work>> works{};
-    std::vector<std::shared_ptr<const world::Knowledge>> knowledge{};
-    std::vector<std::optional<world::Thermal>> thermals{};
-    std::vector<std::optional<world::Ambient>> ambients{};
+    SharedRows<std::optional<world::Life>> lives{};  // aligned with ways in living camps; empty in marker worlds
+    SharedRows<std::optional<world::Dream>> dreams{};
+    SharedRows<std::optional<world::Work>> works{};
+    SharedRows<std::shared_ptr<const world::Knowledge>> knowledge{};
+    SharedRows<std::optional<world::Thermal>> thermals{};
+    SharedRows<std::optional<world::Ambient>> ambients{};
     std::vector<ecs::Id> camp_ids{};
     [[nodiscard]] std::optional<world::Thermal> thermal_at(std::size_t walker, double t, std::int64_t water_day) const;
-    ItemRows items{};
+    SharedRows<world::ItemWay> items{};
     std::vector<std::uint32_t> item_first{};
     std::vector<world::CraftHistory> craft_history{};
     Pages<world::ArchivedItem> item_archive{};
     RecordIndex archive_index{};
     [[nodiscard]] const world::ItemWay* item_at(std::size_t i, double t) const;
     // Living thought updates become visible at their event, even within an unchanged activity.
-    std::vector<time::Seconds> changed_at{};
+    SharedRows<time::Seconds> changed_at{};
 
     /// The way walker i was on at a moment: the latest that began by then.
     [[nodiscard]] std::size_t way_index(std::size_t i, double t) const;
@@ -152,15 +160,15 @@ private:
     std::vector<ecs::Id> camp_ids_;
     save::Keeper* keeper_ = nullptr;
     // each walker's ways from the screen's time on, oldest first, and the world's new ones since the last batch
-    std::vector<std::vector<world::Activity>> trails_;
-    std::vector<std::vector<std::optional<world::Life>>> life_trails_;
-    std::vector<std::vector<std::optional<world::Dream>>> dream_trails_;
-    std::vector<std::vector<time::Seconds>> change_trails_;
+    std::vector<Pages<world::Activity>> trails_;
+    std::vector<Pages<std::optional<world::Life>>> life_trails_;
+    std::vector<Pages<std::optional<world::Dream>>> dream_trails_;
+    std::vector<Pages<time::Seconds>> change_trails_;
     std::vector<world::Way> ways_;
-    std::vector<std::vector<std::optional<world::Work>>> work_trails_;
-    std::vector<std::vector<std::shared_ptr<const world::Knowledge>>> knowledge_trails_;
-    std::vector<std::vector<std::optional<world::Thermal>>> thermal_trails_;
-    std::vector<std::vector<std::optional<world::Ambient>>> ambient_trails_;
+    std::vector<Pages<std::optional<world::Work>>> work_trails_;
+    std::vector<Pages<std::shared_ptr<const world::Knowledge>>> knowledge_trails_;
+    std::vector<Pages<std::optional<world::Thermal>>> thermal_trails_;
+    std::vector<Pages<std::optional<world::Ambient>>> ambient_trails_;
     std::map<ecs::Id, std::shared_ptr<std::vector<world::ItemWay>>> item_trails_;
     std::vector<world::ItemWay>& mutable_item_trail(ecs::Id id);
     std::vector<world::ItemWay> item_ways_;

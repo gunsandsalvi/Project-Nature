@@ -23,7 +23,7 @@ public:
     };
     static world::Thermal sample_thermal(world::Thermal thermal, const world::Activity& activity,
                                          const num::Torus& torus, time::Seconds at, std::int64_t water_day,
-                                         std::int64_t ambient, std::span<const HeatField> fires);
+                                         std::int64_t ambient, std::span<const HeatField> fires, bool scalar = false);
     static world::Thermal sample_thermal(const world::World& w, world::Beings::Handle person, time::Seconds at);
     static void thermal_before(world::Context& c, ecs::Id camp);
     static void thermal_after(world::Context& c, ecs::Id camp);

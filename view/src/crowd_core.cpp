@@ -173,19 +173,15 @@ void CrowdStepper::fill(Snapshot& s) const {
     s.first.clear();
     for (std::size_t i = 0; i < trails_.size(); ++i) {
         const auto& trail = trails_[i];
-        if (!life_trails_.empty()) s.lives.insert(s.lives.end(), life_trails_[i].begin(), life_trails_[i].end());
-        if (!dream_trails_.empty()) s.dreams.insert(s.dreams.end(), dream_trails_[i].begin(), dream_trails_[i].end());
-        if (!work_trails_.empty()) s.works.insert(s.works.end(), work_trails_[i].begin(), work_trails_[i].end());
-        if (!knowledge_trails_.empty())
-            s.knowledge.insert(s.knowledge.end(), knowledge_trails_[i].begin(), knowledge_trails_[i].end());
-        if (!thermal_trails_.empty())
-            s.thermals.insert(s.thermals.end(), thermal_trails_[i].begin(), thermal_trails_[i].end());
-        if (!ambient_trails_.empty())
-            s.ambients.insert(s.ambients.end(), ambient_trails_[i].begin(), ambient_trails_[i].end());
-        if (!change_trails_.empty())
-            s.changed_at.insert(s.changed_at.end(), change_trails_[i].begin(), change_trails_[i].end());
+        if (!life_trails_.empty()) s.lives.append(life_trails_[i]);
+        if (!dream_trails_.empty()) s.dreams.append(dream_trails_[i]);
+        if (!work_trails_.empty()) s.works.append(work_trails_[i]);
+        if (!knowledge_trails_.empty()) s.knowledge.append(knowledge_trails_[i]);
+        if (!thermal_trails_.empty()) s.thermals.append(thermal_trails_[i]);
+        if (!ambient_trails_.empty()) s.ambients.append(ambient_trails_[i]);
+        if (!change_trails_.empty()) s.changed_at.append(change_trails_[i]);
         s.first.push_back(static_cast<std::uint32_t>(s.ways.size()));
-        s.ways.insert(s.ways.end(), trail.begin(), trail.end());
+        s.ways.append(trail);
     }
     s.first.push_back(static_cast<std::uint32_t>(s.ways.size()));
 }
@@ -252,22 +248,22 @@ time::Seconds CrowdStepper::advance(time::Seconds frontier, time::Seconds goal) 
                    screen) {
             ++gone;
         }
-        trail.erase(trail.begin(), trail.begin() + static_cast<std::ptrdiff_t>(gone));
+        trail.drop_prefix(gone);
         if (!life_trails_.empty()) {
             auto& life_trail = life_trails_[i];
-            life_trail.erase(life_trail.begin(), life_trail.begin() + static_cast<std::ptrdiff_t>(gone));
+            life_trail.drop_prefix(gone);
             auto& dream_trail = dream_trails_[i];
-            dream_trail.erase(dream_trail.begin(), dream_trail.begin() + static_cast<std::ptrdiff_t>(gone));
+            dream_trail.drop_prefix(gone);
             auto& changes = change_trails_[i];
-            changes.erase(changes.begin(), changes.begin() + static_cast<std::ptrdiff_t>(gone));
+            changes.drop_prefix(gone);
             auto& works = work_trails_[i];
-            works.erase(works.begin(), works.begin() + static_cast<std::ptrdiff_t>(gone));
+            works.drop_prefix(gone);
             auto& thermal = thermal_trails_[i];
-            thermal.erase(thermal.begin(), thermal.begin() + static_cast<std::ptrdiff_t>(gone));
+            thermal.drop_prefix(gone);
             auto& ambient = ambient_trails_[i];
-            ambient.erase(ambient.begin(), ambient.begin() + static_cast<std::ptrdiff_t>(gone));
+            ambient.drop_prefix(gone);
             auto& know = knowledge_trails_[i];
-            know.erase(know.begin(), know.begin() + static_cast<std::ptrdiff_t>(gone));
+            know.drop_prefix(gone);
         }
     }
     for (auto& [id, trail] : item_trails_) {

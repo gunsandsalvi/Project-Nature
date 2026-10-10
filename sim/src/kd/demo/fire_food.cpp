@@ -5,6 +5,7 @@
 #include "kd/demo/learning.hpp"
 #include "kd/demo/living.hpp"
 #include "kd/num/sort.hpp"
+#include "kd/world/motion.hpp"
 namespace kd::demo {
 namespace {
 using world::HeatTimer;
@@ -49,7 +50,32 @@ time::Seconds boundary(const world::World& w, ecs::Id id, time::Seconds now, Hea
         const auto& a = w.beings().raw().get<world::Activity>(w.beings().handle(f.owner));
         if (a.from != a.to) end = std::max(end, a.end);
     }
-    for (auto second = now + 1; second <= end; ++second)
+    if (w.scalar_work()) {
+        for (auto second = now + 1; second <= end; ++second)
+            if (const auto current = source(w, id, second); current.heat != band.heat || current.fire != band.fire)
+                return second;
+        return 0;
+    }
+    if (end <= now) return 0;
+    const auto activity = [&](ecs::Id item) {
+        const auto& value = w.things().raw().get<Item>(w.things().handle(item));
+        const auto here = w.things().raw().get<world::Place>(w.things().handle(item)).at;
+        return value.owner.value ? w.beings().raw().get<world::Activity>(w.beings().handle(value.owner))
+                                 : world::Activity{0, now, end, here, here};
+    };
+    const auto food = activity(id);
+    std::vector<time::Seconds> cuts{now + 1};
+    for (const auto& entry : w.physical_items(i.home).fires) {
+        const auto& fire = w.things().raw().get<world::Fire>(entry.handle);
+        if (!fire.heat) continue;
+        for (const auto& span : world::proximity_spans(food, activity(entry.id), w.torus(), now + 1, end + 1, 100)) {
+            cuts.push_back(span.begin);
+            if (span.end <= end) cuts.push_back(span.end);
+        }
+    }
+    std::stable_sort(cuts.begin(), cuts.end());
+    cuts.erase(std::unique(cuts.begin(), cuts.end()), cuts.end());
+    for (const auto second : cuts)
         if (const auto current = source(w, id, second); current.heat != band.heat || current.fire != band.fire)
             return second;
     return 0;
@@ -214,18 +240,17 @@ void FireRules::food_changed(world::Context& c, ecs::Id id) {
     }
     if (!t) return;
     settle(c, id);
+    w.physical_changed(id);
     deadlines(c, i.home);
 }
 void FireRules::food_refresh(world::Context& c, ecs::Id camp) {
     std::vector<ecs::Id> foods;
-    c.world().things().each([&](ecs::Id id, auto h) {
-        const auto& i = c.world().things().raw().get<Item>(h);
-        c.world().visited_item(true, i);
-        if (!i.mass) return;
-        if (i.home == camp &&
-            (c.world().things().raw().all_of<HeatTimer>(h) || cooking_recipe(c.world().catalogue(), i)))
-            foods.push_back(id);
-    });
+    const auto& w = std::as_const(c.world());
+    for (const auto& entry : w.physical_items(camp).food) {
+        const auto& item = w.things().raw().get<Item>(entry.handle);
+        w.visited_item(true, item);
+        foods.push_back(entry.id);
+    }
     for (const auto id : foods) food_changed(c, id);
     deadlines(c, camp);
 }

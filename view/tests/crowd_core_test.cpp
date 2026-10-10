@@ -34,6 +34,70 @@ const kd::data::Catalogue& fixture() {
 
 }  // namespace
 
+TEST_CASE("unchanged personal knowledge shares notifications while changed evidence preserves older views") {
+    using namespace kd;
+    struct Notices final : world::System {
+        std::string_view name() const override { return "display notices"; }
+        void handle(world::Context& c, const event::Event& e) override {
+            const ecs::Id id{e.key.owner};
+            c.moved(id);
+            const auto first = c.world().digests().whole;
+            c.moved(id);
+            CHECK(c.world().digests().whole == first);
+            auto& know = c.world().beings().raw().get<world::Knowledge>(c.world().beings().handle(id));
+            ++know.kindness;
+            c.moved(id);
+            c.moved(id);
+            know.familiar.front().source_events[3] = 123;
+            c.moved(id);
+            c.moved(id);
+        }
+        void digest(num::Digest&) const override {}
+    } notices;
+    world::World w(8807, fixture());
+    w.set_system(ecs::Family::person, notices);
+    const auto h = w.make_being(ecs::Family::person);
+    const auto id = w.beings().id_of(h);
+    w.beings().raw().emplace<world::Activity>(h);
+    auto& know = w.beings().raw().emplace<world::Knowledge>(h);
+    know.familiar.push_back({});
+    std::vector<world::Way> ways;
+    w.keep_ways(&ways);
+    w.schedule(id, 0, 1);
+    w.run_to(2);
+    REQUIRE(ways.size() == 6);
+    if (ways.size() != 6) return;
+    CHECK(ways[0].knowledge == ways[1].knowledge);
+    CHECK(ways[2].knowledge == ways[3].knowledge);
+    CHECK(ways[4].knowledge == ways[5].knowledge);
+    CHECK(ways[0].knowledge != ways[2].knowledge);
+    CHECK(ways[2].knowledge != ways[4].knowledge);
+    CHECK(ways[0].knowledge->kindness == 50);
+    CHECK(ways[2].knowledge->kindness == 51);
+    CHECK(ways[2].knowledge->familiar.front().source_events[3] == 0);
+    CHECK(ways[4].knowledge->familiar.front().source_events[3] == 123);
+}
+
+TEST_CASE("display actor rows share sealed trails and preserve earlier frontiers after pruning") {
+    kd::Pages<kd::world::Activity> trail;
+    for (kd::time::Seconds n = 0; n < 1537; ++n) trail.push_back({1, n, n + 1, {}, {}});
+    kd::view::SharedRows<kd::world::Activity> before;
+    before.append(trail);
+    trail.push_back({1, 1537, 1538, {}, {}});
+    kd::view::SharedRows<kd::world::Activity> after;
+    after.append(trail);
+    CHECK(&before.front() == &after.front());
+    CHECK(before.size() == 1537);
+    CHECK(after.size() == 1538);
+    trail.drop_prefix(513);
+    kd::view::SharedRows<kd::world::Activity> pruned;
+    pruned.append(trail);
+    CHECK(pruned.front().start == 513);
+    CHECK(&pruned[511] == &before[1024]);
+    CHECK(before.front().start == 0);
+    CHECK(before[1536].start == 1536);
+}
+
 TEST_CASE("display publications share immutable history and spent pages while preserving older serial lookups") {
     kd::data::Catalogue cat;
     REQUIRE(cat.load(kd::data::read_catalogue(KD_REPO "/data")).empty());

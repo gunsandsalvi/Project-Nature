@@ -3,6 +3,7 @@
 #include "kd/demo/fire.hpp"
 #include "kd/demo/learning.hpp"
 #include "kd/demo/living.hpp"
+#include "kd/world/motion.hpp"
 namespace kd::demo {
 namespace {
 struct Felt {
@@ -44,7 +45,7 @@ std::int64_t FireRules::warmth(std::int64_t milli_c, world::LivingAct action) {
 }
 world::Thermal FireRules::sample_thermal(world::Thermal t, const world::Activity& a, const num::Torus& torus,
                                          time::Seconds at, std::int64_t water, std::int64_t ambient_temperature,
-                                         std::span<const HeatField> fires) {
+                                         std::span<const HeatField> fires, bool scalar) {
     at = std::clamp(at, a.start, a.end);
     const auto feeling = [&](time::Seconds second) {
         Felt out{ambient_temperature, {}};
@@ -57,22 +58,44 @@ world::Thermal FireRules::sample_thermal(world::Thermal t, const world::Activity
         if (out.source.value) out.temperature += 15000;
         return out;
     };
-    const auto charge = [&](Felt felt, time::Seconds seconds) {
-        const auto numerator =
-            seconds * water * std::max<std::int64_t>(0, felt.temperature - 32000) * 2 + t.water_remainder;
+    const auto charge = [&](std::int64_t temperature, bool heated, time::Seconds seconds) {
+        const auto numerator = seconds * water * std::max<std::int64_t>(0, temperature - 32000) * 2 + t.water_remainder;
         const auto used = numerator / (time::kDay * 100000);
         t.water_remainder = numerator % (time::kDay * 100000);
         t.water_used_ml += used;
         t.water_due_ml += used;
-        if (felt.source.value) t.warming_progress += seconds;
+        if (heated) t.warming_progress += seconds;
     };
     const auto begin = std::max(t.settled_at, a.start);
     if (at > begin) {
-        if (a.from == a.to &&
-            std::none_of(fires.begin(), fires.end(), [](const auto& f) { return f.activity.from != f.activity.to; }))
-            charge(feeling(begin), at - begin);
-        else
-            for (auto second = begin; second < at; ++second) charge(feeling(second), 1);
+        if (!scalar && fires.empty())
+            charge(ambient_temperature, false, at - begin);
+        else if (a.from == a.to && std::none_of(fires.begin(), fires.end(),
+                                                [](const auto& f) { return f.activity.from != f.activity.to; }))
+            charge(feeling(begin).temperature, feeling(begin).source.value != 0, at - begin);
+        else if (scalar)
+            for (auto second = begin; second < at; ++second) {
+                const auto felt = feeling(second);
+                charge(felt.temperature, felt.source.value != 0, 1);
+            }
+        else {
+            std::vector<world::MotionSpan> heated;
+            for (const auto& f : fires) {
+                const auto spans = world::proximity_spans(a, f.activity, torus, begin, at, 200);
+                heated.insert(heated.end(), spans.begin(), spans.end());
+            }
+            std::stable_sort(heated.begin(), heated.end(),
+                             [](const auto& left, const auto& right) { return left.begin < right.begin; });
+            time::Seconds warm_seconds = 0, through = begin;
+            for (const auto& span : heated) {
+                warm_seconds += std::max<time::Seconds>(0, span.end - std::max(through, span.begin));
+                through = std::max(through, span.end);
+            }
+            // Both rates are nonnegative and carry the same integer remainder;
+            // adding their numerators commutes without changing any rounding.
+            charge(ambient_temperature + 15000, true, warm_seconds);
+            charge(ambient_temperature, false, at - begin - warm_seconds);
+        }
     }
     t.felt_milli_c = feeling(at).temperature;
     t.warmth = warmth(t.felt_milli_c, static_cast<world::LivingAct>(a.what));
@@ -93,7 +116,7 @@ world::Thermal FireRules::sample_thermal(const world::World& w, world::Beings::H
     }
     return sample_thermal(raw.get<world::Thermal>(h), raw.get<world::Activity>(h), w.torus(), at,
                           w.catalogue().kind<LivingRules>()[0].water_day,
-                          ambient ? ambient->milli_c : FireRules::ambient(at), fires);
+                          ambient ? ambient->milli_c : FireRules::ambient(at), fires, w.scalar_work());
 }
 void FireRules::thermal_before(world::Context& c, ecs::Id camp) {
     auto& w = c.world();

@@ -12,6 +12,7 @@
 
 #include "kd/chance/chance.hpp"
 #include "kd/data/craft.hpp"
+#include "kd/demo/fire.hpp"
 #include "kd/num/sort.hpp"
 #include "kd/num/whole.hpp"
 
@@ -79,6 +80,13 @@ std::span<const ecs::Id> Context::moved() const {
 }
 
 void Context::moved(ecs::Id id) {
+    if (w_.item_event_) {
+        const auto h = w_.beings_.find(id);
+        const auto* work = h ? std::as_const(w_.beings_).raw().try_get<Work>(*h) : nullptr;
+        const auto listed = std::lower_bound(w_.makers_.begin(), w_.makers_.end(), id,
+                                             [](const auto& entry, auto wanted) { return entry.id < wanted; });
+        if ((work && work->state == 2) || (listed != w_.makers_.end() && listed->id == id)) w_.makers_changed();
+    }
     if (island_ != nullptr) {
         island_->moved.push_back(id);
     }
@@ -97,6 +105,12 @@ void Context::moved(ecs::Id id) {
     const auto* thermal = w_.beings_.raw().try_get<Thermal>(w_.beings_.handle(id));
     const auto* home = w_.beings_.raw().try_get<demo::Home>(w_.beings_.handle(id));
     const auto* ambient = home ? w_.beings_.raw().try_get<Ambient>(w_.beings_.handle(home->camp)) : nullptr;
+    std::shared_ptr<const Knowledge> knowledge;
+    if (know) {
+        auto& previous = knowledge_views_[id];
+        if (!previous || *previous != *know) previous = std::make_shared<const Knowledge>(*know);
+        knowledge = previous;
+    }
     const Way way{current_,
                   ways_++,
                   id,
@@ -104,7 +118,7 @@ void Context::moved(ecs::Id id) {
                   life ? std::optional<Life>(*life) : std::nullopt,
                   dream ? std::optional<Dream>(*dream) : std::nullopt,
                   work ? std::optional<Work>(*work) : std::nullopt,
-                  know ? std::make_shared<const Knowledge>(*know) : std::shared_ptr<const Knowledge>{},
+                  std::move(knowledge),
                   thermal ? std::optional<Thermal>(*thermal) : std::nullopt,
                   ambient ? std::optional<Ambient>(*ambient) : std::nullopt};
     if (island_ != nullptr) {
@@ -115,6 +129,7 @@ void Context::moved(ecs::Id id) {
 }
 
 void Context::item_changed(ecs::Id id) {
+    w_.physical_changed(id);
     if (!notifying_item_) {
         const auto present = w_.things_.find(id);
         const auto* physical = present ? w_.things_.raw().try_get<Item>(*present) : nullptr;
@@ -204,7 +219,10 @@ void Context::run(const event::Event& e) {
     ways_ = 0;
     in_event_ = true;
     const bool item_event = !std::as_const(w_.beings_).raw().view<Work>().empty();
-    if (item_event) w_.item_event_ = true;  // Craft windows use reference event order.
+    if (item_event) {
+        w_.item_event_ = true;  // Craft windows use reference event order.
+        w_.makers_changed();
+    }
     w_.system_of(owner).handle(*this, e);
     if (item_event) w_.item_event_ = false;
     in_event_ = false;
@@ -388,6 +406,7 @@ const std::vector<World::ItemSite>& World::item_sites() const {
 
 Beings::Handle World::make_being(ecs::Family f) {
     KD_CHECK(!in_islands_, "world::World: beings are made only between windows");
+    makers_changed();
     const ecs::Id id = ids_.make(f);
     const Beings::Handle h = beings_.make(id);
     beings_.raw().emplace<Schedule>(h);
@@ -400,6 +419,82 @@ std::span<const World::ItemSite::Entry> World::items_owned(ecs::Id owner, std::u
     return group == owned_items_.end() ? std::span<const ItemSite::Entry>{} : group->second;
 }
 
+const World::PhysicalItems& World::physical_items(ecs::Id camp) const {
+    const auto describe = [&](Things::Handle h) -> std::optional<PhysicalAddress> {
+        const auto* item = things_.raw().try_get<Item>(h);
+        if (!item) return {};
+        const auto* timer = things_.raw().try_get<HeatTimer>(h);
+        const auto* fire = things_.raw().try_get<Fire>(h);
+        const std::uint8_t flags = static_cast<std::uint8_t>(
+            (item->mass > 0 && (timer || demo::FireRules::cooking_recipe(catalogue_, *item)) ? 1 : 0) |
+            (item->mass > 0 && !fire ? 2 : 0) | (timer ? 4 : 0) | (fire ? 8 : 0));
+        if (!flags) return {};
+        const auto fire_due = fire ? fire->next : 0, food_due = timer ? timer->next : 0;
+        return PhysicalAddress{item->home, flags, fire_due, food_due};
+    };
+    const auto insert = [&](ecs::Id id, Things::Handle h, const PhysicalAddress& address) {
+        physical_address_[id] = address;
+        auto& group = physical_items_[address.camp];
+        for (const auto [bit, entries] :
+             {std::pair{1, &group.food}, {2, &group.fuel}, {4, &group.timers}, {8, &group.fires}})
+            if (address.flags & bit) {
+                const auto at = std::lower_bound(entries->begin(), entries->end(), id,
+                                                 [](const auto& entry, auto wanted) { return entry.id < wanted; });
+                entries->insert(at, {id, h});
+            }
+        if (address.fire_due) group.fire_due[address.fire_due].insert(id);
+        if (address.food_due) group.food_due[address.food_due].insert(id);
+    };
+    if (!physical_items_valid_ || scalar_work_) {
+        physical_items_.clear();
+        physical_address_.clear();
+        things_.each([&](ecs::Id id, Things::Handle h) {
+            if (const auto address = describe(h)) insert(id, h, *address);
+        });
+        physical_items_valid_ = true;
+    } else {
+        sort_unique(physical_dirty_);
+        for (const auto id : physical_dirty_) {
+            const auto h = things_.find(id);
+            const auto desired = h ? describe(*h) : std::optional<PhysicalAddress>{};
+            if (const auto at = physical_address_.find(id); at != physical_address_.end()) {
+                if (desired && at->second == *desired) continue;
+                auto& group = physical_items_[at->second.camp];
+                for (auto* entries : {&group.food, &group.fuel, &group.timers, &group.fires})
+                    std::erase_if(*entries, [&](const auto& entry) { return entry.id == id; });
+                for (const auto [when, deadlines] :
+                     {std::pair{at->second.fire_due, &group.fire_due}, {at->second.food_due, &group.food_due}})
+                    if (when) {
+                        auto bucket = deadlines->find(when);
+                        if (bucket != deadlines->end()) {
+                            bucket->second.erase(id);
+                            if (bucket->second.empty()) deadlines->erase(bucket);
+                        }
+                    }
+                physical_address_.erase(at);
+            }
+            if (h && desired) insert(id, *h, *desired);
+        }
+    }
+    physical_dirty_.clear();
+    return physical_items_[camp];
+}
+
+const std::vector<World::MakerEntry>& World::makers() const {
+    if (!makers_valid_ || scalar_work_) {
+        makers_.clear();
+        beings_.each([&](ecs::Id id, Beings::Handle h) {
+            const auto& raw = beings_.raw();
+            if (!raw.all_of<Knowledge, Work, demo::Home>(h)) return;
+            const auto& work = raw.get<Work>(h);
+            if (work.state == 2 && work.intended && work.try_seconds > 0)
+                makers_.push_back({id, raw.get<demo::Home>(h).camp, h});
+        });
+        makers_valid_ = true;
+    }
+    return makers_;
+}
+
 Things::Handle World::make_thing() {
     KD_CHECK(!in_islands_, "world::World: things are made only between windows");
     const auto id = ids_.make(ecs::Family::thing);
@@ -408,6 +503,8 @@ Things::Handle World::make_thing() {
 }
 
 void World::end_being(ecs::Id id) {
+    context_.knowledge_views_.erase(id);
+    makers_changed();
     KD_CHECK(!in_islands_, "world::World: beings end only between windows");
     Schedule* s = schedule_of(id);
     KD_CHECK(s != nullptr, "world::World: no being with that id to end");
@@ -614,7 +711,10 @@ void World::retain_records(time::Seconds now) {
         spent.push_back(id);
     });
     for (const auto id : spent) things_.end(id);
-    if (!spent.empty()) item_sites_valid_ = false;
+    if (!spent.empty()) {
+        item_sites_valid_ = false;
+        physical_items_valid_ = false;
+    }
 }
 
 void World::run_to(time::Seconds goal) {
