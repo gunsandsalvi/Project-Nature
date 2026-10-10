@@ -74,7 +74,7 @@ std::unique_ptr<kd::demo::CrowdWorld> open_idea(const kd::world::World& w, std::
     return kd::demo::CrowdWorld::open(idea_catalogue(), *decoded, why);
 }
 }  // namespace
-TEST_CASE("DRMS2 preserves pending and delivered idea fields without granting recipe knowledge") {
+TEST_CASE("DRMS3 preserves pending and delivered idea fields without granting recipe knowledge") {
     for (const bool delivered : {false, true}) {
         StoredIdea fixture(delivered);
         auto& w = fixture.camp.world();
@@ -82,7 +82,7 @@ TEST_CASE("DRMS2 preserves pending and delivered idea fields without granting re
         const auto* dreams = kd::save::find_chunk(chunks, kd::save::tag("DRMS"));
         REQUIRE(dreams);
         CHECK(dreams->version == 3);
-        CHECK(kd::save::kSnapshotVersion == 6);
+        CHECK(kd::save::kSnapshotVersion == 7);
         std::string why;
         auto copy = open_idea(w, why);
         INFO(why);
