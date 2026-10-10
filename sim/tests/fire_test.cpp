@@ -1305,6 +1305,9 @@ TEST_CASE("autonomous cold-hearth chain starts without an action or memory and b
         CHECK(run.ended <= kd::time::kDay);
         CHECK(run.reopen_failures == 0);
         CHECK(run.peak_trace_records < 100000);
+        CHECK(run.choice_count > 0);
+        CHECK(run.choice_wire_bytes >= 204 * run.choice_count);
+        CHECK(run.snapshot_bytes > 0);
         CHECK_FALSE(run.digest.empty());
         if (control) {
             CHECK(run.ember_at == -1);

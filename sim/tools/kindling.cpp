@@ -1412,7 +1412,8 @@ int main(int argc, char** argv) {
                 "at\":%lld,\"flame_at\":%lld,\"tend_at\":%lld,"
                 "\"cooked_at\":%lld,\"ended\":%lld,\"friction_choices\":%llu,\"wood_pairs\":%llu,\"friction_results\":%"
                 "llu,\"tended\":%llu,\"cooked\":%llu,\"reopen_"
-                "failures\":%u,\"peak_trace_records\":%zu,\"digest\":\"%s\",\"ms\":%lld}\n",
+                "failures\":%u,\"choice_count\":%llu,\"choice_wire_bytes\":%llu,\"snapshot_bytes\":%llu,\"peak_trace_"
+                "records\":%zu,\"digest\":\"%s\",\"ms\":%lld}\n",
                 static_cast<unsigned long long>(result.seed), result.wet_control ? "true" : "false",
                 result.complete ? "true" : "false", result.ordinary_setup ? "true" : "false",
                 static_cast<long long>(result.completed_at), static_cast<long long>(result.ember_at),
@@ -1422,7 +1423,10 @@ int main(int argc, char** argv) {
                 static_cast<unsigned long long>(result.wood_pairs),
                 static_cast<unsigned long long>(result.friction_results),
                 static_cast<unsigned long long>(result.tended), static_cast<unsigned long long>(result.cooked),
-                result.reopen_failures, result.peak_trace_records, result.digest.c_str(), static_cast<long long>(ms));
+                result.reopen_failures, static_cast<unsigned long long>(result.choice_count),
+                static_cast<unsigned long long>(result.choice_wire_bytes),
+                static_cast<unsigned long long>(result.snapshot_bytes), result.peak_trace_records,
+                result.digest.c_str(), static_cast<long long>(ms));
             std::fflush(stdout);
         }
         return 0;

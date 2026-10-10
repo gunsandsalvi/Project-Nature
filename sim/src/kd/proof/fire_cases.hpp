@@ -6,6 +6,7 @@ struct FireRun {
     std::uint64_t seed = 0, friction_choices = 0, wood_pairs = 0, friction_results = 0, tended = 0, cooked = 0;
     std::int64_t ember_at = -1, flame_at = -1, tend_at = -1, cooked_at = -1, completed_at = -1, ended = 0;
     bool complete = false, wet_control = false, ordinary_setup = true;
+    std::uint64_t choice_count = 0, choice_wire_bytes = 0, snapshot_bytes = 0;
     std::uint32_t reopen_failures = 0;
     std::size_t peak_trace_records = 0;
     std::string digest;

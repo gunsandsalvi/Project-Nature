@@ -31,7 +31,9 @@ FireRun fire_chain(const data::Catalogue& catalogue, std::uint64_t seed, bool we
     std::size_t cursor = 0;
     const auto reopen = [&] {
         std::string why;
-        const auto snapshot = save::read_snapshot(save::write_snapshot(w.save()), why);
+        const auto encoded = save::write_snapshot(w.save());
+        out.snapshot_bytes = encoded.size();
+        const auto snapshot = save::read_snapshot(encoded, why);
         const auto copy = snapshot ? demo::CrowdWorld::open(catalogue, *snapshot, why) : nullptr;
         if (!copy || copy->world().digests().whole != w.digests().whole) {
             ++out.reopen_failures;
@@ -78,7 +80,11 @@ FireRun fire_chain(const data::Catalogue& catalogue, std::uint64_t seed, bool we
     w.keep_history(nullptr);
     out.ended = w.frontier();
     const auto& kept = w.beings().raw().get<world::CraftHistory>(w.beings().handle(home));
+    out.choice_count = kept.choices.size();
     for (const auto& choice : kept.choices) {
+        ByteWriter encoded;
+        ecs::write_component(choice, encoded);
+        out.choice_wire_bytes += encoded.take().size();
         const auto& reason = choice.reasons.front();
         if (reason.kind != 1 || (reason.action != 6 && reason.action != 11)) continue;
         ++out.friction_choices;
