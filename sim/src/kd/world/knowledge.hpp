@@ -194,11 +194,13 @@ struct Hunch {
 };
 struct CraftReason {
     static constexpr std::string_view name = "craft-reason";
-    static constexpr std::uint32_t version = 1;
+    static constexpr std::uint32_t version = 2;
     std::uint8_t kind = 0, intended = 0, action = 0, need = 0;
     std::uint32_t recipe = kNoRecipe;
     std::int64_t score = 0, benefit = 0, seconds = 0;
     std::vector<Link> inputs;
+    std::uint8_t need_met = 100, confidence = 100, unavailable = 0, observed_heat = 0;
+    std::int64_t observed_fuel_mg = 0;
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
         v.u8({"kind", "known use or curiosity"}, c.kind);
@@ -213,11 +215,16 @@ struct CraftReason {
         v.i64({"benefit", "expected known benefit"}, c.benefit);
         v.i64({"seconds", "expected effort and travel"}, c.seconds);
         v.records({"inputs", "reachable seen inputs"}, c.inputs, 8);
+        v.u8({"need_met", "personal satisfaction at choice"}, c.need_met);
+        v.u8({"confidence", "personal estimate certainty"}, c.confidence);
+        v.u8({"unavailable", "recorded reason an alternative was unavailable"}, c.unavailable);
+        v.u8({"observed_heat", "visible heat band at choice"}, c.observed_heat);
+        v.i64({"observed_fuel_mg", "visible hearth fuel at choice"}, c.observed_fuel_mg);
     }
 };
 struct Knowledge {
     static constexpr std::string_view name = "knowledge";
-    static constexpr std::uint32_t version = 2;
+    static constexpr std::uint32_t version = 3;
     std::uint32_t performed = 0;
     std::uint64_t next_memory = 1, next_work = 1, hourly_draw = 0;
     std::uint8_t curiosity = 50, kindness = 50, curiosity_need = 60, mood = 60;
@@ -231,6 +238,7 @@ struct Knowledge {
     std::vector<Memory> memories;
     std::vector<Hunch> hunches;
     std::vector<CraftReason> reasons;
+    std::uint64_t choice = 0;
     std::vector<PeerBelief> peers;
     std::vector<Observation> observations;
     template <typename V, typename Self>
@@ -255,14 +263,15 @@ struct Knowledge {
         v.records({"memories", "recent handling and surprise evidence"}, c.memories, 200);
         v.records({"hunches", "bounded guesses"}, c.hunches, 5);
         v.records({"reasons", "chosen and rejected actual options"}, c.reasons, 3);
+        v.u64({"choice", "immutable current choice identity, or zero"}, c.choice);
         v.records({"peers", "own evidence about a peer's craft knowledge"}, c.peers, 256);
         v.records({"observations", "unfinished exposure to actual manufacture"}, c.observations, 64);
     }
 };
 struct Result {
     static constexpr std::string_view name = "craft-result";
-    static constexpr std::uint32_t version = 1;
-    std::uint64_t id = 0;
+    static constexpr std::uint32_t version = 2;
+    std::uint64_t id = 0, choice = 0;
     std::int64_t at = 0;
     num::Point place{};
     ecs::Id actor{}, source{}, result{};
@@ -273,6 +282,7 @@ struct Result {
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
         v.u64({"id", "actual result event identity"}, c.id);
+        v.u64({"choice", "choice that led to this result, or zero for unplanned evidence"}, c.choice);
         v.i64({"at", "result second"}, c.at);
         v.point({"place", "result position"}, c.place);
         v.id({"actor", "actual maker or noticer"}, c.actor);
@@ -286,15 +296,33 @@ struct Result {
         v.text({"word", "stored coined word"}, c.word, 64);
     }
 };
+struct Choice {
+    static constexpr std::string_view name = "choice";
+    static constexpr std::uint32_t version = 1;
+    std::uint64_t id = 0;
+    std::int64_t at = 0;
+    ecs::Id actor{};
+    std::vector<CraftReason> reasons;
+    template <typename V, typename Self>
+    static void visit(V& v, Self& c) {
+        v.u64({"id", "immutable choice identity"}, c.id);
+        v.i64({"at", "actual choice second"}, c.at);
+        v.id({"actor", "person making this choice"}, c.actor);
+        v.records({"reasons", "winner and two actual rejected options"}, c.reasons, 3);
+    }
+};
 struct CraftHistory {
     static constexpr std::string_view name = "craft-history";
-    static constexpr std::uint32_t version = 1;
-    std::uint64_t next = 1;
+    static constexpr std::uint32_t version = 2;
+    std::uint64_t next = 1, next_choice = 1;
     std::vector<Result> events;
+    std::vector<Choice> choices;
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
         v.u64({"next", "next actual result event"}, c.next);
         v.records({"events", "kept results and discoveries"}, c.events, 100000);
+        v.u64({"next_choice", "next immutable choice identity"}, c.next_choice);
+        v.records({"choices", "kept fire, warmth and craft decisions"}, c.choices, 100000);
     }
 };
 }  // namespace kd::world

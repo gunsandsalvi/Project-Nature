@@ -32,14 +32,14 @@ void save_fire(const World& w, std::vector<save::Chunk>& out) {
             ecs::write_component(*t, thermal);
         }
     });
-    out.push_back({save::tag("FIRE"), 1, true, fires.take()});
-    out.push_back({save::tag("THER"), 1, true, thermal.take()});
+    out.push_back({save::tag("FIRE"), 2, true, fires.take()});
+    out.push_back({save::tag("THER"), 2, true, thermal.take()});
 }
 bool fire_headers(std::span<const save::Chunk> chunks, std::uint32_t features, std::string& why) {
     for (const auto tag : {save::tag("FIRE"), save::tag("THER")}) {
         const auto count = std::count_if(chunks.begin(), chunks.end(), [&](const auto& c) { return c.tag == tag; });
         const auto* c = save::find_chunk(chunks, tag);
-        if (count > 1 || bool(c) != bool(features & kFire) || (c && (!c->critical || c->version != 1))) {
+        if (count > 1 || bool(c) != bool(features & kFire) || (c && (!c->critical || c->version != 2))) {
             why = "fire extension is missing, duplicated or mismatched";
             return false;
         }
@@ -106,6 +106,13 @@ bool load_fire(World& w, std::span<const save::Chunk> chunks, const ecs::EntryMa
                     if (!maker || !beings.all_of<Person>(*maker)) return fail("missing cooking placer");
                 } else if (t.intended)
                     return fail("intentional cooking has no placer");
+                if (t.placement_choice) {
+                    const auto& choices = beings.get<CraftHistory>(w.beings().handle(item.home)).choices;
+                    if (std::none_of(choices.begin(), choices.end(), [&](const auto& x) {
+                            return x.id == t.placement_choice && x.actor == t.maker && x.reasons.front().action == 12;
+                        }))
+                        return fail("cooking placement choice disagrees");
+                }
                 if (t.chance_source.value && !w.things().find(t.chance_source))
                     return fail("missing cooking chance source");
                 if (!t.tried && t.elapsed >= time::kHour && t.exposure_heat >= 2 && t.exposure_heat <= 3)
@@ -193,6 +200,16 @@ bool load_fire(World& w, std::span<const save::Chunk> chunks, const ecs::EntryMa
                         (t.tending_phase == 3 ? act.what != 12 : act.what != 1) || beings.get<Work>(*h).state != 0)
                         return fail("invalid pending tending references or activity");
                 }
+                const auto& choices =
+                    beings.get<CraftHistory>(w.beings().handle(beings.get<demo::Home>(*h).camp)).choices;
+                const auto valid_choice = [&](std::uint64_t choice, std::uint8_t kind) {
+                    return choice == 0 || std::any_of(choices.begin(), choices.end(), [&](const auto& x) {
+                               return x.id == choice && x.actor == id && x.reasons.front().kind == kind;
+                           });
+                };
+                if (!valid_choice(t.warm_choice, 4) || !valid_choice(t.tending_choice, 3) ||
+                    (!t.warm_phase && t.warm_choice) || (!t.tending && t.tending_choice))
+                    return fail("thermal choice identity disagrees");
                 beings.emplace<Thermal>(*h, t);
             } else
                 return fail("unknown thermal record kind");

@@ -1,3 +1,4 @@
+#include "kd/demo/choice.hpp"
 // Evidence-backed offers and shared attendance on the ordinary activity clock (MND-13, TIM-17).
 #include "kd/data/craft.hpp"
 #include "kd/demo/crafting.hpp"
@@ -166,10 +167,10 @@ bool Learning::choose(Living& living, world::Context& c, world::Beings::Handle h
         work.state = 1;
         work.target = s.meeting;
         raw.get<world::Life>(teacher).portion = 0;
-        for (const auto participant : {teacher, learner}) {
-            auto& choice = raw.get<world::Knowledge>(participant);
-            choice.reasons = {{0, 1, raw.get<world::Work>(learner).action, 3, s.recipe, 10, 10, 1800, {}}};
-        }
+        world::CraftReason reason{5, 1, 10, 3, s.recipe, 10, 10, 1800, {}};
+        reason.need_met = raw.get<world::Knowledge>(teacher).curiosity_need;
+        Choices::keep(c, teacher, reason);
+        Choices::restore(w, learner, work.choice);
         living.begin(c, teacher, LivingAct::teach, time::kHour, raw.get<world::Place>(teacher).at);
         const bool moving = Crafting::continue_work(living, c, learner);
         if (!moving) {

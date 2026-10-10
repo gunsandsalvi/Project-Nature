@@ -46,8 +46,9 @@ struct Fire {
 };
 struct HeatTimer {
     static constexpr std::string_view name = "heat_timer";
-    static constexpr std::uint32_t version = 1;
+    static constexpr std::uint32_t version = 2;
     ecs::Id item{}, maker{}, chance_source{};
+    std::uint64_t placement_choice = 0;
     std::uint8_t exposure_heat = 0;
     std::vector<Link> notices;
     std::uint8_t target_state = 1, low = 2, high = 3, completed = 0, tried = 0, intended = 0;
@@ -59,6 +60,7 @@ struct HeatTimer {
         v.records({"notices", "people whose actual sight already tried noticing"}, c.notices, 128);
         v.id({"item", "physical food identity"}, c.item);
         v.id({"maker", "actual placer, or zero for unmeant exposure"}, c.maker);
+        v.u64({"placement_choice", "actual placing choice retained through thermal changes"}, c.placement_choice);
         v.u8({"intended", "person actually intended cooking"}, c.intended);
         v.u8({"target_state", "cooked state"}, c.target_state);
         v.u8({"low", "minimum cooking heat"}, c.low);
@@ -73,10 +75,11 @@ struct HeatTimer {
 };
 struct Thermal {
     static constexpr std::string_view name = "thermal";
-    static constexpr std::uint32_t version = 1;
+    static constexpr std::uint32_t version = 2;
     std::int64_t felt_milli_c = 24000, warmth = 100, settled_at = 0, warming_progress = 0;
     std::int64_t water_remainder = 0, water_used_ml = 0, water_due_ml = 0;
     ecs::Id warm_fire{};
+    std::uint64_t warm_choice = 0, tending_choice = 0;
     num::Point warm_at{};
     std::int64_t warm_blocked_until = 0;
     std::uint8_t warm_phase = 0;
@@ -86,6 +89,8 @@ struct Thermal {
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
         v.id({"warm_fire", "remembered or visible warming source"}, c.warm_fire);
+        v.u64({"warm_choice", "saved warming choice"}, c.warm_choice);
+        v.u64({"tending_choice", "saved tending choice"}, c.tending_choice);
         v.point({"warm_at", "chosen experienced warming position"}, c.warm_at);
         v.i64({"warm_blocked_until", "cold arrival prevents repeated guesses"}, c.warm_blocked_until);
         v.u8({"warm_phase", "none, walking or warming"}, c.warm_phase);

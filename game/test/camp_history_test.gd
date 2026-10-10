@@ -133,3 +133,41 @@ func test_source_link_uses_the_recorded_identity_and_missing_source_stays_missin
 	page._history.close()
 	assert_str(page.world.digest()).is_equal(digest)
 	page.free()
+
+
+func test_kept_choices_show_the_winner_two_rejections_and_recorded_uncertainty() -> void:
+	var reasons := [
+		{
+			"kind": 3,
+			"name": "Feed fire",
+			"score": 105,
+			"observed_heat": 1,
+			"observed_fuel_mg": 700000,
+			"confidence": 70,
+			"unavailable": 0
+		},
+		{
+			"kind": 2,
+			"name": "Water",
+			"score": 30,
+			"need_met": 60,
+			"benefit": 20,
+			"seconds": 120,
+			"unavailable": 0
+		},
+		{
+			"kind": 2,
+			"name": "Rest",
+			"score": 0,
+			"need_met": 90,
+			"benefit": 10,
+			"seconds": 600,
+			"unavailable": 0
+		},
+	]
+	var words := Words.kept_reasons(reasons)
+	assert_str(words).contains("Chose Feed fire · priority 105")
+	assert_str(words).contains("Saw heat 1 and 0.70 kg fuel; estimate 70% certain")
+	assert_str(words).contains("Rejected Water · priority 30")
+	assert_str(words).contains("Rejected Rest · priority 0")
+	assert_str(words).not_contains("familiar craft seemed useful")

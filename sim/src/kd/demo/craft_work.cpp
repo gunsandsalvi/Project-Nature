@@ -1,3 +1,4 @@
+#include "kd/demo/choice.hpp"
 // Generic, event-settled work and finite meals (MAT-04, MAT-09, TIM-17).
 #include <bit>
 #include <map>
@@ -230,6 +231,13 @@ std::optional<Candidate> known(world::Context& c, world::Beings::Handle h, std::
                               static_cast<std::uint8_t>(requirement.retained), 0,
                               static_cast<std::uint8_t>(item.owner.value == 0)});
         out.reason.inputs.push_back({selected});
+        for (const auto& range : requirement.ranges) {
+            const auto property = static_cast<std::size_t>(range.characteristic);
+            out.reason.confidence = std::min(
+                out.reason.confidence, static_cast<std::uint8_t>(selected_input->familiar->mask & (1U << property)
+                                                                     ? selected_input->familiar->certainty[property]
+                                                                     : 0));
+        }
     }
     const auto main = std::find_if(out.inputs.begin(), out.inputs.end(), [](const auto& r) { return r.role == 0; });
     if (main == out.inputs.end()) return std::nullopt;
@@ -538,6 +546,9 @@ bool Crafting::prepare_lesson(world::Context& c, world::Beings::Handle teacher, 
     }
     auto& work = raw.get<Work>(learner);
     if (work.state != 0) return false;
+    candidate->reason.kind = 5;
+    candidate->reason.need_met = raw.get<world::Knowledge>(learner).curiosity_need;
+    work.choice = Choices::keep(c, learner, candidate->reason);
     work.state = 1;
     work.number = raw.get<world::Knowledge>(learner).next_work++;
     work.action = candidate->reason.action;
@@ -678,11 +689,13 @@ bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h
     }
     std::stable_sort(options.begin(), options.end(),
                      [](const auto& a, const auto& b) { return a.reason.score > b.reason.score; });
-    know->reasons.clear();
-    for (std::size_t i = 0; i < std::min<std::size_t>(3, options.size()); ++i)
-        know->reasons.push_back(options[i].reason);
     if (options.empty() || options[0].reason.score <= life.scores[life.goal]) return false;
     auto& chosen = options[0];
+    chosen.reason.need_met = static_cast<std::uint8_t>(chosen.reason.need < 3 ? life.decision_needs[chosen.reason.need]
+                                                                              : know->curiosity_need);
+    std::vector<world::CraftReason> rejected;
+    for (std::size_t n = 1; n < options.size(); ++n) rejected.push_back(options[n].reason);
+    const auto choice = Choices::keep(c, h, chosen.reason, std::move(rejected));
     if (chosen.dream_hunch) {
         thought.decision_pull = Living::kDreamPull;
         for (auto& hint : know->hunches)
@@ -690,6 +703,7 @@ bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h
     }
     auto& work = raw.get<Work>(h);
     work.state = 1;
+    work.choice = choice;
     work.number = know->next_work++;
     work.action = chosen.reason.action;
     work.intended = chosen.reason.intended;
@@ -718,6 +732,7 @@ bool Crafting::continue_work(Living& living, world::Context& c, world::Beings::H
     auto& work = *pending;
     const auto person = w.beings().id_of(h);
     const auto home = raw.get<Home>(h).camp;
+    Choices::restore(w, h, work.choice);
     // Paused shared practice must return through Learning::choose, which revalidates both people.
     // A learner finishing another activity cannot restart the teacher's unfinished drink or rest.
     if (work.lesson != 0) {

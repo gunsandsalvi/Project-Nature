@@ -1,3 +1,4 @@
+#include "kd/demo/choice.hpp"
 #include "kd/demo/discovery.hpp"
 #include "kd/demo/fire.hpp"
 #include "kd/demo/learning.hpp"
@@ -29,6 +30,7 @@ Felt felt(const world::World& w, world::Beings::Handle h, time::Seconds at) {
 }
 void clear_warm(world::Thermal& t) {
     t.warm_phase = 0;
+    t.warm_choice = 0;
     t.warm_fire = {};
     t.warm_at = {};
 }
@@ -194,6 +196,16 @@ bool FireRules::choose_warm(Living& living, world::Context& c, world::Beings::Ha
     const auto score = (wanted < 20 ? 200 : std::max<std::int64_t>(0, 80 - wanted)) * (100 - wanted) * 10 -
                        w.torus().distance(here, spot) / 100;
     if (score <= l.scores[l.goal]) return false;
+    world::CraftReason reason;
+    reason.kind = 4;
+    reason.action = 11;
+    reason.need = 4;
+    reason.need_met = static_cast<std::uint8_t>(wanted);
+    reason.score = score;
+    reason.benefit = 100 - wanted;
+    reason.seconds = time::kHour + w.torus().distance(here, spot) * 10 / living.rules().speed;
+    reason.inputs.push_back({source});
+    t->warm_choice = Choices::keep(c, h, reason);
     t->warm_fire = source;
     t->warm_at = spot;
     t->warm_phase = 1;
@@ -204,6 +216,7 @@ bool FireRules::continue_warm(Living& living, world::Context& c, world::Beings::
     auto& raw = w.beings().raw();
     auto* t = raw.try_get<world::Thermal>(h);
     if (!t || !t->warm_phase) return false;
+    Choices::restore(w, h, t->warm_choice);
     if (interrupted || t->warm_phase == 2) {
         clear_warm(*t);
         return false;

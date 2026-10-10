@@ -62,11 +62,11 @@ struct Reservation {
 };
 struct Work {
     static constexpr std::string_view name = "work";
-    static constexpr std::uint32_t version = 2;
+    static constexpr std::uint32_t version = 3;
     std::uint8_t state = 0, action = 0, intended = 0, route = 0, rolled = 0;
     std::uint32_t recipe = kNoRecipe;
     std::uint64_t number = 0, completed_tries = 0, applied_marker = 0;
-    std::uint64_t lesson = 0;
+    std::uint64_t lesson = 0, choice = 0;
     std::int64_t start = 0, end = 0, next_try = 0, retained_progress = 0;
     std::int64_t active_start = 0, try_seconds = 0, unit_mass = 0, goal_mass = 0;
     num::Point target{};
@@ -86,6 +86,7 @@ struct Work {
         v.u64({"completed_tries", "completed known tries"}, c.completed_tries);
         v.u64({"applied_marker", "last applied try"}, c.applied_marker);
         v.u64({"lesson", "matching shared-practice session, or zero"}, c.lesson);
+        v.u64({"choice", "immutable choice behind this plan"}, c.choice);
         v.i64({"start", "original work start"}, c.start);
         v.i64({"active_start", "start of current active interval"}, c.active_start);
         v.i64({"end", "current activity end"}, c.end);

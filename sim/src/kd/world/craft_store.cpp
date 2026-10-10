@@ -48,9 +48,9 @@ void save_craft(const World& w, std::vector<save::Chunk>& out) {
             ecs::write_component(*x, learning);
         }
     });
-    out.push_back({save::tag("CRFT"), 1, true, craft.take()});
-    out.push_back({save::tag("KNOW"), 1, true, know.take()});
-    out.push_back({save::tag("HIST"), 1, true, history.take()});
+    out.push_back({save::tag("CRFT"), 2, true, craft.take()});
+    out.push_back({save::tag("KNOW"), 2, true, know.take()});
+    out.push_back({save::tag("HIST"), 2, true, history.take()});
     // LEARN1 retains the foundation's four-letter wire tags.
     out.push_back({save::tag("LEAR"), 1, true, learning.take()});
 }
@@ -76,7 +76,7 @@ bool craft_headers(std::span<const save::Chunk> chunks, std::uint32_t& features,
                            tag == save::tag("LEAR");
         if ((craft && ((features != 0) != bool(c))) || (features != 0 && !c))
             return fail("required craft extension is missing or mismatched");
-        if (c && (!c->critical || c->version != (tag == save::tag("LIFE") || tag == save::tag("DRMS") ? 2U : 1U)))
+        if (c && (!c->critical || c->version != (tag == save::tag("LEAR") ? 1U : 2U)))
             return fail("unsupported camp extension version");
     }
     return true;
@@ -94,6 +94,19 @@ bool item(const World& w, ecs::Id id, bool optional = false) {
     if (id.value == 0) return optional;
     const auto h = w.things().find(id);
     return h && w.things().raw().all_of<Item>(*h);
+}
+bool reason_valid(const World& w, const CraftReason& reason) {
+    if ((reason.kind == 2 && reason.need > 3) ||
+        (reason.kind == 3 && (reason.action < 1 || reason.action > 4 || reason.need != 4 || reason.intended)) ||
+        (reason.kind == 4 && (reason.action != 11 || reason.need != 4 || reason.intended)) || reason.kind > 5 ||
+        reason.intended > 1 || reason.action > 20 || reason.need > 4 ||
+        (!reason.intended && reason.recipe != kNoRecipe) || reason.score < -1000000 || reason.score > 1000000 ||
+        reason.benefit < 0 || reason.benefit > 100 || reason.seconds < 0 || reason.seconds > time::kDay * 2 ||
+        reason.need_met > 100 || reason.confidence > 100 || reason.unavailable > 5 || reason.observed_heat > 5 ||
+        reason.observed_fuel_mg < 0 || reason.observed_fuel_mg > 1000000000)
+        return false;
+    return std::all_of(reason.inputs.begin(), reason.inputs.end(),
+                       [&](const auto& input) { return item(w, input.id); });
 }
 bool practice(const Practice& p, time::Seconds now) {
     return p.level >= 0 && p.level <= 10000 && p.best >= p.level && p.best <= 10000 && p.level >= (p.best + 1) / 2 &&
@@ -238,15 +251,8 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
                 for (const auto& f : h.inputs)
                     if (!familiar(f, w.frontier())) return fail("invalid hunch input");
             }
-            for (const auto& reason : value.reasons) {
-                if (reason.kind > 1 || reason.intended > 1 || reason.action > 20 || reason.need > 3 ||
-                    (!reason.intended && reason.recipe != kNoRecipe) || reason.score < -1000000 ||
-                    reason.score > 100000 || reason.benefit < 0 || reason.benefit > 100 || reason.seconds < 0 ||
-                    reason.seconds > time::kDay * 2)
-                    return fail("invalid craft choice");
-                for (const auto& input : reason.inputs)
-                    if (!item(w, input.id)) return fail("invalid choice input");
-            }
+            for (const auto& reason : value.reasons)
+                if (!reason_valid(w, reason)) return fail("invalid craft choice");
             std::pair<ecs::Id, std::uint32_t> previous_peer{};
             for (const auto& peer : value.peers) {
                 const auto key = std::pair{peer.person, peer.recipe};
@@ -293,6 +299,23 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
                 for (const auto& input : e.inputs)
                     if (!item(w, input.id)) return fail("orphan history input");
             }
+            std::uint64_t last_choice = 0;
+            for (const auto& choice : value.choices) {
+                if (choice.id != last_choice + 1 || choice.id >= value.next_choice || choice.at < 0 ||
+                    choice.at > w.frontier() || !person(w, choice.actor) ||
+                    raw.get<demo::Home>(w.beings().handle(choice.actor)).camp != id || choice.reasons.size() != 3 ||
+                    !std::all_of(choice.reasons.begin(), choice.reasons.end(),
+                                 [&](const auto& reason) { return reason_valid(w, reason); }))
+                    return fail("invalid kept choice");
+                last_choice = choice.id;
+            }
+            if (value.next_choice != value.choices.size() + 1) return fail("invalid next choice identity");
+            for (const auto& event : value.events)
+                if (event.choice && std::none_of(value.choices.begin(), value.choices.end(), [&](const auto& choice) {
+                        return choice.id == event.choice &&
+                               (choice.actor == event.actor || choice.actor == event.source) && choice.at <= event.at;
+                    }))
+                    return fail("result choice identity disagrees");
             raw.emplace<CraftHistory>(*h, std::move(value));
         }
         if (!r.finished()) return fail("trailing craft history records");
@@ -461,6 +484,22 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
         }
         const auto camp = raw.get<demo::Home>(h).camp;
         const auto& history = raw.get<CraftHistory>(w.beings().handle(camp));
+        const auto choice_exists = [&](std::uint64_t n) {
+            return n == 0 || std::any_of(history.choices.begin(), history.choices.end(),
+                                         [&](const auto& choice) { return choice.id == n && choice.actor == id; });
+        };
+        if (!choice_exists(work.choice) || !choice_exists(know.choice) || (!know.choice && !know.reasons.empty()))
+            valid = false;
+        if (know.choice) {
+            const auto chosen = std::find_if(history.choices.begin(), history.choices.end(),
+                                             [&](const auto& choice) { return choice.id == know.choice; });
+            if (chosen != history.choices.end()) {
+                ByteWriter current, kept;
+                for (const auto& reason : know.reasons) ecs::write_component(reason, current);
+                for (const auto& reason : chosen->reasons) ecs::write_component(reason, kept);
+                if (current.take() != kept.take()) valid = false;
+            }
+        }
         const auto event_exists = [&](std::uint64_t n) {
             return n == 0 ||
                    std::any_of(history.events.begin(), history.events.end(), [&](const auto& e) { return e.id == n; });

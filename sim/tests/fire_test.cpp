@@ -1105,7 +1105,13 @@ struct GenericFuelOperation : GenericFoodOperation {
                                                             fixture.fire().at};
         }
         auto& living = *const_cast<kd::demo::Living*>(fixture.camp.living());
-        chosen = kd::demo::FireRules::choose(living, c, h);
+        if (cmd.what == 934) {
+            auto& thermal = w.beings().raw().get<kd::world::Thermal>(h);
+            thermal.felt_milli_c = 18000;
+            thermal.warmth = 70;
+            chosen = kd::demo::FireRules::choose_warm(living, c, h);
+        } else
+            chosen = kd::demo::FireRules::choose(living, c, h);
     }
 };
 }  // namespace
@@ -1165,4 +1171,106 @@ TEST_CASE("unlearned hidden burn and fuel properties cannot change the person's 
         CHECK(chosen[0] == chosen[1]);
         CHECK_FALSE(chosen[0]);
     }
+}
+
+TEST_CASE("fire tending keeps its own winner and two actual rejected body options through reopen") {
+    GenericFuelOperation op(false);
+    auto& w = op.fixture.camp.world();
+    (void)w.command(0, 932, 0, 0);
+    w.run_to(1);
+    REQUIRE(op.chosen);
+    const auto ph = w.beings().handle(op.person);
+    const auto& mind = w.beings().raw().get<kd::world::Knowledge>(ph);
+    const auto& thermal = w.beings().raw().get<kd::world::Thermal>(ph);
+    REQUIRE(mind.reasons.size() == 3);
+    CHECK(mind.reasons[0].kind == 3);
+    CHECK(mind.reasons[0].action == 1);
+    CHECK(mind.reasons[0].observed_heat == 2);
+    CHECK(mind.reasons[0].observed_fuel_mg == 1000000);
+    CHECK(mind.reasons[0].confidence == 100);
+    CHECK(mind.reasons[1].kind == 2);
+    CHECK(mind.reasons[2].kind == 2);
+    CHECK(thermal.tending_choice == mind.choice);
+    // The source fixture deliberately changes other people's schedules: test the component's
+    // exact persistence independently of those unrelated mechanical fixture arrangements.
+    kd::ByteWriter bytes;
+    kd::ecs::write_component(mind, bytes);
+    const auto saved = bytes.take();
+    kd::ByteReader reader(saved);
+    kd::world::Knowledge copy;
+    REQUIRE(kd::ecs::read_component(copy, reader,
+                                    [](std::string_view, std::uint32_t n) { return std::optional<std::uint32_t>(n); }));
+    CHECK(copy.choice == mind.choice);
+    REQUIRE(copy.reasons.size() == 3);
+    CHECK(copy.reasons[0].observed_fuel_mg == mind.reasons[0].observed_fuel_mg);
+    CHECK(copy.reasons[2].score == mind.reasons[2].score);
+}
+
+TEST_CASE("ordinary timed fire and craft choices retain three reasons and reject identity tampering") {
+    kd::demo::CrowdWorld camp(713, fire_catalogue(), 1, true, true);
+    auto& w = camp.world();
+    w.run_to(2 * kd::time::kDay);
+    const auto home = camp.camp_ids().front();
+    auto& history = w.beings().raw().get<kd::world::CraftHistory>(w.beings().handle(home));
+    REQUIRE_FALSE(history.choices.empty());
+    bool craft = false, warmth = false;
+    for (const auto& choice : history.choices) {
+        REQUIRE(choice.reasons.size() == 3);
+        craft |= choice.reasons.front().kind == 0 || choice.reasons.front().kind == 1;
+        warmth |= choice.reasons.front().kind == 4;
+    }
+    CHECK(craft);
+    (void)warmth;
+    bool linked = false;
+    for (const auto& event : history.events) {
+        if (!event.choice) continue;
+        linked = true;
+        const auto chosen = std::find_if(history.choices.begin(), history.choices.end(),
+                                         [&](const auto& x) { return x.id == event.choice; });
+        REQUIRE(chosen != history.choices.end());
+        CHECK(chosen->reasons.size() == 3);
+    }
+    CHECK(linked);
+    std::string why;
+    REQUIRE(reopen_fire(w, why));
+    const auto original = history.choices.front().actor;
+    history.choices.front().actor = home;
+    CHECK_FALSE(reopen_fire(w, why));
+    history.choices.front().actor = original;
+    REQUIRE(reopen_fire(w, why));
+    history.choices.front().reasons.front().confidence = 101;
+    CHECK_FALSE(reopen_fire(w, why));
+}
+
+TEST_CASE("warming replaces earlier craft reasons with its own recorded winner and rejected options") {
+    GenericFuelOperation op(false);
+    auto& w = op.fixture.camp.world();
+    const auto ph = w.beings().handle(op.person);
+    auto& mind = w.beings().raw().get<kd::world::Knowledge>(ph);
+    mind.reasons = {{1, 0, 2, 3, kd::world::kNoRecipe, 8, 1, 300, {}}};
+    (void)w.command(0, 934, 0, 0);
+    w.run_to(1);
+    REQUIRE(op.chosen);
+    REQUIRE(mind.reasons.size() == 3);
+    CHECK(mind.reasons[0].kind == 4);
+    CHECK(mind.reasons[0].need_met == 70);
+    CHECK(mind.reasons[0].benefit == 30);
+    CHECK(mind.reasons[1].kind == 2);
+    CHECK(mind.reasons[2].kind == 2);
+    CHECK(mind.choice == w.beings().raw().get<kd::world::Thermal>(ph).warm_choice);
+}
+
+#include "kd/run/workers.hpp"
+TEST_CASE("kept choices and resumed plans match serial and four-worker islands") {
+    kd::demo::CrowdWorld serial(714, fire_catalogue(), 2, true, true);
+    kd::demo::CrowdWorld parallel(714, fire_catalogue(), 2, true, true);
+    kd::run::Workers workers(4);
+    const auto end = 2 * kd::time::kDay;
+    serial.world().run_to(end);
+    parallel.world().run_islands(end, workers, 32);
+    CHECK(serial.world().digests().whole == parallel.world().digests().whole);
+    CHECK(kd::save::write_snapshot(serial.world().save()) == kd::save::write_snapshot(parallel.world().save()));
+    std::string why;
+    CHECK(reopen_fire(serial.world(), why));
+    CHECK(reopen_fire(parallel.world(), why));
 }

@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <limits>
 #include "kd/chance/chance.hpp"
+#include "kd/demo/choice.hpp"
 #include "kd/demo/crafting.hpp"
 #include "kd/demo/fire.hpp"
 #include "kd/demo/idea_dreams.hpp"
@@ -566,6 +567,10 @@ void Living::choose(world::Context& c, world::Beings::Handle h, ecs::Id camp) {
         ((l.goal == 3 && visiting) || (l.goal == thought.subject && !(l.goal == 0 && l.carried_food > 0)))) {
         thought.decision_pull = kDreamPull;
         thought.decision_subject = thought.subject;
+    }
+    if (auto* mind = raw.try_get<world::Knowledge>(h)) {
+        mind->reasons.clear();
+        mind->choice = 0;
     }
     if (FireRules::choose_warm(*this, c, h) || FireRules::choose(*this, c, h) || Learning::choose(*this, c, h) ||
         Crafting::choose(*this, c, h)) {

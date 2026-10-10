@@ -244,6 +244,7 @@ void Learning::learned(world::Context& c, world::Beings::Handle learner, const w
     entry.source = source;
     entry.route = route;
     entry.kind = 2;
+    entry.choice = raw.get<world::Knowledge>(learner).choice;
     if (entry.word.empty()) {
         const auto named = std::find_if(history.events.rbegin(), history.events.rend(),
                                         [&](const auto& e) { return e.recipe == entry.recipe && !e.word.empty(); });
@@ -275,6 +276,7 @@ void Learning::lost(world::Context& c, world::Beings::Handle last_holder, std::u
     entry.result = {};
     entry.noticed = 0;
     entry.kind = 3;
+    entry.choice = 0;
     history.events.push_back(std::move(entry));
 }
 bool Learning::knows(const world::Knowledge& knowledge, std::uint32_t recipe) {

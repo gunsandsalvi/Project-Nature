@@ -1,5 +1,6 @@
 #include "kd/demo/fire.hpp"
 #include "kd/chance/chance.hpp"
+#include "kd/demo/choice.hpp"
 #include "kd/demo/crafting.hpp"
 #include "kd/demo/discovery.hpp"
 #include "kd/demo/learning.hpp"
@@ -71,6 +72,7 @@ void clear_tend(world::Thermal& t) {
     t.tending = t.tending_phase = t.tending_shared = 0;
     t.tending_fire = t.tending_input = {};
     t.tending_mass = t.tending_started = 0;
+    t.tending_choice = 0;
 }
 void schedule_world(world::World& w, ecs::Id camp) {
     auto next = w.beings().raw().get<world::Ambient>(w.beings().handle(camp)).next;
@@ -523,6 +525,23 @@ bool FireRules::choose(Living& living, world::Context& c, world::Beings::Handle 
         }
     }
     if (!operation || score <= l.scores[l.goal]) return false;
+    world::CraftReason reason;
+    reason.kind = 3;
+    reason.action = operation;
+    reason.need = 4;
+    reason.need_met = static_cast<std::uint8_t>(t->warmth);
+    reason.score = score;
+    reason.observed_heat = f.heat;
+    reason.observed_fuel_mg = f.fuel_mg;
+    reason.seconds = 60 + w.torus().distance(here, at(w, target, c.now())) * 10 / living.rules().speed;
+    reason.inputs.push_back({target});
+    if (input.value) {
+        reason.inputs.push_back({input});
+        reason.confidence = confidence(
+            *Discovery::familiar(know, item(w, input)),
+            operation == 4 ? std::initializer_list<std::size_t>{6, 7, 9} : std::initializer_list<std::size_t>{6, 9});
+    }
+    t->tending_choice = Choices::keep(c, h, reason);
     t->tending = operation;
     t->tending_phase = input.value ? 1 : 2;
     t->tending_fire = target;
@@ -536,6 +555,7 @@ bool FireRules::continue_tending(Living& living, world::Context& c, world::Being
     auto& raw = w.beings().raw();
     auto* t = raw.try_get<world::Thermal>(h);
     if (!t || !t->tending) return false;
+    Choices::restore(w, h, t->tending_choice);
     const auto person = w.beings().id_of(h);
     const auto target = t->tending_fire, input = t->tending_input;
     if (interrupted || !w.things().find(target) || !fire(w, target).heat) {

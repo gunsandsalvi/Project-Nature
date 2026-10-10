@@ -171,6 +171,7 @@ void FireRules::food_changed(world::Context& c, ecs::Id id) {
             if (work && work->action == 12 && work->state) {
                 t->maker = i.owner;
                 t->intended = work->intended;
+                t->placement_choice = work->choice;
             }
         }
     }
@@ -253,7 +254,15 @@ void FireRules::notice_food(world::Context& c, world::Beings::Handle person) {
         const auto roast = *recipe;
         const auto* familiar = Discovery::familiar(know, i);
         const std::array inputs{id};
+        auto& history = w.beings().raw().get<world::CraftHistory>(w.beings().handle(home));
+        const auto before = history.events.size();
         Discovery::result(c, person, roast, inputs, {*familiar}, id, true, !Learning::knows(know, roast), 1);
+        const auto& timer = w.things().raw().get<HeatTimer>(w.things().handle(id));
+        if (timer.placement_choice)
+            for (auto n = before; n < history.events.size(); ++n) {
+                history.events[n].choice = timer.placement_choice;
+                history.events[n].source = timer.maker;
+            }
         c.moved(viewer);
     }
 }

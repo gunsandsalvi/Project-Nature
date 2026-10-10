@@ -191,6 +191,7 @@ std::uint64_t Discovery::result(world::Context& c, world::Beings::Handle h, std:
     const auto noticed = !unknown || draws.below(0, 1000000) < static_cast<std::uint64_t>(noticing);
     world::Result e;
     e.id = history.next++;
+    e.choice = raw.get<world::Work>(h).choice;
     e.at = c.now();
     e.place = raw.get<world::Place>(h).at;
     e.actor = person;

@@ -97,6 +97,9 @@ void KdWorld::_bind_methods() {
 
 namespace {
 
+godot::Array reason_rows(const std::vector<world::CraftReason>& reasons, const data::Catalogue& catalogue,
+                         const world::Knowledge* mind);
+
 godot::String text_of(const std::string& s) {
     return godot::String::utf8(s.c_str());
 }
@@ -906,6 +909,8 @@ godot::Array KdWorld::people() const {
                 row["dream_visit_at"] = thought->visit_at;
             }
         }
+        if (k < snapshot.knowledge.size() && snapshot.knowledge[k])
+            row["reasons"] = reason_rows(snapshot.knowledge[k]->reasons, *catalogue_, snapshot.knowledge[k].get());
         if (k < snapshot.works.size() && snapshot.works[k]) {
             const auto& work = *snapshot.works[k];
             row["work_state"] = work.state;
@@ -1023,6 +1028,35 @@ godot::String craft_label(std::string_view name) {
     std::replace(label.begin(), label.end(), '_', ' ');
     if (!label.empty() && label[0] >= 'a' && label[0] <= 'z') label[0] += 'A' - 'a';
     return godot::String::utf8(label.c_str());
+}
+godot::Array reason_rows(const std::vector<world::CraftReason>& reasons, const data::Catalogue& catalogue,
+                         const world::Knowledge* mind) {
+    godot::Array out;
+    for (const auto& reason : reasons) {
+        godot::Dictionary row;
+        row["kind"] = reason.kind;
+        row["action"] = reason.action;
+        row["need"] = reason.need;
+        row["need_met"] = reason.need_met;
+        row["confidence"] = reason.confidence;
+        row["unavailable"] = reason.unavailable;
+        row["observed_heat"] = reason.observed_heat;
+        row["observed_fuel_mg"] = reason.observed_fuel_mg;
+        row["known"] = reason.intended && (!mind || demo::Learning::knows(*mind, reason.recipe));
+        static const std::array<const char*, 4> body{"Food", "Water", "Rest", "Look around"};
+        static const std::array<const char*, 5> fire{"", "Feed fire", "Blow embers", "Bank fire", "Carry ember"};
+        row["name"] = reason.kind == 2     ? godot::String(body[reason.need])
+                      : reason.kind == 3   ? godot::String(fire[reason.action])
+                      : reason.kind == 4   ? godot::String("Warm by fire")
+                      : reason.kind == 5   ? godot::String("Accepted shared practice")
+                      : bool(row["known"]) ? craft_label(catalogue.kind<data::Blueprint>().name(reason.recipe))
+                                           : godot::String("Try familiar materials");
+        row["score"] = reason.score;
+        row["benefit"] = reason.benefit;
+        row["seconds"] = reason.seconds;
+        out.push_back(row);
+    }
+    return out;
 }
 godot::Dictionary evidence(const world::Familiar& f) {
     godot::Dictionary row;
@@ -1171,24 +1205,27 @@ godot::Dictionary KdWorld::knowledge(int64_t person) const {
         row["inputs"] = inputs;
         hunches.push_back(row);
     }
-    for (const auto& r : know->reasons) {
-        godot::Dictionary row;
-        row["known"] = r.intended && demo::Learning::knows(*know, r.recipe);
-        row["action"] = r.action;
-        row["name"] = bool(row["known"]) ? craft_label(catalogue_->kind<data::Blueprint>().name(r.recipe))
-                      : r.intended       ? godot::String("Shared practice")
-                                         : godot::String("Try familiar materials");
-        row["score"] = r.score;
-        row["benefit"] = r.benefit;
-        row["seconds"] = r.seconds;
-        reasons.push_back(row);
-    }
+    reasons = reason_rows(know->reasons, *catalogue_, know);
     out["skills"] = skills;
     out["observations"] = observations;
     out["session"] = static_cast<int64_t>(know->session);
     out["familiar"] = familiar;
     out["hunches"] = hunches;
     out["reasons"] = reasons;
+    godot::Array choices;
+    for (const auto& history : display_.snapshot().craft_history) {
+        for (auto choice = history.choices.rbegin(); choice != history.choices.rend() && choices.size() < 8; ++choice) {
+            if (choice->actor.value != static_cast<std::uint64_t>(person) || choice->id == know->choice ||
+                static_cast<double>(choice->at) > screen_time())
+                continue;
+            godot::Dictionary row;
+            row["at"] = choice->at;
+            row["reasons"] = reason_rows(choice->reasons, *catalogue_, know);
+            choices.push_back(row);
+        }
+    }
+    out["choices"] = choices;
+
     return out;
 }
 godot::Array KdWorld::craft_history() const {
@@ -1213,6 +1250,13 @@ godot::Array KdWorld::craft_history() const {
             row["inputs"] = inputs;
             row["east_cm"] = e.place.x;
             row["north_cm"] = e.place.y;
+            row["reasons"] = godot::Array{};
+            if (e.choice) {
+                const auto choice = std::find_if(history.choices.begin(), history.choices.end(),
+                                                 [&](const auto& x) { return x.id == e.choice; });
+                if (choice != history.choices.end())
+                    row["reasons"] = reason_rows(choice->reasons, *catalogue_, nullptr);
+            }
             out.push_back(row);
         }
     }

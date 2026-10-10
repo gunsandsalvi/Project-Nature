@@ -30,12 +30,8 @@ static func person(p: Dictionary, details: bool, now: int) -> String:
 		words += (
 			"Feels %.1f °C · warmth %d/100.\n" % [float(p.felt_milli_c) / 1000, int(p.warmth_need)]
 		)
-		if int(p.action_code) == 11:
-			words += "Why: resting here feels warmer."
-			return words
-		if int(p.action_code) == 12:
-			words += "Why: tending the fire with finite fuel."
-			return words
+	if not p.get("reasons", []).is_empty():
+		return words + kept_reasons(p.reasons)
 	if choice < 3:
 		words += (
 			"Why: %s was %d/100. Expected +%d.\nAbout %d min for travel and work."
@@ -166,35 +162,60 @@ static func person(p: Dictionary, details: bool, now: int) -> String:
 	return words
 
 
+static func kept_reasons(reasons: Array) -> String:
+	var words := ""
+	for n in reasons.size():
+		var r: Dictionary = reasons[n]
+		words += (
+			"\n%s %s · priority %d." % ["Chose" if n == 0 else "Rejected", r.name, int(r.score)]
+		)
+		if int(r.get("kind", 0)) == 3:
+			words += (
+				" Saw heat %d and %.2f kg fuel; estimate %d%% certain."
+				% [int(r.observed_heat), float(r.observed_fuel_mg) / 1000000, int(r.confidence)]
+			)
+		else:
+			words += (
+				" Need met %d/100; expected +%d; about %d min."
+				% [
+					int(r.get("need_met", 100)),
+					int(r.benefit),
+					maxi(1, ceili(float(r.seconds) / 60))
+				]
+			)
+		if int(r.get("unavailable", 0)) != 0:
+			words += (
+				" Unavailable: "
+				+ [
+					"",
+					"no known source",
+					"known source empty",
+					"route blocked",
+					"skill missing",
+					"waiting after failed route"
+				][int(r.unavailable)]
+				+ "."
+			)
+	return words
+
+
 static func _summary(p: Dictionary) -> String:
 	var goals := ["food", "water", "rest", "nearby supplies"]
 	var choice := int(p.choice)
 	var action := str(p.activity)
 	var reason := "Their known supplies weren't worth a trip yet."
+	if not p.get("reasons", []).is_empty():
+		var winner: Dictionary = p.reasons[0]
+		return (
+			"%s · %s\nWhy: need met %d/100, priority %d; estimate %d%% certain."
+			% [p.name, winner.name, int(winner.need_met), int(winner.score), int(winner.confidence)]
+		)
 	if int(p.action_code) == 1:
 		action += " to " + goals[choice]
 	if choice < 3:
 		reason = "%s was %d/100." % [goals[choice].capitalize(), p.decision_needs[choice]]
 	if int(p.get("dream_pull", 0)) > 0 and choice == 3:
 		reason = "A remembered idea makes this feel worthwhile."
-	if int(p.action_code) == 11:
-		reason = "Resting here feels warmer."
-	elif int(p.action_code) == 12:
-		reason = "Tending the fire with finite fuel."
-	elif int(p.action_code) in [8, 10] or int(p.get("work_state", 0)) == 2:
-		action = (
-			"Making " + recipe(str(p.work_recipe)).to_lower()
-			if p.get("work_known", false)
-			else "Trying familiar materials"
-		)
-		reason = (
-			"A familiar craft seemed useful."
-			if p.get("work_known", false)
-			else "Curious about familiar materials."
-		)
-		if p.get("work_taught", false):
-			action = "Shared practice"
-			reason = "Following a shared practice session."
 	return "%s · %s\nWhy: %s" % [p.name, action, reason]
 
 
@@ -347,11 +368,8 @@ static func knowledge(k: Dictionary, people: Array, now: int) -> String:
 			words += " From a dream."
 		if int(hunch.source) != 0:
 			words += " From " + name_of(int(hunch.source), people) + "."
-	for reason: Dictionary in k.reasons:
-		words += (
-			"\nConsidered %s: expected +%d, about %d min."
-			% [reason.name, int(reason.benefit), maxi(1, ceili(float(reason.seconds) / 60))]
-		)
+	for choice: Dictionary in k.get("choices", []):
+		words += "\n\nKept choice at " + when(int(choice.at), now) + kept_reasons(choice.reasons)
 	return words
 
 
@@ -382,4 +400,5 @@ static func history(event: Dictionary, people: Array, now: int) -> String:
 	if not str(event.word).is_empty():
 		words += "\nWord: " + str(event.word) + "."
 	words += "\nEvent %d · %d inputs." % [int(event.id), event.inputs.size()]
+	words += kept_reasons(event.get("reasons", []))
 	return words
