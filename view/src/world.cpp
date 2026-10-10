@@ -261,7 +261,8 @@ godot::Dictionary KdWorld::open_saved(const godot::String& folder, int64_t seed,
     heat_ = HeatGovernor(heat_rules());
     const time::Seconds frontier = crowd_->world().frontier();
     pace_ = Pace(static_cast<double>(frontier));
-    stepper_->set_screen(static_cast<double>(frontier));
+    // Recovery never displays the interval before the recorded closing moment.
+    stepper_->set_screen(static_cast<double>(std::max(frontier, kept.was_at)));
     start_runner(*stepper_, [this] { return crowd_->world().digests().whole; }, frontier, "kd-crowd");
     if (kept.was_at > frontier) {
         catch_up_to_ = kept.was_at;
@@ -689,6 +690,7 @@ godot::Dictionary KdWorld::counters() const {
     out["share"] = heat_.share();
     out["limit"] = pace_.limit();
     out["walkers"] = static_cast<int64_t>(stepper_->walker_count());
+    out["display_knowledge_copies"] = static_cast<int64_t>(display_.snapshot().knowledge.size());
     if (keeper_) {
         out["saves"] = static_cast<int64_t>(keeper_->snapshots());
         out["save_ms"] = save_ms_.load(std::memory_order_relaxed);
@@ -754,10 +756,19 @@ godot::Dictionary KdWorld::crowd_square() const {
 
 void KdWorld::run_until(int64_t moment) {
     KD_CHECK(runner_ != nullptr, "view::KdWorld: no world has started");
+    // This synchronous seek blocks the consumer: no frame can read the skipped interval.
+    // Keep its endpoint only, just as recovery keeps only the recorded closing moment.
+    if (stepper_) stepper_->set_screen(static_cast<double>(moment));
     runner_->set_goal(moment);
     runner_->wait_for(moment);
+    const auto reached = runner_->frontier();
+    const bool paused = pace_.paused();
+    pace_.pause();
+    pace_.settle(reached);
+    if (!paused) pace_.play();
     if (stepper_) {
         display_.acquire(*stepper_);
+        stepper_->set_screen(static_cast<double>(reached));
     }
 }
 

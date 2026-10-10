@@ -132,7 +132,7 @@ public:
     bool night_at(double t) const;
     /// The square the crowd keeps to: its west and south edges and its side, in world centimetres.
     godot::Dictionary crowd_square() const;
-    /// Asks the world to reach a moment and waits until it has, for the tests.
+    /// Synchronously seeks to a moment, skipping unseen display history and keeping the requested speed/pause.
     void run_until(int64_t moment);
     /// Before the first frame: runs the world to a moment and starts the screen's time there, as a page that opens
     /// on the morning does.

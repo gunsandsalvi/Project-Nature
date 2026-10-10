@@ -343,3 +343,24 @@ TEST_CASE("fire and comfort snapshots sample the display time while the producer
     }
     CHECK(ahead.world().digests().whole == digest);
 }
+
+TEST_CASE("recovery skips unseen knowledge trails through a long camp interval without changing its digest") {
+    using namespace kd;
+    data::Catalogue catalogue;
+    REQUIRE(catalogue.load(data::read_folder(KD_REPO "/data")).empty());
+    demo::CrowdWorld camp(17, catalogue, 1, true, true);
+    demo::CrowdWorld reference(17, catalogue, 1, true, true);
+    view::CrowdStepper stepper(camp);
+    const auto goal = 2 * time::kDay;
+    stepper.set_screen(static_cast<double>(goal));
+    time::Seconds frontier = 0;
+    while (frontier < goal) {
+        frontier = stepper.advance(frontier, goal);
+        REQUIRE(stepper.snapshots().take());
+        const auto& snapshot = stepper.snapshots().front();
+        CHECK(snapshot.knowledge.size() == snapshot.walkers.size());
+        CHECK(snapshot.ways.size() == snapshot.walkers.size());
+    }
+    reference.world().run_to(goal);
+    CHECK(camp.world().digests().whole == reference.world().digests().whole);
+}

@@ -1,8 +1,6 @@
 ## Camp-first shell: real touch selection, saved camp switching and file export/import.
 extends GdUnitTestSuite
 
-const Advance := preload("res://test/support/advance.gd")
-
 const Main := preload("res://main.gd")
 const ROOT := "user://test-worlds/front-door"
 var _window_before := Vector2i.ZERO
@@ -111,7 +109,7 @@ func test_front_door_has_few_controls_and_touch_selects_a_saved_person() -> void
 func test_shell_switches_saved_camps_and_exports_imports_actual_people() -> void:
 	var shell := _shell()
 	var camp := _hold(shell)
-	Advance.to(camp.world, 43200)
+	camp.world.run_until(43200)
 	var deadline := Time.get_ticks_msec() + 1200
 	while (
 		camp.world.screen_time() < float(camp.world.frontier()) and Time.get_ticks_msec() < deadline
