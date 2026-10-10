@@ -69,7 +69,7 @@ Twenty years/minute means three wall-seconds/year: at 7,000 people and four core
 **Serves:** `MND-09`, `MND-23`, `BIO-20`, `PRE-14`, `PLT-07`, `RES-03`, `RES-23`, `PLT-04`.
 **Architecture:** A3.7, A11, A14, A19.1.
 **Tasks:**
-0. `T4.1a.0` First, fix the two failures from the M3-closing routine check (10 October): `sim/src/kd/world/craft_store.cpp:502` calls two effectful `take()` in one expression (two-effects rule, compiler order); the portrait card lost its "Making" line when work is known (`game/test/camp_portrait_test.gd:76`).
+0. `T4.1a.0` First, fix the two failures from the M3-closing routine check (10 October): `sim/src/kd/world/craft_store.cpp:502` calls two effectful `take()` in one expression (two-effects rule, compiler order); the portrait card lost its "Making" line when work is known (`game/test/camp_portrait_test.gd:76`) (`PLT-07`, `PRE-14`).
 1. `T4.1a.1` Validate pending place-dream identities, including legal ended-person records; correct founder experience. Preserve fire ownership/perception and learner replies (`PLT-07`, `BIO-20`, `MND-23`).
 2. `T4.1a.2` Replace fire/teaching/craft early-return precedence with bounded common scoring; retain winning contributions and two actual best rejected options, including body choices (`MND-09`, `PRE-14`).
 3. `T4.1a.3` Track actual ember→tending→flame→cooking identities. Diagnose opportunities/refusals/attempts and CPU/storage on failed 6101–6106/7101 before behavioural changes (`RES-03`, `RES-23`, `PLT-04`).
