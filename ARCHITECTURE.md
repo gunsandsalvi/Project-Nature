@@ -4,12 +4,11 @@ The contracts, current implementation limits and facts needed to build the next 
 PROJECT.md owns requirements; IMPLEMENTATION.md owns sequence and acceptance. Aim for at most 6,000 words here.
 Existing A section numbers remain stable because code cites them. Deferred sections preserve obligations, not permission to start work.
 
-## Status (8 October 2026)
+## Status (10 October 2026)
 
 M1 is accepted. The owner approved the revised route on 8 October: M2 living camp; M3 discovery slice; M4 seasons and lives; M5 neighbours; M6 small finished valley; M7 wider world; M8 remaining life, crafts and society; M9 presentation, powers and sound; M10 optional copper/full arc.
 Earlier prototypes are evidence only; their deleted code is not a production source.
-The 2D renderer is partly built. Delivery 30801 shipped; later α2.9a work is merged WIP, without whole-step acceptance.
-Camp alpha adds 25 saved idle adults and scoped supplies in a bounded seeded patch. Needs, minds and discoveries are not implemented yet; simulation markers remain diagnostics.
+M2 is delivered; its play answers remain open. M3 has 25 individual adults, needs, personal crafts/learning, finite fire/food and memory-backed ideas. Alpha deliveries and failed acceptance are recorded in IMPLEMENTATION.md and dist/. The bounded camp does not certify full populations, geography or later life systems; simulation markers remain diagnostics.
 
 ## A1. Overview
 
@@ -147,15 +146,14 @@ Full-world snapshots will also need measured immutable-state copying/compression
 Commands are durable plain records. Snapshots use a single-consumer triple buffer; one controller copies the latest publication and all views/jobs use its owned data.
 Never retain a recycled slot. No simulation worker touches Godot objects. Camp identities and supplies are copied into the same owned display snapshot; cards and sprites read that copy. Camp labels/cards use native integer bitmap text; the dock keeps 48 dp controls in either orientation. World panes retain the full window’s 1×/2× raster scale; a 320 ms camera settle keeps existing powers and anchored picking. Camp handles each finger once, ignoring its emulated mouse events; a 550 ms hold opens the ring, and dragging, pinching, cancellation or a changed pane clears that hold. Viewport tests include safe-area offsets and paired finger/mouse events.
 Sample the saved activity way at displayed time, including interruptions and torus seams, rather than interpolating arbitrary recent positions.
-Lossless events/commands are separate from disposable picture updates.
+Lossless events/commands are separate from disposable picture updates. Recovery and blocking run_until publish their endpoint to the screen consumer before advancing, so unseen intervals retain no deep knowledge trail. Ordinary frame lookahead remains a quarter real-second. A two-day regression bounds endpoint knowledge copies at 25 and preserves the direct-run digest.
 
-**M2 blocker before the first power:** the current command frontier can be a quarter real-second of requested speed ahead of the display—hours in game time.
-Record displayed ID/time, pause/cap/drain safely and journal the defined execution second. A place dream must not silently target a later world.
+Power preparation pauses/drains to a definite frontier and refreshes the selected person there. Memory/place choices are revalidated before a journaled send; the private ledger retains request, receipt, sleep and actual-attempt times. A failed durable append never appears as sent.
 
 ### A3.9 Threads, speed and budgets
 
 The runner rereads goals between batches. Screen time advances by steady-clock time but never beyond the frontier; overload slows time without dropping detail.
-The pace controller normally targets up to a quarter real-second ahead. Pausing currently lets the display catch the frontier; power selection needs A3.8's correction.
+The pace controller normally targets up to a quarter real-second ahead. Pausing settles at the frontier; power preparation uses A3.8’s explicit paused-frontier validation.
 Workers have explicit 8 MiB stacks. M1's phone benchmark favoured unpinned workers (4.3 versus 4.1 game days/second); keep them unpinned.
 
 The heat guard uses the light threshold minus 0.05 where available, with a 10-second forecast; missing readings never mean cool. Camp play and the isolated camp measurement feed the same governor at the catalogue reading interval; measurement reports reuse those readings.
@@ -442,7 +440,7 @@ The separate Camp performance test runs a fresh isolated camp for ten real minut
 
 ## A12. Crafts and discovery
 
-M3 implements one generic characteristic/blueprint chain, flaking then fire, with material conservation, actual discovery/observation and learning. Blueprint names cannot replace predicates.
+M3 implements characteristic-based crafting, flaking then fire, with material conservation, actual discovery/observation and learning. Blueprint names cannot replace predicates. Remaining `PRN-07` failure: fire maintenance choices still select named bank/carry blueprints in `FireRules::choose`; generic selection needs repair before M3 acceptance.
 Keep `RCK` evidence and `MAT-17` valid/invalid fits; no scripted discovery dates. Later chains/catalogue and full pace acceptance remain M8/M10.
 
 The α3.13a Discovery scene records finite additions and materialises aggregate stone/wood once into existing things. Portion reservations and retained tools exclude competing work and meals. Actual fits use physical predicates; choices use only personal evidence. Known tries settle at saved events, unknown fits roll once per whole activity, cancelled strikes produce nothing, and paused gradual work retains elapsed progress. Nutrition and tool wear keep division remainders; inputs, leftovers and broken pieces conserve mass. Result history records actual maker, inputs, time and discovery route; only noticed surprises grant knowledge.
@@ -457,18 +455,18 @@ M5 proves knowledge/relationships between two camps; M8 finishes culture. Names 
 
 ## A14. Story, the book of ages and the writer
 
-M3 starts event-backed history; M6 finishes the small book with pattern text. Director changes speed/moments only, never outcomes. Optional later writer only rewords verified records (`PRE-37`); no provider/API is selected here.
+M3 reads retained HIST1 events through factual templates and links actual actors, sources, inputs and results. Missing sources say “no source recorded”; spent inputs remain inspectable without being drawn as usable stock. Public History omits unnoticed uses and private player attribution; Your dreams owns the private ledger. Back restores the prior selection. M6 finishes the small book with pattern text. Director changes speed/moments only, never outcomes. Optional later writer only rewords verified records (`PRE-37`); no provider/API is selected here.
 
 ## A15. The interface
 
 World first, truthful person cards, pause/speed, save/world controls and one indirect dream in M2. The camp menu gives direct access to Device check, Camp performance test and Test reports.
 Use one gesture reader/theme, safe insets, ≥48 dp targets with 8 dp gaps and both orientations.
 Current bitmap font has 135 glyphs (ASCII 95 included), base 16/line 20/baseline 15, integer physical sizing and retained licence/provenance. Arbitrary Unicode lacks coverage; the Japanese probe aliases a question mark. Production fallback remains unresolved.
-Deferred layout batching avoids the previous quadratic catalogue freeze.
+Deferred layout batching avoids the previous quadratic catalogue freeze. M3’s normal person card has name/activity and a short reason; Details scrolls within 60% of portrait safe height. Controls stay at least 48 logical pixels, with no horizontal scroll. Rotation keeps selection and the active History/Dream sheet. Larger text and mute are presentation preferences outside camp storage; neither changes simulation state.
 
 ## A16. Sound
 
-M3 introduces sounds from actual action/fire; M9 completes sound obligations. World-space distance survives a 2D picture. Keep the 32-voice bound; full mix, language murmur and phone cost are unproved.
+M3 uses three small original procedural stand-ins: tap, handling and a fire loop. Four work voices plus one fire voice follow sampled action phases, actual heat and world-space camera distance; pause/mute stop them. Audio never advances or chooses work. This fits the 32-voice bound. M9 completes sound obligations; listening review, full mix, language murmur and phone cost are unproved.
 
 ## A17. Testing and checks
 
@@ -556,5 +554,5 @@ Keep the 2 GiB peak-process line; measure structs, temporary candidates, GPU res
 ### A18.4 Wider-world risks
 
 Freeze hard gates before tuning; report rare qualification instead of repairing candidates. Revalidate full-resolution starts after settling.
-Save/catch-up growth needs byte/year measurements and equivalent compaction. Terrain expansion needs early cross-chunk ordering/shadow fixtures.
+Spent inputs persist as full items for history links: ~22.5k spent items by day 45 (16.5k kernels). Scans must skip them; long games need compaction of spent items into history records (proposed for M4/M10 old-world storage). Save/catch-up growth needs byte/year measurements and equivalent compaction. Terrain expansion needs early cross-chunk ordering/shadow fixtures.
 Outstanding biology, ecology and historical-trace checks remain open until actual consumers prove them; a partial stage never certifies the full item.
