@@ -1,27 +1,19 @@
-# Kindling α3.13e: M3 record
+# Kindling α4.1a: A camp that explains its failures
 
 ## What is new
 
-M3 builds ordinary discovery, personal learning/shared practice, finite fire/cooking and memory-backed ideas, followed through factual History. Current delivery and measurements: [α3.13e note](NOTE-3.13e.md). Acceptance evidence: [M3 Checks](M3-CHECKS.md).
+Body, fire, making and shared practice now compete in one bounded choice. Details retain the winner and two actual rejected options with score contributions. Pending dreams validate real or recorded former people; founder experience is corrected. Cooking History keeps its actual heating fire and original ember, with inspectable links. The fire-chain proof rejects unrelated tending/flames.
 
-| Build | Main addition | APK MiB / signing |
-|---|---|---|
-| 41301 / a | Finite craft work, personal noticing, item cards and First flake | 27.663 / release |
-| 41302 / b | Observation, teaching/telling, skills and learning History | 27.773 / check |
-| 41303 / c | Fuel/embers, friction, warmth, cooking/burning | 27.894 / check |
-| 41304 / d | Handled-memory ideas and private actual attempts | 27.918 / check |
-| 41305 / e | Linked History, portrait/large text/mute, actual-action sounds | 27.930 / check |
-
-The early chainsaw removed obsolete developer pages, converters and unused packaged art: 50.074→27.663 MiB. Approved source art remains. Detailed earlier delivery records remain in Git history; this record replaces their duplicate notes.
+[M4 evidence](M4-CHECKS.md) includes the seven unchanged M3 diagnostic replays, commits and routine checks. M4 spread/fire acceptance is still open.
 
 ## What to try
 
-Follow the latest note's Discovery camp route: useful flake → maker/learner/source/input → Back; inspect fire and cooked food; send an idea from a real memory and follow its actual attempt after reopening. Labelled First flake is inspection evidence only. Pause to read; rotate and try larger text.
+Open First flake or a fresh Discovery camp. Read Details for body/making choices and remembered supplies. Send a dream during real sleep, then reopen. Inspect a cooking History entry's heating fire and original ember; Back restores selection. Try portrait, larger text and rotation.
 
-[Existing release APK 41301](https://github.com/gunsandsalvi/Project-Nature/raw/ccr-13ab6fef-fspju6/dist/kindling.apk) · [Checksum](kindling.apk.sha256). It remains unchanged. [Existing pre-review check APK 41305](../build/apk-check/kindling-41305-check.apk) cannot update that release installation.
+[Check APK 50101](../build/apk-check/kindling-50101-check.apk) · [Checksum](../build/apk-check/kindling-50101-check.apk.sha256). 28.133 MiB (29,499,403 bytes); built in 185 seconds.
+
+[Existing release 41301](https://github.com/gunsandsalvi/Project-Nature/raw/ccr-13ab6fef-fspju6/dist/kindling.apk) remains unchanged; the coordinator signs releases. A check certificate cannot update that installation.
 
 ## What is rough
 
-Not release-signed: built in check mode; release signing waits for the owner's passphrase.
-
-Current owner disposition, remaining acceptance and storage risks live in [M3 result](../IMPLEMENTATION.md#m3-result). Source repairs and existing pre-review packaging are distinguished in [the latest note](NOTE-3.13e.md); measurements are in [M3 Checks](M3-CHECKS.md).
+Check mode, not a signed release. Save format 7 refuses earlier camps. α4.1b storage/speed work and the remaining M4 gates are next. Phone inspection, digest/frame/sound/play/heat/battery evidence is owed. No new acceptance judgement or milestone audit ran here; independent review follows the completed M4 audit.
