@@ -1,6 +1,8 @@
 ## Camp alpha: real sprite identities, pause, view independence, and saved/exported continuation.
 extends GdUnitTestSuite
 
+const Advance := preload("res://test/support/advance.gd")
+
 const Camp := preload("res://pages/camp.gd")
 const Dreams := preload("res://camp/dreams.gd")
 const TEST_ROOT := "user://test-worlds/camp-alpha"
@@ -76,7 +78,7 @@ func _settled(page: Control) -> void:
 
 func test_reopen_export_import_preserve_people_supplies_and_digest() -> void:
 	var page := _page()
-	page.world.run_until(43200)
+	Advance.to(page.world, 43200)
 	await _settled(page)
 	page.save_camp()
 	var people: Array = page.world.people()
@@ -109,7 +111,7 @@ func test_reopen_export_import_preserve_people_supplies_and_digest() -> void:
 	assert_array(copy.world.people()).is_equal(people)
 	assert_dict(copy.world.camp_alpha()).is_equal(supplies)
 	assert_str(copy.world.digest()).is_equal(digest)
-	copy.world.run_until(90000)
+	Advance.to(copy.world, 90000)
 	var expected := KdWorld.new()
 	GameData.load_into(expected)
 	var expected_opened: Dictionary = expected.open_camp(
@@ -121,7 +123,7 @@ func test_reopen_export_import_preserve_people_supplies_and_digest() -> void:
 	if expected_opened.has("problem"):
 		copy.free()
 		return
-	expected.begin_at(90000)
+	Advance.to(expected, 90000)
 	assert_str(copy.world.digest()).is_equal(expected.digest())
 	expected.save_now()
 	expected = null
@@ -226,7 +228,7 @@ func test_phone_dock_keeps_play_and_speed_on_screen_after_text_reflows() -> void
 
 func test_living_card_uses_saved_choice_and_needs_at_the_displayed_action() -> void:
 	var page := _page()
-	page.world.run_until(30000)
+	Advance.to(page.world, 30000)
 	await _settled(page)
 	var person: Dictionary = page.people[0]
 	page.select_person(int(person.id))
@@ -252,7 +254,7 @@ func test_people_move_and_return_mid_action_with_the_same_recorded_reason() -> v
 	var before: Array = page.world.people()
 	# Find actual movement, rather than relying on an arbitrarily chosen second.
 	for moment in range(25201, 28800, 15):
-		page.world.run_until(moment)
+		Advance.to(page.world, moment)
 		await _settled(page)
 		if page.people.any(func(p: Dictionary) -> bool: return int(p.action_code) in [1, 7]):
 			break
@@ -304,7 +306,7 @@ func test_dream_cancel_and_saved_pending_times() -> void:
 	page = _page()
 	assert_array(page.world.dream_records()).is_equal(records)
 	assert_str(page.world.digest()).is_equal(digest)
-	page.world.run_until(int(records[0].requested) + 86400)
+	Advance.to(page.world, int(records[0].requested) + 86400)
 	await _settled(page)
 	var delivered: Dictionary = page.world.dream_records()[0]
 	assert_int(delivered.status).is_equal(2)
@@ -400,7 +402,7 @@ func test_holding_a_drawn_person_opens_the_power_ring_once() -> void:
 
 func test_sent_dream_is_readable_during_the_same_uninterrupted_sleep() -> void:
 	var page := _page()
-	page.world.run_until(36000)
+	Advance.to(page.world, 36000)
 	await _settled(page)
 	var sleeping: Array = page.world.people().filter(
 		func(p: Dictionary) -> bool: return int(p.action_code) == 2 and int(p.action_end) > 36060

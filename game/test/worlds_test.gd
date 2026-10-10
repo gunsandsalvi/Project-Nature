@@ -5,6 +5,8 @@
 ## and α1.4a's world carries on, its last save kept aside.
 extends GdUnitTestSuite
 
+const Advance := preload("res://test/support/advance.gd")
+
 const WorldsPage := preload("res://pages/worlds.gd")
 const CampPage := preload("res://pages/camp.gd")
 const ROOT := "user://test-worlds"
@@ -44,7 +46,10 @@ func _run_to(shelf: VBoxContainer, id: String, moment: int) -> String:
 	shelf.open_world(id)
 	var crowd := _camp_page()
 	assert_str(crowd.opened.get("problem", "")).is_empty()
-	crowd.world.run_until(moment)
+	Advance.to(crowd.world, moment)
+	# The displayed interval is consumed even for the two-day size test.
+	assert_float(crowd.world.screen_time()).is_equal(float(moment))
+	assert_float(float(crowd.world.counters().ahead)).is_equal(0.0)
 	crowd.world.save_now()
 	var digest: String = crowd.world.digest()
 	_close(crowd)
@@ -70,7 +75,7 @@ func test_three_worlds_switched_in_turn_each_open_where_they_were_left() -> void
 			var crowd := _camp_page()
 			assert_bool(crowd.opened["made"]).is_false()
 			assert_str(crowd.world.digest()).is_equal(left[ids[i]])
-			crowd.world.run_until(crowd.world.frontier() + 600 * (round + 1))
+			Advance.to(crowd.world, crowd.world.frontier() + 600 * (round + 1))
 			crowd.world.save_now()
 			left[ids[i]] = crowd.world.digest()
 			_close(crowd)
@@ -83,8 +88,8 @@ func test_a_world_exported_and_imported_runs_on_as_the_one_it_came_from() -> voi
 	var id: String = shelf.make_world()
 	shelf.open_world(id)
 	var crowd := _camp_page()
-	crowd.world.run_until(9 * 3600)
-	crowd.world.run_until(10 * 3600)
+	Advance.to(crowd.world, 9 * 3600)
+	Advance.to(crowd.world, 10 * 3600)
 	crowd.world.save_now()
 	_close(crowd)
 	# out to a file, a few megabytes a frame, and in again as a copy
