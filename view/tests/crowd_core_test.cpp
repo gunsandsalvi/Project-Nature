@@ -320,12 +320,14 @@ TEST_CASE("fire and comfort snapshots sample the display time while the producer
             REQUIRE(sampled);
             const auto actual = kd::demo::FireRules::sample_thermal(reference.world(), h, screen);
             kd::ByteWriter a, b;
-            kd::ecs::write_component(*sampled, a);
+            kd::ecs::write_component(sampled.value_or(kd::world::Thermal{}), a);
             kd::ecs::write_component(actual, b);
             CHECK(a.take() == b.take());
-            const auto k = snapshot.way_index(i, screen);
+            const auto k = snapshot.way_index(i, static_cast<double>(screen));
+            REQUIRE(snapshot.lives[k]);
             const auto shown =
-                reference.living()->sample(*snapshot.lives[k], snapshot.ways[k], screen, sampled->water_due_ml);
+                reference.living()->sample(snapshot.lives[k].value_or(kd::world::Life{}), snapshot.ways[k], screen,
+                                           sampled.value_or(kd::world::Thermal{}).water_due_ml);
             const auto& body = reference.world().beings().raw().get<kd::world::Life>(h);
             const auto& act = reference.world().beings().raw().get<kd::world::Activity>(h);
             const auto real = reference.living()->sample(body, act, screen, actual.water_due_ml);
@@ -333,7 +335,7 @@ TEST_CASE("fire and comfort snapshots sample the display time while the producer
             CHECK(shown.awake == real.awake);
         }
         for (std::size_t i = 0; i + 1 < snapshot.item_first.size(); ++i) {
-            const auto* item = snapshot.item_at(i, screen);
+            const auto* item = snapshot.item_at(i, static_cast<double>(screen));
             if (!item || !item->fire) continue;
             const auto rh = reference.world().things().handle(item->id);
             CHECK(item->fire->heat == reference.world().things().raw().get<kd::world::Fire>(rh).heat);

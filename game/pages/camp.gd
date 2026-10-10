@@ -324,29 +324,29 @@ func selected_item() -> Dictionary:
 
 func tap(at: Vector2) -> void:
 	var local := camera.from_screen(at)
-	# A grounded hearth can sit under resting people. Its small marker remains inspectable.
-	for item: Dictionary in items:
-		if (
-			item.has("fire_heat")
-			and drawing.drawn_items.get(int(item.id), Rect2()).has_point(local)
-		):
-			selected_item_id = int(item.id)
-			_show_supplies = false
-			_refresh_records()
-			return
 	var exact: int = drawing.pick(local, 0, selected_id)
+	# Person centres stay reliable; the hearth's edge is inspectable beneath resting people.
+	var person_centre := exact != 0 and local.distance_to(drawing.drawn[exact].get_center()) <= 2.0
+	if not person_centre:
+		for item: Dictionary in items:
+			if (
+				item.has("fire_heat")
+				and drawing.drawn_items.get(int(item.id), Rect2()).has_point(local)
+			):
+				selected_item_id = int(item.id)
+				_show_supplies = false
+				_refresh_records()
+				return
 	if exact != 0:
 		select_person(exact)
 		return
-	var item_id: int = drawing.pick_item(camera.from_screen(at), selected_item_id)
+	var item_id: int = drawing.pick_item(local, selected_item_id)
 	if item_id != 0:
 		selected_item_id = item_id
 		_show_supplies = false
 		_refresh_records()
 		return
-	var id: int = drawing.pick(
-		camera.from_screen(at), _hit_radius / float(state.scale) / float(state.live_scale)
-	)
+	var id: int = drawing.pick(local, _hit_radius / float(state.scale) / float(state.live_scale))
 	if id != 0:
 		select_person(id)
 

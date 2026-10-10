@@ -5,12 +5,13 @@ One builder; reviews run while the builder is stopped. Keep the current renderer
 This plan contains unfinished work only. M4–M10 remain later choices, not parallel work.
 Budget exception: M3 needs explicit save formats, rule values and five deliveries; the extra detail stays only while it is the next milestone.
 
-## Where M3 stands (9 October 2026, 14:50 UTC; the session that built it was closed here)
+## Where M3 stands (10 October 2026)
 
 - **Done:** α3.13a is delivered as signed build **41301** (27.66 MiB, `dist/`), merged at `ec3797d`. All of T3.13a.1–8 is done: real-phone touch (owner confirmed), current-format save chunks with older saves refused, items/catalogue, finite stock, crafting work and meals, personal discovery, Discovery camp, item cards, the recorded First flake example, and the clearer camp performance test.
 - **Also done early:** the chainsaw `T3.13e.5` (owner moved it forward when the package went 73,403 bytes over 50 MiB). It removed the Developer tools pages, old converters, fixtures and unused packed art: 50.07 → 27.66 MiB. Approved art stays in `data/`, out of the APK.
 - **α3.13b delivered as check build 41302:** personal skills/evidence (format 3), observation, telling/shared practice and factual History are built. The fireless 40-run spread gate failed; the input-selection repair awaits fresh closing evidence in α3.13e. Release signing lacks the owner’s passphrase; see `dist/NOTE-3.13b.md`. The earlier storage draft in `wip/` is superseded; do not reapply it.
-- **Next:** α3.13c, α3.13d and α3.13e, each with a check APK until the owner supplies the release passphrase. Then the end-of-M3 work: closing proofs and the one full audit (`T3.13e.3`), then the independent review (`T3.13e.4`).
+- **α3.13c delivered as check build 41303:** format 4, physical fuel/embers/tending, warmth/task light, retained cooking/burning and immutable cards are built, with a fresh cold-hearth variant. Check build 41303 and measurements are recorded in `dist/NOTE-3.13c.md`; phone and winter acceptance remain open.
+- **Next:** α3.13d and α3.13e, each with a check APK until the owner supplies the release passphrase. Then the end-of-M3 work: closing proofs and the one full audit (`T3.13e.3`), then the independent review (`T3.13e.4`).
 - **Owner rules in force (9 October 2026):** no conversion of older saves; the builder works straight through M3 with no per-join independent reviews; the full audit runs only at a milestone's end; APKs stay under 50 MiB or the builder stops and reports; portrait first; status updates at least every 10 minutes, short and plain.
 - **Waiting on the owner:** the ten-minute camp performance test on 41301 (the earlier missing-counter report never reproduced in the cloud), sustained battery/heat evidence, and the M2/M3 play answers.
 - **Known limits:** before observation learning, a 20-seed three-day search noticed flakes only in seeds 12 and 19; the real discovery gate is α3.13b's two-year 20-seed check. Craft work settles serially even with four workers configured.

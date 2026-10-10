@@ -160,7 +160,7 @@ bool FireRules::choose_warm(Living& living, world::Context& c, world::Beings::Ha
     ecs::Id source{};
     num::Point spot{};
     const auto clock = c.now() % time::kDay;
-    const auto range = clock >= 6 * time::kHour && clock < 20 * time::kHour ? 3000 : 500;
+    const std::int64_t range = clock >= 6 * time::kHour && clock < 20 * time::kHour ? 3000 : 500;
     for (const auto th : w.things().raw().view<world::Fire>()) {
         const auto& f = w.things().raw().get<world::Fire>(th);
         const auto id = w.things().id_of(th);

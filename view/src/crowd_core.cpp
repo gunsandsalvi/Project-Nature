@@ -61,10 +61,10 @@ std::optional<world::Thermal> Snapshot::thermal_at(std::size_t walker, double t,
                 if (walkers[owner].id == f.owner.value) activity = way_at(owner, t);
         fires.push_back({saved->id, activity});
     }
-    const auto ambient = k < ambients.size() && ambients[k] ? ambients[k]->milli_c
+    const auto ambient = k < ambients.size() && ambients[k] ? ambients[k].value_or(world::Ambient{}).milli_c
                                                             : demo::FireRules::ambient(static_cast<time::Seconds>(t));
-    return demo::FireRules::sample_thermal(*thermals[k], ways[k], world::World::kTorus, static_cast<time::Seconds>(t),
-                                           water_day, ambient, fires);
+    return demo::FireRules::sample_thermal(thermals[k].value_or(world::Thermal{}), ways[k], world::World::kTorus,
+                                           static_cast<time::Seconds>(t), water_day, ambient, fires);
 }
 
 CrowdStepper::CrowdStepper(demo::CrowdWorld& crowd) : crowd_(crowd), camp_ids_(crowd.camp_ids()) {

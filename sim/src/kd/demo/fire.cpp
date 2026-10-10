@@ -6,6 +6,11 @@
 #include "kd/demo/living.hpp"
 namespace kd::demo {
 namespace {
+std::uint32_t required_entry(const kd::data::Catalogue& catalogue, std::string_view folder, std::string_view name) {
+    const auto found = catalogue.find(folder, name);
+    KD_CHECK(found.has_value(), "Fire requires its validated catalogue entry");
+    return found.value_or(0);
+}
 using world::Fire;
 using world::Item;
 std::int64_t rate(const Fire& f) {
@@ -126,7 +131,7 @@ void FireRules::fresh_hearth(world::World& w, bool already_out) {
             f.fuel_mg = 0;
             f.ash_mg = i.mass;
             f.air_until = 0;
-            i.kind = i.material = *w.catalogue().find("item", "base:ash");
+            i.kind = i.material = required_entry(w.catalogue(), "item", "base:ash");
             i.state = 0;
             i.changed[12] = 0;
         }
@@ -203,7 +208,7 @@ void FireRules::settle_fire(world::Context& c, ecs::Id id) {
     if (!f.heat && f.fuel_mg) {
         // Putting out leaves real charcoal. The spent hearth retains its conserved ash.
         auto charcoal = item(w, id);
-        charcoal.kind = charcoal.material = *w.catalogue().find("item", "base:charcoal");
+        charcoal.kind = charcoal.material = required_entry(w.catalogue(), "item", "base:charcoal");
         charcoal.mass = f.fuel_mg;
         charcoal.parents = {{id}};
         charcoal.made_at = c.now();
@@ -220,7 +225,7 @@ void FireRules::settle_fire(world::Context& c, ecs::Id id) {
     }
     if (!f.fuel_mg) {
         auto& remains = item(w, id);
-        remains.kind = remains.material = *w.catalogue().find("item", "base:ash");
+        remains.kind = remains.material = required_entry(w.catalogue(), "item", "base:ash");
         remains.state = remains.mass ? 0 : 4;
         remains.changed_mask = 0;
         remains.changed.fill(0);
@@ -416,7 +421,7 @@ bool FireRules::choose(Living& living, world::Context& c, world::Beings::Handle 
     const auto person = w.beings().id_of(h), camp = raw.get<Home>(h).camp;
     const auto here = raw.get<world::Place>(h).at;
     const auto sight_clock = c.now() % time::kDay;
-    const auto sight_range = sight_clock >= 6 * time::kHour && sight_clock < 20 * time::kHour ? 3000 : 500;
+    const std::int64_t sight_range = sight_clock >= 6 * time::kHour && sight_clock < 20 * time::kHour ? 3000 : 500;
     ecs::Id target{};
     w.things().each([&](ecs::Id id, auto th) {
         const auto* f = w.things().raw().try_get<Fire>(th);
@@ -510,11 +515,12 @@ bool FireRules::continue_tending(Living& living, world::Context& c, world::Being
         if (t->tending >= 3) {
             const auto recipe =
                 w.catalogue().find("blueprint", t->tending == 3 ? "base:bank_fire" : "base:carry_ember");
+            KD_CHECK(recipe.has_value(), "Tending uses a validated known recipe");
             const std::array roles{target};
             const chance::Draws draws(w.seed(), chance::name("tend result"), person.value, t->tending_started,
-                                      w.catalogue().kind<data::Blueprint>().key(*recipe));
-            const bool success =
-                draws.below(0, 1000000) < static_cast<std::uint64_t>(Crafting::success(w, h, *recipe, roles));
+                                      w.catalogue().kind<data::Blueprint>().key(recipe.value_or(0)));
+            const bool success = draws.below(0, 1000000) <
+                                 static_cast<std::uint64_t>(Crafting::success(w, h, recipe.value_or(0), roles));
             if (success) {
                 if (t->tending == 3)
                     (void)bank(c, target);
@@ -523,7 +529,7 @@ bool FireRules::continue_tending(Living& living, world::Context& c, world::Being
             }
             auto& know = raw.get<world::Knowledge>(h);
             for (auto& skill : know.skills)
-                if (skill.recipe == *recipe)
+                if (skill.recipe == recipe.value_or(0))
                     Learning::practice(skill.practice, c.now(), t->tending == 3 ? 300 : 60, success, know.learning_ppm);
         }
         if (input.value && t->tending_shared) {

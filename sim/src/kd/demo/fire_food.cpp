@@ -6,6 +6,11 @@
 #include "kd/demo/living.hpp"
 namespace kd::demo {
 namespace {
+std::uint32_t required_entry(const kd::data::Catalogue& catalogue, std::string_view folder, std::string_view name) {
+    const auto found = catalogue.find(folder, name);
+    KD_CHECK(found.has_value(), "Fire requires its validated catalogue entry");
+    return found.value_or(0);
+}
 using world::HeatTimer;
 using world::Item;
 bool food(const world::World& w, const Item& i) {
@@ -58,7 +63,7 @@ void settle(world::Context& c, ecs::Id id) {
         if (t.exposure_heat >= 4) t.hot_elapsed = std::min(time::kHour, t.hot_elapsed + duration);
     }
     t.settled_at = c.now();
-    const auto roast = *w.catalogue().find("blueprint", "base:roast_food");
+    const auto roast = required_entry(w.catalogue(), "blueprint", "base:roast_food");
     if (!t.completed && (t.elapsed >= 2 * time::kHour || t.hot_elapsed >= time::kHour)) {
         i.state = 2;
         i.changed_mask |= 1U << 8U;
@@ -200,7 +205,7 @@ std::optional<num::Point> FireRules::cooking_spot(const world::World& w, world::
     const auto home = w.beings().raw().get<Home>(person).camp;
     const auto here = w.beings().raw().get<world::Activity>(person).at(w.torus(), at);
     const auto clock = at % time::kDay;
-    const auto range = clock >= 6 * time::kHour && clock < 20 * time::kHour ? 3000 : 500;
+    const std::int64_t range = clock >= 6 * time::kHour && clock < 20 * time::kHour ? 3000 : 500;
     for (const auto fh : w.things().raw().view<world::Fire>()) {
         const auto& f = w.things().raw().get<world::Fire>(fh);
         if (f.hearth == home && !f.owner.value && f.heat >= 2 &&
@@ -220,8 +225,8 @@ void FireRules::notice_food(world::Context& c, world::Beings::Handle person) {
     const auto viewer = w.beings().id_of(person);
     const auto here = w.beings().raw().get<world::Activity>(person).at(w.torus(), c.now());
     const auto clock = c.now() % time::kDay;
-    const auto range = clock >= 6 * time::kHour && clock < 20 * time::kHour ? 3000 : 500;
-    const auto roast = *w.catalogue().find("blueprint", "base:roast_food");
+    const std::int64_t range = clock >= 6 * time::kHour && clock < 20 * time::kHour ? 3000 : 500;
+    const auto roast = required_entry(w.catalogue(), "blueprint", "base:roast_food");
     std::vector<ecs::Id> noticed;
     for (const auto fh : w.things().raw().view<HeatTimer>()) {
         auto& t = w.things().raw().get<HeatTimer>(fh);

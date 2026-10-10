@@ -74,12 +74,13 @@ bool load_fire(World& w, std::span<const save::Chunk> chunks, const ecs::EntryMa
             last = {id, kind};
             const auto h = w.things().find(id);
             if (!h || !things.all_of<Item, Place>(*h)) return fail("fire refers to missing physical item");
-            if (things.any_of<Fire, HeatTimer>(*h)) return fail("mixed fire and food exposure identity");
-            const auto& item = things.get<Item>(*h);
+            const auto handle = *h;
+            if (things.any_of<Fire, HeatTimer>(handle)) return fail("mixed fire and food exposure identity");
+            const auto& item = things.get<Item>(handle);
             if (kind == 1) {
                 Fire f;
                 if (!ecs::read_component(f, r, entries) || !camp(f.hearth) || item.home != f.hearth ||
-                    f.at != things.get<Place>(*h).at || f.heat > 5 || f.ring > 1 || f.unblown_checked > 1 ||
+                    f.at != things.get<Place>(handle).at || f.heat > 5 || f.ring > 1 || f.unblown_checked > 1 ||
                     f.damp_remainder < 0 || f.damp_remainder >= 1000000 || f.evaporated_mg < 0 || f.fuel_mg < 0 ||
                     f.ash_mg < 0 || f.fuel_mg > item.mass || f.ash_mg != item.mass - f.fuel_mg ||
                     f.burn_remainder < 0 || f.burn_remainder >= time::kHour || f.settled_at < 0 || f.settled_at > now ||
@@ -90,7 +91,7 @@ bool load_fire(World& w, std::span<const save::Chunk> chunks, const ecs::EntryMa
                     const auto p = w.beings().find(f.owner);
                     if (!p || !beings.all_of<Person>(*p) || item.owner != f.owner) return fail("invalid fire carrier");
                 }
-                things.emplace<Fire>(*h, f);
+                things.emplace<Fire>(handle, f);
             } else if (kind == 2) {
                 HeatTimer t;
                 if (!ecs::read_component(t, r, entries) || t.item != id || t.target_state != 1 || t.low != 2 ||
@@ -129,7 +130,7 @@ bool load_fire(World& w, std::span<const save::Chunk> chunks, const ecs::EntryMa
                         return fail("invalid cooking noticer");
                     noticed.push_back(link.id);
                 }
-                things.emplace<HeatTimer>(*h, t);
+                things.emplace<HeatTimer>(handle, t);
             } else
                 return fail("unknown fire record kind");
         }
@@ -139,7 +140,9 @@ bool load_fire(World& w, std::span<const save::Chunk> chunks, const ecs::EntryMa
         ByteReader r(save::find_chunk(chunks, save::tag("THER"))->data);
         std::uint64_t count = 0;
         ecs::Id last{};
-        const auto expected = beings.view<Camp>().size() + beings.view<Person>().size();
+        const auto camps = beings.view<Camp>().size();
+        const auto people = beings.view<Person>().size();
+        const auto expected = camps + people;
         if (!r.u64(count) || count != expected) return fail("thermal records do not cover this camp");
         for (std::uint64_t n = 0; n < count; ++n) {
             ecs::Id id{};

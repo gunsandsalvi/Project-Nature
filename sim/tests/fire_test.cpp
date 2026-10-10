@@ -8,6 +8,11 @@
 #include "kd/run/workers.hpp"
 #include "kd/save/snapshot.hpp"
 namespace {
+std::uint32_t required_entry(const kd::data::Catalogue& catalogue, std::string_view folder, std::string_view name) {
+    const auto found = catalogue.find(folder, name);
+    KD_CHECK(found.has_value(), "Fire requires its validated catalogue entry");
+    return found.value_or(0);
+}
 const kd::data::Catalogue& fire_catalogue() {
     static const auto catalogue = [] {
         kd::data::Catalogue out;
@@ -348,8 +353,8 @@ TEST_CASE("200 low high banking and carrying trials use maker chance without fre
                 REQUIRE(recipe);
                 auto& know = raw.get<kd::world::Knowledge>(h);
                 for (auto& skill : know.skills)
-                    if (skill.recipe == *recipe) skill.practice = {level * 1000, level * 1000, 0, -1};
-                know.sectors[2] = {level * 1000, level * 1000, 0, -1};
+                    if (skill.recipe == recipe.value_or(0)) skill.practice = {level * 1000LL, level * 1000LL, 0, -1};
+                know.sectors[2] = {level * 1000LL, level * 1000LL, 0, -1};
                 auto& t = raw.get<kd::world::Thermal>(h);
                 t.tending = static_cast<std::uint8_t>(operation);
                 t.tending_phase = 3;
@@ -669,7 +674,7 @@ TEST_CASE("cook_one_hour_burn_two happens unseen, preserves mass and never retri
     for (std::uint64_t seed = 1; seed <= 20; ++seed) {
         CookingOperations ops(seed);
         auto& w = ops.fires.fixture.camp.world();
-        const auto recipe = *fire_catalogue().find("blueprint", "base:roast_food");
+        const auto recipe = required_entry(fire_catalogue(), "blueprint", "base:roast_food");
         ops.request(0, 921);
         CHECK(ops.timer().next == 3600);
         const auto history_before =
@@ -758,7 +763,7 @@ TEST_CASE("cooking uses the normal low and high maker chance in two hundred root
             for (std::uint64_t trial = 1; trial <= 200; ++trial) {
                 CookingOperations ops(trial);
                 auto& w = ops.fires.fixture.camp.world();
-                const auto recipe = *fire_catalogue().find("blueprint", "base:roast_food");
+                const auto recipe = required_entry(fire_catalogue(), "blueprint", "base:roast_food");
                 auto& know = w.beings().raw().get<kd::world::Knowledge>(w.beings().handle(ops.viewer));
                 kd::world::Skill skill;
                 skill.recipe = recipe;
@@ -875,7 +880,7 @@ TEST_CASE("actual fire task light removes darkness cost and walls block it") {
     const auto h = w.beings().handle(person);
     auto& activity = w.beings().raw().get<kd::world::Activity>(h);
     activity.from = activity.to = here;
-    const auto recipe = *fire_catalogue().find("blueprint", "base:sharp_flake");
+    const auto recipe = required_entry(fire_catalogue(), "blueprint", "base:sharp_flake");
     const auto lit = kd::demo::Crafting::success(w, h, recipe, {});
     CHECK(kd::demo::Crafting::time_cost(w, h, 100) == 100);
     activity.from = activity.to = w.torus().moved(here, {500, 0});
@@ -917,7 +922,7 @@ TEST_CASE("an active cooking demonstration credits nearby observers through the 
     CookingOperations ops;
     auto& w = ops.fires.fixture.camp.world();
     auto& raw = w.beings().raw();
-    const auto recipe = *fire_catalogue().find("blueprint", "base:roast_food");
+    const auto recipe = required_entry(fire_catalogue(), "blueprint", "base:roast_food");
     const auto maker = w.beings().handle(ops.viewer);
     auto& work = raw.get<kd::world::Work>(maker);
     work.number = 1;
