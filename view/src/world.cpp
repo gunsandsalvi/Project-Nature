@@ -52,7 +52,7 @@ void KdWorld::_bind_methods() {
     ClassDB::bind_method(D_METHOD("start_crowd", "seed", "camps"), &KdWorld::start_crowd);
     ClassDB::bind_method(D_METHOD("open_crowd", "folder", "seed", "camps", "build"), &KdWorld::open_crowd);
     ClassDB::bind_method(D_METHOD("open_camp", "folder", "seed", "build"), &KdWorld::open_camp);
-    ClassDB::bind_method(D_METHOD("items", "person"), &KdWorld::items, DEFVAL(0));
+    ClassDB::bind_method(D_METHOD("items", "person", "include_spent"), &KdWorld::items, DEFVAL(0), DEFVAL(false));
     ClassDB::bind_method(D_METHOD("knowledge", "person"), &KdWorld::knowledge);
     ClassDB::bind_method(D_METHOD("craft_history"), &KdWorld::craft_history);
     ClassDB::bind_method(D_METHOD("people"), &KdWorld::people);
@@ -1049,12 +1049,12 @@ godot::Dictionary evidence(const world::Familiar& f) {
 }
 }  // namespace
 
-godot::Array KdWorld::items(int64_t person) const {
+godot::Array KdWorld::items(int64_t person, bool include_spent) const {
     godot::Array out;
     const auto& s = display_.snapshot();
     for (std::size_t i = 0; i + 1 < s.item_first.size(); ++i) {
         const auto* saved = s.item_at(i, screen_time());
-        if (!saved || saved->item.mass == 0) continue;
+        if (!saved || (!include_spent && saved->item.mass == 0)) continue;
         const auto& item = saved->item;
         godot::Dictionary row;
         row["id"] = static_cast<int64_t>(saved->id.value);
@@ -1195,7 +1195,7 @@ godot::Array KdWorld::craft_history() const {
     godot::Array out;
     for (const auto& history : display_.snapshot().craft_history) {
         for (const auto& e : history.events) {
-            if (static_cast<double>(e.at) > screen_time()) continue;
+            if (static_cast<double>(e.at) > screen_time() || e.kind == 0 || e.kind == 5) continue;
             godot::Dictionary row;
             row["id"] = static_cast<int64_t>(e.id);
             row["at"] = e.at;

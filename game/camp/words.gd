@@ -183,6 +183,8 @@ static func item(p: Dictionary, people: Array, details: bool, now: int) -> Strin
 		"%s · %s\n%.3f kg · %d mm · %s"
 		% [p.name, p.material, float(p.mass_mg) / 1000000, int(p.length_mm), holder]
 	)
+	if int(p.mass_mg) == 0:
+		words += "\nSpent input · no usable material remains."
 	if p.has("fire_heat"):
 		words = "%s · %.2f kg fuel" % [p.name, float(p.fuel_mg) / 1000000]
 		if int(p.fire_heat) >= 2:
@@ -333,6 +335,8 @@ static func history(event: Dictionary, people: Array, now: int) -> String:
 			words = "%s: no holder of %s remains" % [actor, str(event.name).to_lower()]
 		4:
 			words = "%s rediscovered %s" % [actor, str(event.name).to_lower()]
+	if int(event.source) == 0:
+		words += " · no source recorded"
 	words += " at %s." % when(int(event.at), now)
 	var routes := [
 		"starting knowledge", "an accident", "an experiment", "a hunch", "watching", "teaching"

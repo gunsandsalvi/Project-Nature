@@ -63,7 +63,7 @@ public:
     /// space where it is kept (A3.7, PLT-10).
     godot::Dictionary open_camp(const godot::String& folder, int64_t seed, const godot::String& build);
     godot::Array people() const;
-    godot::Array items(int64_t person = 0) const;
+    godot::Array items(int64_t person = 0, bool include_spent = false) const;
     godot::Dictionary knowledge(int64_t person) const;
     godot::Array craft_history() const;
     godot::Dictionary camp_alpha() const;

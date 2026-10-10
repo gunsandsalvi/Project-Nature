@@ -46,6 +46,8 @@ var _dock_bounds := Rect2()
 var _dream_button: Button
 var _dreams: PanelContainer
 var _history: PanelContainer
+var _history_button: Button
+var _historical_item := {}
 var _heat_every := 2.0
 var _heat_wait := 0.0
 var _item_second := -1
@@ -181,10 +183,16 @@ func _build() -> void:
 	_dreams = preload("res://camp/dreams.gd").new()
 	_dreams.camp = self
 	_native.add_child(_dreams)
-	var history_button := Button.new()
-	history_button.text = "History"
-	history_button.pressed.connect(func() -> void: _history.open())
-	column.add_child(history_button)
+	_history_button = Button.new()
+	_history_button.text = "History"
+	_history_button.pressed.connect(
+		func() -> void:
+			if _history._inspecting:
+				_history.close()
+			else:
+				_history.open()
+	)
+	column.add_child(_history_button)
 	_history = preload("res://camp/history.gd").new()
 	_history.camp = self
 	_native.add_child(_history)
@@ -262,6 +270,7 @@ func _refresh_records(counters: Dictionary = {}) -> void:
 		var rect: Rect2 = drawing.drawn.get(selected_id, Rect2())
 		if drawing.drawn.values().count(rect) > 1:
 			_card.text += "\nOthers here · tap again to select them."
+	_history_button.text = "Back to selection" if _history._inspecting else "History"
 	_more.text = "Back" if _details else "Details"
 	_more.disabled = (
 		(person.is_empty() and selected_item_id == 0 and not _show_supplies) or _dreams.visible
@@ -311,6 +320,7 @@ func select_person(id: int) -> void:
 	if people.any(func(person: Dictionary) -> bool: return int(person.id) == id):
 		selected_id = id
 		selected_item_id = 0
+		_historical_item = {}
 		_show_supplies = false
 		_refresh_records()
 
@@ -319,7 +329,19 @@ func selected_item() -> Dictionary:
 	for item: Dictionary in items:
 		if int(item.id) == selected_item_id:
 			return item
-	return {}
+	return _historical_item if int(_historical_item.get("id", 0)) == selected_item_id else {}
+
+
+func _inspect_history_item(id: int, observer: int) -> void:
+	select_person(observer)
+	selected_item_id = id
+	_historical_item = {}
+	for item: Dictionary in world.items(observer, true):
+		if int(item.id) == id:
+			_historical_item = item
+			break
+	_details = true
+	_refresh_records()
 
 
 func tap(at: Vector2) -> void:

@@ -8,6 +8,8 @@ var _body: VBoxContainer
 var _was_paused := true
 var _previous_person := 0
 var _previous_item := 0
+var _previous_details := false
+var _previous_record := {}
 var _inspecting := false
 var _window := Vector2.ZERO
 var _safe := Rect2()
@@ -38,6 +40,8 @@ func open() -> void:
 		_was_paused = camp.world.is_paused()
 		_previous_person = camp.selected_id
 		_previous_item = camp.selected_item_id
+		_previous_details = camp._details
+		_previous_record = camp._historical_item
 	_inspecting = false
 	camp.world.pause()
 	for child: Node in _body.get_children():
@@ -59,10 +63,14 @@ func open() -> void:
 			_link(
 				"Source: " + Words.name_of(int(event.source), camp.people), int(event.source), false
 			)
+		else:
+			var missing := Label.new()
+			missing.text = "No source recorded"
+			_body.add_child(missing)
 		if int(event.result) != 0:
-			_link("Inspect result", int(event.result), true)
+			_link("Inspect result", int(event.result), true, int(event.actor))
 		for id: int in event.inputs:
-			_link("Inspect input", id, true)
+			_link("Inspect input", id, true, int(event.actor))
 	if count == 0:
 		var empty := Label.new()
 		empty.text = "No discovery or learning has been recorded yet."
@@ -72,17 +80,23 @@ func open() -> void:
 	layout(_window, _safe)
 
 
-func _link(words: String, id: int, item: bool) -> void:
+func _link(words: String, id: int, item: bool, observer: int = 0) -> void:
 	var button := Button.new()
 	button.text = words
+	if not item and not camp.people.any(func(p: Dictionary) -> bool: return int(p.id) == id):
+		button.text = "No source recorded"
+		button.disabled = true
+	button.set_meta("history_item" if item else "history_person", id)
 	button.pressed.connect(
 		func() -> void:
 			if item:
-				camp.selected_item_id = id
+				camp._inspect_history_item(id, observer)
 			else:
 				camp.select_person(id)
+			camp._details = true
 			_inspecting = true
 			hide()
+			camp._resize()
 			camp._refresh_records()
 	)
 	_body.add_child(button)
@@ -92,6 +106,10 @@ func close() -> void:
 	hide()
 	camp.selected_id = _previous_person
 	camp.selected_item_id = _previous_item
+	camp._historical_item = _previous_record
+	camp._details = _previous_details
+	_inspecting = false
+	camp._resize()
 	if not _was_paused:
 		camp.world.play()
 	camp._refresh_records()

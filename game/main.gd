@@ -255,6 +255,12 @@ func _go_back() -> void:
 		_menu_button.set_pressed_no_signal(false)
 	elif _page_name == "Camp" and is_instance_valid(_page._dreams) and _page._dreams.visible:
 		_page._dreams.close()
+	elif (
+		_page_name in ["Camp", "FirstFlake"]
+		and is_instance_valid(_page._history)
+		and (_page._history.visible or _page._history._inspecting)
+	):
+		_page._history.close()
 	elif _page_name != "Camp":
 		open_page("Camp")
 	elif OS.get_name() == "Android" and Engine.has_singleton("AndroidRuntime"):
