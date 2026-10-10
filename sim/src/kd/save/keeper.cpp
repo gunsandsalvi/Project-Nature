@@ -24,6 +24,14 @@ constexpr std::uint32_t kThinned = 2;
 constexpr std::uint32_t kKept = 3;
 constexpr std::uint32_t kCompacted = 4;
 
+// Only diagnostics backed by person/craft snapshots and daily counters may be
+// summarized. Other history still has consumers (for example scene greetings).
+bool routine_frame(const world::Record& record) {
+    return ecs::Id{record.key.owner}.family() == ecs::Family::person &&
+           ((record.what >= 100 && record.what <= 140) || record.what == 200 || record.what == 201 ||
+            record.what == 202 || record.what == 217);
+}
+
 const std::string kJournal = "journal.log";
 const std::string kAbout = "world.toml";
 
@@ -136,7 +144,8 @@ Year read_year(std::span<const std::byte> bytes) {
                 if (h.record.key.second >= out.compacted_before) {
                     if (replay_sequence == 0 || e.sequence != replay_sequence || replay_sequence == UINT64_MAX) break;
                     ++replay_sequence;
-                } else if (!h.kept || (replay_sequence != 0 && e.sequence >= replay_sequence))
+                } else if ((!h.kept && routine_frame(h.record)) ||
+                           (replay_sequence != 0 && e.sequence >= replay_sequence))
                     break;
             }
             if (h.sequence == UINT64_MAX) break;
@@ -352,7 +361,8 @@ void Keeper::expect(time::Seconds frontier) {
 void Keeper::history(std::span<const world::Record> records) {
     for (const world::Record& r : records) {
         const auto floor = replay_floors_.find(history_file(r.key.second));
-        if (floor != replay_floors_.end() && r.key.second < floor->second && !(keeps_ && keeps_(r))) continue;
+        if (floor != replay_floors_.end() && r.key.second < floor->second && routine_frame(r) && !(keeps_ && keeps_(r)))
+            continue;
         const std::int64_t year = year_of(r.key.second);
         if (year <= thinned_) {
             // a thinned year made again, by a world made again from its seed: its history is settled, and stays
@@ -563,7 +573,7 @@ void Keeper::snapshot(const world::World& w) {
                 Bytes compacted = frame(kCompacted, 0, marker.bytes());
                 bool removed = false;
                 for (const auto& held : year.records) {
-                    if (!held.kept && held.record.key.second < replay_from) {
+                    if (!held.kept && routine_frame(held.record) && held.record.key.second < replay_from) {
                         removed = true;
                         continue;
                     }

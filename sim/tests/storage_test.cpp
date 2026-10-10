@@ -509,8 +509,9 @@ TEST_CASE("compacted journals allow only declared public prefix gaps and reject 
     marker.i64(100);
     marker.u64(8);
     const auto frame = kd::save::frame(4, 0, marker.bytes());
-    const kd::world::Record first{{50, 1, 1}, 0, 200, 1, 1}, replay{{100, 1, 2}, 0, 202, 1, 2},
-        later{{101, 1, 3}, 0, 202, 1, 3};
+    const auto person = (std::uint64_t(kd::ecs::Family::person) << 60U) | 1;
+    const kd::world::Record first{{50, person, 1}, 0, 200, 1, 1}, replay{{100, person, 2}, 0, 202, 1, 2},
+        later{{101, person, 3}, 0, 202, 1, 3};
     const auto make = [&](bool lose_first, bool lose_middle, bool private_prefix) {
         auto bytes = frame;
         const auto add = [&](const auto& record, auto sequence, bool kept) {
@@ -551,7 +552,8 @@ TEST_CASE("a corrected public prefix lowers the compacted replay floor without h
     marker.i64(100);
     marker.u64(8);
     auto bytes = kd::save::frame(4, 0, marker.bytes());
-    const kd::world::Record original{{50, 1, 1}, 0, 200, 1, 1}, replay{{100, 1, 2}, 0, 202, 1, 2};
+    const auto person = (std::uint64_t(kd::ecs::Family::person) << 60U) | 1;
+    const kd::world::Record original{{50, person, 1}, 0, 200, 1, 1}, replay{{100, person, 2}, 0, 202, 1, 2};
     for (const auto& frame : {kd::save::record_frame(original, 3, true), kd::save::record_frame(replay, 8, false)})
         bytes.insert(bytes.end(), frame.begin(), frame.end());
     REQUIRE(files.write_whole(kd::save::year_file(1), bytes));
