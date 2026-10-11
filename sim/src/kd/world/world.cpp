@@ -15,6 +15,7 @@
 #include "kd/demo/fire.hpp"
 #include "kd/num/sort.hpp"
 #include "kd/num/whole.hpp"
+#include "kd/world/walk.hpp"
 
 namespace kd::world {
 
@@ -1664,6 +1665,20 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
                 if (offset.dx >= rock.rock_west && offset.dx <= rock.rock_east && offset.dy >= rock.rock_south &&
                     offset.dy <= rock.rock_north)
                     valid_paths = false;
+                if (valid_paths &&
+                    !camp_walk_line_clear(torus_.offset(centre, act.from), torus_.offset(centre, act.to), rock)) {
+                    // The sufficient geometric test can be conservative near
+                    // an edge. Validate the actual saved integer-time motion,
+                    // rather than rejecting a legal trajectory. LIFE already
+                    // bounds this interval to one day before this loop.
+                    for (auto at = act.start; at < act.end; ++at) {
+                        const auto point = torus_.offset(centre, act.at(torus_, at));
+                        if (!camp_line_clear(point, point, rock)) {
+                            valid_paths = false;
+                            break;
+                        }
+                    }
+                }
                 for (std::size_t n = 0; n < 3; ++n)
                     if (life.source[n] != 0 && !inside(life.known_at[n])) valid_paths = false;
             });

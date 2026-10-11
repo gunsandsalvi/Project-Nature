@@ -792,3 +792,88 @@ TEST_CASE("an urgent water dream records the real arrival without claiming a dre
     CHECK(copy->world().beings().raw().get<world::Dreams>(ch).acts[0].visited_at == one.act().start);
     CHECK(copy->world().beings().raw().get<world::Dreams>(ch).acts[0].pull == 0);
 }
+
+TEST_CASE("rounded walking routes stay outside inclusive rock when interrupted") {
+    One one;
+    const auto centre = one.w.beings().raw().get<world::Place>(one.ch).at;
+    const auto from = one.w.torus().moved(centre, {400, 1000});
+    const auto target = one.w.torus().moved(centre, {401, 800});
+    REQUIRE(world::camp_line_clear({400, 1000}, {401, 800}, one.env()));
+    const auto path = demo::Living::route(one.w, one.home, from, target);
+    REQUIRE_FALSE(path.empty());
+    if (path.empty()) return;
+    auto origin = from;
+    for (const auto destination : path) {
+        const world::Activity segment{1, 0, 20, origin, destination};
+        for (time::Seconds second = 0; second <= 20; ++second) {
+            const auto point = one.w.torus().offset(centre, segment.at(one.w.torus(), second));
+            CHECK(world::camp_line_clear(point, point, one.env()));
+        }
+        origin = destination;
+    }
+    CHECK(origin == target);
+    one.set_action(world::LivingAct::walk, from, 20, 0);
+    one.act().to = path.front();
+    const auto interrupted = one.act().at(one.w.torus(), 10);
+    one.w.run_to(10);
+    one.set_action(world::LivingAct::watch, interrupted, 70, 0);
+    one.act().start = 10;
+    one.life().settled = 10;
+    one.life().explore_at = interrupted;
+    one.life().use_at = target;
+    std::string why;
+    const auto copy = demo::CrowdWorld::open(test::camp_fixture(), one.w.save(), why);
+    INFO(why);
+    REQUIRE(copy);
+    if (!copy) return;
+    CHECK(copy->world().digests().whole == one.w.digests().whole);
+}
+
+TEST_CASE("rounded routes protect every rock edge in either direction") {
+    One one;
+    const auto centre = one.w.beings().raw().get<world::Place>(one.ch).at;
+    const std::array<std::pair<num::Offset, num::Offset>, 8> pairs{{{{400, 1000}, {401, 800}},
+                                                                    {{200, 1000}, {199, 800}},
+                                                                    {{400, -600}, {401, -400}},
+                                                                    {{200, -600}, {199, -400}},
+                                                                    {{100, 900}, {300, 901}},
+                                                                    {{500, 900}, {300, 901}},
+                                                                    {{100, -500}, {300, -501}},
+                                                                    {{500, -500}, {300, -501}}}};
+    for (const auto& [first, last] : pairs) {
+        for (bool reversed : {false, true}) {
+            auto origin = one.w.torus().moved(centre, reversed ? last : first);
+            const auto target = one.w.torus().moved(centre, reversed ? first : last);
+            const auto path = demo::Living::route(one.w, one.home, origin, target);
+            REQUIRE_FALSE(path.empty());
+            if (path.empty()) continue;
+            CHECK(path == demo::Living::route(one.w, one.home, origin, target));
+            for (const auto destination : path) {
+                const world::Activity segment{1, 0, 20, origin, destination};
+                for (time::Seconds second = 0; second <= 20; ++second) {
+                    const auto point = one.w.torus().offset(centre, segment.at(one.w.torus(), second));
+                    CHECK(world::camp_line_clear(point, point, one.env()));
+                }
+                origin = destination;
+            }
+            CHECK(origin == target);
+        }
+    }
+}
+
+TEST_CASE("saved motion rejects actual rounded collisions and keeps legal edge trajectories") {
+    for (bool legal : {false, true}) {
+        One one;
+        const auto centre = one.w.beings().raw().get<world::Place>(one.ch).at;
+        const auto first = num::Offset{400, legal ? 901 : 1000};
+        const auto last = num::Offset{401, legal ? 900 : 800};
+        REQUIRE(world::camp_line_clear(first, last, one.env()));
+        one.set_action(world::LivingAct::walk, one.w.torus().moved(centre, first), 20, 0);
+        one.act().to = one.w.torus().moved(centre, last);
+        std::string why;
+        const auto copy = demo::CrowdWorld::open(test::camp_fixture(), one.w.save(), why);
+        INFO(legal, why);
+        CHECK(bool(copy) == legal);
+        if (copy) CHECK(copy->world().digests().whole == one.w.digests().whole);
+    }
+}

@@ -159,8 +159,8 @@ Inputs reachable(world::Context& c, world::Beings::Handle h, const Supplies& sup
             if (!Living::visible(w, home, here, site.at) || Living::route(w, home, here, site.at).empty()) continue;
         } else {
             const auto target = w.torus().offset(centre, site.at);
-            // Straight visibility plus legal endpoints already proves the
-            // route is the one-segment {site.at}; no path allocation/BFS needed.
+            // Visibility plus legal endpoints proves reachability, without
+            // allocating a route (which may add a rounding-safe corner).
             // camp_line_clear includes the same inclusive endpoint-rock test.
             if (!inside(origin) || !inside(target) || !world::camp_line_clear(origin, target, rock)) continue;
         }

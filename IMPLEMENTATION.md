@@ -112,7 +112,8 @@ Twenty years/minute means three wall-seconds/year: at 7,000 people and four core
 1. `T4.1d.1` Score-only teaching eligibility; kindness remains an inclination. Prove a low-kindness holder can teach when useful and decline for a better option; saves retain actual participants/knowledge (`MND-13`, `MND-14`).
 2. `T4.1d.2` Bounded, saved generic prerequisite exploration from own evidence when an unmet need lacks a known means. Score actual nearby unknown materials against competing needs; no named craft/material special cases, granted facts or forced discovery. Review curiosity decline; propose any T change before separate calibration (`MND-11`, `MND-23`, `PRN-07`).
 3. `T4.1d.3` Profile mature P1 work, repair real waste, prove exact scalar/indexed state, then freeze and judge P1 once on fresh seeds. Fresh S/F after calibration; declared thresholds/RES-13 arithmetic. Routine once/repaired rerun, check APK.
-4. `T4.1d.4` Recapture ordinary illustrative flake within60days, actual timestamp; no frequency claim (coordinator04:12). Frozen gate executable stays unchanged.
+4. `T4.1d.4` Recapture ordinary illustrative flake within 60 days, actual timestamp; no frequency claim (coordinator04:12). Frozen gate executable stays unchanged (`PLT-07`, `RES-06`).
+5. `T4.1d.5` Repair seed9207’s rounded movement/save defect at its cause, fast regression; VOID original S/F, fresh frozen judgement (coordinator04:23). P1 remains failed (`BIO-09`, `PLT-07`).
 **Tests:** Existing S/F/P1 thresholds; reopens/workers/camera equality/reasons. Seasons wait.
 **On the phone:** Inspect trials/teaching.
 
@@ -123,9 +124,9 @@ Twenty years/minute means three wall-seconds/year: at 7,000 people and four core
 **Serves:** `TIM-07`, `PLT-04`, `PLT-10`, `RES-05`, `RES-06`.
 **Architecture:** A19.2.
 **Tasks:**
-1. `T4.1e.1` Diagnose exposed9601 versus calibration9003 subsystem costs; repair worst-case waste exactly, with matched full-state/reason regressions. No rejudgement or behaviour tuning.
-2. `T4.1e.2` Freeze laws/build/fresh seeds and judge P1 once: three years each, ≥5 years/minute on one core; stop at first certain failure. Report costs/RSS and keep failed verdicts.
-3. `T4.1e.3` Routine once/repaired rerun, check APK, delivery.
+1. `T4.1e.1` Diagnose exposed9601 versus calibration9003 subsystem costs; repair worst-case waste exactly, with matched full-state/reason regressions. No rejudgement or behaviour tuning (`TIM-07`, `PLT-10`).
+2. `T4.1e.2` Freeze laws/build/fresh seeds and judge P1 once: three years each, ≥5 years/minute on one core; stop at first certain failure. Report costs/RSS and keep failed verdicts (`TIM-07`, `RES-06`).
+3. `T4.1e.3` Routine once/repaired rerun, check APK, delivery (`PLT-04`, `RES-06`).
 **Tests:** Exact digests/reopens/workers/scalar equality. Seasonal scope waits.
 **On the phone:** Sustained speed remains owed.
 

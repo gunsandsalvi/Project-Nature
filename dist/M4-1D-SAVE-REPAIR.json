@@ -1,0 +1,59 @@
+{
+  "authorization": "Coordinator11October04:23: known save bug invalidates initial S/F; fast regression/cause repair then fresh frozen S/F; P1 failure stands.",
+  "original_gate_report": "M4-1D-VOID.json",
+  "failure_seed": 9207,
+  "failure_frontier": 15552000,
+  "failure_problem": "living path or memory outside reachable camp",
+  "old_full_gate_result": {
+    "seed": 9207,
+    "control": false,
+    "complete": false,
+    "ordinary_setup": true,
+    "completed_at": -1,
+    "ember_at": 1571859,
+    "flame_at": 2608003,
+    "tend_at": 2607943,
+    "cooked_at": -1,
+    "ended": 15552000,
+    "friction_choices": 231,
+    "wood_pairs": 168,
+    "friction_results": 6,
+    "tended": 6,
+    "cooked": 0,
+    "reopen_failures": 1,
+    "choice_count": 184330,
+    "choice_wire_bytes": 63962646,
+    "snapshot_bytes": 1711334,
+    "peak_trace_records": 47560,
+    "origin": 0,
+    "tended_fire": 0,
+    "cooked_item": 0,
+    "digest": "3e3a798759011a7e",
+    "ms": 686744
+  },
+  "original_failure_log": "fire seed 9207 day 0.0/180.0 elapsed 0.0s items 539\nfire seed 9207 day 5.0/180.0 elapsed 3.4s items 781\nfire seed 9207 day 10.0/180.0 elapsed 6.2s items 781\nfire seed 9207 day 15.0/180.0 elapsed 9.2s items 785\nfire seed 9207 day 20.0/180.0 elapsed 13.6s items 703\nfire seed 9207 day 25.0/180.0 elapsed 20.2s items 711\nfire seed 9207 day 30.0/180.0 elapsed 35.1s items 717\nfire seed 9207 day 35.0/180.0 elapsed 55.5s items 728\nfire seed 9207 day 40.0/180.0 elapsed 74.9s items 740\nfire seed 9207 day 45.0/180.0 elapsed 95.4s items 754\nfire seed 9207 day 50.0/180.0 elapsed 114.8s items 766\nfire seed 9207 day 55.0/180.0 elapsed 135.1s items 776\nfire seed 9207 day 60.0/180.0 elapsed 155.8s items 790\nfire seed 9207 day 65.0/180.0 elapsed 177.4s items 803\nfire seed 9207 day 70.0/180.0 elapsed 198.3s items 809\nfire seed 9207 day 75.0/180.0 elapsed 219.2s items 820\nfire seed 9207 day 80.0/180.0 elapsed 240.0s items 828\nfire seed 9207 day 85.0/180.0 elapsed 261.3s items 838\nfire seed 9207 day 90.0/180.0 elapsed 283.0s items 851\nfire seed 9207 day 95.0/180.0 elapsed 305.3s items 862\nfire seed 9207 day 100.0/180.0 elapsed 327.0s items 874\nfire seed 9207 day 105.0/180.0 elapsed 348.6s items 884\nfire seed 9207 day 110.0/180.0 elapsed 369.9s items 893\nfire seed 9207 day 115.0/180.0 elapsed 392.0s items 903\nfire seed 9207 day 120.0/180.0 elapsed 414.5s items 917\nfire seed 9207 day 125.0/180.0 elapsed 437.8s items 921\nfire seed 9207 day 130.0/180.0 elapsed 460.6s items 933\nfire seed 9207 day 135.0/180.0 elapsed 483.6s items 939\nfire seed 9207 day 140.0/180.0 elapsed 506.1s items 951\nfire seed 9207 day 145.0/180.0 elapsed 529.2s items 964\nfire seed 9207 day 150.0/180.0 elapsed 550.9s items 971\nfire seed 9207 day 155.0/180.0 elapsed 573.3s items 976\nfire seed 9207 day 160.0/180.0 elapsed 595.5s items 980\nfire seed 9207 day 165.0/180.0 elapsed 618.1s items 987\nfire seed 9207 day 170.0/180.0 elapsed 640.5s items 995\nfire seed 9207 day 175.0/180.0 elapsed 663.3s items 1006\nfire seed 9207 day 180.0/180.0 elapsed 686.1s items 1014\nhistory events=353 choices=184330\nfire seed 9207 frontier 15552000 reopen: living path or memory outside reachable camp\nelapsed=686.89 peak_kib=249332\n",
+  "first_bad_diagnostic_log": "diagnosis9207 day0 bad=0\ndiagnosis9207 day5 bad=0\ndiagnosis9207 day10 bad=0\ndiagnosis9207 day15 bad=0\ndiagnosis9207 day20 bad=0\nBAD id=3458764513820540946 day=25.000000 act=0 from=400,865 to=400,865 ex=400,865 use=1028,1132 bounds=1500,1800 phase=0 clear=0 memory=0 rock=200,400,-500,900\ndiagnosis9207 day25 bad=1\nactual reopen=0 problem=living path or memory outside reachable camp digest=bf5e487bb2715fc9\nCommand exited with non-zero status 3\nelapsed=20.31 peak_kib=156016\n",
+  "first_bad_day": 25,
+  "first_bad_actor": "3458764513820540946",
+  "first_bad_offset_cm": [
+    400,
+    865
+  ],
+  "inclusive_rock_cm": [
+    200,
+    400,
+    -500,
+    900
+  ],
+  "snapshot_sha256": "b773ecaea5855a021182acc5954625a6054d29dc160a26cb5bfaaa33f9b59217",
+  "cause": "Integer displacement truncation can enter a closed rock edge despite continuously clear endpoints/segment. Failed actor then remains there.",
+  "fixture": "Continuous400,1000->401,800; a20second segment rounds its midpoint to400,900, inside rock. Interrupting there reproduces actual save rejection.",
+  "before_test": "1case25assertions,11failures,0.00s8.8MiB",
+  "repair": "Generic directional rounding clearance; orthogonal free corners for unsafe diagonals. Bounds/visibility/rock remain inclusive. Save validation samples actual integer motion only for suspect segments, bounded by existing one-day activity limit; a legal conservative edge case still opens. No retyping, moved-person correction, dropped memory or validator relaxation.",
+  "tests": {
+    "broad": "15cases240765assertions PASS40.48s98.6MiB",
+    "final_fast_guards": "4cases240604assertions PASS0.02s9.5MiB",
+    "final_build": "44.80s731.4MiB"
+  },
+  "judgement": "No old S/F verdict or P1 rerun; fresh S/F ranges wait for final freeze. Control9181 replay is evidence-only after runner automatically stopped its partial run atday220."
+}

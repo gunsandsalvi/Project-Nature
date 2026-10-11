@@ -9,6 +9,7 @@
 #include "kd/demo/learning.hpp"
 #include "kd/demo/motivation.hpp"
 #include "kd/demo/parts.hpp"
+#include "kd/world/walk.hpp"
 
 namespace kd::demo {
 namespace {
@@ -98,7 +99,29 @@ std::vector<num::Point> Living::route(const world::World& w, ecs::Id camp, num::
         return std::abs(p.dx) <= patch.half_width_cm && std::abs(p.dy) <= patch.half_height_cm;
     };
     if (!inside(a) || !inside(b) || in_rock(a, rock) || in_rock(b, rock)) return {};
-    if (line_clear(a, b, rock)) return {to};
+    const auto rounded_path = [&](const std::vector<num::Point>& path) {
+        std::vector<num::Point> result;
+        auto previous = a;
+        for (const auto destination : path) {
+            const auto next = w.torus().offset(centre, destination);
+            if (!world::camp_walk_line_clear(previous, next, rock)) {
+                // A continuously clear diagonal can round into a closed edge.
+                // One of its two orthogonal corners stays outside a rectangle;
+                // axis-aligned interpolation cannot stray across that edge.
+                auto corner = num::Offset{next.dx, previous.dy};
+                if (!line_clear(previous, corner, rock) || !line_clear(corner, next, rock))
+                    corner = {previous.dx, next.dy};
+                KD_CHECK(line_clear(previous, corner, rock) && line_clear(corner, next, rock),
+                         "A clear segment has a free orthogonal detour");
+                result.push_back(w.torus().moved(centre, corner));
+            }
+            result.push_back(destination);
+            previous = next;
+        }
+        return result;
+    };
+    if (world::camp_walk_line_clear(a, b, rock)) return {to};
+    if (line_clear(a, b, rock)) return rounded_path({to});
     const std::array<std::int64_t, 14> key{w.torus().width(),
                                            w.torus().height(),
                                            centre.x,
@@ -160,7 +183,7 @@ std::vector<num::Point> Living::route(const world::World& w, ecs::Id camp, num::
         reversed.erase(reversed.begin(), reversed.begin() + static_cast<std::ptrdiff_t>(furthest));
         return reversed;
     };
-    auto path = make();
+    auto path = rounded_path(make());
     {
         const std::lock_guard lock(w.living_paths_mutex_);
         // Bounded derived geometry cache. Its hits, eviction and thread order never affect a route.
