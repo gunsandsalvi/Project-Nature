@@ -129,5 +129,150 @@
     "gprofng second-half samples are incomplete; use function rankings only, not absolute CPU.",
     "Folder size differs with the 30-wall-second fallback frontier; it is not a matched storage reduction.",
     "P1 threshold remains 5 years/minute on every declared seed; no acceptance seeds exposed."
-  ]
+  ],
+  "shared_attendance_daylight_followup": {
+    "implementation": "Count stationary attendance in one daylight interval using one geometry/visibility test; scalar, zero elapsed, dusk crossings, night light and moving intervals retain game-second loop.",
+    "law_and_T_changes": false,
+    "native_equality": {
+      "cases": 5,
+      "assertions": 1015,
+      "pass": true,
+      "wall_seconds": 0.42,
+      "peak_rss_kib": 19920,
+      "coverage": "Daylight/dusk and zero elapsed, partial attendance, exact reopen, original taught chance and paused relocation."
+    },
+    "matched_calibration": {
+      "seed": 8806,
+      "core": 4,
+      "game_years": 1,
+      "setup": "ordinary warm25founder camp, default controller/indexes, real Keeper, no probe; before/after same inputs",
+      "before": {
+        "seed": 8806,
+        "game_years": 1.0,
+        "complete": true,
+        "wall_seconds": 54.867059,
+        "period_seconds": 54.867059,
+        "years_per_minute": 1.093552,
+        "main_cpu_seconds": 54.028366,
+        "process_cpu_seconds": 54.783335,
+        "peak_rss_kib": 261112,
+        "population": 25,
+        "live_items": 557,
+        "archived_items": 772,
+        "eligible_spent": 0,
+        "choices": 10936,
+        "results": 536,
+        "folder_bytes": 22457055,
+        "bytes_added": 22457055,
+        "snapshot_bytes": 406010,
+        "reachable_visits": 45253606,
+        "thermal_visits": 105125,
+        "digest": "b3d35764fdd6f862",
+        "cpu": {
+          "people": 0.0,
+          "camp": 0.0,
+          "layers": 0.0,
+          "chooser": 0.0,
+          "inputs": 0.0,
+          "thermal": 0.0,
+          "food": 0.0,
+          "retention": 0.0,
+          "observation": 0.0,
+          "evidence": 0.0,
+          "storage": 0.378434,
+          "queue_reporting": 53.649932,
+          "io_thread": 0.754969
+        },
+        "physical_parts": {
+          "clock": "8135476971bbb03e",
+          "queue": "534907e869a3bca3",
+          "things": "24e171bf997cd3b2",
+          "systems": "bf22c1a54ae2d73b",
+          "history": "975a1adfff6cb5b9"
+        },
+        "finite_intake_mg": {},
+        "craft_sources": []
+      },
+      "after": {
+        "seed": 8806,
+        "game_years": 1.0,
+        "complete": true,
+        "wall_seconds": 56.742368,
+        "period_seconds": 56.742368,
+        "years_per_minute": 1.057411,
+        "main_cpu_seconds": 55.874932,
+        "process_cpu_seconds": 56.672215,
+        "peak_rss_kib": 261540,
+        "population": 25,
+        "live_items": 557,
+        "archived_items": 772,
+        "eligible_spent": 0,
+        "choices": 10936,
+        "results": 536,
+        "folder_bytes": 23385931,
+        "bytes_added": 23385931,
+        "snapshot_bytes": 406010,
+        "reachable_visits": 45253606,
+        "thermal_visits": 105125,
+        "digest": "b3d35764fdd6f862",
+        "cpu": {
+          "people": 0.0,
+          "camp": 0.0,
+          "layers": 0.0,
+          "chooser": 0.0,
+          "inputs": 0.0,
+          "thermal": 0.0,
+          "food": 0.0,
+          "retention": 0.0,
+          "observation": 0.0,
+          "evidence": 0.0,
+          "storage": 0.417625,
+          "queue_reporting": 55.457307,
+          "io_thread": 0.797283
+        },
+        "physical_parts": {
+          "clock": "8135476971bbb03e",
+          "queue": "534907e869a3bca3",
+          "things": "24e171bf997cd3b2",
+          "systems": "bf22c1a54ae2d73b",
+          "history": "975a1adfff6cb5b9"
+        },
+        "finite_intake_mg": {},
+        "craft_sources": []
+      },
+      "whole_and_physical_equal": true,
+      "performance_claim": "No measured whole-camp gain. Timing had other work on other cores: old8101 diagnostic/test compile overlapped before; source checks/view compile overlapped after. Folder bytes differ in wall-clock fallback frontier, not a storage gain."
+    },
+    "view_build": {
+      "pass": true,
+      "wall_seconds": 16.59,
+      "peak_rss_kib": 427076
+    },
+    "view_tests": {
+      "pass": true,
+      "cases": 70,
+      "assertions": 20230,
+      "wall_seconds": 5.48,
+      "peak_rss_kib": 124516
+    },
+    "one_four_worker_digests": {
+      "suites": 10,
+      "pass": true
+    },
+    "source_checks": {
+      "lint": {
+        "pass": true,
+        "files": 2,
+        "wall_seconds": 133.71,
+        "peak_rss_kib": 879924
+      },
+      "rules": {
+        "pass": true,
+        "rules": 13,
+        "files_read": 1,
+        "wall_seconds": 31.62,
+        "peak_rss_kib": 373536
+      }
+    }
+  }
 }

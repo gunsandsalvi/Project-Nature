@@ -398,13 +398,26 @@ bool Learning::handle(Living& living, world::Context& c, world::Beings::Handle h
     bool stop = interrupted || teacher_leaves || learner_leaves;
     if (s->state == 1) {
         // Account each attended second, even if an external call changes attendance between ends.
-        for (auto t = s->settled; t < c.now(); ++t) {
-            if (w.torus().squared_distance(ta.at(w.torus(), t), la.at(w.torus(), t)) > 200LL * 200 ||
-                !can_watch(w, home, ta.at(w.torus(), t), la.at(w.torus(), t), t)) {
+        const auto elapsed = c.now() - s->settled;
+        const auto clock = s->settled % time::kDay;
+        if (!w.scalar_work() && elapsed > 0 && ta.from == ta.to && la.from == la.to && clock >= 6 * time::kHour &&
+            elapsed <= 20 * time::kHour - clock) {
+            // Within one daylight interval, stationary geometry and visibility cannot change.
+            // Night light and moving attendance retain their exact game-second checks below.
+            if (w.torus().squared_distance(ta.from, la.from) <= 200LL * 200 &&
+                Living::visible(w, home, ta.from, la.from))
+                s->seconds += elapsed;
+            else
                 stop = true;
-                break;
+        } else {
+            for (auto t = s->settled; t < c.now(); ++t) {
+                if (w.torus().squared_distance(ta.at(w.torus(), t), la.at(w.torus(), t)) > 200LL * 200 ||
+                    !can_watch(w, home, ta.at(w.torus(), t), la.at(w.torus(), t), t)) {
+                    stop = true;
+                    break;
+                }
+                ++s->seconds;
             }
-            ++s->seconds;
         }
         s->settled = c.now();
         credit(c, *s);

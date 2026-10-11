@@ -468,7 +468,8 @@ namespace {
 struct TeachingFixture : WatchFixture {
     kd::ecs::Id visible_tool{};
     bool accepted = false;
-    explicit TeachingFixture(std::uint64_t seed = 17) : WatchFixture(true, 400, 7 * kd::time::kHour, seed) {
+    explicit TeachingFixture(std::uint64_t seed = 17, kd::time::Seconds begun = 7 * kd::time::kHour)
+        : WatchFixture(true, 400, begun, seed) {
         auto& w = camp->world();
         auto& raw = w.beings().raw();
         for (const auto id : {maker, watcher}) {
@@ -655,6 +656,23 @@ TEST_CASE("partial shared lesson reopens and resumes gradual work with no duplic
     saved.camp->world().run_islands(pause + 2200, workers, 1);
     CHECK(direct.camp->world().digests().whole == saved.camp->world().digests().whole);
     saved.reopen();
+}
+TEST_CASE("shared attendance intervals match the game-second reference through daylight and dusk") {
+    for (const auto begun : {7 * kd::time::kHour, 19 * kd::time::kHour + 30 * kd::time::kMinute}) {
+        TeachingFixture fast(17, begun), reference(17, begun);
+        reference.camp->world().set_scalar_work(true);
+        fast.offer();
+        reference.offer();
+        const auto start = fast.camp->world().frontier();
+        for (const auto elapsed : {0, 30, 900, 1800, 3600}) {
+            fast.camp->world().run_to(start + elapsed);
+            reference.camp->world().run_to(start + elapsed);
+            CHECK(fast.camp->world().digests().whole == reference.camp->world().digests().whole);
+            fast.reopen();
+            reference.reopen();
+            reference.camp->world().set_scalar_work(true);
+        }
+    }
 }
 TEST_CASE("a paused lesson meets at the teacher's new position before shared practice resumes") {
     TeachingFixture f;

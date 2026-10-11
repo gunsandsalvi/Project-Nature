@@ -1,5 +1,5 @@
 {
-  "status": "Focused repair complete and checked; continued exposed-seed diagnosis still in progress, valid through day70 on meeting-only build.",
+  "status": "Repair4794483f passes original3year boundary on exposed8101, with initial/final exact reopen; mechanical attendance optimisation under separate validation.",
   "invalid_gate_seed": 8101,
   "invalid_gate_frontier_seconds": 15552000,
   "first_hourly_invalid_frontier_seconds": 2102400,
@@ -79,5 +79,36 @@
       "peak_rss_kib": 12240
     }
   },
-  "original_180_day_failure_relationship": "Original gate reported only a generic craft error and retained no snapshot. Hourly diagnosis reproduced separated practice at day24.333; focused resume fixture reproduced generic rejection of preserved attendance. Continued exposed-seed diagnosis checks for additional failures; no original end-state cause claimed without that evidence."
+  "original_180_day_failure_relationship": "Original gate retained only its generic error, not its endpoint snapshot. Two fast-fixture failures were repaired. The same exposed seed now reopens exactly at the original180day frontier; no unretained old-state cause is claimed.",
+  "continued_diagnostics": {
+    "hourly_meeting_only": {
+      "seed": 8101,
+      "valid_through_day": 90,
+      "stopped": true,
+      "reason": "Focused regression already reproduces both discovered invariants; hourly load/save sampling took over12minutes, so check original180day frontier directly on fully repaired build. No judgement or calibration.",
+      "wall_seconds": 757.7,
+      "peak_rss_kib": 82584,
+      "exit_code": 143
+    },
+    "original_boundary_repaired": {
+      "seed": 8101,
+      "game_years": 3,
+      "status": "PASS",
+      "equality_checked": "Initial and final snapshot whole digest; does not alter physical state.",
+      "cadence": "One game day per run_to, exactly the S gate; reopen only initial and180day snapshots.",
+      "whole_digest_equality": true,
+      "wall_seconds": 1060.61,
+      "peak_rss_kib": 60748,
+      "years_per_minute": 0.16971365534928015,
+      "judgement": false,
+      "code": "4794483f, before daylight attendance optimisation"
+    },
+    "single_jump_boundary": {
+      "stopped": true,
+      "exit_code": 143,
+      "wall_seconds": 701.59,
+      "peak_rss_kib": 310800,
+      "reason": "Direct180day jump deferred World::retain_records until endpoint; discarded as unrepresentative of gate daily cadence before reaching endpoint."
+    }
+  }
 }
