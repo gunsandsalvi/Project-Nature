@@ -292,10 +292,45 @@ func test_fire_marker_is_grounded_and_can_be_inspected_by_touch() -> void:
 				local * float(page.state.scale) * float(page.state.live_scale)
 				+ Vector2(page.state.offset)
 			)
-			_touch(page._area.global_position + at)
+			# Independently lit sources can overlap; repeated taps cycle their identities.
+			for attempt in page.drawing.drawn_fires.size() + 1:
+				_touch(page._area.global_position + at)
+				if page.selected_item_id == int(item.id):
+					break
 			assert_int(page.selected_item_id).is_equal(int(item.id))
 			assert_str(page._card.text).contains("fuel")
 			tested = true
 			break
 	assert_bool(tested).is_true()
+	shell.free()
+
+
+func test_fire_markers_remain_distinct_from_supplies_and_cycle_overlaps() -> void:
+	var shell := await _shell()
+	var page: Control = shell._page
+	var drawing := preload("res://camp/drawing.gd").new()
+	drawing.camera = page.camera
+	drawing.state = page.state
+	var fires: Array = page.items.filter(func(i: Dictionary) -> bool: return i.has("fire_heat"))
+	var source: Dictionary = fires[0]
+	var supply := source.duplicate()
+	supply.id = 11
+	supply.erase("fire_heat")
+	var cold := source.duplicate()
+	cold.id = 12
+	cold.fire_heat = 0
+	var ember := source.duplicate()
+	ember.id = 13
+	ember.fire_heat = 1
+	drawing.items = [supply, cold, ember]
+	drawing.rebuild()
+	assert_int(drawing.drawn_fires.size()).is_equal(2)
+	assert_bool(drawing.drawn_items.has(11)).is_true()
+	var rect: Rect2 = drawing.drawn_fires[12]
+	assert_bool(drawing.drawn_fires[13] == rect).is_true()
+	var point := rect.position + rect.size * Vector2(0.05, 0.8)
+	assert_int(drawing.pick_fire(point)).is_equal(12)
+	assert_int(drawing.pick_fire(point, 12)).is_equal(13)
+	assert_int(drawing.pick_fire(point, 13)).is_equal(12)
+	drawing.free()
 	shell.free()

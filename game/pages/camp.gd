@@ -360,15 +360,12 @@ func tap(at: Vector2) -> void:
 	# Person centres stay reliable; the hearth's edge is inspectable beneath resting people.
 	var person_centre := exact != 0 and local.distance_to(drawing.drawn[exact].get_center()) <= 2.0
 	if not person_centre:
-		for item: Dictionary in items:
-			if (
-				item.has("fire_heat")
-				and drawing.drawn_items.get(int(item.id), Rect2()).has_point(local)
-			):
-				selected_item_id = int(item.id)
-				_show_supplies = false
-				_refresh_records()
-				return
+		var fire_id: int = drawing.pick_fire(local, selected_item_id)
+		if fire_id != 0:
+			selected_item_id = fire_id
+			_show_supplies = false
+			_refresh_records()
+			return
 	if exact != 0:
 		select_person(exact)
 		return

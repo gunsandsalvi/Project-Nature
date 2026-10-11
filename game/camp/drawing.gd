@@ -12,6 +12,7 @@ var selected := 0
 var items: Array = []
 var selected_item := 0
 var drawn_items: Dictionary = {}
+var drawn_fires: Dictionary = {}
 var item_piles: Dictionary = {}
 var drawn: Dictionary = {}
 
@@ -19,6 +20,7 @@ var drawn: Dictionary = {}
 func rebuild() -> void:
 	drawn.clear()
 	drawn_items.clear()
+	drawn_fires.clear()
 	item_piles.clear()
 	for person: Dictionary in people:
 		var foot := _absolute(Vector2i(person.east_cm, person.north_cm))
@@ -46,6 +48,9 @@ func rebuild() -> void:
 				int(item.north_cm) / 100
 			]
 		)
+		# A fire has its own source/tending history; never hide it in a supply pile.
+		if item.has("fire_heat"):
+			key = "fire:%d" % int(item.id)
 		if piles.has(key):
 			item_piles[int(piles[key])].append(int(item.id))
 			continue
@@ -56,6 +61,7 @@ func rebuild() -> void:
 		if item.has("fire_heat"):
 			side = maxf(16, side * 2)
 			drawn_items[int(item.id)] = Rect2(at - Vector2(side * 0.5, side), Vector2(side, side))
+			drawn_fires[int(item.id)] = drawn_items[int(item.id)]
 			continue
 		var site := "%d:%d:%d" % [int(item.owner), int(item.east_cm), int(item.north_cm)]
 		var index: int = site_counts.get(site, 0)
@@ -305,3 +311,14 @@ func pick_item(at: Vector2, previous: int = 0) -> int:
 			var pile: Array = item_piles[id]
 			return int(pile[(pile.find(previous) + 1) % pile.size()])
 	return 0
+
+
+func pick_fire(at: Vector2, previous: int = 0) -> int:
+	var hits: Array[int] = []
+	for id: int in drawn_fires:
+		if drawn_fires[id].has_point(at):
+			hits.append(id)
+	if hits.is_empty():
+		return 0
+	hits.sort()
+	return hits[(hits.find(previous) + 1) % hits.size()]

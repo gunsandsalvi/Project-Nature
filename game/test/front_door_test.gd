@@ -59,6 +59,10 @@ func test_front_door_has_few_controls_and_touch_selects_a_saved_person() -> void
 				var other_rect: Rect2 = camp.drawing.drawn[int(other.id)]
 				if point.distance_to(other_rect.get_center() * float(camp.state.scale)) <= 50:
 					clear = false
+			var local: Vector2 = camp.camera.from_screen(point)
+			for item_rect: Rect2 in camp.drawing.drawn_items.values():
+				if item_rect.grow(2).has_point(local):
+					clear = false
 			if clear:
 				person = candidate
 				at = point
