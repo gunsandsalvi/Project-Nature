@@ -1,0 +1,16 @@
+{
+  "seed": 8201,
+  "method": "Output-only replay of a completed judged camp on the same frozen binary/laws, no parameter change or new judgement. End digest equals judged44fd4e1211d5fa9d.",
+  "raw_log": "MATERIALS day0 rod_mg36000000 sheet_mg16000000 wood_familiar_people0 burn_known_people0 wet_known_people0 urgent_people0 curiosity_sum1500 latest_friction_reasons0 latest_unknown_reasons0\nMATERIALS day5 rod_mg36000000 sheet_mg16000000 wood_familiar_people25 burn_known_people0 wet_known_people25 urgent_people2 curiosity_sum285 latest_friction_reasons0 latest_unknown_reasons0\nMATERIALS day20 rod_mg36000000 sheet_mg16000000 wood_familiar_people25 burn_known_people0 wet_known_people25 urgent_people24 curiosity_sum0 latest_friction_reasons0 latest_unknown_reasons0\nMATERIALS day180 rod_mg36000000 sheet_mg16000000 wood_familiar_people25 burn_known_people0 wet_known_people25 urgent_people25 curiosity_sum0 latest_friction_reasons0 latest_unknown_reasons0\nelapsed=107.63 peak_kib=44552\n",
+  "raw_result": "digest=44fd4e1211d5fa9d friction=0\n",
+  "wall_seconds": 107.63,
+  "peak_rss_kib": 44552,
+  "years_per_minute": 1.672396172070984,
+  "conclusions": [
+    "Physical wood rods36kg and boards16kg remain throughout; material absence is ruled out.",
+    "All25 know wood and wetness by day5, but none know burning. Starting familiarity supplies food evidence only. Unknown fuel experiments require an existing warm/ember fire, so the cold hearth offers no such option.",
+    "Curiosity satisfaction declines to0 (maximum demand), not zero interest. At day20 24/25, and day18025/25, have bodily need<20: Crafting::choose excludes curiosity experiments under urgency.",
+    "Non-urgent random exploration samples a21-action family with generally random free inputs and at most one attempt draw perhour (1/24 or1/168). No generic unmet-need prerequisite search exists. Three friction choices in16finished camps confirm the sparse opportunity, not missing physical wood."
+  ],
+  "scope": "Only8201 personal-state diagnosis sampled. Do not generalize every failed camp's trait/urgency timing. Coordinator03:17 approved a generic prerequisite repair alpha, not extra starter reserves or forced fire."
+}

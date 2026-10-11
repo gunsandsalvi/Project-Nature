@@ -30,7 +30,7 @@ Day 45: 22,541 spent items. Three-year choices: 242,397 in diagnostic 7002, 438,
 ## M4 The camp survives change
 
 **Goal:** Repair M3 carry-overs, then make seasonal preparation, care and family life readable (`MIL-11`); establish speed before expanding systems.
-**Serves:** `BIO-04`, `BIO-05`, `BIO-06`, `BIO-08`, `BIO-09`, `BIO-10`, `BIO-11`, `BIO-12`, `BIO-13`, `BIO-14`, `BIO-15`, `BIO-16`, `BIO-17`, `BIO-20`, `BIO-22`, `BIO-23`, `MAT-08`, `MAT-09`, `MAT-10`, `MAT-11`, `MAT-19`, `MAT-20`, `MAT-22`, `MND-09`, `MND-11`, `MND-13`, `MND-14`, `MND-22`, `MND-23`, `MND-24`, `MND-26`, `MND-28`, `MOM-01`, `PRE-05`, `PRE-10`, `PRE-14`, `PRE-30`, `RCK-01`, `RCK-14`, `RCK-22`, `RES-02`, `RES-03`, `RES-05`, `RES-06`, `RES-10`, `RES-14`, `RES-16`, `RES-17`, `RES-23`, `RES-24`, `TIM-07`, `TIM-09`, `TIM-17`, `TIM-18`, `PLT-04`, `PLT-07`, `PLT-10`, `WLD-18`, `WLD-27`, `WLD-28`, `WLD-31`.
+**Serves:** `BIO-04`, `BIO-05`, `BIO-06`, `BIO-08`, `BIO-09`, `BIO-10`, `BIO-11`, `BIO-12`, `BIO-13`, `BIO-14`, `BIO-15`, `BIO-16`, `BIO-17`, `BIO-20`, `BIO-22`, `BIO-23`, `MAT-08`, `MAT-09`, `MAT-10`, `MAT-11`, `MAT-19`, `MAT-20`, `MAT-22`, `MND-09`, `MND-11`, `MND-13`, `MND-14`, `MND-22`, `MND-23`, `MND-24`, `MND-26`, `MND-28`, `MOM-01`, `PRE-05`, `PRE-10`, `PRE-14`, `PRE-30`, `RCK-01`, `RCK-14`, `RCK-22`, `RES-02`, `RES-03`, `RES-05`, `RES-06`, `RES-10`, `RES-13`, `RES-14`, `RES-16`, `RES-17`, `RES-23`, `RES-24`, `TIM-07`, `TIM-09`, `TIM-17`, `TIM-18`, `PLT-04`, `PLT-07`, `PLT-10`, `PRN-07`, `WLD-18`, `WLD-27`, `WLD-28`, `WLD-31`.
 **You will see:** Responsive old camps, spreading knowledge, winter stores, meaningful help, a child learning.
 **Risks:** Mortality masks failed learning; adaptation scripts outcomes; retained history dominates cost.
 
@@ -105,6 +105,21 @@ Twenty years/minute means three wall-seconds/year: at 7,000 people and four core
 3. `T4.1c.3` Freeze and judge S/F below; disabled-controller comparisons are diagnostic. Failure blocks seasonal scope pending diagnosis/redesign (`RES-03`, `RES-23`).
 **Tests:** One run responds to shortage then relaxes after relief; bounds/saturation/impossible inputs/false beliefs; reopen at updates, 1/4-worker and camera/speed equality. No cross-world learning; original physical trials unchanged.
 **On the phone:** Follow changed inclination→actual attempt→learner or tended fire, with experience-based reasons.
+
+**α4.1c result (11 October):** Known-use value, effort pricing, bounded motivation, typed feedback and resumed saves are built. Format 11 check APK 50103 is 28.172 MiB. Routine coverage passes through two attempts and coordinator-approved scoped completion; one unreproduced Worlds error remains for review. P1 repaired-build 8601 FAILED: 2.776 years/36.42 seconds, 4.57 years/minute. S8102–8121 FAILED 12/20; F8201–8216 FAILED 0/16, three friction attempts/one ember/no tending. Coordinator skipped RES-13 repeats under owner guidance, subject to owner override; no combined-40 judgement is claimed. [Evidence](dist/M4-1C-GATES.json) preserves cancelled/interrupted exposures. Six failed discoverers have kindness below 60; score-only teaching is approved. Seasons wait for redesign; phone/audit owed.
+
+### α4.1d Repairing failed learning prerequisites
+
+**Coordinator approval:** 11 October 2026, 03:17, applying owner guidance; owner may override. α4.1c verdicts stand.
+**Goal:** Resolve failed prerequisites before seasons.
+**Serves:** `MND-11`, `MND-13`, `MND-14`, `MND-23`, `MAT-22`, `PRN-07`, `TIM-07`, `PLT-04`, `RES-02`, `RES-03`, `RES-13`, `RES-16`, `RES-23`.
+**Architecture:** A11, A12, A19.
+**Tasks:**
+1. `T4.1d.1` Score-only teaching eligibility; kindness remains an inclination. Prove a low-kindness holder can teach when useful and decline for a better option; saves retain actual participants/knowledge (`MND-13`, `MND-14`).
+2. `T4.1d.2` Bounded, saved generic prerequisite exploration from own evidence when an unmet need lacks a known means. Score actual nearby unknown materials against competing needs; no named craft/material special cases, granted facts or forced discovery. Review curiosity decline; propose any T change before separate calibration (`MND-11`, `MND-23`, `PRN-07`).
+3. `T4.1d.3` Profile mature P1 work, repair real waste, prove exact scalar/indexed state, then freeze and judge P1 once on fresh seeds. Freeze fresh S/F seeds after separate calibration; use declared thresholds/RES-13 arithmetic. Routine once (one failure repair/rerun), check APK; no audit yet.
+**Tests:** Existing S/F/P1 thresholds; reopens/workers/camera equality and recorded reasons. Seasons wait for resolved failures or owner redesign.
+**On the phone:** Inspect personally justified trials and teaching.
 
 ### α4.2a Remembering a lean season
 
