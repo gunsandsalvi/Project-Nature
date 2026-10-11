@@ -100,13 +100,13 @@ Twenty years/minute means three wall-seconds/year: at 7,000 people and four core
 **Tests:** One run responds to shortage then relaxes after relief; bounds/saturation/impossible inputs/false beliefs; reopen at updates, 1/4-worker and camera/speed equality. No cross-world learning; original physical trials unchanged.
 **On the phone:** Follow changed inclination→actual attempt→learner or tended fire, with experience-based reasons.
 
-**α4.1c result (11 October):** Known-use value, effort pricing, bounded motivation, typed feedback and resumed saves are built. Format 11 check APK 50103 is 28.172 MiB. Routine coverage passes through two attempts and coordinator-approved scoped completion; one unreproduced Worlds error remains for review. P1 repaired-build 8601 FAILED: 2.776 years/36.42 seconds, 4.57 years/minute. S8102–8121 FAILED 12/20; F8201–8216 FAILED 0/16, three friction attempts/one ember/no tending. Coordinator skipped RES-13 repeats under owner guidance, subject to owner override; no combined-40 judgement is claimed. [Evidence](dist/M4-1C-GATES.json) preserves cancelled/interrupted exposures. Six failed discoverers have kindness below 60; score-only teaching is approved. Seasons wait for redesign; phone/audit owed.
+**α4.1c result:** Value, effort, motivation, feedback and resumed saves are built; APK 50103 is 28.172 MiB. Scoped routine coverage passes; a Worlds error remains for review. P1 FAILED at 4.57 years/minute; S 12/20 and F 0/16 FAILED. Coordinator skipped repeats, subject to owner override; no combined-40 claim. [Evidence](dist/M4-1C-GATES.json) retains cancelled exposures and redesign approval.
 
 ### α4.1d Repairing failed learning prerequisites
 
 **Approval:** 11 October 2026, 03:17, applying owner guidance; owner may override. α4.1c verdicts stand.
 **Goal:** Resolve failed prerequisites before seasons.
-**Serves:** `MND-11`, `MND-13`, `MND-14`, `MND-23`, `MAT-22`, `PRN-07`, `TIM-07`, `PLT-04`, `RES-02`, `RES-03`, `RES-13`, `RES-16`, `RES-23`.
+**Serves:** `MND-11`, `MND-13`, `MND-14`, `MND-23`, `MAT-22`, `PRN-07`, `TIM-07`, `PLT-04`, `PLT-07`, `BIO-09`, `RES-02`, `RES-03`, `RES-06`, `RES-13`, `RES-16`, `RES-23`.
 **Architecture:** A11, A12, A19.
 **Tasks:**
 1. `T4.1d.1` Score-only teaching eligibility; kindness remains an inclination. Prove a low-kindness holder can teach when useful and decline for a better option; saves retain actual participants/knowledge (`MND-13`, `MND-14`).
@@ -116,6 +116,8 @@ Twenty years/minute means three wall-seconds/year: at 7,000 people and four core
 5. `T4.1d.5` Repair seed9207’s rounded movement/save defect at its cause, fast regression; VOID original S/F, fresh frozen judgement (coordinator04:23). P1 remains failed (`BIO-09`, `PLT-07`).
 **Tests:** Existing S/F/P1 thresholds; reopens/workers/camera equality/reasons. Seasons wait.
 **On the phone:** Inspect trials/teaching.
+
+**α4.1d result:** Teaching, personal trials, exact site/geometry reuse and walking repair are built. Original S/F are VOID. Fresh S meets 16/20 with 16 successes and its control; F FAILED 11/32, maximum 19/40. P1 FAILED at 0.834 years/minute. Routine PASS: 375.03 s; APK 50104: 28.125 MiB. [Evidence](dist/M4-1D-GATES.json) retains timings/limits. α4.1e follows; speed and fire block seasons.
 
 ### α4.1e Repairing worst-case cost
 
@@ -166,7 +168,7 @@ Twenty years/minute means three wall-seconds/year: at 7,000 people and four core
 **Tests:** FAM: 8501–8520, 20 years, ≥10/20 show birth and surviving child learning a useful craft from a recorded person; teaching-off diagnostics. ≥1,000 cases for promised reproductive shares; nursing/food conservation, 45-day pregnancy, reopen each transition. No survivor selection. Year-75/250 demographic ranges remain M8/M10.
 **On the phone:** Follow birth, lesson and older relative's decline; reopen family/source/death links; collect unaided play and sound answers.
 
-Gates: S=8101–8120, 25 founders, discovery ≤2 years **and ≥19/25 holders within one year of first discovery in ≥16/20**, two routes overall; no-flaking control 8181 runs four years with zero flakes. F=8201–8220, ordinary cold hearth, ≥10/20 causal friction→tend→flame→cooked chains within three years; wet control 8281 has zero chain. No installed actions/knowledge; deaths do not shrink S's denominator. Final integrated M4 reruns changed dependencies as regressions and evaluates S/F/W/C/winter on fresh ranges obtained by adding 1,000 to their seed/control/repeat numbers; FAM first runs at final integration.
+Gates: S=8101–8120, 25 founders, discovery ≤2 years **and ≥19/25 holders within one year of first discovery in ≥16/20**, two routes overall; no-flaking control 8181 runs four years with zero flakes. F=8201–8220, ordinary cold hearth, ≥10/20 causal friction→tend→flame→cooked chains within three years; wet control 8281 has zero chain. No installed actions/knowledge; deaths do not shrink S's denominator. Final integrated M4 reruns changed dependencies as regressions. Coordinator approval 11 October 2026, 05:10 replaces conflicting +1,000 seeds: S13001–13020, F14001–14020, W15001–15020, C16001–16020, winter17001–17020; repeats +20, controls +80. [Exposed seeds](dist/M4-EXPOSED-SEEDS.json) prevent reuse. FAM first runs at final integration.
 
 For each chance gate reserve the next 20 seeds for same-build RES-13 repeats: S/W ≥32/40; F/C/FAM ≥20/40; winter ≥4/40. Explicit futility bounds; unfinished runs earn nothing. Freeze law, T values, build/catalogue/controller fingerprints before judging; exposed seeds never become fresh again. Retain every result and M3's earlier verdicts. Budgets including repeats: S/F/W/C ≤1 session-hour each, family/winter ≤2 each, integrated/performance ≤3; checkpoint/report overruns, never reduce samples.
 
