@@ -1408,6 +1408,14 @@ TEST_CASE("kept choices and resumed plans match serial and four-worker islands")
 }
 
 #include "kd/proof/fire_cases.hpp"
+TEST_CASE("cold-hearth acceptance setup exactly matches the ordinary starter camp") {
+    kd::demo::CrowdWorld ordinary(8811, fire_catalogue(), 1, true, true, true);
+    const auto run = kd::proof::fire_chain(fire_catalogue(), 8811, false, 0);
+    CHECK(run.ordinary_setup);
+    CHECK(run.reopen_failures == 0);
+    CHECK(run.digest == kd::num::to_hex(ordinary.world().digests().whole));
+}
+
 TEST_CASE("autonomous cold-hearth chain starts without an action or memory and bounds its proof trace") {
     for (const bool control : {false, true}) {
         const auto run = kd::proof::fire_chain(fire_catalogue(), 715, control, kd::time::kDay);

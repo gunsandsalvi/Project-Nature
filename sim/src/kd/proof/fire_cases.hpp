@@ -1,4 +1,4 @@
-// An autonomous cold-hearth chain: setup changes physical reserves, never minds or actions.
+// An autonomous cold-hearth chain: ordinary starter supplies, no installed actions or evidence.
 #pragma once
 #include <map>
 #include <set>
@@ -20,7 +20,7 @@ struct FireRun {
     void finish_interval(const world::World& w);
     void observe_result(const world::World& w, const world::Result& event);
 };
-// Same 25 adults and finite full-kit food/water reserves as the sharp-stone scene.
+// Unmodified ordinary starter camp with 25 adults and its normal finite supplies.
 // Three game years; cold initial hearth; control wets all starting combustible inputs.
 // Complete means a friction ember, an actual tended flame and subsequently cooked food.
 [[nodiscard]] FireRun fire_chain(const data::Catalogue& catalogue, std::uint64_t seed, bool wet_control,

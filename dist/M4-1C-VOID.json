@@ -1,0 +1,299 @@
+{
+  "frozen": {
+    "frozen_at_utc": "2026-10-11T01:37:04.490087+00:00",
+    "head": "d7e950f41986ec39f4b8387ba56f05d4c9230002",
+    "pending_task_files": [
+      " M dist/M4-CHECKS.md",
+      " M sim/src/kd/proof/fire_cases.cpp",
+      " M sim/src/kd/proof/fire_cases.hpp",
+      " M sim/tests/fire_test.cpp"
+    ],
+    "source_catalogue_sha256": "cee13dbc849aa42fec174042bfecfa92d96585d8890efc74761a3aee5dfda306",
+    "tool_sha256": "f86050ac5acf64efaed288cd2aae2255dd6c92172c12a94f06caeb7289f2bff7",
+    "snapshot_format": 11,
+    "knowledge_chunk_version": 5,
+    "controller": "enabled, committed seven-day/1\u20132 gain/1/16 daily law; generic/fire feedback separate",
+    "settings": "default indexed work, ordinary warm 25-founder camp, actual Keeper, no host cost probe",
+    "p1_seeds": [
+      8601,
+      8602,
+      8603,
+      8604,
+      8605
+    ],
+    "desktop_core": 5,
+    "p1_min_years_per_minute": 5,
+    "p1_game_years": 3,
+    "p1_wall_limit_seconds": 36,
+    "S": {
+      "primary": [
+        8101,
+        8120
+      ],
+      "repeat": [
+        8121,
+        8140
+      ],
+      "control": 8181,
+      "first_required": 16,
+      "combined_required": 32,
+      "founders": 25,
+      "holders_required": 19,
+      "discovery_deadline_years": 2,
+      "spread_window_years": 1,
+      "setup": "declared finite sharp-stone scene"
+    },
+    "F": {
+      "primary": [
+        8201,
+        8220
+      ],
+      "repeat": [
+        8221,
+        8240
+      ],
+      "control": 8281,
+      "first_required": 10,
+      "combined_required": 20,
+      "window_years": 3,
+      "setup": "unmodified ordinary starter cold camp; no extra reserves or installed stones"
+    },
+    "chance_gate_budget_seconds": 3600
+  },
+  "P1": {
+    "results": [
+      {
+        "seed": 8601,
+        "exit_code": 3,
+        "periods": [
+          {
+            "seed": 8601,
+            "game_years": 1.0,
+            "complete": false,
+            "wall_seconds": 12.819126,
+            "period_seconds": 12.819126,
+            "years_per_minute": 4.680506,
+            "main_cpu_seconds": 12.342184,
+            "process_cpu_seconds": 12.811661,
+            "peak_rss_kib": 211760,
+            "population": 25,
+            "live_items": 494,
+            "archived_items": 918,
+            "eligible_spent": 0,
+            "choices": 3438,
+            "results": 638,
+            "folder_bytes": 38315839,
+            "bytes_added": 38315839,
+            "snapshot_bytes": 260870,
+            "reachable_visits": 12358958,
+            "thermal_visits": 114774,
+            "digest": "4d766833a75ad1c7",
+            "cpu": {
+              "people": 0.0,
+              "camp": 0.0,
+              "layers": 0.0,
+              "chooser": 0.0,
+              "inputs": 0.0,
+              "thermal": 0.0,
+              "food": 0.0,
+              "retention": 0.0,
+              "observation": 0.0,
+              "evidence": 0.0,
+              "storage": 0.253989,
+              "queue_reporting": 12.088195,
+              "io_thread": 0.469477
+            },
+            "physical_parts": {
+              "clock": "7be1011df48540ba",
+              "queue": "02bf2195a34fa8c9",
+              "things": "4907b2f5b604ecbf",
+              "systems": "bf22c1a54ae2d73b",
+              "history": "a85dcd3e0f189341"
+            },
+            "finite_intake_mg": {},
+            "craft_sources": []
+          },
+          {
+            "seed": 8601,
+            "game_years": 2.0,
+            "complete": false,
+            "wall_seconds": 25.347689,
+            "period_seconds": 12.528563,
+            "years_per_minute": 4.734159,
+            "main_cpu_seconds": 11.686121,
+            "process_cpu_seconds": 12.520514,
+            "peak_rss_kib": 226652,
+            "population": 25,
+            "live_items": 494,
+            "archived_items": 918,
+            "eligible_spent": 0,
+            "choices": 3454,
+            "results": 638,
+            "folder_bytes": 40157582,
+            "bytes_added": 1841743,
+            "snapshot_bytes": 266734,
+            "reachable_visits": 12415742,
+            "thermal_visits": 12360,
+            "digest": "2b5afd38740875be",
+            "cpu": {
+              "people": 0.0,
+              "camp": 0.0,
+              "layers": 0.0,
+              "chooser": 0.0,
+              "inputs": 0.0,
+              "thermal": 0.0,
+              "food": 0.0,
+              "retention": 0.0,
+              "observation": 0.0,
+              "evidence": 0.0,
+              "storage": 0.26595,
+              "queue_reporting": 11.420171,
+              "io_thread": 0.834393
+            },
+            "physical_parts": {
+              "clock": "6db6cc5a8d56803e",
+              "queue": "610b3b7df7662210",
+              "things": "11ec7b96a0676023",
+              "systems": "bf22c1a54ae2d73b",
+              "history": "fb92c78c361895e6"
+            },
+            "finite_intake_mg": {},
+            "craft_sources": []
+          },
+          {
+            "seed": 8601,
+            "game_years": 2.878472222,
+            "complete": false,
+            "wall_seconds": 36.31934,
+            "period_seconds": 10.971651,
+            "years_per_minute": 4.755272,
+            "main_cpu_seconds": 10.166681,
+            "process_cpu_seconds": 10.961614,
+            "peak_rss_kib": 226652,
+            "population": 25,
+            "live_items": 494,
+            "archived_items": 918,
+            "eligible_spent": 0,
+            "choices": 3446,
+            "results": 638,
+            "folder_bytes": 19499150,
+            "bytes_added": -20658432,
+            "snapshot_bytes": 256915,
+            "reachable_visits": 10959889,
+            "thermal_visits": 10815,
+            "digest": "fffa2e39c06bc2d5",
+            "cpu": {
+              "people": 0.0,
+              "camp": 0.0,
+              "layers": 0.0,
+              "chooser": 0.0,
+              "inputs": 0.0,
+              "thermal": 0.0,
+              "food": 0.0,
+              "retention": 0.0,
+              "observation": 0.0,
+              "evidence": 0.0,
+              "storage": 0.240396,
+              "queue_reporting": 9.926285,
+              "io_thread": 0.794933
+            },
+            "physical_parts": {
+              "clock": "68696d532ff269db",
+              "queue": "adcb204cfa4d4826",
+              "things": "67ac0cff2dfbc1e0",
+              "systems": "1be8a988c9e13ab2",
+              "history": "3846117f1b5f657f"
+            },
+            "finite_intake_mg": {},
+            "craft_sources": []
+          }
+        ],
+        "pass": false,
+        "wall_seconds": 36.45,
+        "years_per_minute": 4.738225879835391,
+        "timing_log": "progress seed 8601: day 10, 2.35 s\nprogress seed 8601: day 20, 4.40 s\nprogress seed 8601: day 30, 6.48 s\ngrowth day 30: familiar 766 memories 2749 peers 1055 hunches 20 observations 0 skills 125 remembered-inputs 5347 sites 50 decisions 44601 results 641\nprogress seed 8601: day 40, 8.50 s\nprogress seed 8601: day 50, 10.44 s\nprogress seed 8601: day 60, 12.43 s\ngrowth day 60: familiar 766 memories 2749 peers 1055 hunches 39 observations 0 skills 125 remembered-inputs 5347 sites 49 decisions 90332 results 641\nresults recipe 1: 200\nresults recipe 3: 376\nresults recipe 6: 1\nresults recipe 9: 61\nseed 8601: 1.000 years, 12.82 s, 4.68 years/min, peak 206.8 MiB\nprogress seed 8601: day 70, 14.80 s\nprogress seed 8601: day 80, 16.83 s\nprogress seed 8601: day 90, 18.91 s\ngrowth day 90: familiar 766 memories 2749 peers 1055 hunches 41 observations 0 skills 125 remembered-inputs 5347 sites 49 decisions 136029 results 641\nprogress seed 8601: day 100, 20.80 s\nprogress seed 8601: day 110, 22.69 s\nprogress seed 8601: day 120, 24.58 s\ngrowth day 120: familiar 766 memories 2749 peers 1055 hunches 40 observations 0 skills 125 remembered-inputs 5347 sites 50 decisions 181733 results 641\nresults recipe 1: 200\nresults recipe 3: 376\nresults recipe 6: 1\nresults recipe 9: 61\nseed 8601: 2.000 years, 25.35 s, 4.73 years/min, peak 221.3 MiB\nprogress seed 8601: day 130, 27.28 s\nprogress seed 8601: day 140, 29.22 s\nprogress seed 8601: day 150, 31.56 s\ngrowth day 150: familiar 766 memories 2749 peers 1055 hunches 28 observations 0 skills 125 remembered-inputs 5347 sites 49 decisions 227480 results 641\nprogress seed 8601: day 160, 33.48 s\nprogress seed 8601: day 170, 35.45 s\nresults recipe 1: 200\nresults recipe 3: 376\nresults recipe 6: 1\nresults recipe 9: 61\nseed 8601: 2.878 years, 36.32 s, 4.76 years/min, peak 221.3 MiB\nCommand exited with non-zero status 3\nelapsed=36.45 peak_kib=226652\n",
+        "reason": "36 seconds elapsed before three years: even instantaneous remaining work cannot achieve 3 years at >=5 years/minute."
+      }
+    ],
+    "verdict": "FAIL",
+    "unstarted_seeds": [
+      8602,
+      8603,
+      8604,
+      8605
+    ]
+  },
+  "S": {
+    "results": [],
+    "verdict": "VOID (frozen build invalid)"
+  },
+  "F": {
+    "results": [],
+    "verdict": "VOID (frozen build invalid)"
+  },
+  "scheduling_amendment": {
+    "coordinator": "11 October 2026 01:42",
+    "workers": 5,
+    "cores": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "existing_worlds": [
+      {
+        "kind": "S",
+        "seed": 8101,
+        "core": 5,
+        "pid": 296727,
+        "base": "/tmp/m4-c3-s-8101",
+        "start": 116750.7,
+        "control": false
+      }
+    ],
+    "measured_complete_process_peak_kib": 226652,
+    "memory_budget": "five conservative 512MiB processes + observed background 1.58GiB = 4.08GiB, below about7GiB",
+    "meaning": "Only behaviour-gate orchestration changes; frozen laws, build, seeds and early-stop arithmetic preserved; completed P1 remains single core5."
+  },
+  "void_results": [
+    {
+      "kind": "S",
+      "seed": 8101,
+      "result": {
+        "seed": 8101,
+        "control": false,
+        "first": -1,
+        "route": 0,
+        "ended": 15552000,
+        "holders": 0,
+        "adults": 25,
+        "flakes": 1,
+        "work_started": 937781,
+        "fitting_tries": 693,
+        "crop_left_mg": 22792373335,
+        "root_water_left_ml": 22792371,
+        "upstream_left_ml": 119305000,
+        "stone_left_mg": 10090000000,
+        "first_watch": -1,
+        "first_taught": -1,
+        "reopens": 2,
+        "reopen_failures": 1,
+        "digest": "843eadff00f35a40",
+        "ms": 463239
+      },
+      "stderr": "seed 8101 initial: 739 items\nseed 8101 primary day 1 / 180: 2678 ms, 22.40 game days/min; 21203 events, 929 items\nseed 8101 primary day 5 / 180: 8429 ms, 35.59 game days/min; 100876 events, 925 items\nseed 8101 primary day 10 / 180: 15251 ms, 39.34 game days/min; 196945 events, 925 items\nseed 8101 primary day 15 / 180: 22201 ms, 40.54 game days/min; 292803 events, 926 items\nseed 8101 primary day 20 / 180: 29011 ms, 41.36 game days/min; 388818 events, 928 items\nseed 8101 primary day 25 / 180: 37647 ms, 39.84 game days/min; 488539 events, 1023 items\nseed 8101 primary day 30 / 180: 47857 ms, 37.61 game days/min; 598949 events, 1026 items\nseed 8101 primary day 35 / 180: 57597 ms, 36.46 game days/min; 708957 events, 1028 items\nseed 8101 primary day 40 / 180: 67234 ms, 35.70 game days/min; 819013 events, 1029 items\nseed 8101 primary day 45 / 180: 77185 ms, 34.98 game days/min; 929032 events, 1030 items\nseed 8101 primary day 50 / 180: 87463 ms, 34.30 game days/min; 1039289 events, 1031 items\nseed 8101 primary day 55 / 180: 97320 ms, 33.91 game days/min; 1149415 events, 1034 items\nseed 8101 primary day 60 / 180: 107174 ms, 33.59 game days/min; 1259581 events, 1035 items\nseed 8101 primary day 65 / 180: 116948 ms, 33.35 game days/min; 1369688 events, 1037 items\nseed 8101 primary day 70 / 180: 126833 ms, 33.11 game days/min; 1480087 events, 1039 items\nseed 8101 primary day 75 / 180: 136654 ms, 32.93 game days/min; 1590396 events, 1039 items\nseed 8101 primary day 80 / 180: 150770 ms, 31.84 game days/min; 1704410 events, 1202 items\nseed 8101 primary day 85 / 180: 166075 ms, 30.71 game days/min; 1829145 events, 1208 items\nseed 8101 primary day 90 / 180: 181485 ms, 29.75 game days/min; 1953827 events, 1209 items\nseed 8101 primary day 95 / 180: 196893 ms, 28.95 game days/min; 2078227 events, 1210 items\nseed 8101 primary day 100 / 180: 212273 ms, 28.27 game days/min; 2202658 events, 1211 items\nseed 8101 primary day 105 / 180: 228019 ms, 27.63 game days/min; 2327873 events, 1216 items\nseed 8101 primary day 110 / 180: 243442 ms, 27.11 game days/min; 2452391 events, 1221 items\nseed 8101 primary day 115 / 180: 259641 ms, 26.58 game days/min; 2576876 events, 1224 items\nseed 8101 primary day 120 / 180: 274961 ms, 26.19 game days/min; 2701339 events, 1225 items\nseed 8101 primary day 125 / 180: 290383 ms, 25.83 game days/min; 2825724 events, 1227 items\nseed 8101 primary day 130 / 180: 306166 ms, 25.48 game days/min; 2950359 events, 1229 items\nseed 8101 primary day 135 / 180: 321799 ms, 25.17 game days/min; 3074956 events, 1231 items\nseed 8101 primary day 140 / 180: 337536 ms, 24.89 game days/min; 3199575 events, 1233 items\nseed 8101 primary day 145 / 180: 353174 ms, 24.63 game days/min; 3324073 events, 1235 items\nseed 8101 primary day 150 / 180: 368742 ms, 24.41 game days/min; 3448589 events, 1236 items\nseed 8101 primary day 155 / 180: 384506 ms, 24.19 game days/min; 3573051 events, 1240 items\nseed 8101 primary day 160 / 180: 400010 ms, 24.00 game days/min; 3697472 events, 1242 items\nseed 8101 primary day 165 / 180: 416262 ms, 23.78 game days/min; 3822081 events, 1245 items\nseed 8101 primary day 170 / 180: 432130 ms, 23.60 game days/min; 3946756 events, 1247 items\nseed 8101 primary day 175 / 180: 447708 ms, 23.45 game days/min; 4071261 events, 1248 items\nseed 8101 primary day 180 / 180: 463047 ms, 23.32 game days/min; 4195784 events, 1248 items\nlearning seed 8101 frontier 15552000 reopen: invalid craft links, reservations or queued work\nelapsed=463.39 peak_kib=77208\n"
+    }
+  ],
+  "gate_validity": "VOID: actual reopen/setup failure on frozen build; no acceptance judgement valid",
+  "interruption": "S seed 8101 invalid reopen/setup",
+  "interrupted_active": [
+    {
+      "kind": "S",
+      "seed": 8101,
+      "stdout": "{\"seed\":8101,\"control\":false,\"first\":-1,\"route\":0,\"ended\":15552000,\"holders\":0,\"adults\":25,\"flakes\":1,\"work_started\":937781,\"fitting_tries\":693,\"crop_left_mg\":22792373335,\"root_water_left_ml\":22792371,\"upstream_left_ml\":119305000,\"stone_left_mg\":10090000000,\"first_watch\":-1,\"first_taught\":-1,\"reopens\":2,\"reopen_failures\":1,\"digest\":\"843eadff00f35a40\",\"ms\":463239}\n",
+      "stderr": "seed 8101 initial: 739 items\nseed 8101 primary day 1 / 180: 2678 ms, 22.40 game days/min; 21203 events, 929 items\nseed 8101 primary day 5 / 180: 8429 ms, 35.59 game days/min; 100876 events, 925 items\nseed 8101 primary day 10 / 180: 15251 ms, 39.34 game days/min; 196945 events, 925 items\nseed 8101 primary day 15 / 180: 22201 ms, 40.54 game days/min; 292803 events, 926 items\nseed 8101 primary day 20 / 180: 29011 ms, 41.36 game days/min; 388818 events, 928 items\nseed 8101 primary day 25 / 180: 37647 ms, 39.84 game days/min; 488539 events, 1023 items\nseed 8101 primary day 30 / 180: 47857 ms, 37.61 game days/min; 598949 events, 1026 items\nseed 8101 primary day 35 / 180: 57597 ms, 36.46 game days/min; 708957 events, 1028 items\nseed 8101 primary day 40 / 180: 67234 ms, 35.70 game days/min; 819013 events, 1029 items\nseed 8101 primary day 45 / 180: 77185 ms, 34.98 game days/min; 929032 events, 1030 items\nseed 8101 primary day 50 / 180: 87463 ms, 34.30 game days/min; 1039289 events, 1031 items\nseed 8101 primary day 55 / 180: 97320 ms, 33.91 game days/min; 1149415 events, 1034 items\nseed 8101 primary day 60 / 180: 107174 ms, 33.59 game days/min; 1259581 events, 1035 items\nseed 8101 primary day 65 / 180: 116948 ms, 33.35 game days/min; 1369688 events, 1037 items\nseed 8101 primary day 70 / 180: 126833 ms, 33.11 game days/min; 1480087 events, 1039 items\nseed 8101 primary day 75 / 180: 136654 ms, 32.93 game days/min; 1590396 events, 1039 items\nseed 8101 primary day 80 / 180: 150770 ms, 31.84 game days/min; 1704410 events, 1202 items\nseed 8101 primary day 85 / 180: 166075 ms, 30.71 game days/min; 1829145 events, 1208 items\nseed 8101 primary day 90 / 180: 181485 ms, 29.75 game days/min; 1953827 events, 1209 items\nseed 8101 primary day 95 / 180: 196893 ms, 28.95 game days/min; 2078227 events, 1210 items\nseed 8101 primary day 100 / 180: 212273 ms, 28.27 game days/min; 2202658 events, 1211 items\nseed 8101 primary day 105 / 180: 228019 ms, 27.63 game days/min; 2327873 events, 1216 items\nseed 8101 primary day 110 / 180: 243442 ms, 27.11 game days/min; 2452391 events, 1221 items\nseed 8101 primary day 115 / 180: 259641 ms, 26.58 game days/min; 2576876 events, 1224 items\nseed 8101 primary day 120 / 180: 274961 ms, 26.19 game days/min; 2701339 events, 1225 items\nseed 8101 primary day 125 / 180: 290383 ms, 25.83 game days/min; 2825724 events, 1227 items\nseed 8101 primary day 130 / 180: 306166 ms, 25.48 game days/min; 2950359 events, 1229 items\nseed 8101 primary day 135 / 180: 321799 ms, 25.17 game days/min; 3074956 events, 1231 items\nseed 8101 primary day 140 / 180: 337536 ms, 24.89 game days/min; 3199575 events, 1233 items\nseed 8101 primary day 145 / 180: 353174 ms, 24.63 game days/min; 3324073 events, 1235 items\nseed 8101 primary day 150 / 180: 368742 ms, 24.41 game days/min; 3448589 events, 1236 items\nseed 8101 primary day 155 / 180: 384506 ms, 24.19 game days/min; 3573051 events, 1240 items\nseed 8101 primary day 160 / 180: 400010 ms, 24.00 game days/min; 3697472 events, 1242 items\nseed 8101 primary day 165 / 180: 416262 ms, 23.78 game days/min; 3822081 events, 1245 items\nseed 8101 primary day 170 / 180: 432130 ms, 23.60 game days/min; 3946756 events, 1247 items\nseed 8101 primary day 175 / 180: 447708 ms, 23.45 game days/min; 4071261 events, 1248 items\nseed 8101 primary day 180 / 180: 463047 ms, 23.32 game days/min; 4195784 events, 1248 items\nlearning seed 8101 frontier 15552000 reopen: invalid craft links, reservations or queued work\nelapsed=463.39 peak_kib=77208\n"
+    }
+  ],
+  "archive_note": "Original frozen build: P1 speed FAIL, S8101 save-invalid VOID; F unrun. Preserved before repairs and fresh seed judgement."
+}

@@ -72,7 +72,6 @@ void FireRun::finish_interval(const world::World& w) {
 FireRun fire_chain(const data::Catalogue& catalogue, std::uint64_t seed, bool wet_control, time::Seconds duration,
                    const LearningProgress& progress) {
     demo::CrowdWorld camp(seed, catalogue, 1, true, true, true);
-    learning_reserves(camp, false);
     auto& w = camp.world();
     const auto home = camp.camp_ids().front();
     if (wet_control)
@@ -142,8 +141,15 @@ FireRun fire_chain(const data::Catalogue& catalogue, std::uint64_t seed, bool we
         ++out.friction_choices;
         bool rod = false, sheet = false;
         for (const auto& input : reason.inputs) {
-            const auto& source = w.things().raw().get<world::Item>(w.things().handle(input.id));
-            const auto fit = demo::Crafting::physical(catalogue, source);
+            // Diagnostic history may cite spent inputs; this lookup never
+            // supplies an actor with archived physical truth.
+            const world::Item* source = nullptr;
+            if (const auto live = w.things().find(input.id))
+                source = &w.things().raw().get<world::Item>(*live);
+            else if (const auto* archived = w.archived_item(input.id))
+                source = &archived->item;
+            KD_CHECK(source, "A retained fire choice has its original physical input");
+            const auto fit = demo::Crafting::physical(catalogue, *source);
             rod = rod || (fit.material_class == "wood" && fit.form == "rod");
             sheet = sheet || (fit.material_class == "wood" && fit.form == "sheet");
         }
