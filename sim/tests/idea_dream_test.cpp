@@ -82,7 +82,7 @@ TEST_CASE("DRMS3 preserves pending and delivered idea fields without granting re
         const auto* dreams = kd::save::find_chunk(chunks, kd::save::tag("DRMS"));
         REQUIRE(dreams);
         CHECK(dreams->version == 3);
-        CHECK(kd::save::kSnapshotVersion == 10);
+        CHECK(kd::save::kSnapshotVersion == 11);
         std::string why;
         auto copy = open_idea(w, why);
         INFO(why);

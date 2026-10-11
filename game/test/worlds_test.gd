@@ -61,6 +61,7 @@ func test_three_worlds_switched_in_turn_each_open_where_they_were_left() -> void
 	var ids: Array[String] = []
 	for i in 3:
 		ids.append(shelf.make_world())
+		print(FileAccess.get_file_as_string(ROOT.path_join(ids[-1]).path_join("world.toml")))
 	assert_int(shelf.listed.size()).is_equal(3)
 	var left := {}
 	for i in 3:
@@ -72,6 +73,14 @@ func test_three_worlds_switched_in_turn_each_open_where_they_were_left() -> void
 		for i in 3:
 			shelf.open_world(ids[i])
 			var crowd := _camp_page()
+			assert_str(str(crowd.opened.get("problem", ""))).is_empty()
+			if crowd.opened.has("problem"):
+				print("REOPEN FAILED ", crowd.opened)
+				_close(crowd)
+				DirAccess.rename_absolute(
+					ROOT, "user://m4-worlds-failure-%d" % Time.get_ticks_msec()
+				)
+				return
 			assert_bool(crowd.opened["made"]).is_false()
 			assert_str(crowd.world.digest()).is_equal(left[ids[i]])
 			crowd.world.run_until(crowd.world.frontier() + 600 * (round + 1))

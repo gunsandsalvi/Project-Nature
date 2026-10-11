@@ -1,0 +1,108 @@
+{
+  "status": "Unreproduced intermittent original failure; not claimed fixed. Carried to M4 review by coordinator 11 October 2026 01:15; no retries added.",
+  "original": {
+    "log": "/tmp/m4-1c-routine2.log",
+    "report": "gdunit-reports/report_60/results.xml",
+    "case": "test_three_worlds_switched_in_turn_each_open_where_they_were_left",
+    "excerpt": "Invalid access to property or key 'made' on a base object of type 'Dictionary' at res://test/worlds_test.gd:75",
+    "seeds": "Original random seeds were not logged; cannot reconstruct them.",
+    "routine_seconds": 148.71
+  },
+  "reproductions": [
+    {
+      "log": "m4-c-worlds-repeat-1.log",
+      "seeds": [
+        4206362954,
+        2760432326,
+        2601636752
+      ],
+      "exit_code": 0,
+      "wall_seconds": 14.26,
+      "peak_rss_kib": 207104,
+      "suite": "4 cases Worlds"
+    },
+    {
+      "log": "m4-c-worlds-repeat-2.log",
+      "seeds": [
+        141023969,
+        4056515651,
+        3850749888
+      ],
+      "exit_code": 0,
+      "wall_seconds": 19.45,
+      "peak_rss_kib": 232820,
+      "suite": "4 cases Worlds"
+    },
+    {
+      "log": "m4-c-worlds-repeat-3.log",
+      "seeds": [
+        874563393,
+        227015268,
+        1837590729
+      ],
+      "exit_code": 0,
+      "wall_seconds": 22.35,
+      "peak_rss_kib": 233544,
+      "suite": "4 cases Worlds"
+    },
+    {
+      "log": "m4-c-worlds-repeat-4.log",
+      "seeds": [
+        2964163767,
+        3126755072,
+        1018796722
+      ],
+      "exit_code": 0,
+      "wall_seconds": 20.39,
+      "peak_rss_kib": 226196,
+      "suite": "4 cases Worlds"
+    },
+    {
+      "log": "m4-c-worlds-repeat-5.log",
+      "seeds": [
+        4261231604,
+        4009425781,
+        3141095715
+      ],
+      "exit_code": 0,
+      "wall_seconds": 21.5,
+      "peak_rss_kib": 222776,
+      "suite": "4 cases Worlds"
+    },
+    {
+      "log": "m4-c-worlds-full-repro.log",
+      "seeds": [
+        2409890258,
+        3238828068,
+        2861853896
+      ],
+      "exit_code": 0,
+      "wall_seconds": 83.01,
+      "peak_rss_kib": 258328,
+      "suite": "101 cases full Godot"
+    }
+  ],
+  "native_diagnostic": {
+    "seeds": [
+      8851,
+      8950
+    ],
+    "boundaries_seconds": [
+      32400,
+      33400,
+      35200
+    ],
+    "seed_count": 100,
+    "reopen_count": 300,
+    "wall_seconds": 65.69,
+    "peak_rss_kib": 46212,
+    "pass": true,
+    "scope": "ordinary CrowdWorld snapshot bytes/read/open/digest continuation, excludes UI and disk Keeper"
+  },
+  "findings": [
+    "Original dictionary problem text was lost to the invalid property access; the assertion now records it before returning from a failed test.",
+    "Five fresh random Worlds runs and the full Godot context do not reproduce; they exercise actual disk saves and switching.",
+    "Native snapshots and logical digests agree on the 100 declared diagnostic seeds; this does not rule out other seeds or an intermittent I/O race.",
+    "Source shows save_now waits for the runner callback and Keeper flush; page close also flushes. No cause, ordering fix or retry is claimed."
+  ]
+}
