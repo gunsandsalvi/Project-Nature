@@ -1,0 +1,83 @@
+{
+  "status": "Focused repair complete and checked; continued exposed-seed diagnosis still in progress, valid through day70 on meeting-only build.",
+  "invalid_gate_seed": 8101,
+  "invalid_gate_frontier_seconds": 15552000,
+  "first_hourly_invalid_frontier_seconds": 2102400,
+  "first_hourly_invalid_day": 24.333333333333332,
+  "first_hourly_error": "shared practice participants are separated",
+  "first_captured_snapshot": "/tmp/m4-s8101-separated-practice.kds",
+  "meeting_cause": "Paused shared lesson kept its original meeting while a teacher who had moved began teaching at the current position. Learner returned to the old meeting and practice became active with separated participants.",
+  "meeting_repair": "Renewed invitation updates the meeting to settled teacher position. Learner collects actual inputs and walks normally; no teleport, granted knowledge, chance or T change.",
+  "observation_cause": "Retained attendance is legitimate during paused work gathering/walking to a renewed meeting, but reopen accepted only active or paused work states.",
+  "observation_repair": "Gathering work may retain prior attendance only with nonzero retained actual progress. Work identity, attempt, time and credit bounds still validate. Each craft invariant now reports a specific error.",
+  "focused_regression": {
+    "before_repair": "5/19 failed assertions, including separated participants reopen",
+    "after_meeting_only": "observation attendance disagrees with work on reopen",
+    "final": "26/26 assertions PASS, 0.01 seconds, 12008 KiB; includes deliberate zero-progress rejection and exact reopen before and after physical rendezvous"
+  },
+  "laws": "Unchanged controller, probabilities, recipe fits, effort, body needs and acceptance thresholds. Diagnostic seed8101 is exposed; never a new chance judgement.",
+  "first_captured_snapshot_sha256": "640bd2cf10102a4facaf2e01f0e641de85a25c2186f73e4e39ad8d647c2a53aa",
+  "checks": {
+    "native": {
+      "cases": 355,
+      "assertions": 2034318,
+      "pass": true,
+      "wall_seconds": 136.01,
+      "peak_rss_kib": 539308
+    },
+    "view_build": {
+      "pass": true,
+      "wall_seconds": 27.13,
+      "peak_rss_kib": 525888
+    },
+    "view": {
+      "cases": 70,
+      "assertions": 20233,
+      "pass": true,
+      "wall_seconds": 6.41,
+      "peak_rss_kib": 125132
+    },
+    "godot": {
+      "cases": 101,
+      "pass": true,
+      "wall_seconds": 76.17,
+      "peak_rss_kib": 241356
+    },
+    "catalogue": {
+      "files": 623,
+      "kinds": 20,
+      "entries": 619,
+      "checks": 11,
+      "problems": 0
+    },
+    "one_four_worker_digests": {
+      "suites": 10,
+      "pass": true
+    },
+    "source": {
+      "lint": {
+        "pass": true,
+        "files_covered": 3,
+        "newly_linted_final_segment": 1,
+        "cached_final_segment": 2,
+        "wall_seconds": 126.42,
+        "peak_rss_kib": 878496,
+        "initial_failure": "unchecked optional in corruption fixture; added explicit missing-value guard"
+      },
+      "rules": {
+        "pass": true,
+        "rules": 13,
+        "files_read": 2,
+        "wall_seconds": 40.01,
+        "peak_rss_kib": 430160
+      }
+    },
+    "final_test_guard": {
+      "assertions": 26,
+      "pass": true,
+      "wall_seconds": 0.01,
+      "peak_rss_kib": 12240
+    }
+  },
+  "original_180_day_failure_relationship": "Original gate reported only a generic craft error and retained no snapshot. Hourly diagnosis reproduced separated practice at day24.333; focused resume fixture reproduced generic rejection of preserved attendance. Continued exposed-seed diagnosis checks for additional failures; no original end-state cause claimed without that evidence."
+}

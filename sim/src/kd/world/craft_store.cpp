@@ -543,26 +543,30 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
         }
         if (!r.finished()) return fail("trailing learning records");
     }
-    bool valid = true;
+    std::string_view invalid;
+    const auto reject = [&](std::string_view why) {
+        if (invalid.empty()) invalid = why;
+    };
     std::map<ecs::Id, std::int64_t> reserved;
     std::set<ecs::Id> tools;
     const auto validate_physical = [&](ecs::Id id, const Item& value, const Place& place) {
         if (!valid_item(w, value, place)) {
-            valid = false;
+            reject("invalid physical item");
             return;
         }
         std::set<ecs::Id> parents;
         for (const auto& p : value.parents)
-            if (!(p.id < id) || !item(w, p.id) || !parents.insert(p.id).second) valid = false;
+            if (!(p.id < id) || !item(w, p.id) || !parents.insert(p.id).second) reject("invalid item ancestry");
         const auto home = w.beings().handle(value.home);
         const auto& camp = raw.get<Camp>(home);
         const auto offset = w.torus().offset(raw.get<Place>(home).at, place.at);
-        if (std::abs(offset.dx) > camp.half_width_cm || std::abs(offset.dy) > camp.half_height_cm) valid = false;
+        if (std::abs(offset.dx) > camp.half_width_cm || std::abs(offset.dy) > camp.half_height_cm)
+            reject("item outside home camp");
     };
     w.things().each([&](ecs::Id id, Things::Handle h) {
         const auto* x = things.try_get<Item>(h);
         if (!x) {
-            valid = false;
+            reject("thing lacks item state");
             return;
         }
         validate_physical(id, *x, things.get<Place>(h));
@@ -570,10 +574,10 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
     for (const auto& archived : w.item_archive()) validate_physical(archived.id, archived.item, archived.place);
     const auto events = w.queue().live_in_order([&](const auto& e) { return w.live(e); });
     w.beings().each([&](ecs::Id id, Beings::Handle h) {
-        if (raw.all_of<Camp>(h) && !raw.all_of<CraftHistory, Lessons>(h)) valid = false;
+        if (raw.all_of<Camp>(h) && !raw.all_of<CraftHistory, Lessons>(h)) reject("camp lacks craft history or lessons");
         if (!raw.all_of<Person>(h)) return;
         if (!raw.all_of<Work, Knowledge>(h)) {
-            valid = false;
+            reject("person lacks work or knowledge");
             return;
         }
         const auto& work = raw.get<Work>(h);
@@ -584,32 +588,34 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
         if (work.intended && work.lesson == 0 &&
             std::none_of(know.skills.begin(), know.skills.end(),
                          [&](const auto& s) { return s.recipe == work.recipe && s.known; }))
-            valid = false;
+            reject("intended work lacks known recipe");
         if (work.number >= know.next_work ||
             (work.state != 0 && (work.number == 0 || work.inputs.empty() || work.try_seconds == 0)))
-            valid = false;
+            reject("invalid work number or inputs");
         if ((act.what == static_cast<std::uint8_t>(LivingAct::craft)) != (work.state == 2) || work.state == 3 ||
             (work.state == 2 && (work.end != act.end || work.active_start != act.start || work.end < w.frontier())) ||
             (schedule.expected[2] != 0 &&
              (work.state != 2 || !work.intended || work.next_try < w.frontier() || work.next_try >= work.end)))
-            valid = false;
-        if (work.state == 2 && work.intended && work.next_try < work.end && schedule.expected[2] == 0) valid = false;
+            reject("work disagrees with activity or schedule");
+        if (work.state == 2 && work.intended && work.next_try < work.end && schedule.expected[2] == 0)
+            reject("active work lacks next-try event");
         for (const auto& e : events)
-            if (e.key.owner == id.value && e.slot == 2 && e.key.second != work.next_try) valid = false;
+            if (e.key.owner == id.value && e.slot == 2 && e.key.second != work.next_try)
+                reject("queued try disagrees with work");
         std::set<ecs::Id> inputs;
         std::set<std::uint8_t> roles;
         for (const auto& r : work.inputs) {
             if (!w.things().find(r.item) || !item(w, r.item) || !inputs.insert(r.item).second ||
                 !roles.insert(r.role).second || r.role >= 8 || r.retained > 1 || r.picked > 1 || r.return_shared > 1 ||
                 r.mass <= 0 || r.mass > 1000000000) {
-                valid = false;
+                reject("invalid reserved input");
                 continue;
             }
             const auto& x = things.get<Item>(w.things().handle(r.item));
             if (x.home != raw.get<demo::Home>(h).camp || (x.owner.value != 0 && x.owner != id) || r.mass > x.mass)
-                valid = false;
+                reject("reserved input ownership or mass disagrees");
             if (r.retained) {
-                if (!tools.insert(r.item).second) valid = false;
+                if (!tools.insert(r.item).second) reject("tool reserved by multiple workers");
             } else
                 reserved[r.item] += r.mass;
         }
@@ -617,11 +623,11 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
             if (!w.things().find(life.meal_item) || !item(w, life.meal_item) || life.carried_food <= 0 ||
                 inputs.contains(life.meal_item) || (act.what != 5 && act.what != 1 && act.what != 7) ||
                 work.state == 1 || work.state == 2) {
-                valid = false;
+                reject("meal disagrees with activity or work");
             } else {
                 const auto& meal = things.get<Item>(w.things().handle(life.meal_item));
                 if (meal.home != raw.get<demo::Home>(h).camp || (meal.owner.value != 0 && meal.owner != id))
-                    valid = false;
+                    reject("meal ownership disagrees");
                 reserved[life.meal_item] += life.carried_food;
             }
         }
@@ -632,7 +638,7 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
             return n == 0 || (choice && choice->actor == id);
         };
         if (!choice_exists(work.choice) || !choice_exists(know.choice) || (!know.choice && !know.reasons.empty()))
-            valid = false;
+            reject("current or work choice is missing");
         if (know.choice) {
             const auto* chosen = history.choices.find(know.choice);
             if (chosen) {
@@ -641,14 +647,14 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
                 for (const auto& reason : chosen->reasons) ecs::write_component(reason, kept);
                 const auto current_bytes = current.take();
                 const auto kept_bytes = kept.take();
-                if (current_bytes != kept_bytes) valid = false;
+                if (current_bytes != kept_bytes) reject("current reasons disagree with kept choice");
             }
         }
         const auto event_exists = [&](std::uint64_t n) { return n == 0 || history.events.find(n); };
         for (const auto& s : know.skills) {
-            if (!event_exists(s.source_event)) valid = false;
+            if (!event_exists(s.source_event)) reject("skill source event is missing");
             const auto* event = history.events.find(s.source_event);
-            if (s.source_event != 0 && (!event || event->recipe != s.recipe)) valid = false;
+            if (s.source_event != 0 && (!event || event->recipe != s.recipe)) reject("skill source recipe disagrees");
         }
         const auto& sessions = raw.get<Lessons>(w.beings().handle(camp)).sessions;
         const auto session = std::find_if(sessions.begin(), sessions.end(), [&](const auto& x) {
@@ -660,52 +666,58 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
              (session == sessions.end() || session->teacher != id || session->state == 2)) ||
             ((act.what == static_cast<std::uint8_t>(LivingAct::watch_craft)) != (know.watching.value != 0)) ||
             !event_exists(know.last_observed_event))
-            valid = false;
+            reject("session or observation links disagree");
         for (const auto& peer : know.peers) {
             if (!event_exists(peer.event) || (peer.route == 3 && peer.event != 0) ||
                 (peer.route != 3 && peer.event == 0))
-                valid = false;
+                reject("peer evidence event or route is invalid");
             // The evidence record checks the route, never another person's private skill table.
-            if ((peer.route == 1 && !peer.knows) || (peer.route == 2 && peer.knows)) valid = false;
+            if ((peer.route == 1 && !peer.knows) || (peer.route == 2 && peer.knows))
+                reject("peer answer disagrees with route");
             const auto* event = history.events.find(peer.event);
             if (peer.event != 0 &&
                 (!event || event->actor != peer.person || event->recipe != peer.recipe || event->at != peer.at ||
                  (peer.route == 2 ? event->kind != 5 : event->kind != 0 && event->kind != 1)))
-                valid = false;
+                reject("peer evidence disagrees with source event");
         }
         for (const auto& observation : know.observations) {
             const auto other = w.beings().handle(observation.person);
             if (raw.get<demo::Home>(other).camp != camp || observation.work >= raw.get<Knowledge>(other).next_work)
-                valid = false;
+                reject("observation work identity is invalid");
             if (observation.weighted_seconds != 0) {
                 const auto* source_work = raw.try_get<Work>(other);
                 if (!source_work) {
-                    valid = false;
+                    reject("observation maker lacks work");
                     continue;
                 }
                 const auto& source = *source_work;
-                if (source.number != observation.work || (source.state != 2 && source.state != 4) ||
+                // Attendance from before a pause survives the learner collecting or walking
+                // back to shared practice; gathering must retain actual previous progress.
+                if (source.number != observation.work ||
+                    (source.state != 2 && source.state != 4 && (source.state != 1 || source.retained_progress == 0)) ||
                     observation.attempt != source.completed_tries + 1 || observation.settled < source.start ||
                     observation.weighted_seconds > 4 * (observation.settled - source.start) ||
                     observation.weighted_seconds > 4 * source.try_seconds)
-                    valid = false;
+                    reject("observation attendance disagrees with work");
             }
         }
         const auto evidence_valid = [&](const Familiar& f) {
             for (std::size_t i = 0; i < 18; ++i)
-                if (!person(w, f.source_people[i], true) || !event_exists(f.source_events[i])) valid = false;
+                if (!person(w, f.source_people[i], true) || !event_exists(f.source_events[i]))
+                    reject("familiar evidence link is invalid");
         };
         for (const auto& f : know.familiar) evidence_valid(f);
         for (const auto& m : know.memories) {
-            if (!event_exists(m.event)) valid = false;
+            if (!event_exists(m.event)) reject("memory source event is missing");
             for (const auto& f : m.inputs) evidence_valid(f);
         }
         for (const auto& hunch : know.hunches)
             for (const auto& f : hunch.inputs) evidence_valid(f);
     });
     for (const auto& [id, mass] : reserved)
-        if (mass > things.get<Item>(w.things().handle(id)).mass || tools.contains(id)) valid = false;
-    if (!valid) return fail("invalid craft links, reservations or queued work");
+        if (mass > things.get<Item>(w.things().handle(id)).mass || tools.contains(id))
+            reject("reserved stock exceeds mass or overlaps a tool");
+    if (!invalid.empty()) return fail(std::string{invalid});
     return true;
 }
 }  // namespace kd::world

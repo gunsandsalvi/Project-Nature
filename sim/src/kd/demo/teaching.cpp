@@ -169,6 +169,9 @@ bool Learning::choose(Living& living, world::Context& c, world::Beings::Handle h
         Learning::observe(c, learner);
         living.settle(c, teacher, raw.get<Home>(teacher).camp, false);
         living.settle(c, learner, raw.get<Home>(learner).camp, false);
+        // A paused teacher may have moved for their own needs. The renewed invitation
+        // names their present meeting place; the learner still collects and walks normally.
+        s.meeting = raw.get<world::Place>(teacher).at;
         s.state = 0;
         s.begun = 0;
         s.seconds = 0;

@@ -523,6 +523,15 @@ struct TeachingFixture : WatchFixture {
             CHECK_FALSE(options.commit(c, teacher));
             return;
         }
+        if (cmd.what == 920) {
+            auto& raw = w.beings().raw();
+            const auto here = w.torus().moved(raw.get<kd::world::Place>(teacher).at, {1000, 0});
+            raw.get<kd::world::Place>(teacher).at = here;
+            auto& activity = raw.get<kd::world::Activity>(teacher);
+            activity.from = activity.to = here;
+            CHECK(kd::demo::Learning::choose(*const_cast<kd::demo::Living*>(camp->living()), c, teacher));
+            return;
+        }
         if (cmd.what == 912) {
             accepted = kd::demo::Learning::choose(*const_cast<kd::demo::Living*>(camp->living()), c, teacher);
             return;
@@ -646,6 +655,50 @@ TEST_CASE("partial shared lesson reopens and resumes gradual work with no duplic
     saved.camp->world().run_islands(pause + 2200, workers, 1);
     CHECK(direct.camp->world().digests().whole == saved.camp->world().digests().whole);
     saved.reopen();
+}
+TEST_CASE("a paused lesson meets at the teacher's new position before shared practice resumes") {
+    TeachingFixture f;
+    f.offer();
+    auto& w = f.camp->world();
+    const auto pause = 7 * kd::time::kHour + 310;
+    w.run_to(pause - 1);
+    w.schedule(f.watcher, 1, pause);
+    w.run_to(pause + 1);
+    REQUIRE(f.sessions().sessions.size() == 1);
+    REQUIRE(f.sessions().sessions.front().state == 2);
+    f.at(w.frontier(), 920);
+    const auto teacher = w.beings().handle(f.maker), learner = w.beings().handle(f.watcher);
+    const auto meeting = w.beings().raw().get<kd::world::Place>(teacher).at;
+    REQUIRE(f.sessions().sessions.size() == 1);
+    CHECK(f.sessions().sessions.front().meeting == meeting);
+    CHECK(f.sessions().sessions.front().state == 0);
+    CHECK(w.beings().raw().get<kd::world::Place>(learner).at != meeting);
+    CHECK(w.beings().raw().get<kd::world::Work>(learner).retained_progress > 0);
+    bool attended = false;
+    w.beings().each([&](kd::ecs::Id, auto h) {
+        const auto* mind = w.beings().raw().try_get<kd::world::Knowledge>(h);
+        if (!mind) return;
+        for (const auto& seen : mind->observations)
+            attended = attended || (seen.person == f.watcher && seen.weighted_seconds > 0);
+    });
+    CHECK(attended);
+    auto& gathering = w.beings().raw().get<kd::world::Work>(learner);
+    const auto retained = gathering.retained_progress;
+    gathering.retained_progress = 0;
+    std::string why;
+    const auto invalid = kd::save::read_snapshot(kd::save::write_snapshot(w.save()), why);
+    REQUIRE(invalid);
+    if (!invalid) return;
+    CHECK_FALSE(kd::demo::CrowdWorld::open(watch_catalogue(), *invalid, why));
+    CHECK(why == "observation attendance disagrees with work");
+    gathering.retained_progress = retained;
+    f.reopen();
+    auto& resumed = f.camp->world();
+    resumed.run_to(resumed.frontier() + 120);
+    REQUIRE(f.sessions().sessions.size() == 1);
+    CHECK(f.sessions().sessions.front().state == 1);
+    CHECK(resumed.beings().raw().get<kd::world::Place>(resumed.beings().handle(f.watcher)).at == meeting);
+    f.reopen();
 }
 TEST_CASE("urgent learners and unfinished plans decline offers and telling never interrupts") {
     TeachingFixture f;
