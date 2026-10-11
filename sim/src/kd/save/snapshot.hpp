@@ -39,7 +39,7 @@ struct Chunk {
 };
 
 /// The snapshot format's own version, in its header.
-inline constexpr std::uint32_t kSnapshotVersion = 10;
+inline constexpr std::uint32_t kSnapshotVersion = 11;
 
 [[nodiscard]] inline std::string metadata_format() {
     return "format = " + std::to_string(kSnapshotVersion) + "\n";

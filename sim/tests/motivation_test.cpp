@@ -167,3 +167,53 @@ TEST_CASE("local pressure changes learning value without overpowering survival o
     CHECK(enquiry.motivation == 2);
     CHECK(enquiry.score > unanswered.score);
 }
+
+TEST_CASE("fuel operation two and striking action two retain independent own feedback through reopen") {
+    kd::demo::CrowdWorld camp(8812, motivation_catalogue(), 1, true, true);
+    auto& w = camp.world();
+    kd::world::Motivation* state = nullptr;
+    w.beings().each([&](kd::ecs::Id, auto h) {
+        if (!state && w.beings().raw().all_of<kd::world::Knowledge>(h))
+            state = &w.beings().raw().get<kd::world::Knowledge>(h).motivation;
+    });
+    REQUIRE(state);
+    if (!state) return;
+    kd::world::CraftReason strike;
+    strike.kind = 1;
+    strike.action = 2;
+    strike.need = 3;
+    strike.score = 495;
+    strike.parts = {0, 500, -5};
+    auto fuel = strike;
+    fuel.kind = 3;
+    fuel.confidence = 0;
+    auto& striking = kd::demo::Motivation::feedback(*state, strike);
+    auto& feeding = kd::demo::Motivation::feedback(*state, fuel);
+    striking = {123, 1000, 15};
+    feeding = {456, 2000, 0};
+    CHECK(striking.failures == 15);
+    CHECK(striking.evidence == 123);
+    state->pressure[0] = kd::world::Motivation::kUnit;
+    kd::demo::Motivation::value(*state, strike, striking.failures);
+    kd::demo::Motivation::value(*state, fuel, feeding.failures);
+    CHECK(strike.score < 495);
+    CHECK(fuel.score > 495);
+    feeding.failures = 7;
+    CHECK(striking.failures == 15);
+    CHECK(kd::demo::Motivation::valid(*state, 0));
+    auto invalid = *state;
+    invalid.fire_actions[1].failures = 16;
+    CHECK_FALSE(kd::demo::Motivation::valid(invalid, 0));
+    std::string why;
+    auto reopened = kd::demo::CrowdWorld::open(motivation_catalogue(), w.save(), why);
+    REQUIRE_MESSAGE(reopened, why);
+    if (!reopened) return;
+    CHECK(w.digests().whole == reopened->world().digests().whole);
+    std::size_t matching = 0;
+    reopened->world().beings().each([&](kd::ecs::Id, auto h) {
+        if (const auto* mind = reopened->world().beings().raw().try_get<kd::world::Knowledge>(h);
+            mind && mind->motivation == *state)
+            ++matching;
+    });
+    CHECK(matching == 1);
+}

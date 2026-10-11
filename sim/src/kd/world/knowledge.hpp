@@ -250,7 +250,7 @@ struct CraftReason {
 struct Knowledge {
     friend bool operator==(const Knowledge&, const Knowledge&) = default;
     static constexpr std::string_view name = "knowledge";
-    static constexpr std::uint32_t version = 4;
+    static constexpr std::uint32_t version = 5;
     std::uint32_t performed = 0;
     std::uint64_t next_memory = 1, next_work = 1, hourly_draw = 0;
     std::uint8_t curiosity = 50, kindness = 50, curiosity_need = 60, mood = 60;

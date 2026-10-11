@@ -9,6 +9,7 @@ public:
     [[nodiscard]] static bool valid(const world::Motivation&, time::Seconds);
     static void value(const world::Motivation&, world::CraftReason&, std::uint8_t failures, bool enabled = true);
     static void choose(world::Context&, world::Beings::Handle, std::vector<world::CraftReason>&);
+    static world::MotivationAction& feedback(world::Motivation&, const world::CraftReason&);
     static void trial(world::Context&, world::Beings::Handle, const world::CraftReason&);
     static void relief(world::Context&, world::Beings::Handle, std::size_t channel, bool progress = false);
     static void request(world::Context&, world::Beings::Handle);

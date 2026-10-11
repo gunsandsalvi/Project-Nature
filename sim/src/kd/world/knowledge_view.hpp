@@ -102,7 +102,7 @@ std::size_t payload_bytes(const T& record) {
 }  // namespace knowledge_view_detail
 class KnowledgeView {
     // Version 4 adds fixed-size motivation scalars; the scalar descriptor captures every field.
-    static_assert(Knowledge::version == 4, "Review display record groups when knowledge changes");
+    static_assert(Knowledge::version == 5, "Review display record groups when knowledge changes");
     struct Data {
         std::vector<std::uint64_t> scalars;
         knowledge_view_detail::Records<Familiar> familiar;

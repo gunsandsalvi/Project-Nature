@@ -38,6 +38,7 @@ struct Motivation {
     std::array<std::int64_t, 2> pressure{}, update_remainder{}, deficit_remainder{}, relief_remainder{}, denominator{};
     std::array<MotivationDay, 7> window{};
     std::array<MotivationAction, 21> actions{};
+    std::array<MotivationAction, 4> fire_actions{};  // Fire operation numbers are a separate action namespace.
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
         v.i64({"dawn", "last actual dawn update"}, c.dawn);
@@ -51,6 +52,7 @@ struct Motivation {
         }
         for (auto& day : c.window) MotivationDay::visit(v, day);
         for (auto& action : c.actions) MotivationAction::visit(v, action);
+        for (auto& action : c.fire_actions) MotivationAction::visit(v, action);
     }
 };
 }  // namespace kd::world

@@ -20,6 +20,7 @@ std::int64_t normalise(std::uint64_t amount, std::int64_t count, std::int64_t& r
 std::uint64_t evidence(const world::World& w, world::Beings::Handle h, const world::CraftReason& reason) {
     const auto& mind = w.beings().raw().get<world::Knowledge>(h);
     num::Digest digest;
+    digest.u8(reason.kind);
     digest.u8(reason.action);
     for (const auto& link : reason.inputs) {
         const auto handle = w.things().find(link.id);
@@ -41,7 +42,9 @@ std::uint64_t evidence(const world::World& w, world::Beings::Handle h, const wor
     }
     return digest.value();
 }
-std::int64_t progress(const world::World& w, world::Beings::Handle h, std::uint8_t action) {
+std::int64_t progress(const world::World& w, world::Beings::Handle h, const world::CraftReason& reason) {
+    // Match FireRules' generic maintenance actions, not its private operation numbers.
+    const auto action = reason.kind == 3 ? (reason.action == 3 ? 16 : 0) : reason.action;
     std::int64_t value = 0;
     for (const auto& skill : w.beings().raw().get<world::Knowledge>(h).skills)
         if (skill.known && w.catalogue().kind<data::Blueprint>()[skill.recipe].action == action)
@@ -114,6 +117,8 @@ bool Motivation::valid(const world::Motivation& state, time::Seconds now) {
     }
     for (const auto& action : state.actions)
         if (action.failures > 15 || action.progress < 0 || action.progress > 1280000) return false;
+    for (const auto& action : state.fire_actions)
+        if (action.failures > 15 || action.progress < 0 || action.progress > 1280000) return false;
     return true;
 }
 void Motivation::value(const world::Motivation& state, world::CraftReason& reason, std::uint8_t failures,
@@ -163,8 +168,8 @@ void Motivation::choose(world::Context& c, world::Beings::Handle h, std::vector<
             opportunities ? static_cast<std::uint8_t>(std::min<std::uint64_t>(100, relief / opportunities)) : 0;
         std::uint8_t failures = 0;
         if (n == 0) {
-            const auto& action = state.actions[reason.action];
-            if (action.evidence == evidence(w, h, reason) && action.progress >= progress(w, h, reason.action))
+            const auto& action = feedback(state, reason);
+            if (action.evidence == evidence(w, h, reason) && action.progress >= progress(w, h, reason))
                 failures = action.failures;
         }
         value(state, reason, failures, w.motivation_enabled());
@@ -180,12 +185,20 @@ void Motivation::choose(world::Context& c, world::Beings::Handle h, std::vector<
         }
     state.last_satisfaction = satisfaction;
 }
+world::MotivationAction& Motivation::feedback(world::Motivation& state, const world::CraftReason& reason) {
+    if (reason.kind == 3) {
+        KD_CHECK(reason.action >= 1 && reason.action <= state.fire_actions.size(), "Valid actual fire operation");
+        return state.fire_actions[reason.action - 1];
+    }
+    KD_CHECK(reason.action < state.actions.size(), "Valid generic action");
+    return state.actions[reason.action];
+}
 void Motivation::trial(world::Context& c, world::Beings::Handle h, const world::CraftReason& reason) {
     auto& w = c.world();
     auto& state = w.beings().raw().get<world::Knowledge>(h).motivation;
-    auto& action = state.actions[reason.action];
+    auto& action = feedback(state, reason);
     const auto observed = evidence(w, h, reason);
-    const auto learned = progress(w, h, reason.action);
+    const auto learned = progress(w, h, reason);
     const bool changed = observed != action.evidence || learned > action.progress;
     action.failures = changed ? 0 : static_cast<std::uint8_t>(std::min<int>(15, action.failures + 1));
     action.evidence = observed;

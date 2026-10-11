@@ -73,7 +73,7 @@ void save_craft(const World& w, std::vector<save::Chunk>& out) {
         }
     });
     out.push_back({save::tag("CRFT"), 2, true, craft.take()});
-    out.push_back({save::tag("KNOW"), 4, true, know.take()});
+    out.push_back({save::tag("KNOW"), 5, true, know.take()});
     out.push_back({save::tag("HIST"), 7, true, history.take()});
     // LEARN1 retains the foundation's four-letter wire tags.
     out.push_back({save::tag("LEAR"), 1, true, learning.take()});
@@ -104,7 +104,7 @@ bool craft_headers(std::span<const save::Chunk> chunks, std::uint32_t& features,
             return fail("Unsupported dream format. Start a new camp.");
         const auto version = tag == save::tag("LEAR")                               ? 1U
                              : tag == save::tag("HIST")                             ? 7U
-                             : tag == save::tag("KNOW")                             ? 4U
+                             : tag == save::tag("KNOW")                             ? 5U
                              : tag == save::tag("DRMS") || tag == save::tag("FIRE") ? 3U
                                                                                     : 2U;
         if (c && (!c->critical || c->version != version)) return fail("unsupported camp extension version");
