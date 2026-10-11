@@ -100,7 +100,8 @@ struct PrerequisiteFixture final : kd::world::System {
     kd::demo::CrowdWorld camp{9001, prerequisite_catalogue(), 1, true, true, true};
     kd::ecs::Id person{}, home{};
     std::vector<kd::world::CraftReason> reasons;
-    bool visible = true, commit = false;
+    bool visible = true, commit = false, geometry_fixture = false;
+    kd::num::Offset origin{}, destination{};
     PrerequisiteFixture() {
         auto& w = camp.world();
         home = camp.camp_ids().front();
@@ -137,11 +138,21 @@ struct PrerequisiteFixture final : kd::world::System {
         c.touch(person);
         c.touch(home);
         const auto h = w.beings().handle(person);
+        const auto centre = w.beings().raw().get<kd::world::Place>(w.beings().handle(home)).at;
+        if (geometry_fixture) {
+            const auto at = w.torus().moved(centre, origin);
+            w.beings().raw().get<kd::world::Place>(h).at = at;
+            auto& activity = w.beings().raw().get<kd::world::Activity>(h);
+            activity.from = activity.to = at;
+            c.moved(person);
+        }
         const auto here = w.beings().raw().get<kd::world::Place>(h).at;
         w.things().each([&](auto id, auto item) {
             if (w.things().raw().template all_of<kd::world::Fire>(item)) return;
-            w.things().raw().template get<kd::world::Place>(item).at =
-                visible ? here : w.torus().moved(here, {4000, 4000});
+            w.things().raw().template get<kd::world::Place>(item).at = geometry_fixture
+                                                                           ? w.torus().moved(centre, destination)
+                                                                       : visible ? here
+                                                                                 : w.torus().moved(here, {4000, 4000});
             c.item_changed(id);
         });
         kd::demo::ChoiceSet options;
@@ -264,4 +275,33 @@ TEST_CASE("retained actual trial memories bound repeating a question regardless 
     f.choose();
     CHECK(f.questions().empty());
     CHECK(f.mind().skills.empty());
+}
+
+TEST_CASE("visible input geometry equals the route oracle at camp and inclusive rock boundaries") {
+    PrerequisiteFixture shape;
+    const auto& w = shape.camp.world();
+    const auto h = w.beings().handle(shape.home);
+    const auto& patch = w.beings().raw().get<kd::world::Camp>(h);
+    const auto& rock = w.beings().raw().get<kd::world::Habitat>(h);
+    const auto edge = patch.half_width_cm;
+    const std::array<std::pair<kd::num::Offset, kd::num::Offset>, 7> cases{
+        {{{edge - 1, 0}, {edge, 0}},
+         {{edge - 1, 0}, {edge + 1, 0}},
+         {{edge + 1, 0}, {edge - 1, 0}},
+         {{rock.rock_west - 1, rock.rock_south - 1}, {rock.rock_west - 1, rock.rock_south + 1}},
+         {{rock.rock_west - 1, rock.rock_south}, {rock.rock_west, rock.rock_south}},
+         {{rock.rock_west, rock.rock_south}, {rock.rock_west - 1, rock.rock_south - 1}},
+         {{rock.rock_west - 1, rock.rock_south + 1}, {rock.rock_east + 1, rock.rock_south + 1}}}};
+    for (const auto& [origin, destination] : cases) {
+        PrerequisiteFixture fast, reference;
+        reference.camp.world().set_scalar_work(true);
+        for (auto* f : {&fast, &reference}) {
+            f->geometry_fixture = true;
+            f->origin = origin;
+            f->destination = destination;
+            f->choose();
+        }
+        CHECK(fast.reasons == reference.reasons);
+        CHECK(fast.camp.world().digests().whole == reference.camp.world().digests().whole);
+    }
 }

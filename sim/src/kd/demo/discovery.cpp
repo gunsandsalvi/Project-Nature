@@ -109,10 +109,16 @@ void Discovery::see(world::Context& c, world::Beings::Handle h) {
         ecs::Id first, last;
     };
     std::map<std::tuple<std::uint32_t, std::uint32_t, std::uint8_t>, Seen> kinds;
+    const auto camp = w.beings().handle(home);
+    const auto centre = raw.get<world::Place>(camp).at;
+    const auto& rock = raw.get<world::Habitat>(camp);
+    const auto origin = w.torus().offset(centre, here);
     for (const auto& site : w.item_sites()) {
-        if (site.home != home || w.torus().squared_distance(here, site.at) > range * range ||
-            !Living::visible(w, home, here, site.at))
+        if (site.sight.empty() || site.home != home || w.torus().squared_distance(here, site.at) > range * range)
             continue;
+        const auto visible = w.scalar_work() ? Living::visible(w, home, here, site.at)
+                                             : world::camp_line_clear(origin, w.torus().offset(centre, site.at), rock);
+        if (!visible) continue;
         for (const auto& seen : site.sight) {
             const auto [kind, fresh] =
                 kinds.try_emplace({seen.kind, seen.material, seen.state}, Seen{seen.first, seen.last});

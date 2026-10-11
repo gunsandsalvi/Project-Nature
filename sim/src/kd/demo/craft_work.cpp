@@ -144,10 +144,26 @@ Inputs reachable(world::Context& c, world::Beings::Handle h, const Supplies& sup
                               std::bit_cast<std::int64_t>(raw.get<world::Knowledge>(h).next_work),
                               chance::name("item order"));
     Inputs out;
+    const auto camp = w.beings().handle(home);
+    const auto centre = raw.get<world::Place>(camp).at;
+    const auto& patch = raw.get<world::Camp>(camp);
+    const auto& rock = raw.get<world::Habitat>(camp);
+    const auto origin = w.torus().offset(centre, here);
+    const auto inside = [&](num::Offset point) {
+        return std::abs(point.dx) <= patch.half_width_cm && std::abs(point.dy) <= patch.half_height_cm;
+    };
     for (const auto& site : w.item_sites()) {
-        if (site.home != home || w.torus().squared_distance(here, site.at) > range * range ||
-            !Living::visible(w, home, here, site.at) || Living::route(w, home, here, site.at).empty())
+        if (site.owned.empty() || site.home != home || w.torus().squared_distance(here, site.at) > range * range)
             continue;
+        if (w.scalar_work()) {
+            if (!Living::visible(w, home, here, site.at) || Living::route(w, home, here, site.at).empty()) continue;
+        } else {
+            const auto target = w.torus().offset(centre, site.at);
+            // Straight visibility plus legal endpoints already proves the
+            // route is the one-segment {site.at}; no path allocation/BFS needed.
+            // camp_line_clear includes the same inclusive endpoint-rock test.
+            if (!inside(origin) || !inside(target) || !world::camp_line_clear(origin, target, rock)) continue;
+        }
         const std::array owners{std::uint64_t{0}, person.value, participant.value};
         for (std::size_t n = 0; n < owners.size(); ++n) {
             if (n == 2 && (participant.value == 0 || participant == person)) continue;

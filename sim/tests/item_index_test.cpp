@@ -103,3 +103,49 @@ TEST_CASE("owned item index skips inert spent stock and follows timed food trans
     CHECK(view.items_owned(people[1], *meat).empty());
     CHECK(view.items_owned(people[0], *meat).size() == 1);
 }
+
+TEST_CASE("moving an active item keeps old empty locations bounded in the chooser index") {
+    kd::data::Catalogue catalogue;
+    REQUIRE(catalogue.load(kd::data::read_catalogue(KD_REPO "/data")).empty());
+    kd::demo::CrowdWorld camp(9004, catalogue, 1, true, true, true);
+    auto& w = camp.world();
+    const auto home = camp.camp_ids().front();
+    kd::ecs::Id moved{};
+    w.things().each([&](auto id, auto h) {
+        if (!moved.value && !w.things().raw().template all_of<kd::world::Fire>(h)) moved = id;
+    });
+    REQUIRE(moved.value != 0);
+    if (!moved.value) return;
+    const auto original_sites = w.item_sites().size();
+    struct Moves final : kd::world::System {
+        kd::ecs::Id item{}, home{};
+        std::string_view name() const override { return "declared active site migration"; }
+        void handle(kd::world::Context&, const kd::event::Event&) override {}
+        void command(kd::world::Context& c, const kd::world::Command& command) override {
+            auto& w = c.world();
+            const auto centre = w.beings().raw().get<kd::world::Place>(w.beings().handle(home)).at;
+            w.things().raw().get<kd::world::Place>(w.things().handle(item)).at =
+                w.torus().moved(centre, {static_cast<std::int64_t>(command.a), 2500});
+            c.item_changed(item);
+        }
+    } moves;
+    moves.item = moved;
+    moves.home = home;
+    w.set_command_taker(moves);
+    for (std::uint64_t step = 0; step < 100; ++step) {
+        (void)w.command(w.frontier(), 950, step, 0);
+        w.run_to(w.frontier() + 1);
+        const auto before = kd::save::write_snapshot(w.save());
+        const auto& sites = w.item_sites();
+        const auto empty = static_cast<std::size_t>(
+            std::count_if(sites.begin(), sites.end(), [](const auto& site) { return site.items.empty(); }));
+        CHECK(sites.size() <= original_sites + 16);
+        CHECK((empty < 16 || empty * 4 < sites.size()));
+        CHECK(kd::save::write_snapshot(w.save()) == before);
+        std::size_t copies = 0;
+        for (const auto& site : sites)
+            copies += std::count_if(site.items.begin(), site.items.end(),
+                                    [&](const auto& entry) { return entry.id == moved; });
+        CHECK(copies == 1);
+    }
+}

@@ -405,6 +405,33 @@ const std::vector<World::ItemSite>& World::item_sites() const {
                 found->last = entry.id;
         }
     }
+    // Empty locations are disposable index entries, not physical history.
+    // Batch compaction avoids rebuilding all addresses for every moved portion.
+    // Between compactions, empty slots stay below 16 or one quarter of slots;
+    // the index therefore grows with live sites, never with old positions.
+    const bool emptied =
+        std::any_of(changed.begin(), changed.end(), [&](auto site) { return item_sites_[site].items.empty(); });
+    const auto empty =
+        emptied ? static_cast<std::size_t>(std::count_if(item_sites_.begin(), item_sites_.end(),
+                                                         [](const auto& site) { return site.items.empty(); }))
+                : 0;
+    if (empty >= 16 && empty * 4 >= item_sites_.size()) {
+        item_site_at_.clear();
+        std::size_t kept = 0;
+        for (std::size_t site = 0; site < item_sites_.size(); ++site) {
+            if (item_sites_[site].items.empty()) continue;
+            if (kept != site) item_sites_[kept] = std::move(item_sites_[site]);
+            const auto& group = item_sites_[kept];
+            item_site_at_.emplace(std::tuple{group.home.value, group.at.x, group.at.y}, kept);
+            for (const auto& entry : group.items) {
+                const auto found = item_site_of_.find(entry.id.value);
+                KD_CHECK(found != item_site_of_.end(), "A live site entry has its indexed address");
+                found->second.site = kept;
+            }
+            ++kept;
+        }
+        item_sites_.resize(kept);
+    }
     return item_sites_;
 }
 
