@@ -171,6 +171,29 @@ int camp_cost(std::span<const std::string_view> args) {
             std::fprintf(stderr, "progress seed %llu: day %lld, %.2f s\n", static_cast<unsigned long long>(seed),
                          static_cast<long long>(at / time::kDay),
                          std::chrono::duration<double>(Clock::now() - began).count());
+        if (at % (30 * time::kDay) == 0) {
+            const auto& constant = std::as_const(w);
+            std::array<std::size_t, 7> sizes{};
+            std::uint64_t decisions = 0, trials = 0;
+            for (const auto h : constant.beings().raw().view<world::Knowledge>()) {
+                const auto& mind = constant.beings().raw().get<world::Knowledge>(h);
+                const std::array counts{mind.familiar.size(), mind.memories.size(),     mind.peers.size(),
+                                        mind.hunches.size(),  mind.observations.size(), mind.skills.size()};
+                for (std::size_t n = 0; n < counts.size(); ++n) sizes[n] += counts[n];
+                for (const auto& memory : mind.memories) sizes[6] += memory.inputs.size();
+            }
+            for (const auto h : constant.beings().raw().view<world::CraftHistory>()) {
+                const auto& history = constant.beings().raw().get<world::CraftHistory>(h);
+                decisions += history.next_choice - 1;
+                trials += history.next - 1;
+            }
+            std::fprintf(stderr,
+                         "growth day %lld: familiar %zu memories %zu peers %zu hunches %zu observations %zu "
+                         "skills %zu remembered-inputs %zu sites %zu decisions %llu results %llu\n",
+                         static_cast<long long>(at / time::kDay), sizes[0], sizes[1], sizes[2], sizes[3], sizes[4],
+                         sizes[5], sizes[6], constant.item_sites().size(), static_cast<unsigned long long>(decisions),
+                         static_cast<unsigned long long>(trials));
+        }
         // Output-only food accounting. Choices are still within their recent
         // window, and physical identities resolve through live or archived facts.
         if (food_accounting) {

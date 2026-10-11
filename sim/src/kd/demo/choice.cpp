@@ -44,12 +44,19 @@ bool ChoiceSet::commit(world::Context& c, world::Beings::Handle h) {
     KD_CHECK(reasons_.size() >= 3, "A common choice keeps two real rejected candidates");
     for (auto& reason : reasons_) parts(reason);
     Motivation::choose(c, h, reasons_);
-    std::vector<std::size_t> order;
-    for (std::size_t n = 0; n < reasons_.size(); ++n) order.push_back(n);
+    // Only three candidates survive. Preserve insertion order for equal scores
+    // without allocating/copying every discarded reason and its input links.
+    std::array<std::size_t, 3> order{0, 1, 2};
     std::stable_sort(order.begin(), order.end(), [&](auto a, auto b) { return reasons_[a].score > reasons_[b].score; });
+    for (std::size_t n = 3; n < reasons_.size(); ++n) {
+        auto at =
+            std::find_if(order.begin(), order.end(), [&](auto old) { return reasons_[n].score > reasons_[old].score; });
+        if (at == order.end()) continue;
+        std::move_backward(at, order.end() - 1, order.end());
+        *at = n;
+    }
     const auto winner = order.front();
-    std::vector<world::CraftReason> rejected;
-    for (std::size_t n = 1; n < order.size(); ++n) rejected.push_back(reasons_[order[n]]);
+    std::vector<world::CraftReason> rejected{reasons_[order[1]], reasons_[order[2]]};
     const auto id = Choices::keep(c, h, reasons_[winner], std::move(rejected), false);
     return commits_[winner](id);
 }

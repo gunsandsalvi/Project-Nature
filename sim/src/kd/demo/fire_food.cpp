@@ -24,11 +24,15 @@ struct HeatSource {
 HeatSource source(const world::World& w, ecs::Id id, time::Seconds now) {
     const auto& i = w.things().raw().get<Item>(w.things().handle(id));
     HeatSource out;
-    const auto here = position(w, id, now);
+    std::optional<num::Point> here;
     for (const auto fh : w.things().raw().view<world::Fire>()) {
         const auto& f = w.things().raw().get<world::Fire>(fh);
+        // A cold fire cannot win, even a zero-heat tie. Avoid repeating carrier
+        // positions for every food refresh in an old camp full of cold hearths.
+        if (!f.heat || f.hearth != i.home) continue;
+        if (!here) here = position(w, id, now);
         const auto fire = w.things().id_of(fh);
-        if (f.hearth != i.home || w.torus().squared_distance(here, position(w, fire, now)) > 10000) continue;
+        if (w.torus().squared_distance(here.value_or(num::Point{}), position(w, fire, now)) > 10000) continue;
         if (f.heat > out.heat || (f.heat && f.heat == out.heat && fire < out.fire))
             out = {f.heat, fire, f.origin, f.tended_at};
     }
@@ -258,11 +262,20 @@ void FireRules::food_refresh(world::Context& c, ecs::Id camp) {
 void FireRules::carried_food(world::Context& c, ecs::Id person) {
     const auto& w = std::as_const(c.world());
     std::vector<ecs::Id> carried;
-    for (std::uint32_t kind = 0; kind < w.catalogue().kind<data::ItemKind>().size(); ++kind)
-        for (const auto& entry : w.items_owned(person, kind))
-            if (w.things().raw().get<Item>(entry.handle).mass) carried.push_back(entry.id);
+    // Nonfood carried items have no food_changed effect. Include carried fires:
+    // moving one still refreshes the other foods in its hearth. Inspect all
+    // ambient hearths: carried items can retain a home different from their owner.
+    for (const auto h : w.beings().raw().view<world::Ambient>()) {
+        const auto& indexed = w.physical_items(w.beings().id_of(h));
+        for (const auto* entries : {&indexed.food, &indexed.fires})
+            for (const auto& entry : *entries) {
+                const auto& item = w.things().raw().get<Item>(entry.handle);
+                if (item.mass && item.owner == person) carried.push_back(entry.id);
+            }
+    }
     // Preserve whole-world ID order before callbacks mutate the live carried-item index.
-    num::sort_strict(carried.begin(), carried.end(), [](auto a, auto b) { return a < b; });
+    std::stable_sort(carried.begin(), carried.end(), [](auto a, auto b) { return a < b; });
+    carried.erase(std::unique(carried.begin(), carried.end()), carried.end());
     for (const auto id : carried) food_changed(c, id);
 }
 

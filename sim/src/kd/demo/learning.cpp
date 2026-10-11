@@ -66,7 +66,7 @@ void observe_active(world::Context& c, world::Beings::Handle observer, std::span
             act.what == static_cast<std::uint8_t>(world::LivingAct::rest)                                      ? 0
             : act.what == static_cast<std::uint8_t>(world::LivingAct::watch_craft) && mind->watching == person ? 4
                                                                                                                : 1;
-        if (weight != 0) {
+        if (weight != 0 && end > begin) {
             // Whole game-second intervals, independent of event batching, frames and save boundaries.
             bool moving_light = false;
             for (const auto fh : w.things().raw().view<world::Fire>()) {
