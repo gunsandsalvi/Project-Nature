@@ -1042,6 +1042,39 @@ TEST_CASE("a rejected teaching option neither offers nor reserves the learner's 
     CHECK(reasons[1].kind == 5);
 }
 
+TEST_CASE("teaching eligibility is scored for low kindness and never overrides a better option") {
+    for (const auto kindness : {20, 59, 80})
+        for (const bool useful : {false, true}) {
+            TeachingFixture f;
+            auto& w = f.camp->world();
+            f.mind(f.maker).kindness = static_cast<std::uint8_t>(kindness);
+            f.at(w.frontier(), 910);
+            f.mind(f.watcher).curiosity_need = 50;
+            f.mind(f.watcher).settled = w.frontier();
+            std::vector<kd::world::Record> events;
+            w.keep_history(&events);
+            f.at(w.frontier(), useful ? 919 : 918);
+            w.keep_history(nullptr);
+            CHECK((!f.sessions().sessions.empty()) == useful);
+            CHECK(std::count_if(events.begin(), events.end(), [](const auto& e) { return e.what == 211; }) ==
+                  (useful ? 1 : 0));
+            const auto& reasons = f.mind(f.maker).reasons;
+            REQUIRE(reasons.size() == 3);
+            const auto& offer = reasons[useful ? 0 : 1];
+            CHECK(offer.kind == 5);
+            CHECK(offer.parts[1] == kindness * offer.benefit);
+            CHECK(reasons[0].score >= reasons[1].score);
+            if (useful) {
+                CHECK_FALSE(kd::demo::Learning::knows(f.mind(f.watcher), f.recipe));
+                CHECK(f.mind(f.maker).session != 0);
+                CHECK(f.mind(f.watcher).session != 0);
+                f.reopen();
+                CHECK(f.mind(f.maker).kindness == kindness);
+                CHECK(f.sessions().sessions.size() == 1);
+            }
+        }
+}
+
 TEST_CASE("the same common teaching offer is accepted only when it wins the learner's own comparison") {
     for (const auto curiosity_met : {50, 100}) {
         TeachingFixture f;

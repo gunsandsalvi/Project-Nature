@@ -110,16 +110,16 @@ Twenty years/minute means three wall-seconds/year: at 7,000 people and four core
 
 ### α4.1d Repairing failed learning prerequisites
 
-**Coordinator approval:** 11 October 2026, 03:17, applying owner guidance; owner may override. α4.1c verdicts stand.
+**Approval:** 11 October 2026, 03:17, applying owner guidance; owner may override. α4.1c verdicts stand.
 **Goal:** Resolve failed prerequisites before seasons.
 **Serves:** `MND-11`, `MND-13`, `MND-14`, `MND-23`, `MAT-22`, `PRN-07`, `TIM-07`, `PLT-04`, `RES-02`, `RES-03`, `RES-13`, `RES-16`, `RES-23`.
 **Architecture:** A11, A12, A19.
 **Tasks:**
 1. `T4.1d.1` Score-only teaching eligibility; kindness remains an inclination. Prove a low-kindness holder can teach when useful and decline for a better option; saves retain actual participants/knowledge (`MND-13`, `MND-14`).
 2. `T4.1d.2` Bounded, saved generic prerequisite exploration from own evidence when an unmet need lacks a known means. Score actual nearby unknown materials against competing needs; no named craft/material special cases, granted facts or forced discovery. Review curiosity decline; propose any T change before separate calibration (`MND-11`, `MND-23`, `PRN-07`).
-3. `T4.1d.3` Profile mature P1 work, repair real waste, prove exact scalar/indexed state, then freeze and judge P1 once on fresh seeds. Freeze fresh S/F seeds after separate calibration; use declared thresholds/RES-13 arithmetic. Routine once (one failure repair/rerun), check APK; no audit yet.
-**Tests:** Existing S/F/P1 thresholds; reopens/workers/camera equality and recorded reasons. Seasons wait for resolved failures or owner redesign.
-**On the phone:** Inspect personally justified trials and teaching.
+3. `T4.1d.3` Profile mature P1 work, repair real waste, prove exact scalar/indexed state, then freeze and judge P1 once on fresh seeds. Fresh S/F after calibration; declared thresholds/RES-13 arithmetic. Routine once/repaired rerun, check APK.
+**Tests:** Existing S/F/P1 thresholds; reopens/workers/camera equality/reasons. Seasons wait.
+**On the phone:** Inspect trials/teaching.
 
 ### α4.2a Remembering a lean season
 

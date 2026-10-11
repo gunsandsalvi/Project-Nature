@@ -229,7 +229,7 @@ bool Learning::choose(Living& living, world::Context& c, world::Beings::Handle h
         proposals->add(reason, std::move(resume));
         return false;
     }
-    if (mind->kindness < 60 || raw.get<world::Work>(h).state != 0) return false;
+    if (raw.get<world::Work>(h).state != 0) return false;
     const auto home = raw.get<Home>(h).camp;
     const auto person = w.beings().id_of(h);
     std::vector<ecs::Id> nearby;

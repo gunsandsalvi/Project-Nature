@@ -364,7 +364,7 @@ TEST_CASE("shared session validation refuses corrupt links counters activities a
         if (fault == 10) ++session.end;
         if (fault == 11) session.last_try = 1;
         if (fault == 12) know.session = 0;
-        if (fault == 13) know.kindness = 59;
+        if (fault == 13) know.kindness = 101;
         if (fault == 14) know.skills.front().known = 0;
         if (fault == 15) work.lesson = 2;
         if (fault == 16) work.number = 0;

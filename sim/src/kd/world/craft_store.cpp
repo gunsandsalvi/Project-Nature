@@ -506,7 +506,7 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
                     return fail("shared practice participant is missing required state");
                 if (raw.get<demo::Home>(teacher).camp != id || raw.get<demo::Home>(learner).camp != id ||
                     raw.get<Knowledge>(teacher).session != session.id ||
-                    raw.get<Knowledge>(learner).session != session.id || raw.get<Knowledge>(teacher).kindness < 60 ||
+                    raw.get<Knowledge>(learner).session != session.id ||
                     std::none_of(raw.get<Knowledge>(teacher).skills.begin(), raw.get<Knowledge>(teacher).skills.end(),
                                  [&](const auto& s) { return s.recipe == session.recipe && s.known; }))
                     return fail("shared practice disagrees with personal knowledge");
