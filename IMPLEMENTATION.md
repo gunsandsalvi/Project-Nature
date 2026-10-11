@@ -36,7 +36,7 @@ Day 45: 22,541 spent items. Three-year choices: 242,397 in diagnostic 7002, 438,
 
 Data/rules: A19. Integer seconds/remainders; 60-day years, four 15-day seasons; convert annual hazards once. **T** means tunable estimate. Preserve decided biological values initially; freeze laws/values before evaluation. Local weather/renewal does not complete global climate/ecology.
 
-Research informs mechanisms, not exact game rates. Hadza tubers provide a relatively dependable fallback when preferred foods decline; this supports complementary seasonal resources, not a universal starvation season ([Marlowe/Berbesque, 2009](https://doi.org/10.1002/ajpa.21040)). Predomestication storage existed, so storage need not await agriculture; sophisticated granaries are not starting equipment ([Kuijt/Finlayson, 2009](https://doi.org/10.1073/pnas.0812764106)). Shiwiar disability observations support provisioning during incapacity, not the game's exact fever mortality ([Sugiyama, 2004](https://doi.org/10.1002/ajpa.10325)). Forager adult longevity supports useful elders; it must not be confused with life expectancy at birth ([Gurven/Kaplan, 2007](https://doi.org/10.1111/j.1728-4457.2007.00171.x)). Food kilograms, season length, pregnancy compression and treatment effects remain explicit play estimates T.
+Research supports complementary seasonal fallback ([Marlowe/Berbesque](https://doi.org/10.1002/ajpa.21040)), predomestication storage ([Kuijt/Finlayson](https://doi.org/10.1073/pnas.0812764106)), provisioning during incapacity ([Sugiyama](https://doi.org/10.1002/ajpa.10325)) and useful elders ([Gurven/Kaplan](https://doi.org/10.1111/j.1728-4457.2007.00171.x)). It does not establish universal starvation seasons, starting granaries, exact fever mortality or life expectancy at birth. Food kilograms, season length, compressed pregnancy and treatment effects remain explicit play estimates T.
 
 In-run approaches compared:
 
@@ -47,15 +47,9 @@ In-run approaches compared:
 | Target success/holder rates | Same persistent controller state; exact replay is possible | Deterministic scripting is still scripting. Reject automatic increases to physical success/yields when a world misses a gate. |
 | Local homeostatic motivation | Save each person's experienced deficits, learning progress, requests and bounded pressure | Recommended M4: unmet needs and answered requests raise effort; relief reduces it. Same law/opportunity gives same response, not equal discoveries. Scarce resources remain scarce. |
 
-Homeostatic reinforcement learning links reward to internal need regulation ([Keramati/Gutkin, 2014](https://elifesciences.org/articles/04811)); learning-progress curiosity seeks learnable situations, avoiding both trivial and unpredictable ones ([Oudeyer et al., 2007](https://www.pyoudeyer.com/ims.pdf)). These motivate a small explicit controller, not a claim that robots model foragers. Bandits offer exploration/exploitation machinery, but classic bounds assume reward conditions this changing simulation may violate ([Auer et al., 2002](https://doi.org/10.1023/A:1013689704352)). No development-time multi-seed calibration is proposed as the solution: adaptation must occur and survive saves inside each play run. Fresh multi-world gates only evaluate it.
+Need regulation ([Keramati/Gutkin](https://elifesciences.org/articles/04811)) and learnable curiosity ([Oudeyer](https://www.pyoudeyer.com/ims.pdf)) motivate the controller, not a claim that robots model foragers. Classic bandit bounds need reward assumptions this simulation may violate ([Auer](https://doi.org/10.1023/A:1013689704352)). Adaptation occurs and survives saves inside each run; fresh multi-world gates evaluate it.
 
-Exact original principle wording requiring amendment:
-
-> PRN-12: “Zoom, director and manual speed control time; tuning occurs during development, identically for every world (`PRN-17`). Play never changes rules for speed or drama, or causes an event for its story.”
-
-> PRN-17: “Meet discovery pace targets (`TIM-19`) by tuning chances and amounts identically for all worlds, including experimentation, success chances and food yields. Discoveries are never scripted or date-forced.”
-
-PROJECT's replacements permit experience-dependent motivation under a fixed law; MND-11/RES-16 change with them. The fixed catalogue's physical truth remains independent of pressure. Adaptive law complexity must scale with people and generic action families, not hundreds of discovery-specific controllers.
+PROJECT's approved `PRN-12`, `PRN-17`, `MND-11` and `RES-16` amendments permit experience-dependent motivation under a fixed law. Physical catalogue truth stays independent of pressure; complexity scales with people/generic action families, not discovery-specific controllers.
 
 Performance research: discrete-event simulation skips directly to the next event ([ns-3 manual](https://www.nsnam.org/docs/manual/html/events.html)); Kindling already does this at `world.cpp:511`, so another scheduler engine is unnecessary. Factorio's sleeping entities, spatial subscriptions and read-only parallel work illustrate useful mechanisms; its memory-bandwidth/dependency limits also caution against assuming four workers mean fourfold speed ([developer account, 2024](https://www.factorio.com/blog/post/fff-421)). Kindling needs indexed live sets, fewer wake-ups and archived records first; contiguous batches then reduce allocation/cache cost. Existing keyed chance already avoids a shared RNG bottleneck.
 
@@ -76,7 +70,7 @@ Twenty years/minute means three wall-seconds/year: at 7,000 people and four core
 **Tests:** Corrupt/retyped/dead targets, hidden-property invariance, renamed materials, competing categories, forged reasons; unrelated fires cannot pass a chain.
 **On the phone:** Inspect body choice, teaching refusal and old fire event after reopen; collect owed M3 digest/frame evidence on a repaired APK.
 
-**α4.1a evidence:** `dist/M4-1A-DIAGNOSIS.json` reproduces all seven failed M3 end digests with output-only counters. Inclusive choosing dominates; old reachable-input indexes already exclude spent items. Offers/replies do not prove attendance. Fire 7101 exposes one ember but zero tending candidates; its 180-second unblown chance narrows the nominal lifetime. α4.1b targets storage/scans; α4.1c repairs prerequisite value/reach and attendance. Heat ancestry now requires the same physical friction ember, recorded tending and actual cooking exposure. No acceptance retune or new gate here. Routine sections pass across two stopped attempts and coordinator-approved scoped completion (18:12), after format/UI/trace fixes. Check APK 50101 is 28.133 MiB. [M4 evidence](dist/M4-CHECKS.md) records timings/commits and remaining phone evidence.
+**α4.1a result:** [Diagnosis](dist/M4-1A-DIAGNOSIS.json) reproduces seven failed M3 digests: offers lack attendance; one ember yields zero tending candidates. Heat ancestry now follows actual ember/tending/cooking. Routine coverage passes through two attempts and coordinator-approved scoped completion; check APK 50101 is 28.133 MiB. [Evidence](dist/M4-CHECKS.md) retains counts, timings, commits and owed phone acceptance.
 
 ### α4.1b An old camp stays fast
 
@@ -118,8 +112,22 @@ Twenty years/minute means three wall-seconds/year: at 7,000 people and four core
 1. `T4.1d.1` Score-only teaching eligibility; kindness remains an inclination. Prove a low-kindness holder can teach when useful and decline for a better option; saves retain actual participants/knowledge (`MND-13`, `MND-14`).
 2. `T4.1d.2` Bounded, saved generic prerequisite exploration from own evidence when an unmet need lacks a known means. Score actual nearby unknown materials against competing needs; no named craft/material special cases, granted facts or forced discovery. Review curiosity decline; propose any T change before separate calibration (`MND-11`, `MND-23`, `PRN-07`).
 3. `T4.1d.3` Profile mature P1 work, repair real waste, prove exact scalar/indexed state, then freeze and judge P1 once on fresh seeds. Fresh S/F after calibration; declared thresholds/RES-13 arithmetic. Routine once/repaired rerun, check APK.
+4. `T4.1d.4` Recapture ordinary illustrative flake within60days, actual timestamp; no frequency claim (coordinator04:12). Frozen gate executable stays unchanged.
 **Tests:** Existing S/F/P1 thresholds; reopens/workers/camera equality/reasons. Seasons wait.
 **On the phone:** Inspect trials/teaching.
+
+### α4.1e Repairing worst-case cost
+
+**Approval:** Coordinator 11 October 2026, 04:04; owner may override. α4.1d verdicts stand.
+**Goal:** Meet P1 before seasons.
+**Serves:** `TIM-07`, `PLT-04`, `PLT-10`, `RES-05`, `RES-06`.
+**Architecture:** A19.2.
+**Tasks:**
+1. `T4.1e.1` Diagnose exposed9601 versus calibration9003 subsystem costs; repair worst-case waste exactly, with matched full-state/reason regressions. No rejudgement or behaviour tuning.
+2. `T4.1e.2` Freeze laws/build/fresh seeds and judge P1 once: three years each, ≥5 years/minute on one core; stop at first certain failure. Report costs/RSS and keep failed verdicts.
+3. `T4.1e.3` Routine once/repaired rerun, check APK, delivery.
+**Tests:** Exact digests/reopens/workers/scalar equality. Seasonal scope waits.
+**On the phone:** Sustained speed remains owed.
 
 ### α4.2a Remembering a lean season
 

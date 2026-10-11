@@ -1,6 +1,6 @@
 {
-  "seed": 8804,
+  "seed": 9003,
   "capture": "ordinary first noticed flake; illustrative calibration capture, not a frequency result",
-  "limit_game_days": 3,
+  "limit_game_days": 60,
   "switches": []
 }

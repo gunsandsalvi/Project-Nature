@@ -98,6 +98,9 @@ func test_menu_new_discovery_has_finite_stock_and_personal_starting_evidence() -
 
 func test_examples_open_captured_maker_and_tool_without_revealing_hidden_properties() -> void:
 	var shell := await _shell()
+	var previous := Worlds.at(shell.example_root)
+	var old_id := previous.make_discovery("Previous illustrative capture", 17)
+	previous.set_current(old_id)
 	await _press(shell._menu_button)
 	await _press(_button(shell._menu, "Examples"))
 	assert_str(shell.page_name()).is_equal("DiscoveryExamples")
@@ -105,6 +108,15 @@ func test_examples_open_captured_maker_and_tool_without_revealing_hidden_propert
 	assert_str(shell.page_name()).is_equal("FirstFlake")
 	var page: Control = shell._page
 	assert_bool(page.opened.has("problem")).is_false()
+	assert_str(page.root).is_equal(
+		shell.example_root.path_join("capture-" + str(page.capture.digest))
+	)
+	(
+		assert_bool(
+			previous.list().any(func(row: Dictionary) -> bool: return str(row.id) == old_id)
+		)
+		. is_true()
+	)
 	assert_int(page.selected_id).is_equal(str(page.capture.actor).to_int())
 	assert_int(page.selected_item_id).is_equal(str(page.capture.result).to_int())
 	assert_str(page._summary.text).contains("captured ordinary camp")
@@ -123,6 +135,13 @@ func test_examples_open_captured_maker_and_tool_without_revealing_hidden_propert
 	assert_str(page._card.text).not_contains("Burn")
 	assert_array(page.capture.switches).is_empty()
 	assert_str(page.world.digest()).is_equal(str(page.capture.digest))
+	# The example names its recorded event time, even when the saved frontier differs.
+	var original := int(page.capture.at)
+	page.capture.at = 59 * 86400 + 23 * 3600 + 59 * 60
+	page._refresh_records()
+	assert_str(page._summary.text).contains("Day 60 · 23:59")
+	page.capture.at = original
+	page._refresh_records()
 	shell.free()
 
 

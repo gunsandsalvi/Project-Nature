@@ -13,6 +13,9 @@ func _ready() -> void:
 	capture = JSON.parse_string(
 		FileAccess.get_file_as_string("res://data/examples/first-flake.json")
 	)
+	# A new illustrative capture can share the save format with the previous one.
+	# Its cache must open this recorded state, while preserving the old example.
+	root = root.path_join("capture-" + str(capture.digest))
 	var kept := Worlds.at(root)
 	if kept.list().is_empty():
 		var source := FileAccess.open("res://data/examples/first-flake.kindling", FileAccess.READ)
@@ -46,6 +49,8 @@ func _show_problem(words: String) -> void:
 func _refresh_records(counters: Dictionary = {}) -> void:
 	super._refresh_records(counters)
 	if is_instance_valid(_summary):
+		var made := int(capture.get("at", world.frontier()))
 		_summary.text = (
-			"First flake · captured ordinary camp\n" + world.date_text() + " · " + world.time_text()
+			"First flake · captured ordinary camp\nDay %d · %02d:%02d"
+			% [made / 86400 + 1, posmod(made, 86400) / 3600, posmod(made, 3600) / 60]
 		)

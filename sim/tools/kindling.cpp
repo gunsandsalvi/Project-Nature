@@ -925,7 +925,8 @@ int discovery_capture(const std::vector<std::string_view>& args) {
     const auto& history = w.beings().raw().get<kd::world::CraftHistory>(w.beings().handle(home));
     const auto& recipes = c.kind<kd::data::Blueprint>();
     std::optional<kd::world::Result> first;
-    while (w.frontier() < 3 * kd::time::kDay && !first) {
+    // Illustrative capture, not a discovery-frequency gate (approved 11 October).
+    while (w.frontier() < 60 * kd::time::kDay && !first) {
         w.run_to(w.frontier() + 300);
         for (const auto& e : history.events) {
             if (e.kind != 1 || !e.noticed || recipes[e.recipe].edge_from < 0) continue;
@@ -934,7 +935,7 @@ int discovery_capture(const std::vector<std::string_view>& args) {
         }
     }
     if (!first) {
-        std::printf("No noticed flake for seed %llu within three days\n", seed);
+        std::printf("No noticed flake for seed %llu within sixty days\n", seed);
         return 2;
     }
     const auto& e = *first;
