@@ -373,6 +373,10 @@ public:
     void physical_changed(ecs::Id id) const { physical_dirty_.push_back(id); }
     [[nodiscard]] bool scalar_work() const { return scalar_work_; }
     void set_scalar_work(bool enabled) { scalar_work_ = enabled; }
+    [[nodiscard]] bool motivation_enabled() const { return motivation_enabled_; }
+#ifdef KD_TEST_SWITCHES
+    void set_motivation_enabled(bool enabled) { motivation_enabled_ = enabled; }
+#endif
     struct MakerEntry {
         ecs::Id id, camp;
         Beings::Handle handle;
@@ -534,7 +538,8 @@ private:
     bool archive_enabled_ = true;
     mutable ItemVisits item_visits_{};  // output only; never save, hash or use to choose
     mutable bool item_sites_valid_ = false;
-    bool scalar_work_ = false;  // reference implementation switch, never saved/hashed
+    bool motivation_enabled_ = true;  // fixed normal law; disabling is a diagnostic only
+    bool scalar_work_ = false;        // reference implementation switch, never saved/hashed
     mutable bool physical_items_valid_ = false;
     mutable std::map<ecs::Id, PhysicalItems> physical_items_;
     struct PhysicalAddress {

@@ -195,6 +195,21 @@ static func kept_reasons(reasons: Array) -> String:
 					maxi(1, ceili(float(r.seconds) / 60))
 				]
 			)
+		if int(r.get("motivation", 0)) != 0:
+			words += (
+				(
+					" Own %s experience: %d opportunities, unmet %d/100, relief %d/100; "
+					+ "inclination +%d%%, learning value %d%%."
+				)
+				% [
+					"exploration" if int(r.motivation) == 1 else "helping",
+					int(r.motivation_opportunities),
+					int(r.motivation_deficit),
+					int(r.motivation_relief),
+					int(r.motivation_pressure) * 100 / 65536,
+					int(r.learning_progress_ppm) / 10000,
+				]
+			)
 		if int(r.get("unavailable", 0)) != 0:
 			words += (
 				" Unavailable: "

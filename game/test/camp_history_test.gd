@@ -172,6 +172,12 @@ func test_kept_choices_show_the_winner_two_rejections_and_recorded_uncertainty()
 			"observed_heat": 1,
 			"observed_fuel_mg": 700000,
 			"confidence": 70,
+			"motivation": 1,
+			"motivation_pressure": 32768,
+			"motivation_opportunities": 11,
+			"motivation_deficit": 75,
+			"motivation_relief": 5,
+			"learning_progress_ppm": 250000,
 			"unavailable": 0
 		},
 		{
@@ -199,6 +205,11 @@ func test_kept_choices_show_the_winner_two_rejections_and_recorded_uncertainty()
 	assert_str(words).contains("Rejected Water · priority 30")
 	assert_str(words).contains("Rejected Rest · priority 0")
 	assert_str(words).not_contains("familiar craft seemed useful")
+
+	assert_str(words).contains(
+		"Own exploration experience: 11 opportunities, unmet 75/100, relief 5/100"
+	)
+	assert_str(words).contains("inclination +50%, learning value 25%")
 
 
 func test_heat_history_keeps_recorded_fire_origin_and_actual_tending_time() -> void:

@@ -7,6 +7,7 @@
 #include "kd/demo/fire.hpp"
 #include "kd/demo/idea_dreams.hpp"
 #include "kd/demo/learning.hpp"
+#include "kd/demo/motivation.hpp"
 #include "kd/demo/parts.hpp"
 
 namespace kd::demo {
@@ -841,6 +842,14 @@ void Living::renew(world::Context& c, world::Beings::Handle h) {
     facts.food_mg += grown;
     env.renewed_at = c.now();
     const auto id = c.world().beings().id_of(h);
+    if (c.now() % time::kDay == 6 * time::kHour) {
+        c.world().beings().each([&](ecs::Id person, world::Beings::Handle ph) {
+            if (!raw.all_of<world::Knowledge, Home>(ph) || raw.get<Home>(ph).camp != id) return;
+            c.touch(person);
+            Motivation::dawn(raw.get<world::Knowledge>(ph).motivation, c.now());
+            c.moved(person);
+        });
+    }
     c.schedule(id, world::kActivitySlot, c.now() + 3600);
 }
 void Living::handle(world::Context& c, const event::Event& e) {

@@ -71,6 +71,7 @@ add_library(kd_sim STATIC
     src/kd/demo/choice.cpp
     src/kd/demo/craft_work.cpp
     src/kd/demo/use_value.cpp
+    src/kd/demo/motivation.cpp
     src/kd/demo/crafting.cpp
     src/kd/demo/discovery.cpp
     src/kd/demo/teaching.cpp
@@ -156,6 +157,7 @@ if(KD_SIM_TESTS)
         tests/world_test.cpp
         tests/craft_test.cpp
         tests/use_value_test.cpp
+        tests/motivation_test.cpp
         tests/item_index_test.cpp
         tests/storage_test.cpp
         tests/work_index_test.cpp

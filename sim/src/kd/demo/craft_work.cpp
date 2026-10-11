@@ -8,6 +8,7 @@
 #include "kd/demo/fire.hpp"
 #include "kd/demo/learning.hpp"
 #include "kd/demo/living.hpp"
+#include "kd/demo/motivation.hpp"
 #include "kd/num/sort.hpp"
 namespace kd::demo {
 namespace {
@@ -1124,6 +1125,14 @@ void Crafting::settle(Living& living, world::Context& c, world::Beings::Handle h
         }
         if (!work.intended && know.next_memory == memories_before)
             Discovery::memory(c, h, work.action, Discovery::handling(c, h, work.action, ids), 0);
+    }
+    if (!work.intended && work.rolled && !raw.get<world::Knowledge>(h).reasons.empty()) {
+        auto experienced = raw.get<world::Knowledge>(h).reasons.front();
+        experienced.inputs.clear();
+        for (const auto& input : work.inputs) experienced.inputs.push_back({input.item});
+        // Pickup may split a stock. Actual held inputs stay pinned throughout this trial;
+        // the pre-pickup choice's source identities can already have been archived.
+        Motivation::trial(c, h, experienced);
     }
     release(c, h);
 }

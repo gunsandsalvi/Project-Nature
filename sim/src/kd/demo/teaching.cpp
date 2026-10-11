@@ -5,6 +5,7 @@
 #include "kd/demo/discovery.hpp"
 #include "kd/demo/learning.hpp"
 #include "kd/demo/living.hpp"
+#include "kd/demo/motivation.hpp"
 namespace kd::demo {
 namespace {
 using world::LivingAct;
@@ -98,6 +99,7 @@ bool Learning::exchange(world::Context& c, world::Beings::Handle speaker, world:
     // autonomous offers below consult the speaker's resulting evidence, never the listener's skill table.
     const bool answer = knows(receiver, recipe);
     belief(sender, other, recipe, answer, c.now());
+    if (!answer) Motivation::request(c, speaker);
     belief(receiver, person, recipe, true, c.now());
     if (!answer) {
         const auto& blueprint = w.catalogue().kind<data::Blueprint>()[recipe];
@@ -254,6 +256,7 @@ bool Learning::choose(Living& living, world::Context& c, world::Beings::Handle h
                     continue;
                 }
                 auto reason = invitation(*mind, known.recipe, 60);
+                reason.confidence = 0;  // No observed novice yet; enquiry is not an eligible teaching deficit.
                 proposals->add(reason, [&living, &c, h, other, recipe = known.recipe](std::uint64_t) {
                     const auto learner = c.world().beings().handle(other);
                     (void)exchange(c, h, learner, recipe);
@@ -359,6 +362,8 @@ void Learning::worked(world::Context& c, world::Beings::Handle maker, std::uint6
             learned.source = s->teacher;
             learned.source_event = event;
             learned.route = 5;
+            Motivation::relief(c, maker, 0, true);
+            Motivation::relief(c, w.beings().handle(s->teacher), 1, true);
             Learning::learned(c, maker, *result, s->teacher, 5);
         }
         belief(raw.get<world::Knowledge>(w.beings().handle(s->teacher)), s->learner, s->recipe, true, c.now(), event);

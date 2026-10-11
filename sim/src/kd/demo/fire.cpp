@@ -5,6 +5,7 @@
 #include "kd/demo/discovery.hpp"
 #include "kd/demo/learning.hpp"
 #include "kd/demo/living.hpp"
+#include "kd/demo/motivation.hpp"
 namespace kd::demo {
 namespace {
 std::uint32_t required_entry(const kd::data::Catalogue& catalogue, std::string_view folder, std::string_view name) {
@@ -658,6 +659,12 @@ bool FireRules::continue_tending(Living& living, world::Context& c, world::Being
                 c.record(
                     218, target.value,
                     static_cast<std::uint64_t>(t->tending) | (static_cast<std::uint64_t>(fire(w, target).heat) << 8U));
+            }
+            const auto& reasons = raw.get<world::Knowledge>(h).reasons;
+            if (!reasons.empty() && reasons.front().confidence < 100) {
+                auto experienced = reasons.front();
+                experienced.inputs = {{target}, {input}};
+                Motivation::trial(c, h, experienced);
             }
             t->tending_mass = 0;
         }

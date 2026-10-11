@@ -1,4 +1,5 @@
 #include "kd/demo/choice.hpp"
+#include "kd/demo/motivation.hpp"
 namespace kd::demo {
 namespace {
 void parts(world::CraftReason& reason) {
@@ -41,6 +42,8 @@ void ChoiceSet::add(world::CraftReason reason, Commit commit) {
 }
 bool ChoiceSet::commit(world::Context& c, world::Beings::Handle h) {
     KD_CHECK(reasons_.size() >= 3, "A common choice keeps two real rejected candidates");
+    for (auto& reason : reasons_) parts(reason);
+    Motivation::choose(c, h, reasons_);
     std::vector<std::size_t> order;
     for (std::size_t n = 0; n < reasons_.size(); ++n) order.push_back(n);
     std::stable_sort(order.begin(), order.end(), [&](auto a, auto b) { return reasons_[a].score > reasons_[b].score; });

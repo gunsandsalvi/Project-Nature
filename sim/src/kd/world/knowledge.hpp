@@ -3,6 +3,7 @@
 #include <array>
 #include "kd/core/pages.hpp"
 #include "kd/world/craft.hpp"
+#include "kd/world/motivation.hpp"
 #include "kd/world/routine.hpp"
 namespace kd::world {
 struct Familiar {
@@ -204,7 +205,7 @@ struct Hunch {
 struct CraftReason {
     friend bool operator==(const CraftReason&, const CraftReason&) = default;
     static constexpr std::string_view name = "craft-reason";
-    static constexpr std::uint32_t version = 3;
+    static constexpr std::uint32_t version = 4;
     std::uint8_t kind = 0, intended = 0, action = 0, need = 0;
     std::uint32_t recipe = kNoRecipe;
     std::int64_t score = 0, benefit = 0, seconds = 0;
@@ -212,6 +213,10 @@ struct CraftReason {
     std::uint8_t need_met = 100, confidence = 100, unavailable = 0, observed_heat = 0;
     std::int64_t observed_fuel_mg = 0;
     std::array<std::int64_t, 3> parts{};  // need benefit, inclination/plan, effort; sum is score
+    std::uint8_t motivation = 0, motivation_deficit = 0, motivation_relief = 0;
+    std::int64_t motivation_pressure = 0;
+    std::uint64_t motivation_opportunities = 0;
+    std::uint32_t learning_progress_ppm = 1000000;
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
         v.u8({"kind", "known use or curiosity"}, c.kind);
@@ -234,12 +239,18 @@ struct CraftReason {
         v.i64({"need_score", "expected need benefit contribution"}, c.parts[0]);
         v.i64({"inclination_score", "inclination and plan contribution"}, c.parts[1]);
         v.i64({"effort_score", "effort contribution"}, c.parts[2]);
+        v.u8({"motivation", "exploration or teaching experience channel"}, c.motivation);
+        v.i64({"motivation_pressure", "own pressure at this decision"}, c.motivation_pressure);
+        v.u64({"motivation_opportunities", "own seven-day eligible opportunities"}, c.motivation_opportunities);
+        v.u8({"motivation_deficit", "own normalised experienced deficit"}, c.motivation_deficit);
+        v.u8({"motivation_relief", "own normalised experienced relief"}, c.motivation_relief);
+        v.u32({"learning_progress_ppm", "learning value after repeated no-progress trials"}, c.learning_progress_ppm);
     }
 };
 struct Knowledge {
     friend bool operator==(const Knowledge&, const Knowledge&) = default;
     static constexpr std::string_view name = "knowledge";
-    static constexpr std::uint32_t version = 3;
+    static constexpr std::uint32_t version = 4;
     std::uint32_t performed = 0;
     std::uint64_t next_memory = 1, next_work = 1, hourly_draw = 0;
     std::uint8_t curiosity = 50, kindness = 50, curiosity_need = 60, mood = 60;
@@ -256,6 +267,7 @@ struct Knowledge {
     std::uint64_t choice = 0;
     std::vector<PeerBelief> peers;
     std::vector<Observation> observations;
+    Motivation motivation;
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
         v.u32({"performed", "actions actually performed"}, c.performed);
@@ -281,6 +293,7 @@ struct Knowledge {
         v.u64({"choice", "immutable current choice identity, or zero"}, c.choice);
         v.records({"peers", "own evidence about a peer's craft knowledge"}, c.peers, 256);
         v.records({"observations", "unfinished exposure to actual manufacture"}, c.observations, 64);
+        Motivation::visit(v, c.motivation);
     }
 };
 struct Result {

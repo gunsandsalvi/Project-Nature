@@ -3,6 +3,7 @@
 #include <set>
 #include "kd/data/craft.hpp"
 #include "kd/demo/living.hpp"
+#include "kd/demo/motivation.hpp"
 namespace kd::world {
 std::uint32_t craft_features(const World& w) {
     return w.beings().raw().view<CraftHistory>().empty() && w.beings().raw().view<Knowledge>().empty() &&
@@ -72,8 +73,8 @@ void save_craft(const World& w, std::vector<save::Chunk>& out) {
         }
     });
     out.push_back({save::tag("CRFT"), 2, true, craft.take()});
-    out.push_back({save::tag("KNOW"), 3, true, know.take()});
-    out.push_back({save::tag("HIST"), 6, true, history.take()});
+    out.push_back({save::tag("KNOW"), 4, true, know.take()});
+    out.push_back({save::tag("HIST"), 7, true, history.take()});
     // LEARN1 retains the foundation's four-letter wire tags.
     out.push_back({save::tag("LEAR"), 1, true, learning.take()});
 }
@@ -101,10 +102,11 @@ bool craft_headers(std::span<const save::Chunk> chunks, std::uint32_t& features,
             return fail("required craft extension is missing or mismatched");
         if (c && tag == save::tag("DRMS") && c->version != 3)
             return fail("Unsupported dream format. Start a new camp.");
-        const auto version = tag == save::tag("LEAR")                                                           ? 1U
-                             : tag == save::tag("HIST")                                                         ? 6U
-                             : tag == save::tag("DRMS") || tag == save::tag("KNOW") || tag == save::tag("FIRE") ? 3U
-                                                                                                                : 2U;
+        const auto version = tag == save::tag("LEAR")                               ? 1U
+                             : tag == save::tag("HIST")                             ? 7U
+                             : tag == save::tag("KNOW")                             ? 4U
+                             : tag == save::tag("DRMS") || tag == save::tag("FIRE") ? 3U
+                                                                                    : 2U;
         if (c && (!c->critical || c->version != version)) return fail("unsupported camp extension version");
     }
     const auto archive_count =
@@ -157,7 +159,11 @@ bool reason_valid(const World& w, const CraftReason& reason) {
         (!reason.intended && reason.recipe != kNoRecipe) || reason.score < -1000000 || reason.score > 1000000 ||
         reason.benefit < 0 || reason.benefit > 100 || reason.seconds < 0 || reason.seconds > time::kDay * 2 ||
         reason.need_met > 100 || reason.confidence > 100 || reason.unavailable > 5 || reason.observed_heat > 5 ||
-        reason.observed_fuel_mg < 0 || reason.observed_fuel_mg > 1000000000)
+        reason.observed_fuel_mg < 0 || reason.observed_fuel_mg > 1000000000 || reason.motivation > 2 ||
+        reason.motivation_pressure < 0 || reason.motivation_pressure > Motivation::kUnit ||
+        reason.motivation_opportunities > 7000000 || reason.motivation_deficit > 100 ||
+        reason.motivation_relief > 100 || reason.learning_progress_ppm < 62500 ||
+        reason.learning_progress_ppm > 1000000)
         return false;
     for (const auto value : reason.parts)
         if (value < -3000000 || value > 3000000) return false;
@@ -259,7 +265,8 @@ bool load_craft(World& w, std::span<const save::Chunk> chunks, const ecs::EntryM
                 value.settled > w.frontier() ||
                 value.hourly_draw > static_cast<std::uint64_t>(w.frontier() / 3600 + 1) ||
                 value.curiosity_remainder < 0 || value.curiosity_remainder >= time::kDay ||
-                !person(w, value.watching, true) || value.watching == id)
+                !person(w, value.watching, true) || value.watching == id ||
+                !demo::Motivation::valid(value.motivation, w.frontier()))
                 return fail("invalid knowledge quantities");
             for (const auto& p : value.sectors)
                 if (!practice(p, w.frontier())) return fail("invalid sector practice");

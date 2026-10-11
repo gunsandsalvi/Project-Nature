@@ -1045,6 +1045,12 @@ godot::Array reason_rows(const std::vector<world::CraftReason>& reasons, const d
         row["unavailable"] = reason.unavailable;
         row["observed_heat"] = reason.observed_heat;
         row["observed_fuel_mg"] = reason.observed_fuel_mg;
+        row["motivation"] = reason.motivation;
+        row["motivation_pressure"] = reason.motivation_pressure;
+        row["motivation_opportunities"] = reason.motivation_opportunities;
+        row["motivation_deficit"] = reason.motivation_deficit;
+        row["motivation_relief"] = reason.motivation_relief;
+        row["learning_progress_ppm"] = reason.learning_progress_ppm;
         row["known"] = reason.intended && (!mind || demo::Learning::knows(*mind, reason.recipe));
         static const std::array<const char*, 4> body{"Food", "Water", "Rest", "Look around"};
         static const std::array<const char*, 5> fire{"", "Feed fire", "Blow embers", "Bank fire", "Carry ember"};
