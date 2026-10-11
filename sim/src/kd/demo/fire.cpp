@@ -479,7 +479,10 @@ bool FireRules::choose(Living& living, world::Context& c, world::Beings::Handle 
     auto* t = raw.try_get<world::Thermal>(h);
     if (!t || t->tending || raw.get<world::Work>(h).state) return false;
     const auto& l = raw.get<world::Life>(h);
-    if (*std::min_element(l.decision_needs.begin(), l.decision_needs.end()) < 20) return false;
+    // An urgent usable remedy keeps priority. An unavailable one cannot
+    // indefinitely forbid every other real option; common scores still decide.
+    for (std::size_t n = 0; n < l.decision_needs.size(); ++n)
+        if (l.decision_needs[n] < 20 && l.unavailable[n] == 0) return false;
     const auto person = w.beings().id_of(h), camp = raw.get<Home>(h).camp;
     const auto here = raw.get<world::Place>(h).at;
     const auto sight_clock = c.now() % time::kDay;

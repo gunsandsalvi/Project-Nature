@@ -217,3 +217,28 @@ TEST_CASE("fuel operation two and striking action two retain independent own fee
     });
     CHECK(matching == 1);
 }
+
+TEST_CASE("unchanged failures discount conjectured need benefit as well as trial information") {
+    kd::world::Motivation state;
+    state.pressure[0] = kd::world::Motivation::kUnit;
+    kd::world::CraftReason trial;
+    trial.kind = 1;
+    trial.need = 0;
+    trial.confidence = 0;
+    trial.parts = {800, 100, -5};
+    trial.score = 895;
+    auto fresh = trial, failed = trial;
+    kd::demo::Motivation::value(state, fresh, 0);
+    kd::demo::Motivation::value(state, failed, 15);
+    CHECK(fresh.score == 1795);
+    CHECK(failed.score < trial.parts[0]);
+    CHECK(failed.parts[2] == trial.parts[2]);
+    CHECK(failed.score == failed.parts[0] + failed.parts[1] + failed.parts[2]);
+    CHECK(failed.learning_progress_ppm == 62500);
+    auto known = trial;
+    known.kind = 0;
+    known.intended = 1;
+    const auto original = known;
+    kd::demo::Motivation::value(state, known, 15);
+    CHECK(known == original);
+}

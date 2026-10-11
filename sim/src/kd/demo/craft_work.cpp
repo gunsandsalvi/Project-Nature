@@ -182,6 +182,108 @@ struct Candidate {
     std::vector<world::Reservation> inputs;
     std::int64_t duration = 0, unit = 0, goal = 0;
 };
+// MND-11 MND-23 PRN-07: an unanswered personal need can justify a finite
+// question about nearby unknown material. Neither a hidden blueprint nor its
+// physical answer chooses the action or inputs.
+std::optional<Candidate> prerequisite(Living& living, world::Context& c, world::Beings::Handle h, const Inputs& seen,
+                                      const std::vector<Candidate>& known, const ChoiceSet* proposals) {
+    auto& w = c.world();
+    auto& raw = w.beings().raw();
+    auto& mind = raw.get<world::Knowledge>(h);
+    const auto& life = raw.get<world::Life>(h);
+    const auto needs = Living::needs(life);
+    const auto answered = [&](std::uint8_t need) {
+        const auto remedy = [need](const auto& reason) {
+            return reason.need == need && !reason.unavailable && reason.benefit > 0 && reason.score > 0 &&
+                   (reason.kind == 0 || reason.kind == 2 || reason.kind == 3 || reason.kind == 4);
+        };
+        return std::any_of(known.begin(), known.end(), [&](const auto& option) { return remedy(option.reason); }) ||
+               (proposals && std::any_of(proposals->reasons().begin(), proposals->reasons().end(), remedy));
+    };
+    std::uint8_t goal = 3;
+    std::int64_t satisfaction = 60;
+    for (std::uint8_t n = 0; n < 3; ++n) {
+        if (needs[n] < 20 && answered(n)) return {};
+        if (needs[n] < satisfaction && life.unavailable[n] && !answered(n)) {
+            goal = n;
+            satisfaction = needs[n];
+        }
+    }
+    const auto* thermal = raw.try_get<world::Thermal>(h);
+    if (thermal && thermal->warmth < satisfaction && !answered(4)) {
+        goal = 4;
+        satisfaction = thermal->warmth;
+    }
+    if (goal == 3) return {};
+    const auto hour = static_cast<std::uint64_t>(c.now() / time::kHour + 1);
+    if (mind.hourly_draw == hour) return {};
+    // One representative per personally recognised material/state, rather than
+    // treating a pile's item count as many different ideas.
+    std::vector<const SeenInput*> materials;
+    materials.reserve(std::min<std::size_t>(128, seen.all.size()));
+    for (const auto& input : seen.all) {
+        if (!input.free || input.familiar->mask == ((1U << 18U) - 1)) continue;
+        if (std::none_of(materials.begin(), materials.end(), [&](const auto* old) {
+                return old->familiar->kind == input.familiar->kind &&
+                       old->familiar->material == input.familiar->material &&
+                       old->familiar->state == input.familiar->state;
+            }))
+            materials.push_back(&input);
+    }
+    if (materials.empty()) return {};
+    const auto person = w.beings().id_of(h);
+    const chance::Draws draws(w.seed(), chance::name("unanswered need trial"), person.value,
+                              static_cast<std::int64_t>(hour), chance::name("action and material question"));
+    Candidate trial;
+    trial.reason.kind = 1;
+    trial.reason.need = goal;
+    trial.reason.confidence = 0;
+    trial.reason.action = static_cast<std::uint8_t>(draws.below(0, 21));
+    const auto first = draws.below(1, materials.size());
+    const auto second =
+        materials.size() > 1 ? (first + 1 + draws.below(2, materials.size() - 1)) % materials.size() : first;
+    std::int64_t travel = 0;
+    auto from = raw.get<world::Place>(h).at;
+    for (const auto at : {first, second}) {
+        const auto& input = *materials[at];
+        if (!trial.inputs.empty() && trial.inputs.front().item == input.id) continue;
+        trial.inputs.push_back({input.id, input.item->mass, static_cast<std::uint8_t>(trial.inputs.size()), 1, 0,
+                                static_cast<std::uint8_t>(input.item->owner.value == 0)});
+        trial.reason.inputs.push_back({input.id});
+        const auto path = Living::route(w, raw.get<Home>(h).camp, from, place(w, input.id));
+        if (path.empty()) return {};
+        for (const auto point : path) {
+            travel +=
+                (w.torus().distance(from, point) * 10 + living.rules().loaded_speed - 1) / living.rules().loaded_speed;
+            from = point;
+        }
+    }
+    // Retained memories stop a question after three actual trials in seven
+    // days. Forgotten evidence and new material states can reopen a question.
+    const auto repeats = std::count_if(mind.memories.begin(), mind.memories.end(), [&](const auto& memory) {
+        if (memory.action != trial.reason.action || c.now() - memory.at > 7 * time::kDay ||
+            memory.inputs.size() != trial.inputs.size())
+            return false;
+        const auto same = [](const auto& a, const auto& b) {
+            return a.kind == b.kind && a.material == b.material && a.state == b.state;
+        };
+        const auto& a = *materials[first]->familiar;
+        const auto& b = *materials[second]->familiar;
+        if (memory.inputs.size() == 1) return same(memory.inputs[0], a);
+        return (same(memory.inputs[0], a) && same(memory.inputs[1], b)) ||
+               (same(memory.inputs[0], b) && same(memory.inputs[1], a));
+    });
+    trial.duration = Crafting::time_cost(w, h, 300);
+    if (repeats >= 3 || trial.duration + travel > 600) return {};
+    mind.hourly_draw = hour;   // Saved even when another option wins; no reroll this hour.
+    trial.reason.benefit = 1;  // A conjectured small improvement, never a promised physical result.
+    trial.reason.seconds = trial.duration + travel;
+    trial.reason.parts = {(80 - satisfaction) * trial.reason.benefit * 10, 100, -trial.reason.seconds / 60};
+    trial.reason.score = trial.reason.parts[0] + trial.reason.parts[1] + trial.reason.parts[2];
+    trial.unit = 20000;
+    trial.goal = 20000;
+    return trial;
+}
 std::int64_t direct_benefit(const world::World& w, const world::Knowledge& mind, const data::Blueprint& recipe,
                             const Item& input, const world::Familiar& familiar, std::int64_t mass, const Inputs& seen) {
     if (recipe.need == 3) return 0;  // Tools/intermediates are valued by use, not kilograms of practice output.
@@ -776,7 +878,10 @@ bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h
         decision.emplace(c, h);
         if (meal(living, c, h, *decision, proposals)) return true;
     }
-    if (other_urgent || raw.get<Work>(h).state != 0) return false;
+    bool usable_urgent = false;
+    for (std::size_t n = 0; n < needs.size(); ++n)
+        usable_urgent = usable_urgent || (needs[n] < 20 && life.unavailable[n] == 0);
+    if (usable_urgent || raw.get<Work>(h).state != 0) return false;
     if (!decision) decision.emplace(c, h);
     const auto& supply = decision->supply;
     const auto& seen = decision->inputs;
@@ -794,6 +899,7 @@ bool Crafting::choose(Living& living, world::Context& c, world::Beings::Handle h
             if (candidate->reason.score > worst->reason.score) *worst = std::move(*candidate);
         }
     }
+    if (auto question = prerequisite(living, c, h, seen, options, proposals)) options.push_back(std::move(*question));
     auto& thought = raw.get<world::Dream>(h);
     if (!urgent && thought.kind == 1 && thought.at >= 0 && thought.until > c.now()) {
         const auto hint = std::find_if(know->hunches.begin(), know->hunches.end(), [&](const auto& hunch) {

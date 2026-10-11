@@ -1,0 +1,40 @@
+{
+  "calibration_only": true,
+  "build_base": "66e57007 plus pending T4.1d.2 source",
+  "seeds": [
+    9002
+  ],
+  "law": "Own unavailable unmet need; own observed unknown material states; at most one proposed question/hour sharing saved hourly_draw;300s base work/600s actual travel-inclusive limit;3 retained matching memories/7days;conjecture benefit1/information100/confidence0;unchanged feedback discounts all conjectured value. No catalogue/chance/founder facts change.",
+  "wall_seconds": 22.68,
+  "peak_rss_kib": 68128,
+  "years_per_minute": 0.8652998236331569,
+  "raw_log": "fire seed 9002 day 0.0/180.0 elapsed 0.0s items 539\nfire seed 9002 day 5.0/180.0 elapsed 4.9s items 793\nfire seed 9002 day 10.0/180.0 elapsed 10.5s items 793\nfire seed 9002 day 15.0/180.0 elapsed 16.0s items 793\nelapsed=22.68 peak_kib=68128\n",
+  "result": {
+    "seed": 9002,
+    "control": false,
+    "complete": true,
+    "ordinary_setup": true,
+    "completed_at": 1692170,
+    "ember_at": 1687733,
+    "flame_at": 1687989,
+    "tend_at": 1687929,
+    "cooked_at": 1692170,
+    "ended": 1695600,
+    "friction_choices": 46,
+    "wood_pairs": 6,
+    "friction_results": 1,
+    "tended": 23,
+    "cooked": 5,
+    "reopen_failures": 0,
+    "choice_count": 14825,
+    "choice_wire_bytes": 5617401,
+    "snapshot_bytes": 813126,
+    "peak_trace_records": 1055,
+    "origin": 6917529027641083214,
+    "tended_fire": 6917529027641081959,
+    "cooked_item": 6917529027641082829,
+    "digest": "99a4f2507ff51f6f",
+    "ms": 22535
+  },
+  "judgement": "No acceptance-frequency claim and no retune follows this single calibration camp. Fresh S/F/P1 remain unexposed."
+}

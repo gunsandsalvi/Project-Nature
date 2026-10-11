@@ -131,8 +131,9 @@ void Motivation::value(const world::Motivation& state, world::CraftReason& reaso
     const auto factor = 1000000 / (1 + std::min<int>(15, failures));
     reason.learning_progress_ppm = static_cast<std::uint32_t>(factor);
     if (!enabled) return;
-    const auto learning = std::max<std::int64_t>(0, reason.parts[1]) +
-                          (reason.need == 3 ? std::max<std::int64_t>(0, reason.parts[0]) : 0);
+    const auto learning =
+        std::max<std::int64_t>(0, reason.parts[1]) +
+        ((reason.need == 3 || (reason.kind == 1 && !reason.intended)) ? std::max<std::int64_t>(0, reason.parts[0]) : 0);
     const auto valued = learning * (kUnit + state.pressure[n]) / kUnit * factor / 1000000;
     reason.parts[1] += valued - learning;
     reason.score = reason.parts[0] + reason.parts[1] + reason.parts[2];
